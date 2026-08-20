@@ -1,0 +1,187 @@
+# 商务办公词库
+# 适合职场人士、商务沟通、办公场景
+
+# ===== 常用问候 =====
+您好	nin hao	#固
+早上好	zao shang hao	#固
+下午好	xia wu hao
+晚上好	wan shang hao
+辛苦了	xin ku le
+久仰大名	jiu yang da ming
+久违了	jiu wei le
+
+# ===== 会议相关 =====
+会议	hui yi	#固
+视频会议	shi pin hui yi	#固
+电话会议	dian hua hui yi
+周会	zhou hui
+月会	yue hui
+季度会	ji du hui
+年会	nian hui
+晨会	chen hui
+复盘会	fu pan hui
+头脑风暴	tou nao feng bao
+会议纪要	hui yi ji yao
+会议室	hui yi shi
+
+# ===== 项目管理 =====
+项目	xiang mu	#固
+需求	xu qiu	#固
+进度	jin du	#固
+里程碑	li cheng bei
+交付	jiao fu
+验收	yan shou
+上线	shang xian
+迭代	die dai
+敏捷	min jie
+瀑布模型	pu bu mo xing
+甘特图	gan te tu
+燃尽图	ran jin tu
+
+# ===== 沟通用语 =====
+汇报	hui bao	#固
+对接	dui jie	#固
+沟通	gou tong
+协调	xie tiao
+反馈	fan kui
+确认	que ren
+跟进	gen jin
+同步	tong bu
+知悉	zhi xi
+收到	shou dao
+明白	ming bai
+了解	liao jie
+
+# ===== 邮件用语 =====
+附件	fu jian	#固
+抄送	chao song
+密送	mi song
+转发	zhuan fa
+回复	hui fu
+主题	zhu ti
+正文	zheng wen
+签名	qian ming
+收件人	shou jian ren
+发件人	fa jian ren
+
+# ===== 时间管理 =====
+截止日期	jie zhi ri qi	#固
+DDL	DDL	#固
+工作日	gong zuo ri
+加班	jia ban
+请假	qing jia
+调休	tiao xiu
+出差	chu chai
+年假	nian jia
+病假	bing jia
+事假	shi jia
+
+# ===== 文档类型 =====
+报告	bao gao	#固
+方案	fang an	#固
+总结	zong jie
+计划	ji hua
+提案	ti an
+白皮书	bai pi shu
+技术文档	ji shu wen dang
+产品手册	chan pin shou ce
+用户手册	yong hu shou ce
+流程图	liu cheng tu
+原型图	yuan xing tu
+
+# ===== 团队协作 =====
+团队	tuan dui	#固
+协作	xie zuo	#固
+分工	fen gong
+配合	pei he
+支持	zhi chi
+互助	hu zhu
+合作	he zuo
+对齐	dui qi
+拉齐	la qi
+同频	tong pin
+
+# ===== 绩效考核 =====
+绩效	ji xiao	#固
+KPI	KPI	#固
+OKR	OKR	#固
+目标	mu biao
+考核	kao he
+评估	ping gu
+反馈	fan kui
+改进	gai jin
+晋升	jin sheng
+调薪	tiao xin
+
+# ===== 职位头衔 =====
+CEO	CEO	#固
+CTO	CTO	#固
+CFO	CFO
+COO	COO
+总监	zong jian
+经理	jing li
+主管	zhu guan
+专员	zhuan yuan
+助理	zhu li
+实习生	shi xi sheng
+
+# ===== 部门名称 =====
+研发部	yan fa bu	#固
+产品部	chan pin bu	#固
+运营部	yun ying bu
+市场部	shi chang bu
+销售部	xiao shou bu
+人力资源部	ren li zi yuan bu
+财务部	cai wu bu
+行政部	xing zheng bu
+法务部	fa wu bu
+客服部	ke fu bu
+
+# ===== 商务洽谈 =====
+合同	he tong	#固
+协议	xie yi	#固
+条款	tiao kuan
+签约	qian yue
+洽谈	qia tan
+谈判	tan pan
+报价	bao jia
+议价	yi jia
+成交	cheng jiao
+回款	hui kuan
+
+# ===== 市场营销 =====
+品牌	pin pai	#固
+推广	tui guang	#固
+营销	ying xiao
+广告	guang gao
+活动	huo dong
+传播	chuan bo
+渠道	qu dao
+用户	yong hu
+客户	ke hu
+转化率	zhuan hua lv
+留存率	liu cun lv
+
+# ===== 财务术语 =====
+预算	yu suan	#固
+成本	cheng ben	#固
+利润	li run
+收入	shou ru
+支出	zhi chu
+报销	bao xiao
+发票	fa piao
+结算	jie suan
+审批	shen pi
+流水	liu shui
+
+# ===== 常用缩写 =====
+PPT	PPT	#固
+Excel	Excel	#固
+Word	Word	#固
+PDF	PDF	#固
+OA	OA
+ERP	ERP
+CRM	CRM
+HR	HR
+PR	PR
+ROI	ROI

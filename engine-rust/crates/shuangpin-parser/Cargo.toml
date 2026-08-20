@@ -1,0 +1,13 @@
+[package]
+name = "shuangpin-parser"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "shuangpin_parser"
+path = "src/lib.rs"
+
+[dependencies]
+pinyin-syllable = { path = "../pinyin-syllable" }
+shuangpin-schema = { path = "../shuangpin-schema" }

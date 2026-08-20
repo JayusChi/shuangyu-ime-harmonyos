@@ -1,0 +1,8 @@
+# case_id	scheme_id	raw_input	initial_order	selected_candidate_id	selection_count	expected_order	learning_enabled	session_learning_allowed	restart_before_assert	clear_before_assert
+non_first_rises	xiaohe	ni	你|泥	lex-v9-ni-泥	1	泥|你	true	true	false	false
+weight_cap	xiaohe	ni	你|泥	lex-v9-ni-泥	64	你|泥	true	true	false	false
+restart_retains	xiaohe	ni	你|泥	lex-v9-ni-泥	1	泥|你	true	true	true	false
+learning_disabled	xiaohe	ni	你|泥	lex-v9-ni-泥	4	你|泥	true	false	false	false
+clear_restores	xiaohe	ni	你|泥	lex-v9-ni-泥	1	你|泥	true	true	false	true
+partial_prefix_only	xiaohe	uurufa	输入法|输入	sentence:4:shu_ru:输入	1	输入法|输入	true	true	false	false
+corrupt_recovery	xiaohe	ni	你|泥	lex-v9-ni-泥	0	你|泥	true	true	true	false

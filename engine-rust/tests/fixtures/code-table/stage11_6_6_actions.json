@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "fixtureOnly": true,
+  "records": [
+    { "id": "static-text", "code": "st", "label": "静态文本", "type": "STATIC_TEXT", "text": "项目原创静态文本" },
+    { "id": "static-symbol", "code": "sy", "label": "静态符号", "type": "STATIC_SYMBOL", "text": "★" },
+    { "id": "quick-01", "code": "q", "label": "快符 01", "type": "QUICK_SYMBOL", "text": "①" },
+    { "id": "quick-02", "code": "q", "label": "快符 02", "type": "QUICK_SYMBOL", "text": "②" },
+    { "id": "quick-03", "code": "q", "label": "快符 03", "type": "QUICK_SYMBOL", "text": "③" },
+    { "id": "quick-04", "code": "q", "label": "快符 04", "type": "QUICK_SYMBOL", "text": "④" },
+    { "id": "quick-05", "code": "q", "label": "快符 05", "type": "QUICK_SYMBOL", "text": "⑤" },
+    { "id": "quick-06", "code": "q", "label": "快符 06", "type": "QUICK_SYMBOL", "text": "⑥" },
+    { "id": "date-iso", "code": "di", "label": "日期 ISO", "type": "DATE_TIME_TEXT", "formatId": "DATE_ISO" },
+    { "id": "date-local", "code": "dl", "label": "本地日期", "type": "DATE_TIME_TEXT", "formatId": "DATE_LOCAL" },
+    { "id": "time-hm", "code": "tm", "label": "时间 24 小时", "type": "DATE_TIME_TEXT", "formatId": "TIME_HM" },
+    { "id": "datetime-local", "code": "dt", "label": "本地日期时间", "type": "DATE_TIME_TEXT", "formatId": "DATETIME_LOCAL" },
+    { "id": "pair-round", "code": "pa", "label": "圆括号", "type": "INSERT_PAIR", "text": "()", "cursorOffsetUtf16": 1 },
+    { "id": "pair-square", "code": "pb", "label": "方括号", "type": "INSERT_PAIR", "text": "[]", "cursorOffsetUtf16": 1 },
+    { "id": "pair-curly", "code": "pc", "label": "花括号", "type": "INSERT_PAIR", "text": "{}", "cursorOffsetUtf16": 1 },
+    { "id": "pair-quote", "code": "pq", "label": "中文引号", "type": "INSERT_PAIR", "text": "“”", "cursorOffsetUtf16": 1 },
+    { "id": "pair-title", "code": "pt", "label": "书名号", "type": "INSERT_PAIR", "text": "《》", "cursorOffsetUtf16": 1 },
+    { "id": "pair-emoji", "code": "pe", "label": "Emoji 边界", "type": "INSERT_PAIR", "text": "🧑‍💻🧑‍💻", "cursorOffsetUtf16": 5 }
+  ]
+}

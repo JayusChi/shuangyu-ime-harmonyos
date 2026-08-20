@@ -1,0 +1,74 @@
+{
+  "baselineId": "quanpin-quality-v1-20260813",
+  "baselineIdentitySha256": "f68c3006ee1c714eb9f1c543439785fd1164e61b6ef21a4d8da851d2b1e2ba22",
+  "categoryDistribution": {
+    "abbrev_mixed_incomplete": 70,
+    "common_character_word": 160,
+    "common_phrase_2_4": 220,
+    "fuzzy": 40,
+    "long_ambiguous": 110,
+    "modern_chat": 220,
+    "polyphone_homophone": 80,
+    "proper_name_domain": 110,
+    "typo": 60
+  },
+  "files": [
+    {
+      "bytes": 764,
+      "categoryDistribution": {},
+      "path": "DATASET_PROVENANCE.md",
+      "sampleCount": 0,
+      "sha256": "3816bc822b10ef998bcbc936ebdb4476634d050e4b8560b2cd990443a8bf23b0"
+    },
+    {
+      "bytes": 170919,
+      "categoryDistribution": {
+        "abbrev_mixed_incomplete": 50,
+        "common_character_word": 115,
+        "common_phrase_2_4": 160,
+        "fuzzy": 28,
+        "long_ambiguous": 80,
+        "modern_chat": 160,
+        "polyphone_homophone": 55,
+        "proper_name_domain": 80,
+        "typo": 42
+      },
+      "path": "blind.jsonl",
+      "sampleCount": 770,
+      "sha256": "e95641396a0e898f4e7d3478608e88286d18dfd191e47b1639b789c7294bd2db"
+    },
+    {
+      "bytes": 65468,
+      "categoryDistribution": {
+        "abbrev_mixed_incomplete": 20,
+        "common_character_word": 45,
+        "common_phrase_2_4": 60,
+        "fuzzy": 12,
+        "long_ambiguous": 30,
+        "modern_chat": 60,
+        "polyphone_homophone": 25,
+        "proper_name_domain": 30,
+        "typo": 18
+      },
+      "path": "dev.jsonl",
+      "sampleCount": 300,
+      "sha256": "0d7826d450756f9da5b78123c98686fa0665572154b2cfcbd9840b3db030eddf"
+    },
+    {
+      "bytes": 585,
+      "categoryDistribution": {},
+      "path": "sources.json",
+      "sampleCount": 0,
+      "sha256": "755477bdd51e1bb25941e29d036cea60cbda697886bdd5d5475225f9d7b958d8"
+    }
+  ],
+  "frozenAt": "2026-08-13T17:35:20+08:00",
+  "gitIdentityUsed": false,
+  "mutationPolicy": "Any byte change is a hard error. A new baseline requires an explicit freeze command with a new baseline id and manifest path.",
+  "sampleCount": 1070,
+  "schemaVersion": "quanpin-evaluation-freeze/1",
+  "splitDistribution": {
+    "blind": 770,
+    "dev": 300
+  }
+}

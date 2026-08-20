@@ -1,0 +1,74 @@
+text	pinyin	frequencyTier	category	sourceId	updatedAt	expiresAt	domain	layer	processingRule
+具身智能	ju shen zhi neng	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+世界模型	shi jie mo xing	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+多模态	duo mo tai	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+检索增强生成	jian suo zeng qiang sheng cheng	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+生成式人工智能	sheng cheng shi ren gong zhi neng	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+端侧推理	duan ce tui li	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+强化学习	qiang hua xue xi	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+联邦学习	lian bang xue xi	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+隐私计算	yin si ji suan	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+可信执行环境	ke xin zhi xing huan jing	low	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+数字孪生	shu zi luan sheng	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+量子计算	liang zi ji suan	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+端云协同	duan yun xie tong	normal	domain_term	project-v2-domain	2026-08-14		technology	domain	manual-domain-taxonomy-v1
+持续集成	chi xu ji cheng	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+持续交付	chi xu jiao fu	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+容器编排	rong qi bian pai	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+服务网格	fu wu wang ge	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+可观测性	ke guan ce xing	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+分布式追踪	fen bu shi zhui zong	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+灰度发布	hui du fa bu	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+蓝绿部署	lan lv bu shu	low	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+特性开关	te xing kai guan	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+依赖注入	yi lai zhu ru	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+内存泄漏	nei cun xie lou	normal	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+竞态条件	jing tai tiao jian	low	domain_term	project-v2-domain	2026-08-14		software	domain	manual-domain-taxonomy-v1
+项目式学习	xiang mu shi xue xi	normal	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+核心素养	he xin su yang	normal	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+学业水平考试	xue ye shui ping kao shi	normal	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+职业教育	zhi ye jiao yu	normal	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+产教融合	chan jiao rong he	normal	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+微专业	wei zhuan ye	low	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+学分银行	xue fen yin hang	low	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+教学评一体化	jiao xue ping yi ti hua	low	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+人工智能通识课	ren gong zhi neng tong shi ke	low	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+科学教育	ke xue jiao yu	normal	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+数字教材	shu zi jiao cai	normal	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+跨学科主题	kua xue ke zhu ti	low	domain_term	project-v2-domain	2026-08-14		education	domain	manual-domain-taxonomy-v1
+分级诊疗	fen ji zhen liao	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+多学科会诊	duo xue ke hui zhen	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+日间手术	ri jian shou shu	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+影像组学	ying xiang zu xue	low	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+精准用药	jing zhun yong yao	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+药物警戒	yao wu jing jie	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+临床路径	lin chuang lu jing	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+医疗器械	yi liao qi xie	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+远程医疗	yuan cheng yi liao	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+医保支付	yi bao zhi fu	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+慢病管理	man bing guan li	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+医学检验	yi xue jian yan	normal	domain_term	project-v2-domain	2026-08-14		medical	domain	manual-domain-taxonomy-v1
+存款保险	cun kuan bao xian	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+净息差	jing xi cha	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+逆周期调节	ni zhou qi tiao jie	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+量化交易	liang hua jiao yi	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+资产证券化	zi chan zheng quan hua	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+普惠金融	pu hui jin rong	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+绿色金融	lv se jin rong	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+数字人民币	shu zi ren min bi	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+风险加权资产	feng xian jia quan zi chan	low	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+合格投资者	he ge tou zi zhe	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+供应链金融	gong ying lian jin rong	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+跨境支付	kua jing zhi fu	normal	domain_term	project-v2-domain	2026-08-14		finance	domain	manual-domain-taxonomy-v1
+个人信息保护	ge ren xin xi bao hu	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+数据出境	shu ju chu jing	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+行政复议	xing zheng fu yi	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+诉前调解	su qian tiao jie	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+执行异议	zhi xing yi yi	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+举证责任	ju zheng ze ren	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+格式条款	ge shi tiao kuan	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+电子签名	dian zi qian ming	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+商业秘密	shang ye mi mi	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+知识产权	zhi shi chan quan	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+合规审查	he gui shen cha	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1
+法律援助	fa lv yuan zhu	normal	domain_term	project-v2-domain	2026-08-14		legal	domain	manual-domain-taxonomy-v1

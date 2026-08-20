@@ -1,0 +1,701 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src\lib.rs (target\debug\deps\candidate_query-1bf8dc2e3c37c6b9.exe)
+
+running 12 tests
+test query_engine::tests::no_dynamic_sentence_assembly_is_performed ... ok
+test query_engine::tests::invalid_reading_and_zero_page_size_are_rejected ... ok
+test query_engine::tests::empty_input_does_not_return_whole_lexicon ... ok
+test query_engine::tests::exact_single_syllable_query_returns_single_character ... ok
+test query_engine::tests::exact_multi_syllable_query_returns_existing_word_only ... ok
+test query_engine::tests::duplicate_readings_are_ranked_by_frequency ... ok
+test query_engine::tests::cache_capacity_evicts_old_entries ... ok
+test query_engine::tests::repeated_query_hits_cache_and_preserves_order ... ok
+test query_engine::tests::source_order_mode_empty_input_does_not_enumerate_table ... ok
+test query_engine::tests::prefix_query_is_bounded_and_uses_sorted_index ... ok
+test query_engine::tests::source_order_mode_sorts_before_stable_pagination ... ok
+test query_engine::tests::source_order_mode_uses_exact_or_prefix_fallback_rules ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\candidate_ranking-4be0e28ab98e0a9a.exe)
+
+running 11 tests
+test deduplication::tests::merges_same_text_and_reading_deterministically ... ok
+test ranking_policy::tests::exact_match_ranks_before_prefix_match ... ok
+test ranking_policy::tests::higher_base_frequency_ranks_first ... ok
+test ranking_policy::tests::equal_scores_use_stable_tie_breakers ... ok
+test ranking_policy::tests::repeated_user_selection_can_lift_close_candidate ... ok
+test ranking_policy::tests::same_text_and_reading_is_deduplicated ... ok
+test ranking_policy::tests::zero_user_scores_preserve_base_order ... ok
+test ranking_policy::tests::repeated_runs_are_identical ... ok
+test ranking_policy::tests::same_text_different_reading_is_not_deduplicated ... ok
+test ranking_policy::tests::source_order_policy_sorts_before_stable_deduplication ... ok
+test ranking_policy::tests::user_weight_does_not_cross_match_type_boundary ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\code_table_fixture_generator-7c46c62fda3e7812.exe)
+
+running 13 tests
+test json::tests::rejects_duplicate_keys_and_trailing_data ... ok
+test json::tests::parses_utf8_schema_values ... ok
+test manifest::tests::rejects_duplicate_ids_orders_and_unsafe_paths ... ok
+test sha256::tests::matches_published_vectors ... ok
+test manifest::tests::canonical_json_round_trips ... ok
+test table::tests::negative_rows_have_stable_precise_diagnostics ... ok
+test table::tests::rejects_all_user_marker_forms_and_length_boundaries ... ok
+test table::tests::accepts_lf_crlf_bom_and_mixed_synthetic_text ... ok
+test generator::tests::independent_generation_is_byte_identical ... ok
+test bundle::tests::manifest_file_failures_have_distinct_stable_codes ... ok
+test generator::tests::generates_required_scale_and_coverage ... ok
+test bundle::tests::bundle_round_trip_preserves_category_and_source_order ... ok
+test bundle::tests::independent_bundles_are_byte_identical_and_detect_mutation ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.76s
+
+     Running unittests src\main.rs (target\debug\deps\code_table_fixture_generator-00e82c8c7d837c8d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\golden.rs (target\debug\deps\golden-d7cacef8795f7fce.exe)
+
+running 1 test
+test golden_fixture_is_readable_auditable_and_isolated ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\negative_cases.rs (target\debug\deps\negative_cases-192a8c9d7500500b.exe)
+
+running 1 test
+test every_declared_negative_fixture_has_a_precise_diagnostic ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\code_table_runtime-df8112c65667df6b.exe)
+
+running 4 tests
+test production::tests::production_path_validation_rejects_escape_absolute_and_windows_paths ... ok
+test action::tests::loads_closed_action_model_and_preserves_order ... ok
+test action::tests::rejects_unknown_dangerous_and_invalid_pair_actions ... ok
+test production::damage_tests::formal_damage_matrix_returns_stable_structured_errors has been running for over 60 seconds
+test production::damage_tests::formal_damage_matrix_returns_stable_structured_errors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 60.66s
+
+     Running tests\production_regression.rs (target\debug\deps\production_regression-28cef1da2e6b6bd1.exe)
+
+running 3 tests
+test every_embedded_fixed_rule_applies_before_paging_without_mutating_system_queries ... ok
+test frozen_rule_profile_is_separate_complete_and_deterministic ... ok
+test frozen_formal_bundle_matches_identity_profile_and_reference_snapshot ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.94s
+
+     Running tests\runtime.rs (target\debug\deps\runtime-61de4bb037a0b209.exe)
+
+running 72 tests
+test checksum_corruption_is_rejected ... ok
+test continuation_and_unique_exact_queries_use_enabled_categories ... ok
+test category_entries_follow_source_order_not_code_order ... ok
+test cross_category_duplicate_is_removed_stably ... ok
+test changing_source_rows_changes_result_order ... ok
+test delete_matches_complete_code_survives_reset_and_never_mutates_bundle ... ok
+test continuous_backspace_reaches_clean_idle_state ... ok
+test backspace_requeries_and_resets_page ... ok
+test duplicate_category_configuration_is_rejected ... ok
+test category_update_preserves_raw_input_resets_page_and_requeries ... ok
+test category_contract_normalizes_order_duplicates_and_required_core ... ok
+test empty_category_selection_restores_only_required_categories ... ok
+test candidate_limit_is_applied_after_stable_merge ... ok
+test empty_input_returns_no_candidates ... ok
+test missing_bundle_file_is_diagnostic ... ok
+test exact_hit_returns_only_exact_entries ... ok
+test candidate_ids_are_deterministic ... ok
+test failed_category_update_preserves_old_snapshot_and_candidates ... ok
+test illegal_key_returns_error_without_mutation ... ok
+test immutable_snapshot_replacement_requeries_without_half_updated_state ... ok
+test exact_hit_never_mixes_longer_codes ... ok
+test fixed_prefix_and_position_rules_are_stable_and_protected ... ok
+test first_and_next_page_are_contiguous ... ok
+test later_effective_rule_is_the_only_behavior_applied ... ok
+test independent_loads_produce_identical_results ... ok
+test missing_category_record_is_rejected ... ok
+test final_page_reports_no_next_page ... ok
+test immutable_bundle_supports_parallel_read_queries ... ok
+test missing_exact_uses_longer_prefix_entries ... ok
+test overlong_code_is_bounded ... ok
+test ordinary_user_entries_merge_in_source_order_and_replace_system_duplicates ... ok
+test stage11_6_7_commit_policy_rejects_invalid_or_incoherent_lengths ... ok
+test new_key_resets_page_to_first ... ok
+test prefix_results_follow_category_order ... ok
+test reset_clears_all_query_state ... ok
+test selecting_candidate_clears_composition_without_implicit_extra_commit ... ok
+test stage11_6_7_category_update_never_commits_and_next_key_uses_new_snapshot ... ok
+test page_out_of_bounds_is_explicit ... ok
+test prefix_delete_uses_candidate_complete_code ... ok
+test stable_dedup_keeps_first_category_occurrence ... ok
+test stage11_6_7_category_snapshot_changes_split_without_mid_operation_reads ... ok
+test stage11_6_7_empty_code_at_frozen_length_clears_composition ... ok
+test stage11_6_7_deleted_reverse_suffix_falls_back_to_safe_clear ... ok
+test overlay_is_complete_before_limit_and_pagination ... ok
+test stage11_6_7_empty_code_does_not_split_before_frozen_threshold ... ok
+test stage11_6_7_fifth_key_starts_new_segment_exactly_once ... ok
+test stage11_6_7_forward_empty_code_split_commits_longest_exact_prefix ... ok
+test stage11_6_7_forward_split_uses_final_user_fixed_first_candidate ... ok
+test shared_snapshot_queries_are_parallel_and_deterministic ... ok
+test stage11_6_7_multiple_four_code_candidates_remain_composing ... ok
+test stage11_6_7_invalid_fifth_key_does_not_commit_or_mutate_old_segment ... ok
+test stage11_6_7_forward_split_wins_when_both_directions_are_possible ... ok
+test stage11_6_7_non_bmp_and_long_candidate_auto_commit_without_character_truncation ... ok
+test stage11_6_7_reverse_empty_code_split_preserves_order_with_literal_left_segment ... ok
+test stage11_6_7_reverse_split_accepts_a_visible_prefix_suffix ... ok
+test stage11_6_7_split_remainder_is_queried_once_without_second_auto_commit ... ok
+test truncated_bundle_is_rejected ... ok
+test stage11_6_7_top_screen_without_old_candidate_still_replays_new_key_once ... ok
+test stage11_6_7_split_scan_limit_fails_closed_without_partial_commit ... ok
+test stage11_6_7_unique_four_code_auto_commit_clears_composition ... ok
+test stage11_6_7_user_delete_can_change_forward_split_into_reverse_split ... ok
+test unsupported_version_is_rejected ... ok
+test stage11_6_7_split_tie_breakers_choose_longest_prefix_or_suffix ... ok
+test stage11_6_7_valid_longer_code_blocks_unique_four_code_auto_commit ... ok
+test stage11_6_7_user_delete_removes_longer_code_from_continuation_decision ... ok
+test wrong_magic_is_rejected ... ok
+test user_candidates_remain_in_user_layer_when_system_category_is_disabled ... ok
+test unknown_enabled_category_is_diagnostic ... ok
+test twenty_plus_same_code_preserves_order ... ok
+test deterministic_mixed_guide_sequences_preserve_state_invariants ... ok
+test stage11_6_7_deterministic_mixed_sequences_preserve_commit_and_length_invariants ... ok
+test repeated_create_query_reset_drop_is_stable ... ok
+
+test result: ok. 72 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running unittests src\lib.rs (target\debug\deps\engine_protocol-73eaabbeae3904bd.exe)
+
+running 3 tests
+test composition::tests::serializes_exactly_one_typed_action ... ok
+test tests::serializes_stage0_result ... ok
+test composition::tests::serializes_stage5_empty_candidate_contract ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\ime_engine-9fa0cac4845998ca.exe)
+
+running 35 tests
+test candidate_session::tests::clear_removes_page_state ... ok
+test candidate_session::tests::paginates_first_middle_and_last_pages ... ok
+test formal::tests::invalid_lexicon_path_returns_structured_error ... ok
+test formal::tests::creates_default_xiaohe_engine ... ok
+test formal::tests::lexicon_not_loaded_returns_explicit_error_on_query ... ok
+test formal::tests::invalid_candidate_index_returns_error ... ok
+test formal::tests::candidate_pages_move_forward_and_backward ... ok
+test formal::tests::backspace_updates_candidates_and_returns_first_page ... ok
+test formal::tests::failed_scheme_change_preserves_previous_state ... ok
+test formal::tests::invalid_segment_boundary_preserves_composition ... ok
+test formal::tests::invalid_sequence_is_a_successful_composition_result_without_candidates ... ok
+test formal::tests::loads_lexicon_at_create_time ... ok
+test formal::tests::prefix_query_for_incomplete_code_returns_candidates ... ok
+test formal::tests::explicit_segment_boundary_requeries_and_backspace_restores_candidates ... ok
+test formal::tests::processes_complete_key_and_returns_candidates ... ok
+test formal::tests::processes_continuous_input_for_existing_word ... ok
+test formal::tests::select_candidate_returns_commit_text_and_clears_composition ... ok
+test formal::tests::reset_clears_state_and_candidates ... ok
+test formal::tests::partial_candidate_commit_consumes_boundary_without_leaking_it ... ok
+test formal::tests::stage8_remaining_input_can_be_committed_after_partial_selection ... ok
+test formal::tests::stage8_backspace_recomputes_candidates_after_partial_commit ... ok
+test formal::tests::stage8_selecting_partial_candidate_keeps_remaining_raw_input ... ok
+test tests::stage0_engine_returns_fixed_candidates ... ok
+test formal::tests::stage8_sentence_decoder_returns_full_sentence_and_partial_candidate ... ok
+test formal::tests::stage8_reset_clears_sentence_state ... ok
+test formal::tests::stage9_disabled_session_does_not_learn ... ok
+test formal::tests::stage9_non_first_candidate_rises_after_selection ... ok
+test tests::stage4_parser_is_available_without_changing_fixed_candidates ... ok
+test formal::tests::stage9_corrupt_model_load_keeps_system_candidates_available ... ok
+test formal::tests::stage9_partial_commit_learns_only_committed_prefix ... ok
+test formal::tests::stage8_sentence_candidates_are_deterministic ... ok
+test formal::tests::stage9_user_weight_is_bounded_by_base_frequency_gap ... ok
+test formal::tests::stage9_clear_restores_base_order ... ok
+test formal::tests::stage9_persisted_learning_survives_engine_recreation ... ok
+test formal::tests::stage8_extreme_long_input_is_limited_without_panic ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests\code_table_backend.rs (target\debug\deps\code_table_backend-7fb80079ec4a8505.exe)
+
+running 24 tests
+test category_api_rejects_xiaohe_without_mutating_shuangpin ... ok
+test date_time_and_pair_selection_return_one_typed_action ... ok
+test missing_fixture_bundle_is_a_structured_create_error ... ok
+test fixture_backend_uses_only_the_last_effective_rule ... ok
+test fixture_backend_applies_rules_before_every_page_and_refills_after_delete ... ok
+test guide_state_is_isolated_and_backspace_is_stepwise ... ok
+test fixture_backend_backspace_and_reset_requery_without_stale_candidates ... ok
+test fixture_backend_uses_raw_code_and_exact_priority ... ok
+test empty_user_file_is_an_empty_overlay_and_scheme_switch_stays_isolated ... ok
+test backend_switch_resets_state_and_keeps_xiaohe_behavior_isolated ... ok
+test fixture_backend_stably_deduplicates_cross_category_text ... ok
+test fixture_backend_paginates_after_global_merge ... ok
+test fixture_backend_prefix_fallback_preserves_category_then_source_order ... ok
+test category_api_returns_contract_and_recomputes_without_commit ... ok
+test category_selection_survives_switching_away_and_back ... ok
+test corrupt_primary_recovers_backup_and_double_corruption_keeps_system_available ... ok
+test quick_symbols_preserve_source_order_then_page_and_commit_as_text ... ok
+test stage11_6_7_multiple_candidates_and_valid_continuation_do_not_auto_commit ... ok
+test stage11_6_7_four_code_auto_commit_and_top_screen_use_existing_protocol ... ok
+test action_fixture_requires_frozen_hash_and_fixture_scheme ... ok
+test fixture_backend_applies_add_delete_fixed_and_global_position_rules ... ok
+test stage11_6_7_forward_and_reverse_empty_code_splits_cross_engine_protocol ... ok
+test stage11_6_7_user_delete_prevents_auto_commit_and_fixed_rule_changes_top_screen ... ok
+test user_overlay_survives_engine_recreation_reset_and_learning_clear ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.34s
+
+     Running tests\stage11_5_production_corpus.rs (target\debug\deps\stage11_5_production_corpus-f307823d35a75692.exe)
+
+running 1 test
+test production_corpus_is_machine_executable_and_queryable ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.61s
+
+     Running tests\stage7_cases.rs (target\debug\deps\stage7_cases-ff09f6f1b88ebe3a.exe)
+
+running 1 test
+test stage7_candidate_regression_cases_match_test_lexicon ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\stage8_cases.rs (target\debug\deps\stage8_cases-68ae978d3f5a2a0f.exe)
+
+running 1 test
+test stage8_sentence_regression_cases_match_test_lexicon ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\stage9_cases.rs (target\debug\deps\stage9_cases-d4fae835d0d49e09.exe)
+
+running 1 test
+test stage9_user_learning_regression_cases_match_fixture ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests\user_lexicon_cases.rs (target\debug\deps\user_lexicon_cases-d238e9e35c20bc60.exe)
+
+running 4 tests
+test user_candidate_is_selectable_and_position_is_global_before_pages ... ok
+test hard_rules_apply_after_soft_ranking_before_pagination ... ok
+test fixed_rule_cannot_be_crossed_by_user_learning ... ok
+test missing_or_corrupt_user_lexicon_keeps_system_behavior ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\xiaohe_yinxing_production.rs (target\debug\deps\xiaohe_yinxing_production-8d08c0f53231651e.exe)
+
+running 8 tests
+test xiaohe_ignores_irrelevant_formal_path_and_explicitly_recovers_after_formal_failure ... ok
+test formal_engine_queries_pages_resets_selects_and_preserves_system_behavior ... ok
+test switching_between_formal_and_xiaohe_resets_backend_state ... ok
+test formal_and_fixture_bundle_identities_cannot_be_cross_paired ... ok
+test external_actions_layer_after_embedded_rules_with_fixed_protection ... ok
+test external_delete_is_complete_key_exact_and_never_reopens_system_prefix_path ... ok
+test formal_engine_applies_embedded_rules_and_external_same_key_override ... ok
+test external_recovery_failure_never_removes_embedded_layer ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 53.94s
+
+     Running unittests src\lib.rs (target\debug\deps\ime_ffi-a164f8cb67199e6f.exe)
+
+running 26 tests
+test tests::buffer_free_is_idempotent_after_clearing ... ok
+test tests::fixed_candidate_regression_interface_still_works ... ok
+test tests::get_abi_and_version_success ... ok
+test tests::create_rejects_invalid_config_and_scheme ... ok
+test tests::null_outputs_and_handles_are_safe ... ok
+test tests::optional_user_lexicon_path_is_backward_compatible ... ok
+test tests::panic_is_captured_without_crossing_ffi ... ok
+test tests::creates_and_destroys_engine ... ok
+test tests::stage9_user_model_ffi_validates_handles_and_paths ... ok
+test tests::invalid_page_and_candidate_index_return_errors ... ok
+test tests::process_key_validates_utf8_and_key_shape ... ok
+test tests::segment_boundary_crosses_ffi_and_rejects_invalid_repetition ... ok
+test tests::select_candidate_and_pages_return_json ... ok
+test tests::semantic_invalid_code_is_not_native_failure ... ok
+test tests::process_backspace_reset_and_change_scheme_return_json ... ok
+test tests::stage8_sentence_candidates_and_partial_commit_cross_ffi ... ok
+test tests::stage9_user_model_status_and_policy_cross_ffi ... ok
+test tests::stage1166_single_action_crosses_ffi_and_old_interface_is_rejected ... ok
+test tests::stage1167_top_screen_serializes_commit_and_new_segment_without_abi_change ... ok
+test tests::code_table_user_overlay_crosses_v4_result_json ... ok
+test tests::code_table_fixture_crosses_the_existing_ffi_without_abi_change ... ok
+test tests::stage1167_empty_code_splits_serialize_one_commit_and_one_remaining_segment ... ok
+test tests::stress_create_destroy_and_repeated_operations ... ok
+test tests::stage1165_category_ffi_reads_updates_normalizes_and_rejects_atomically ... ok
+test tests::formal_bundle_crosses_ffi_with_strict_identity_and_explicit_fallback ... ok
+test tests::formal_embedded_and_external_layers_cross_ffi_v4 ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.42s
+
+     Running unittests src\lib.rs (target\debug\deps\lexicon_builder-098696ea517c1ab7.exe)
+
+running 16 tests
+test args::tests::parses_build_arguments ... ok
+test args::tests::parses_verify_arguments ... ok
+test args::tests::parses_flypy_table_input_format ... ok
+test flypy_table::tests::rejects_malformed_rows_and_future_markers ... ok
+test flypy_table::tests::duplicate_keeps_first_source_order ... ok
+test flypy_table::tests::error_contains_path_line_and_reason ... ok
+test code::tests::accepts_lowercase_ascii_and_rejects_future_markers ... ok
+test parser::tests::reports_empty_and_unsupported_values ... ok
+test parser::tests::reports_field_count_and_frequency_errors ... ok
+test flypy_table::tests::imports_utf8_lf_crlf_and_bom_in_physical_order ... ok
+test parser::tests::reports_invalid_pinyin_and_mismatch ... ok
+test parser::tests::merges_duplicate_entries_deterministically ... ok
+test parser::tests::parses_comments_empty_lines_and_crlf ... ok
+test pinyin::tests::normalizes_case_spaces_and_diaeresis_forms ... ok
+test pinyin::tests::rejects_invalid_syllable_with_index ... ok
+test parser::tests::keeps_same_word_different_pinyin_as_separate_entries ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\lexicon_builder-398c72b9d0202efc.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\cli.rs (target\debug\deps\cli-e65be1727cdc3832.exe)
+
+running 7 tests
+test cli_reports_line_error_with_file_and_line ... ok
+test cli_flypy_table_reports_path_line_and_invalid_code ... ok
+test cli_flypy_table_uses_explicit_multi_source_order ... ok
+test cli_builds_and_verifies_lexicon ... ok
+test cli_verify_rejects_corrupted_file ... ok
+test cli_flypy_table_build_preserves_order_and_is_byte_deterministic ... ok
+test cli_build_is_byte_deterministic_for_equivalent_inputs ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running unittests src\lib.rs (target\debug\deps\lexicon_core-b539dd2425209c8e.exe)
+
+running 13 tests
+test binary::tests::rejects_empty_lexicon ... ok
+test binary::tests::format_1_1_persists_source_order_after_key_sorting ... ok
+test binary::tests::rejects_index_out_of_bounds ... ok
+test binary::tests::rejects_bad_magic_and_unsupported_version ... ok
+test validation::tests::validation_is_shared_and_strict ... ok
+test binary::tests::rejects_section_and_string_bounds_errors ... ok
+test runtime_index::tests::empty_prefix_never_returns_whole_lexicon ... ok
+test runtime_index::tests::finds_bounded_prefix_ranges ... ok
+test validation::tests::system_table_policy_does_not_widen_user_words ... ok
+test runtime_index::tests::finds_exact_index_range ... ok
+test checksum::tests::crc32_matches_standard_vector ... ok
+test binary::tests::writes_and_loads_binary_lexicon ... ok
+test binary::tests::rejects_truncated_and_checksum_corrupted_files ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\pinyin_syllable-9993c037bba64903.exe)
+
+running 4 tests
+test normalize::tests::accepts_uppercase_by_normalizing ... ok
+test normalize::tests::rejects_invalid_values ... ok
+test normalize::tests::normalizes_v_and_diaeresis ... ok
+test inventory::tests::inventory_contains_core_stage4_syllables ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\sentence_decoder-2179f0a1614aa164.exe)
+
+running 21 tests
+test decoder::tests::invalid_zero_limit_is_rejected ... ok
+test decoder::tests::incomplete_tail_is_not_marked_complete ... ok
+test decoder::tests::empty_input_returns_no_candidates ... ok
+test decoder::tests::graph_edge_limit_is_respected ... ok
+test decoder::tests::complete_coverage_is_ranked_ahead_of_partial_word ... ok
+test decoder::tests::beam_width_caps_intermediate_paths ... ok
+test decoder::tests::raw_input_limit_returns_error ... ok
+test decoder::tests::multi_syllable_phrase_is_preferred_over_segmentation ... ok
+test decoder::tests::tie_breaker_is_stable_for_equal_score_words ... ok
+test decoder::tests::syllable_limit_returns_error ... ok
+test decoder::tests::same_input_can_return_full_and_partial_candidates ... ok
+test decoder::tests::two_syllables_can_form_one_word ... ok
+test decoder::tests::unknown_fragment_uses_penalized_fallback ... ok
+test decoder::tests::single_syllable_input_returns_single_word ... ok
+test decoder::tests::text_dedup_keeps_one_sentence_candidate ... ok
+test scorer::tests::fallback_edges_are_penalized ... ok
+test decoder::tests::user_score_can_lift_close_sentence_candidate ... ok
+test graph::tests::graph_adds_fallback_only_for_uncovered_starts ... ok
+test scorer::tests::multi_syllable_edge_gets_independent_bonus ... ok
+test decoder::tests::zero_user_scores_preserve_sentence_order ... ok
+test decoder::tests::path_identity_is_stable_across_repeated_runs ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\shuangpin_parser-b21970732ab91ca7.exe)
+
+running 4 tests
+test parser::tests::invalid_boundary_keeps_previous_parser_state ... ok
+test parser::tests::parses_single_xiaohe_code ... ok
+test parser::tests::explicit_boundary_is_structured_and_backspace_removes_it ... ok
+test parser::tests::backspace_recovers_from_invalid_key ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\stage4_cases.rs (target\debug\deps\stage4_cases-70015020e4d67d27.exe)
+
+running 8 tests
+test unknown_schema_returns_structured_error ... ok
+test backspace_covers_empty_incomplete_complete_multi_and_invalid_states ... ok
+test short_ascii_sequences_do_not_panic ... ok
+test reset_allows_clean_reentry ... ok
+test schema_switch_clears_state_and_invalid_switch_preserves_parser ... ok
+test invalid_key_classes_are_rejected_without_panic ... ok
+test repeated_schema_switches_do_not_break_state ... ok
+test parser_fixture_cases_match_expected_results ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (target\debug\deps\shuangpin_schema-5dfe1e5c953a81c8.exe)
+
+running 10 tests
+test loader::tests::rejects_unknown_builtin_schema ... ok
+test loader::tests::rejects_corrupted_json ... ok
+test loader::tests::rejects_missing_required_field ... ok
+test loader::tests::rejects_duplicate_mapping ... ok
+test loader::tests::rejects_invalid_key ... ok
+test loader::tests::rejects_zero_version ... ok
+test loader::tests::rejects_empty_id ... ok
+test loader::tests::rejects_invalid_target_syllable ... ok
+test loader::tests::rejects_conflicting_special_mapping ... ok
+test loader::tests::loads_builtin_xiaohe_schema ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\user_lexicon-74aea389c4cedffe.exe)
+
+running 22 tests
+test parser::tests::accepts_empty_file_and_max_position ... ok
+test merge::tests::code_table_delete_matches_complete_code_and_never_falls_back_again ... ok
+test merge::tests::exact_delete_allows_longer_prefix_fallback ... ok
+test merge::tests::code_table_overlay_preserves_fixed_prefix_and_global_positions ... ok
+test merge::tests::delete_matches_only_code_and_text_and_is_reversible ... ok
+test merge::tests::positions_are_one_based_grouped_and_cannot_cross_fixed_prefix ... ok
+test merge::tests::prefix_fallback_is_stable_and_empty_input_does_not_enumerate ... ok
+test merge::tests::fixed_normal_and_system_order_is_hard_and_deduplicated ... ok
+test parser::tests::diagnostics_include_path_line_field_and_reason_without_row_echo ... ok
+test parser::tests::parses_all_actions_bom_lf_crlf_and_no_final_newline ... ok
+test snapshot::tests::later_rule_wins_and_keeps_later_source_order ... ok
+test snapshot::tests::layered_different_keys_keep_base_then_overlay_order ... ok
+test parser::tests::rejects_invalid_utf8_fields_codes_and_markers ... ok
+test snapshot::tests::layered_empty_and_single_layer_snapshots_preserve_values ... ok
+test snapshot::tests::normalized_snapshot_is_stable_and_has_no_bom ... ok
+test snapshot::tests::overlay_replaces_same_key_for_every_supported_action ... ok
+test snapshot::tests::overlay_internal_later_rule_wins_before_layering ... ok
+test snapshot::tests::layering_is_repeatable_does_not_mutate_inputs_and_rebuilds_stats ... ok
+test store::tests::failed_reload_keeps_last_valid_snapshot ... ok
+test store::tests::concurrent_saves_leave_a_complete_parseable_file ... ok
+test store::tests::missing_corrupt_and_backup_recovery_are_explicit ... ok
+test store::tests::first_save_overwrite_and_identical_save_are_deterministic ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running unittests src\main.rs (target\debug\deps\user_lexicon_tool-9a1d22ba1d848079.exe)
+
+running 1 test
+test tests::parses_validate_and_import_commands ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\user_model-aeb384148a04d752.exe)
+
+running 20 tests
+test key::tests::invalid_scheme_is_rejected ... ok
+test model::tests::disabled_learning_does_not_update ... ok
+test model::tests::max_record_compaction_keeps_high_value_records ... ok
+test model::tests::empty_model_loads_when_file_is_missing ... ok
+test model::tests::count_saturates_without_overflow ... ok
+test model::tests::session_disabled_learning_does_not_update ... ok
+test key::tests::stable_id_is_hashed_without_storing_text ... ok
+test model::tests::repeated_selection_updates_count_and_recency ... ok
+test persistence::tests::duplicate_records_are_merged_on_load ... ok
+test scoring::tests::recency_decays_by_logical_sequence ... ok
+test scoring::tests::repeated_selection_is_bounded ... ok
+test model::tests::score_is_bounded_and_disabled_policy_returns_zero ... ok
+test model::tests::bad_magic_recovers_to_empty ... ok
+test model::tests::truncated_file_recovers_to_empty ... ok
+test model::tests::unsupported_version_is_reported_and_recovered ... ok
+test model::tests::delayed_flush_waits_until_threshold ... ok
+test model::tests::clear_removes_memory_and_files ... ok
+test model::tests::save_and_reload_preserves_statistics ... ok
+test model::tests::persisted_file_does_not_contain_raw_input_sentinel ... ok
+test model::tests::backup_is_used_when_primary_is_corrupt ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src\lib.rs (target\debug\deps\yinxing_converter-715f595b89de3b00.exe)
+
+running 19 tests
+test bundle::tests::archive_magic_and_versions_are_frozen ... ok
+test input::tests::accepts_only_normal_relative_forward_slash_paths ... ok
+test classification::tests::counts_cross_category_and_user_collisions_without_merging ... ok
+test contract::tests::expected_category_order_is_unique_and_exact ... ok
+test deterministic::tests::generated_paths_cannot_escape ... ok
+test contract::tests::identity_version_and_blocking_failures_are_distinct ... ok
+test parser::tests::rejects_bad_rows_without_silently_swallowing_them ... ok
+test json::tests::round_trip_is_stable_utf8_lf ... ok
+test parser::tests::bom_is_removed_only_at_file_start_and_invalid_utf8_is_rejected ... ok
+test parser::tests::configuration_comments_and_commands_are_distinct ... ok
+test parser::tests::parses_all_user_rule_forms_and_rejects_mixed_or_invalid_positions ... ok
+test parser::tests::reads_lf_crlf_and_unterminated_lines_with_physical_numbers ... ok
+test parser::tests::unsafe_file_controls_block_instead_of_becoming_rejections ... ok
+test sha256::tests::published_vectors ... ok
+test unicode_validation::tests::preserves_extensions_emoji_variants_joiners_and_combining_text ... ok
+test unicode_validation::tests::rejects_delimiters_controls_and_scalar_length_overflow ... ok
+test bundle::tests::production_archive_round_trip_queries_and_parses_user_rules ... ok
+test bundle::tests::production_archive_rejects_a_manifest_declared_missing_file ... ok
+test bundle::tests::production_archive_is_deterministic_and_tamper_safe ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src\main.rs (target\debug\deps\yinxing_converter-f52fbfc99bec5cd8.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\formal_production.rs (target\debug\deps\formal_production-b66d2c55cbf1722b.exe)
+
+running 2 tests
+test formal_bundle_queries_are_stable_across_code_lengths_and_categories ... ok
+test formal_bundle_supports_paging_user_overlay_and_tamper_detection ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.85s
+
+     Running unittests src\lib.rs (target\debug\deps\yinxing_source_auditor-5d2302a185b7bad2.exe)
+
+running 19 tests
+test json::tests::stable_utf8_lf_serialization ... ok
+test encoding::tests::counts_physical_lines ... ok
+test references::tests::extracts_only_file_references ... ok
+test encoding::tests::detects_utf8_bom_and_newlines ... ok
+test audit::tests::missing_repo_produces_reportable_errors ... ok
+test sha256::tests::published_vectors ... ok
+test references::tests::redacts_absolute_paths ... ok
+test compare::tests::compares_order_subset_and_conflicts ... ok
+test security::tests::detects_required_patterns_without_echoing_values ... ok
+test roles::tests::all_categories_have_at_most_one_authority_and_stable_order ... ok
+test emit::tests::approval_records_explicit_user_authorization_without_inventing_a_date ... ok
+test encoding::tests::detects_no_final_binary_and_possible_gbk ... ok
+test security::tests::safe_text_has_no_findings ... ok
+test audit::tests::normalizes_separators_dots_and_fullwidth_ascii ... ok
+test references::tests::unresolved_optional_and_platform_references_are_deterministically_disposed ... ok
+test syntax::tests::classifies_required_syntaxes ... ok
+test security::tests::url_is_not_misclassified_as_windows_path ... ok
+test syntax::tests::rejects_bad_table_shapes ... ok
+test tests::repeated_outputs_are_byte_identical_and_inputs_unchanged ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running unittests src\main.rs (target\debug\deps\yinxing_source_auditor-ee6ad3851b32f0b8.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests candidate_query
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests candidate_ranking
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests code_table_fixture_generator
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests code_table_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests engine_protocol
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ime_engine
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests lexicon_builder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests lexicon_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests pinyin_syllable
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests sentence_decoder
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests shuangpin_parser
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests shuangpin_schema
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests user_lexicon
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests user_model
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests yinxing_converter
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests yinxing_source_auditor
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,17 @@
+{
+    "schema_version":  "xiaohe-yinxing-precise-match-stage0-compatibility/1",
+    "four_code_query_semantics":  "ProgressiveXiaoheYinxing delegates four-code queries to ExactOnly; the referenced committed exact-path baseline remains applicable.",
+    "referenced_baseline":  {
+                                "path":  "dictionaries/audit/xiaohe-yinxing/baseline/candidate_behavior_baseline.json",
+                                "bytes":  35093,
+                                "sha256":  "5a5b451c1cc79f0aba53f680f040f1916514aed8a046b918bd50731980e692b9"
+                            },
+    "covered_behavior":  [
+                             "four-code unique auto-commit",
+                             "four-code multiple candidates",
+                             "empty/no-result handling",
+                             "embedded and external #delete/#fixed/#N user rules",
+                             "category filtering before uniqueness and paging"
+                         ],
+    "regression_test":  "cargo test --manifest-path engine-rust/Cargo.toml -p code-table-runtime --test stage0_baseline"
+}

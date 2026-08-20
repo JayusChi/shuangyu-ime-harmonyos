@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "quanpin-context-reranking-v2-build-manifest/1",
+  "builtAt": "2026-08-17",
+  "builder": {
+    "package": "quanpin-context-model-builder",
+    "version": "0.0.1",
+    "sourcePath": "engine-rust/tools/quanpin-context-model-builder/src/main.rs",
+    "sourceSha256": "fb26736fb061f756bb77fd8d3d2275bd7ea63a680e747457e6e887ae5f493f8b"
+  },
+  "model": {
+    "path": "entry/src/main/resources/rawfile/quanpin-context-v2.qng",
+    "formatVersion": 1,
+    "modelVersion": 2,
+    "boundProductionLexiconVersion": 200,
+    "bytes": 37659,
+    "sha256": "91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c",
+    "bigramCount": 2048,
+    "trigramCount": 27
+  },
+  "sourceManifest": {
+    "path": "artifacts/quanpin-reranking-v2/model-source-manifest.json",
+    "sha256": "7fc43d50e05d3b8b7557595f9d78c26d8552be6e0d730e141f0df8f326e26973"
+  },
+  "normalizedAudit": {
+    "path": "artifacts/quanpin-reranking-v2/model.normalized.tsv",
+    "bytes": 54606,
+    "sha256": "49cf8fa5566ab536970535e8147ea430ca93c6be7adb761589a351af94c6aa0b"
+  },
+  "reproducibility": {
+    "repetitions": 2,
+    "byteIdentical": true,
+    "sha256EachRun": [
+      "91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c",
+      "91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c"
+    ]
+  },
+  "hardLimits": {
+    "modelFileBytes": 262144,
+    "modelMemoryBytes": 524288,
+    "modelLoadMicros": 250000,
+    "modelBigramEntries": 4096,
+    "modelTrigramEntries": 2048,
+    "wordBytes": 48,
+    "ngramCount": 1000000
+  }
+}

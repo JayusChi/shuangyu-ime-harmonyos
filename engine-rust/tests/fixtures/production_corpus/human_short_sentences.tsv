@@ -1,0 +1,11 @@
+caseId	category	rawShuangpinInput	expectedSyllables	expectedTopCandidate	allowedCandidates	forbiddenCandidates	maxExpectedRank	notes
+sentence-001	short_sentence	nihc	ni hao	你好	你好		9	common greeting
+sentence-002	short_sentence	xpxp	xie xie	谢谢	谢谢		9	common thanks
+sentence-003	short_sentence	buyskeqi	bu yong ke qi	不用客气	不用客气		9	common polite reply
+sentence-004	short_sentence	jbtmtmqibuco	jin tian tian qi bu cuo	今天天气不错	今天天气不错		9	decoder composition from licensed entries
+sentence-005	short_sentence	womfmktmjm	wo men ming tian jian	我们明天见	我们明天见		9	decoder composition from licensed entries
+sentence-006	short_sentence	wovgzduiysuurufa	wo zheng zai shi yong shu ru fa	我正在使用输入法	我正在使用输入法		9	decoder composition from licensed entries
+sentence-007	short_sentence	vegegsngyijkwjig	zhe ge gong neng yi jing wan cheng	这个功能已经完成	这个功能已经完成		9	decoder composition from licensed entries
+sentence-008	short_sentence	qkbhwokjyixx	qing bang wo kan yi xia	请帮我看一下	请帮我看一下		9	decoder composition from licensed entries
+sentence-009	short_sentence	uchzhvfuni	shao hou hui fu ni	稍后回复你	稍后回复你		9	decoder composition from licensed entries
+sentence-010	short_sentence	vzmoyiqiiifj	zhou mo yi qi chi fan	周末一起吃饭	周末一起吃饭		9	decoder composition from licensed entries

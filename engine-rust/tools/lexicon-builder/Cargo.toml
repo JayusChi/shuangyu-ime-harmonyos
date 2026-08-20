@@ -1,0 +1,12 @@
+[package]
+name = "lexicon-builder"
+edition = "2021"
+version = "0.0.1"
+license = "UNLICENSED"
+
+[dependencies]
+lexicon-core = { path = "../../crates/lexicon-core" }
+pinyin-syllable = { path = "../../crates/pinyin-syllable" }
+
+[dev-dependencies]
+candidate-query = { path = "../../crates/candidate-query" }

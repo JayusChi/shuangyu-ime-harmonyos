@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "pinyin9-evaluation-sources/1",
+  "sources": [
+    {
+      "commercialImeData": false,
+      "engineGeneratedExpectedText": false,
+      "id": "project-authored:quanpin-quality-baseline-v1",
+      "license": "PROJECT-INTERNAL-AUTHORED-DATA",
+      "method": "Exact expectedTexts and source sample IDs retained; rawInput converted deterministically with the standard T9 mapping.",
+      "name": "Frozen quanpin quality baseline v1",
+      "version": "quanpin-quality-v1-20260813"
+    },
+    {
+      "commercialImeData": false,
+      "engineGeneratedExpectedText": false,
+      "id": "project-authored:pinyin9-quality-v1",
+      "license": "PROJECT-INTERNAL-AUTHORED-DATA",
+      "method": "Ordinary Mandarin knowledge authored directly in source before evaluation; not copied from an IME.",
+      "name": "Pinyin9 independently authored common-character seeds",
+      "version": "1.0.0"
+    },
+    {
+      "commercialImeData": false,
+      "engineGeneratedExpectedText": false,
+      "id": "project-derived:quanpin-quality-v1",
+      "license": "PROJECT-INTERNAL-AUTHORED-DATA",
+      "method": "Deterministic morpheme composition, abbreviation, incomplete-tail, boundary, single-edit keypad error, and fuzzy-initial transforms of accurately identified frozen project samples.",
+      "name": "Deterministic T9-specific synthetic transformations",
+      "version": "1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "aggregateKeyLatencyMicros": {
+    "max": 162631,
+    "mean": 10859.577650236326,
+    "p50": 2195,
+    "p95": 63565,
+    "p99": 101811,
+    "samples": 53316
+  },
+  "datasetManifestSha256": "df9e2944b4bacf5c2323f3360ae477f1cb305a4b0e7ace424561c9bb2a9efedc",
+  "deterministicCandidateOutputs": true,
+  "engineVersion": "0.0.1-direct-actions",
+  "environment": {
+    "arch": "x86_64",
+    "cargoProfile": "release",
+    "os": "windows",
+    "processorIdentifier": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "fuzzyOptionExecution": "UNSUPPORTED_BY_CURRENT_IME_ENGINE: enabledFuzzyOptions are validated and reported, but rawInput is sent unchanged because no formal ImeEngine fuzzy-option API exists.",
+  "groups": {
+    "byCategory": {
+      "abbrev_mixed_incomplete": {
+        "averageFirstRankWhenRecalled": null,
+        "count": 70,
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 1,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "common_character_word": {
+        "averageFirstRankWhenRecalled": 1.12987012987013,
+        "count": 160,
+        "mrr": 0.9326636904761905,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.0375,
+        "top1Rate": 0.91875,
+        "top3Rate": 0.94375,
+        "top5Rate": 0.95
+      },
+      "common_phrase_2_4": {
+        "averageFirstRankWhenRecalled": 1.8663101604278074,
+        "count": 220,
+        "mrr": 0.8068222330254418,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.15,
+        "top1Rate": 0.8,
+        "top3Rate": 0.8090909090909091,
+        "top5Rate": 0.8090909090909091
+      },
+      "fuzzy": {
+        "averageFirstRankWhenRecalled": 1.3333333333333333,
+        "count": 40,
+        "mrr": 0.0625,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.925,
+        "top1Rate": 0.05,
+        "top3Rate": 0.075,
+        "top5Rate": 0.075
+      },
+      "long_ambiguous": {
+        "averageFirstRankWhenRecalled": 1.2096774193548387,
+        "count": 110,
+        "mrr": 0.5136363636363637,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.43636363636363634,
+        "top1Rate": 0.4727272727272727,
+        "top3Rate": 0.5636363636363636,
+        "top5Rate": 0.5636363636363636
+      },
+      "modern_chat": {
+        "averageFirstRankWhenRecalled": 1.6204379562043796,
+        "count": 220,
+        "mrr": 0.5118993506493507,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.37727272727272726,
+        "top1Rate": 0.44545454545454544,
+        "top3Rate": 0.5681818181818182,
+        "top5Rate": 0.6045454545454545
+      },
+      "polyphone_homophone": {
+        "averageFirstRankWhenRecalled": 1.8064516129032258,
+        "count": 80,
+        "mrr": 0.6416319444444445,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.225,
+        "top1Rate": 0.5625,
+        "top3Rate": 0.7125,
+        "top5Rate": 0.75
+      },
+      "proper_name_domain": {
+        "averageFirstRankWhenRecalled": 3.34375,
+        "count": 110,
+        "mrr": 0.7802139037433157,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.12727272727272726,
+        "top1Rate": 0.7363636363636363,
+        "top3Rate": 0.8090909090909091,
+        "top5Rate": 0.8363636363636363
+      },
+      "typo": {
+        "averageFirstRankWhenRecalled": null,
+        "count": 60,
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 1,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      }
+    },
+    "byInputKind": {
+      "clean": {
+        "averageFirstRankWhenRecalled": 1.7951289398280803,
+        "count": 970,
+        "mrr": 0.6525763132494486,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.2804123711340206,
+        "top1Rate": 0.6175257731958763,
+        "top3Rate": 0.6824742268041237,
+        "top5Rate": 0.6979381443298969
+      },
+      "fuzzy": {
+        "averageFirstRankWhenRecalled": 1.3333333333333333,
+        "count": 40,
+        "mrr": 0.0625,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.925,
+        "top1Rate": 0.05,
+        "top3Rate": 0.075,
+        "top5Rate": 0.075
+      },
+      "typo": {
+        "averageFirstRankWhenRecalled": null,
+        "count": 60,
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 1,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      }
+    },
+    "byRawInputLength": {
+      "01-04": {
+        "averageFirstRankWhenRecalled": 11.117647058823529,
+        "count": 19,
+        "mrr": 0.7810113519091848,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.10526315789473684,
+        "top1Rate": 0.7368421052631579,
+        "top3Rate": 0.8421052631578947,
+        "top5Rate": 0.8421052631578947
+      },
+      "05-08": {
+        "averageFirstRankWhenRecalled": 1.2127659574468086,
+        "count": 316,
+        "mrr": 0.6976830922242314,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.2563291139240506,
+        "top1Rate": 0.6677215189873418,
+        "top3Rate": 0.7246835443037974,
+        "top5Rate": 0.7341772151898734
+      },
+      "09-12": {
+        "averageFirstRankWhenRecalled": 2.364406779661017,
+        "count": 162,
+        "mrr": 0.6507740806760415,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.2716049382716049,
+        "top1Rate": 0.6296296296296297,
+        "top3Rate": 0.6604938271604939,
+        "top5Rate": 0.6790123456790124
+      },
+      "13-20": {
+        "averageFirstRankWhenRecalled": 1.56,
+        "count": 356,
+        "mrr": 0.5743910579212959,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.36797752808988765,
+        "top1Rate": 0.5449438202247191,
+        "top3Rate": 0.5955056179775281,
+        "top5Rate": 0.6095505617977528
+      },
+      "21+": {
+        "averageFirstRankWhenRecalled": 1.4433962264150944,
+        "count": 217,
+        "mrr": 0.4160522273425499,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.511520737327189,
+        "top1Rate": 0.3686635944700461,
+        "top3Rate": 0.46543778801843316,
+        "top5Rate": 0.4838709677419355
+      }
+    }
+  },
+  "interpretation": {
+    "deviceDataIncluded": false,
+    "hostDataOnly": true,
+    "lowScoresCauseProcessFailure": false
+  },
+  "measurementKind": "host-release-ImeEngine-per-key",
+  "metrics": {
+    "averageFirstRankWhenRecalled": 1.7931526390870185,
+    "count": 1070,
+    "mrr": 0.5939243213569768,
+    "noCandidateRate": 0,
+    "targetUnrecalledRate": 0.3448598130841122,
+    "top1Rate": 0.5616822429906542,
+    "top3Rate": 0.6214953271028038,
+    "top5Rate": 0.6355140186915887
+  },
+  "productionLexiconBytes": 3741328,
+  "productionLexiconSha256": "6a5f0567ca52c3e0ae539c9753109652c3c98218a0bfba1ad492d4ec494d6ff4",
+  "releaseModeRequired": true,
+  "runCount": 3,
+  "runs": [
+    {
+      "candidateOutputSha256": "37cbae20ff240bae34e129dabae5cc0253744655ae8648d6cb1871488656277a",
+      "keyLatencyMicros": {
+        "max": 161604,
+        "mean": 10516.558519018681,
+        "p50": 2060,
+        "p95": 62327,
+        "p99": 98535,
+        "samples": 17772
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 1.7931526390870185,
+        "count": 1070,
+        "mrr": 0.5939243213569768,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.3448598130841122,
+        "top1Rate": 0.5616822429906542,
+        "top3Rate": 0.6214953271028038,
+        "top5Rate": 0.6355140186915887
+      },
+      "run": 1
+    },
+    {
+      "candidateOutputSha256": "37cbae20ff240bae34e129dabae5cc0253744655ae8648d6cb1871488656277a",
+      "keyLatencyMicros": {
+        "max": 149219,
+        "mean": 10890.21815214945,
+        "p50": 2223,
+        "p95": 63587,
+        "p99": 101946,
+        "samples": 17772
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 1.7931526390870185,
+        "count": 1070,
+        "mrr": 0.5939243213569768,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.3448598130841122,
+        "top1Rate": 0.5616822429906542,
+        "top3Rate": 0.6214953271028038,
+        "top5Rate": 0.6355140186915887
+      },
+      "run": 2
+    },
+    {
+      "candidateOutputSha256": "37cbae20ff240bae34e129dabae5cc0253744655ae8648d6cb1871488656277a",
+      "keyLatencyMicros": {
+        "max": 162631,
+        "mean": 11171.956279540851,
+        "p50": 2314,
+        "p95": 65059,
+        "p99": 104636,
+        "samples": 17772
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 1.7931526390870185,
+        "count": 1070,
+        "mrr": 0.5939243213569768,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.3448598130841122,
+        "top1Rate": 0.5616822429906542,
+        "top3Rate": 0.6214953271028038,
+        "top5Rate": 0.6355140186915887
+      },
+      "run": 3
+    }
+  ],
+  "safetyContract": {
+    "asciiLeakCount": 0,
+    "engineErrorCount": 0,
+    "nonExplicitAutomaticCommitCount": 0,
+    "stateLossCount": 0
+  },
+  "sampleCount": 1070,
+  "schemaVersion": "quanpin-quality-baseline-results/1",
+  "schemeId": "quanpin"
+}

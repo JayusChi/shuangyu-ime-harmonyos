@@ -1,0 +1,50 @@
+# Stage 6 hand-authored test lexicon.
+# Format: word<TAB>pinyin<TAB>frequency<TAB>source
+你	ni	100000	stage6_test
+好	hao	95000	stage6_test
+我	wo	90000	stage6_test
+是	shi	88000	stage6_test
+的	de	87000	stage6_test
+中	zhong	85000	stage6_test
+文	wen	84000	stage6_test
+女	nü	500	stage6_test
+绿	lu:	400	stage6_test
+零	ling	0	stage6_test
+中文	zhong wen	83000	stage6_test
+输入	shu ru	82000	stage6_test
+输入法	shu ru fa	81000	stage6_test
+双拼	shuang pin	80000	stage6_test
+ 小鹤 	 XIAO   HE 	79000	 stage6_test 
+小鹤双拼	xiao he shuang pin	78000	stage6_test
+鸿蒙	hong meng	77000	stage6_test
+系统	xi tong	76000	stage6_test
+候选	hou xuan	75000	stage6_test
+词库	ci ku	74000	stage6_test
+拼音	pin yin	73000	stage6_test
+你好	ni hao	72000	stage6_test
+我们	wo men	71000	stage6_test
+测试	ce shi	70000	stage6_test
+工程	gong cheng	69000	stage6_test
+中国	zhong guo	68000	stage6_test
+中国人	zhong guo ren	67000	stage6_test
+学习	xue xi	66000	stage6_test
+语言	yu yan	65000	stage6_test
+方案	fang an	64000	stage6_test
+键盘	jian pan	63000	stage6_test
+删除	shan chu	62000	stage6_test
+回车	hui che	61000	stage6_test
+空格	kong ge	60000	stage6_test
+状态	zhuang tai	59000	stage6_test
+解析	jie xi	58000	stage6_test
+音节	yin jie	57000	stage6_test
+索引	suo yin	56000	stage6_test
+构建	gou jian	55000	stage6_test
+验证	yan zheng	54000	stage6_test
+文件	wen jian	53000	stage6_test
+版本	ban ben	52000	stage6_test
+频率	pin lv	51000	stage6_test
+期间	qi jian	50000	stage6_test
+其间	qi jian	49000	stage6_test
+常用	chang yong	4294967295	stage6_test
+你好	NI   HAO	10	stage6_duplicate
+输入法	shu   ru   fa	20	stage6_duplicate

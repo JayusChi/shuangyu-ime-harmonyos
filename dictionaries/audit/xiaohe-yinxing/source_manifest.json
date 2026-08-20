@@ -1,0 +1,2296 @@
+{
+  "audit_manifest_version": "1.1.0",
+  "scheme_id": "xiaohe-yinxing",
+  "bundle_id": "xiaohe-yinxing-production",
+  "data_version": "source-receipt-1",
+  "converter_version": "yinxing-source-auditor/1.1.0",
+  "source_roots": [
+    "码表",
+    "小鹤音形"
+  ],
+  "line_numbering": "1-based physical lines",
+  "path_sort": "source_root then UTF-8 path bytes",
+  "files": [
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "0.0.小鹤.txt",
+      "normalized_relative_path": "0.0.小鹤.txt",
+      "file_name": "0.0.小鹤.txt",
+      "extension": "txt",
+      "byte_size": 906107,
+      "physical_line_count": 68509,
+      "non_empty_line_count": 68509,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 68507,
+      "unrecognized_line_count": 1,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "LF",
+      "has_final_newline": true,
+      "sha256": "13c56147d7a57a52a49995a1740a2bf39036668dc98d3699e358095a3ddf1587",
+      "file_role": "core_code_table",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "findings_isolated",
+      "decision": "TRANSFORM",
+      "decision_reason": "security-matched records must be isolated before otherwise eligible content is converted",
+      "syntax_statistics": {
+        "ordinary": 68506,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 1,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 1,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 1,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 15550,
+            "sample_sha256": "babac705cb1f0f83f536cd0fc960e5d7f7de965b2249f1eaebdffc5daebaec65",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "4d1d74c507c62b0d17d318a23c16baac6f615f687ed0e54f031ae5616098b3f9",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "unrecognized",
+            "physical_line": 2,
+            "sample_sha256": "7746a1b4f393c33b6273a4a85bef84fd7feb7c21c7a9836491bc24311eb4dde0",
+            "error_code": "REJECT_UNRECOGNIZED_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          }
+        ]
+      },
+      "security_findings": [
+        {
+          "finding_type": "url",
+          "physical_line": 68509,
+          "summary_sha256": "1aa43a3bfc4de4d7c505daec260646734ad7617fe1f8757b5980753115710321",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        }
+      ],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "0.2.拼字.txt",
+      "normalized_relative_path": "0.2.拼字.txt",
+      "file_name": "0.2.拼字.txt",
+      "extension": "txt",
+      "byte_size": 1086223,
+      "physical_line_count": 88020,
+      "non_empty_line_count": 88020,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 88020,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "No final newline",
+      "has_final_newline": false,
+      "sha256": "7a34921c867d87ffcd05ce21350247af08d3633142d24f962944464389cd0879",
+      "file_role": "spelling_resource",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "feature is retained but outside the first conversion scope",
+      "syntax_statistics": {
+        "ordinary": 88020,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 0,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "ordinary",
+            "physical_line": 1,
+            "sample_sha256": "6c490c27d4c7c28c9bd61f9010d6c10a258812fe04563d62a15754cc9c3836c8",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "1.0.分类.txt",
+      "normalized_relative_path": "1.0.分类.txt",
+      "file_name": "1.0.分类.txt",
+      "extension": "txt",
+      "byte_size": 24743,
+      "physical_line_count": 1700,
+      "non_empty_line_count": 1698,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 1694,
+      "unrecognized_line_count": 3,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "LF",
+      "has_final_newline": true,
+      "sha256": "e4be5f6cac3241e32d78ada9a3832d4c8c1a6280efd371c02f4018ff9c388d64",
+      "file_role": "category_table",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "ACCEPTED",
+      "decision_reason": "approved table role and byte format",
+      "syntax_statistics": {
+        "ordinary": 1690,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 4,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 1,
+        "comment": 0,
+        "empty": 2,
+        "unrecognized": 3,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 1674,
+            "sample_sha256": "3454cd71fac1efe42dc5950a6a28af82fac72fdf82df6884bd43ba1259808bf3",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "empty",
+            "physical_line": 1672,
+            "sample_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "error_code": "IGNORE_NON_DATA_LINE",
+            "recommendation": "exclude from candidate records"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 4,
+            "sample_sha256": "5d8272ace03befd8985bfcb1c76eddec73e10b1c171c7be28415e14be371e73d",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "unrecognized",
+            "physical_line": 2,
+            "sample_sha256": "96f7eed91fd43bb17b5ecf5d04b86c349e69e42861520d9b632e4f7f8546c57e",
+            "error_code": "REJECT_UNRECOGNIZED_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "1.2.快符-外接.txt",
+      "normalized_relative_path": "1.2.快符-外接.txt",
+      "file_name": "1.2.快符-外接.txt",
+      "extension": "txt",
+      "byte_size": 539,
+      "physical_line_count": 31,
+      "non_empty_line_count": 31,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 28,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "fa74b00a7e5193fb538622d8bdb2ba05317df42b5cbf8b7bd8285a20056c91b9",
+      "file_role": "quick_symbol",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "authorized for production conversion; ordinary records are retained and unsupported commands remain filtered",
+      "syntax_statistics": {
+        "ordinary": 17,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 11,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 3,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 10,
+            "sample_sha256": "0b0eee4a0ae10f3cf43131ba5078cdae72bba62a05bd58f09427a4e06debc99f",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 4,
+            "sample_sha256": "0ad20e52a4e949a4500a463410fbcf31368827ae30eb2c8f26da6e51ebec6d7b",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.1.一简次选.txt",
+      "normalized_relative_path": "2.1.一简次选.txt",
+      "file_name": "2.1.一简次选.txt",
+      "extension": "txt",
+      "byte_size": 239,
+      "physical_line_count": 26,
+      "non_empty_line_count": 26,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 26,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "b94a493950865c2a50ac183d720cb780e461e9e96fcc66af1c640436777166e2",
+      "file_role": "one_key_secondary_table",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "approved table role requires deterministic BOM/newline/header normalization in 11.6.2C",
+      "syntax_statistics": {
+        "ordinary": 26,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 0,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "ordinary",
+            "physical_line": 1,
+            "sample_sha256": "778b0cc42b132333010446fa6dcd4ac27557d7de8afd8d871560ad15204d2b53",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.2.二简次选.txt",
+      "normalized_relative_path": "2.2.二简次选.txt",
+      "file_name": "2.2.二简次选.txt",
+      "extension": "txt",
+      "byte_size": 526,
+      "physical_line_count": 66,
+      "non_empty_line_count": 66,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 66,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "No final newline",
+      "has_final_newline": false,
+      "sha256": "bb4de08f46c0de37c1453de58284c4983bacb94ad49c42a3bfea1945ac91ecb9",
+      "file_role": "two_key_secondary_table",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "approved table role requires deterministic BOM/newline/header normalization in 11.6.2C",
+      "syntax_statistics": {
+        "ordinary": 66,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 0,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "ordinary",
+            "physical_line": 1,
+            "sample_sha256": "c79e703b00aefae60e6fd5d2f7b818993b36aa275d7b5bde0c6162768ff8fc24",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.3.直通-安卓.txt",
+      "normalized_relative_path": "2.3.直通-安卓.txt",
+      "file_name": "2.3.直通-安卓.txt",
+      "extension": "txt",
+      "byte_size": 18738,
+      "physical_line_count": 321,
+      "non_empty_line_count": 295,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 252,
+      "unrecognized_line_count": 42,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "LF",
+      "has_final_newline": true,
+      "sha256": "5f87f4ac6f3fe1b526ec94a748e0fe246ffb4a033d3ae03d90b5b7fcdedfeb69",
+      "file_role": "direct_input",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "findings_isolated",
+      "decision": "REJECTED",
+      "decision_reason": "platform/network/command material is isolated from conversion",
+      "syntax_statistics": {
+        "ordinary": 1,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 251,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 1,
+        "comment": 0,
+        "empty": 26,
+        "unrecognized": 42,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 3,
+            "sample_sha256": "d0b769b113ada3c5c2560a402abbf3a1f223ca47e31cc910c361b53accd4d64f",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "empty",
+            "physical_line": 10,
+            "sample_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "error_code": "IGNORE_NON_DATA_LINE",
+            "recommendation": "exclude from candidate records"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 26,
+            "sample_sha256": "1aa43a3bfc4de4d7c505daec260646734ad7617fe1f8757b5980753115710321",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "unrecognized",
+            "physical_line": 2,
+            "sample_sha256": "d8156bae0c4243d3742fc4e9774d8aceabe0410249d720c855f98afc88ff846c",
+            "error_code": "REJECT_UNRECOGNIZED_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          }
+        ]
+      },
+      "security_findings": [
+        {
+          "finding_type": "url",
+          "physical_line": 25,
+          "summary_sha256": "5fd51d98c52d6a4e2702d7ba91357a9208eeed66a1a46350fb987c1ea2a2ab10",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 26,
+          "summary_sha256": "1aa43a3bfc4de4d7c505daec260646734ad7617fe1f8757b5980753115710321",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 27,
+          "summary_sha256": "5536cf367e878ea040e97a7bc087deda81fe4aaaa7861b16dd11b914af0e699b",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 28,
+          "summary_sha256": "febd481fe2de0c92ecf17de32ee6aab71c66058c62fdbdc7dc96f760f95dc8f8",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 29,
+          "summary_sha256": "f1334ea4a324873d8f7cacddb29e72b5361d91069862fcb232a1f758f701a9d5",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 118,
+          "summary_sha256": "77e211ab7869ad62cebe3f5435ef2d5f5890a3179da009e6a7c15e0f952c5a83",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 119,
+          "summary_sha256": "cb314cb7789abbefbf5823782642a940b8ca3555084f551b1dccce3fa0faf4fe",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 120,
+          "summary_sha256": "9d26ae50247136f0f1580fa4b36a017ce8718a295aae0141a050733a6641f8ae",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 309,
+          "summary_sha256": "56edb482b76145597750901243381a4eff9e8a982895539b3af26fdfe88048fc",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 310,
+          "summary_sha256": "ebd2f90b2d74b3b0652bf75c83ead9d47a9f2e68279b4241e428f48ccaffb0a4",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 311,
+          "summary_sha256": "5e326ed781f95aa57a2e48aadf238fdfb2b58fc2a550f7f3c831ba15a736b95b",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "android_storage_path",
+          "physical_line": 315,
+          "summary_sha256": "522badb7373baabb61ad21b5652f5144b7af642e3414fb061ef5c9c73cb5648a",
+          "reason_code": "REJECT_UNSAFE_PATH_ACCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "android_storage_path",
+          "physical_line": 316,
+          "summary_sha256": "5ba17c3dd479ced1d6aaef76c1ddcaba76eec2c894bb200858eee552dd6a6874",
+          "reason_code": "REJECT_UNSAFE_PATH_ACCESS",
+          "blocking_credential": false
+        }
+      ],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.4.表外字.txt",
+      "normalized_relative_path": "2.4.表外字.txt",
+      "file_name": "2.4.表外字.txt",
+      "extension": "txt",
+      "byte_size": 3214,
+      "physical_line_count": 362,
+      "non_empty_line_count": 362,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 362,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "No final newline",
+      "has_final_newline": false,
+      "sha256": "3745660392bce41cd63b6ce7ee5a2860c173b8bb22957b16a05c5dcd2a05eed4",
+      "file_role": "out_of_table_character",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "approved table role requires deterministic BOM/newline/header normalization in 11.6.2C",
+      "syntax_statistics": {
+        "ordinary": 362,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 0,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "ordinary",
+            "physical_line": 1,
+            "sample_sha256": "4c2846caa3108170a8f54c3879f1afe7a623717f5dec967c79d72caa1506f281",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.5.全码词.txt",
+      "normalized_relative_path": "2.5.全码词.txt",
+      "file_name": "2.5.全码词.txt",
+      "extension": "txt",
+      "byte_size": 7062,
+      "physical_line_count": 500,
+      "non_empty_line_count": 500,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 500,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "No final newline",
+      "has_final_newline": false,
+      "sha256": "93f1e500ae0ecb10e7f8d750d39a662365c822ef225391c1fdcb94c3eb942257",
+      "file_role": "full_code_word",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "approved table role requires deterministic BOM/newline/header normalization in 11.6.2C",
+      "syntax_statistics": {
+        "ordinary": 464,
+        "user_deletion": 0,
+        "user_pin": 36,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 0,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "ordinary",
+            "physical_line": 37,
+            "sample_sha256": "7d84846a650a71b75ab9b8b903f445f624456d0a2be2c7de97c660e787d90891",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "user_pin",
+            "physical_line": 1,
+            "sample_sha256": "9c3039c2cd979d397f975a3b48ce634752586e9701233f76d95036d9f8e9a53c",
+            "error_code": "TRANSFORM_USER_PIN",
+            "recommendation": "convert through frozen user rule policy"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.6.符号-安卓.txt",
+      "normalized_relative_path": "2.6.符号-安卓.txt",
+      "file_name": "2.6.符号-安卓.txt",
+      "extension": "txt",
+      "byte_size": 5179,
+      "physical_line_count": 0,
+      "non_empty_line_count": 234,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 219,
+      "unrecognized_line_count": 14,
+      "detected_encoding": "Binary / Unknown",
+      "has_utf8_bom": false,
+      "newline_style": "Binary / Not applicable",
+      "has_final_newline": false,
+      "sha256": "8cfa08c8461c2c8be0d41c0d30293d72eecd907bbfa41fab2d435ef3f344d003",
+      "file_role": "android_reference",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "REJECTED",
+      "decision_reason": "platform-specific configuration or actions cannot enter HarmonyOS resources",
+      "syntax_statistics": {
+        "ordinary": 47,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 172,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 1,
+        "comment": 0,
+        "empty": 12,
+        "unrecognized": 14,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 3,
+            "sample_sha256": "e43c16c6c3e6ceee020d43cd7bcbb78cd0efee890749d3c5771baa88f45c0fbf",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "empty",
+            "physical_line": 144,
+            "sample_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "error_code": "IGNORE_NON_DATA_LINE",
+            "recommendation": "exclude from candidate records"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 176,
+            "sample_sha256": "89a0e5c6a774826c3c40813842d3c2c8cbb918b106787487064a5eb233641687",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "unrecognized",
+            "physical_line": 2,
+            "sample_sha256": "b77a8482e62e5feaa9efd72ce9de49346aafa0264f06a988da1e24b09ca92971",
+            "error_code": "REJECT_UNRECOGNIZED_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.6.符号.txt",
+      "normalized_relative_path": "2.6.符号.txt",
+      "file_name": "2.6.符号.txt",
+      "extension": "txt",
+      "byte_size": 13320,
+      "physical_line_count": 945,
+      "non_empty_line_count": 945,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 941,
+      "unrecognized_line_count": 3,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "No final newline",
+      "has_final_newline": false,
+      "sha256": "fc16fc10fcd79fece83889ef81620ac0b7c0b8d6464e650e967586445a153dcc",
+      "file_role": "symbol_table",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "eligible content requires explicit merge or record transformation",
+      "syntax_statistics": {
+        "ordinary": 623,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 318,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 1,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 3,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 22,
+            "sample_sha256": "c3bf9330213d0f3297dc2e981949850b64a21c07ea2b6eea79f8dfbeb6694538",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 5,
+            "sample_sha256": "d754fd8be4a40bd9a607a28febb56244b6281dfc49bc3a55e22d0de1297ca3ad",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "unrecognized",
+            "physical_line": 2,
+            "sample_sha256": "fe46cd5b70f8a271e97e6d9a00abf48bf606067b4fdbb654e17b607767abdca1",
+            "error_code": "REJECT_UNRECOGNIZED_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.7.符号组-安卓.txt",
+      "normalized_relative_path": "2.7.符号组-安卓.txt",
+      "file_name": "2.7.符号组-安卓.txt",
+      "extension": "txt",
+      "byte_size": 542,
+      "physical_line_count": 17,
+      "non_empty_line_count": 17,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 14,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "LF",
+      "has_final_newline": true,
+      "sha256": "dc3c5b6b4821065b7c51ce833e43211274ff579e230b1f297205be5f1519481c",
+      "file_role": "android_reference",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "REJECTED",
+      "decision_reason": "platform-specific configuration or actions cannot enter HarmonyOS resources",
+      "syntax_statistics": {
+        "ordinary": 1,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 13,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 3,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 5,
+            "sample_sha256": "d4312dae2205f09d70bf8632d33e6a51ea159f07595283154c1d82db8cb13521",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 4,
+            "sample_sha256": "cef921cb2ed64cd456a4e5908dc9f201c7edc5740f22b41938e0b7124292c063",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.7.符号组.txt",
+      "normalized_relative_path": "2.7.符号组.txt",
+      "file_name": "2.7.符号组.txt",
+      "extension": "txt",
+      "byte_size": 5134,
+      "physical_line_count": 750,
+      "non_empty_line_count": 748,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 745,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "LF",
+      "has_final_newline": true,
+      "sha256": "2a665b6d1eff4af5ff6368f3f8bb79b513e08864ff472e9add7c47870eb171a7",
+      "file_role": "symbol_group",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "authorized for production conversion with an o prefix; unsupported commands remain filtered",
+      "syntax_statistics": {
+        "ordinary": 743,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 2,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 3,
+        "comment": 0,
+        "empty": 2,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "cmd",
+            "physical_line": 749,
+            "sample_sha256": "92122c64485ca1fafd4272881ae48eb0edd2bc472cfbe262228fec3d219cbc4e",
+            "error_code": "REJECT_UNSUPPORTED_COMMAND",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "empty",
+            "physical_line": 747,
+            "sample_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "error_code": "IGNORE_NON_DATA_LINE",
+            "recommendation": "exclude from candidate records"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 4,
+            "sample_sha256": "ea9b3a0a226ad20990b666f48e958e982aa10d9cc780c9b3bb8916bfa021f5d6",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.8.生僻字.txt",
+      "normalized_relative_path": "2.8.生僻字.txt",
+      "file_name": "2.8.生僻字.txt",
+      "extension": "txt",
+      "byte_size": 5082,
+      "physical_line_count": 501,
+      "non_empty_line_count": 501,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 498,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "No final newline",
+      "has_final_newline": false,
+      "sha256": "04bdd5aed3bef1de822ede15473698bf3657a5df82ed498eff5d92e8b4b45023",
+      "file_role": "rare_character",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "approved table role requires deterministic BOM/newline/header normalization in 11.6.2C",
+      "syntax_statistics": {
+        "ordinary": 498,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 3,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 4,
+            "sample_sha256": "71798b5325ab249a656381ddaf6abe7561dcf18d576acbf7fef6ca8433c36e94",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "2.9.全码字.txt",
+      "normalized_relative_path": "2.9.全码字.txt",
+      "file_name": "2.9.全码字.txt",
+      "extension": "txt",
+      "byte_size": 16582,
+      "physical_line_count": 1655,
+      "non_empty_line_count": 1655,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 1652,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "No final newline",
+      "has_final_newline": false,
+      "sha256": "a3f4054bdcacac6427355b246dd86496fe09025a5b5058d0f8185a8f4cbee722",
+      "file_role": "full_code_character",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "approved table role requires deterministic BOM/newline/header normalization in 11.6.2C",
+      "syntax_statistics": {
+        "ordinary": 1652,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 3,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "48460b9735634f89d2b9a4d5d1aa6b115611d3372f1bac3e3e1acc0c3349765a",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 4,
+            "sample_sha256": "f9b6c637745c6cb04cb1f928df35a5337640f63cd8740e18266815a6cb30f017",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "hans2hant.txt",
+      "normalized_relative_path": "hans2hant.txt",
+      "file_name": "hans2hant.txt",
+      "extension": "txt",
+      "byte_size": 154233,
+      "physical_line_count": 10896,
+      "non_empty_line_count": 10896,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 10896,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "LF",
+      "has_final_newline": true,
+      "sha256": "c2a40fdccf6394dfe7285487f12bb9f8ef9abf38fd0ffb92138535bec490c821",
+      "file_role": "simplified_traditional_resource",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "feature is retained but outside the first conversion scope",
+      "syntax_statistics": {
+        "ordinary": 10896,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 0,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "ordinary",
+            "physical_line": 1,
+            "sample_sha256": "1c302620c861107d371a4a37b7041ca1e7dea80990ee97a3ad0b9b37ba82a5a7",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "小鹤音形",
+      "relative_path": "ime.android.ini",
+      "normalized_relative_path": "ime.android.ini",
+      "file_name": "ime.android.ini",
+      "extension": "ini",
+      "byte_size": 18031,
+      "physical_line_count": 743,
+      "non_empty_line_count": 667,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 29,
+      "data_record_line_count": 0,
+      "unrecognized_line_count": 275,
+      "detected_encoding": "UTF-8",
+      "has_utf8_bom": false,
+      "newline_style": "LF",
+      "has_final_newline": true,
+      "sha256": "fda5c1b9977396c306c577084522a4888956df4c7eb875ef650f1aebd14767a8",
+      "file_role": "configuration_reference",
+      "role_evidence": "numbered delivery name plus matching content syntax",
+      "security_classification": "credential_quarantined",
+      "decision": "REJECTED",
+      "decision_reason": "credential-like assigned value requires isolation and manual cleanup",
+      "syntax_statistics": {
+        "ordinary": 0,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 29,
+        "configuration_item": 363,
+        "comment": 0,
+        "empty": 76,
+        "unrecognized": 275,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_header",
+            "physical_line": 1,
+            "sample_sha256": "508b67e7ae48eadf6cd80fa1aef5e8ec1b1ff91a24713ac75ef5232471ff38f9",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 3,
+            "sample_sha256": "fbec505c097d4559df74986d9d219e7d0657c0a8b9ae6df546240b01c9486e80",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "empty",
+            "physical_line": 18,
+            "sample_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "error_code": "IGNORE_NON_DATA_LINE",
+            "recommendation": "exclude from candidate records"
+          },
+          {
+            "syntax": "unrecognized",
+            "physical_line": 2,
+            "sample_sha256": "4585e69718b7075813612629e591ebc94354465c43a71240316c5f385bbaeeeb",
+            "error_code": "REJECT_UNRECOGNIZED_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          }
+        ]
+      },
+      "security_findings": [
+        {
+          "finding_type": "windows_absolute_path",
+          "physical_line": 52,
+          "summary_sha256": "701d20001b8fa8b66f80d0a2cc81e987c163a8c8709d06ae3ce41acb87198511",
+          "reason_code": "REJECT_UNSAFE_PATH_ACCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "ip_address",
+          "physical_line": 215,
+          "summary_sha256": "005a302611749771085081003f90f7e2419f370d44b66e211a820933160eca11",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 556,
+          "summary_sha256": "a86a1c3fff0cf9e825ee8f7ca135372b6b753130158fc4659ae782c6823d3068",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "credential",
+          "physical_line": 562,
+          "summary_sha256": "a233b707f51ee94dad8a0642fc850870dadd720c4e0a31f1cf7b1f470a15224b",
+          "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+          "blocking_credential": true
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 570,
+          "summary_sha256": "1e593434dc6934a39c8cdb9c650a3696d8329c6ab94fd5a52715c8e50070e36f",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "credential",
+          "physical_line": 578,
+          "summary_sha256": "a233b707f51ee94dad8a0642fc850870dadd720c4e0a31f1cf7b1f470a15224b",
+          "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+          "blocking_credential": true
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 581,
+          "summary_sha256": "6bba6eb5c0969a08faef5d9851b5c0507a8aa292f1f8e6248724f4d0e53de8e6",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "credential",
+          "physical_line": 583,
+          "summary_sha256": "ffa70dead834e3abe802d2fb12242b2cf6c5fea2f0855ba669e9b419413c4e6b",
+          "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "credential",
+          "physical_line": 590,
+          "summary_sha256": "d2d529a7e25fc61dc92882eade14edbbaa835560b704be9f3675ae81e115e0d2",
+          "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+          "blocking_credential": true
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 599,
+          "summary_sha256": "37de2c3cb115ef64bbe4605f74e7bea655eadb19d7f9f4a08acc1f8bd6c784ed",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "webdav",
+          "physical_line": 603,
+          "summary_sha256": "56973358f69ba1b7d994023e054de01863bbe07d457cf0b4a85256d35a5f5ea3",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "webdav",
+          "physical_line": 604,
+          "summary_sha256": "e1cd2af54f9f8c3728fba137745515a635704a9d040add4c0c533703267309eb",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "webdav",
+          "physical_line": 605,
+          "summary_sha256": "f6f2d1e62128295124422ee7d3921376eeec46f9170b81e916d5c5938ce1a447",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 608,
+          "summary_sha256": "0c4ba3b1f09cea9b88b6ea5b1303947d7400fb7a2a3e85a1d832809042bdfc95",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "email",
+          "physical_line": 610,
+          "summary_sha256": "28f4a5c397e3261e779d09c9bfa643d8a9b702ee9444c4d58ef50f91de5cb5fb",
+          "reason_code": "REJECT_EMBEDDED_ACCOUNT",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "credential",
+          "physical_line": 612,
+          "summary_sha256": "927be5ec8baec9f085f26224744c4c7454cc6febc714c51ab4063f353e695898",
+          "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+          "blocking_credential": true
+        },
+        {
+          "finding_type": "webdav",
+          "physical_line": 638,
+          "summary_sha256": "4da71c7e0eac1ffd93e949e3c2da9fd1b34836215cd3a00884293a5be514d876",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "webdav",
+          "physical_line": 639,
+          "summary_sha256": "b652dc9ee93c393716b7aeed7f87415f890c75d38a46b471000bc369f838d94a",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "webdav",
+          "physical_line": 641,
+          "summary_sha256": "6b1f32c147305fd14a8f26fdc99288613b6b5babece67b9c2099b810e5fb422e",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "webdav",
+          "physical_line": 642,
+          "summary_sha256": "5afb19fd1f58794608a53510937000a5851866601494697f0aeeb6dfb90385c6",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "credential",
+          "physical_line": 643,
+          "summary_sha256": "0b44aa811a27391759ab5f8694b155f0bc236aa3a05911c8ec3570785eb2875b",
+          "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 643,
+          "summary_sha256": "0b44aa811a27391759ab5f8694b155f0bc236aa3a05911c8ec3570785eb2875b",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        }
+      ],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 全码词.txt",
+      "normalized_relative_path": "导出 - 主码 - 全码词.txt",
+      "file_name": "导出 - 主码 - 全码词.txt",
+      "extension": "txt",
+      "byte_size": 9112,
+      "physical_line_count": 504,
+      "non_empty_line_count": 504,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 502,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "2fd230ce4ce81d3632376ceaf0e56835f7d4923292cc9ac5ca70a894a78482a7",
+      "file_role": "full_code_word",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "alternate export retained as audit-only evidence and excluded from first-release conversion",
+      "syntax_statistics": {
+        "ordinary": 11,
+        "user_deletion": 455,
+        "user_pin": 3,
+        "user_position": 0,
+        "user_mixed_rule": 33,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "92599bcc0f5deb29a6188ccd95df7b9b5516757627f9bac120d8609ec0a57ca8",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 26,
+            "sample_sha256": "23552c6ac50eecfb445fb8b4806f0627188a3c4e9561c84f44506e393c6b440f",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "user_deletion",
+            "physical_line": 3,
+            "sample_sha256": "ce6fd6f008075b773670b7d75531c26079b15dd48f12f8b5669737d4494565ab",
+            "error_code": "TRANSFORM_USER_DELETE",
+            "recommendation": "convert through frozen user rule policy"
+          },
+          {
+            "syntax": "user_mixed_rule",
+            "physical_line": 469,
+            "sample_sha256": "066f76985777cf7b8f44de6c4839b735ff04bf008ddda5d684a6c3098be73e4f",
+            "error_code": "REJECT_AMBIGUOUS_USER_RULE",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "user_pin",
+            "physical_line": 470,
+            "sample_sha256": "9f9d1f5274d4e5a30fff211417311fa4dc7d294992724cd45ecc5a139c80967c",
+            "error_code": "TRANSFORM_USER_PIN",
+            "recommendation": "convert through frozen user rule policy"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 快符.txt",
+      "normalized_relative_path": "导出 - 主码 - 快符.txt",
+      "file_name": "导出 - 主码 - 快符.txt",
+      "extension": "txt",
+      "byte_size": 632,
+      "physical_line_count": 30,
+      "non_empty_line_count": 30,
+      "comment_line_count": 1,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 27,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "669f89874ca0063719416bd1f868e3fac922ca0dbb9e3760259ffd96d57bf5ee",
+      "file_role": "quick_symbol",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "feature is retained but outside the first conversion scope",
+      "syntax_statistics": {
+        "ordinary": 14,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 13,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 1,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "comment",
+            "physical_line": 28,
+            "sample_sha256": "72df571c8d10888f3a0515c5d87fc7cb0772530557bd1d2ce115c51e8ca79cc9",
+            "error_code": "IGNORE_NON_DATA_LINE",
+            "recommendation": "exclude from candidate records"
+          },
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "afef73fa2ead5db7be9f56db2d9fc89c4dfc8b5c5124e50aa1044fc3e388ab15",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ddcmd",
+            "physical_line": 5,
+            "sample_sha256": "142c23dfab5fa9ef892c921594a1df00f41fee8275f351918acf5df055655567",
+            "error_code": "REJECT_UNKNOWN_COMMAND_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "5e3e8e1f9d3b0a0beb6e13cf85f82de66bb3db844ae1e29b72b6aef2b389ce5d",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 拼字.txt",
+      "normalized_relative_path": "导出 - 主码 - 拼字.txt",
+      "file_name": "导出 - 主码 - 拼字.txt",
+      "extension": "txt",
+      "byte_size": 1174311,
+      "physical_line_count": 88022,
+      "non_empty_line_count": 88022,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 88020,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "66a8040316714493f442bd0c7dafcc3e3a2168144166f3633695b733c746ba78",
+      "file_role": "spelling_resource",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "feature is retained but outside the first conversion scope",
+      "syntax_statistics": {
+        "ordinary": 88020,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "67ff7af167d2020311ec29fb0ad987ae66d5fcb86892840473fb9036423713f1",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "6c490c27d4c7c28c9bd61f9010d6c10a258812fe04563d62a15754cc9c3836c8",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 次选字词.txt",
+      "normalized_relative_path": "导出 - 主码 - 次选字词.txt",
+      "file_name": "导出 - 主码 - 次选字词.txt",
+      "extension": "txt",
+      "byte_size": 26464,
+      "physical_line_count": 1690,
+      "non_empty_line_count": 1690,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 1688,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "5b09e7c6f9cb4ea184599771a7229cfd1db9437577a106f5aa1670f187e834bb",
+      "file_role": "secondary_candidate_table",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "alternate export retained as audit-only evidence and excluded from first-release conversion",
+      "syntax_statistics": {
+        "ordinary": 1684,
+        "user_deletion": 4,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "87ecf0edb292dff18ef054bb11e6fc9f1e6a27407e5589f6ddce117cb4b7dc62",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "13424d14ff880a14e5e5f080acaedff2874bb5b0d021c2e3c879fdf944acffa7",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "user_deletion",
+            "physical_line": 98,
+            "sample_sha256": "58aea468e93669a3a4ff51e67c07891b699665a6986e1b2d37a3a7b8e915c430",
+            "error_code": "TRANSFORM_USER_DELETE",
+            "recommendation": "convert through frozen user rule policy"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 用户.txt",
+      "normalized_relative_path": "导出 - 主码 - 用户.txt",
+      "file_name": "导出 - 主码 - 用户.txt",
+      "extension": "txt",
+      "byte_size": 12018,
+      "physical_line_count": 502,
+      "non_empty_line_count": 502,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 500,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "4857e5d81cab2fb4f76a40b3415b47d70f6334db2312fcae14a98158d6aca1d9",
+      "file_role": "user_mixed_rule",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "eligible content requires explicit merge or record transformation",
+      "syntax_statistics": {
+        "ordinary": 85,
+        "user_deletion": 30,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 385,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "4cbfdeff5f7eaf36cfb6d21ad630be46417b9dbf955771697ab78233d1355500",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ddcmd",
+            "physical_line": 4,
+            "sample_sha256": "4d1477ccd805d4913587f44428ee63cad1d949f06e06d3350448cda320bc5ccf",
+            "error_code": "REJECT_UNKNOWN_COMMAND_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "49693569270602e74af8742c5eacd354b855df2213769ec6bfb420bde28e64df",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          },
+          {
+            "syntax": "user_deletion",
+            "physical_line": 29,
+            "sample_sha256": "ad911bc837e8b414c04af700972745fdd9321219e5d348eb042f9f7c64b4d60e",
+            "error_code": "TRANSFORM_USER_DELETE",
+            "recommendation": "convert through frozen user rule policy"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 直通.txt",
+      "normalized_relative_path": "导出 - 主码 - 直通.txt",
+      "file_name": "导出 - 主码 - 直通.txt",
+      "extension": "txt",
+      "byte_size": 4857,
+      "physical_line_count": 64,
+      "non_empty_line_count": 64,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 62,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "2b442f4ae49af3617bf6178dec565ac7ac7f3217f841ef1535326903bce075e5",
+      "file_role": "direct_input",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "findings_isolated",
+      "decision": "REJECTED",
+      "decision_reason": "platform/network/command material is isolated from conversion",
+      "syntax_statistics": {
+        "ordinary": 0,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 62,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "ab96c75b89f1af719cd7c07c2e75282b8c7d8657412ef3c61f1d015a2661d90e",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ddcmd",
+            "physical_line": 3,
+            "sample_sha256": "786a4dcf422b55c3cf0f8613196215dfdb5e5f4bdf0268a831c10a2647aefca9",
+            "error_code": "REJECT_UNKNOWN_COMMAND_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          }
+        ]
+      },
+      "security_findings": [
+        {
+          "finding_type": "url",
+          "physical_line": 10,
+          "summary_sha256": "d178511df1440c81447d3f70b17f73c813c248dd25782ea1f03c46c02837cfab",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "external_process",
+          "physical_line": 11,
+          "summary_sha256": "b4fa81d223480561a5444b3eac9f19121149be3347ec3f56820f557024dd833b",
+          "reason_code": "REJECT_EXTERNAL_PROCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "external_process",
+          "physical_line": 13,
+          "summary_sha256": "493e8d3cf19730f3e5306529e5939aef34fbef61b1cd981e398944477207e2e1",
+          "reason_code": "REJECT_EXTERNAL_PROCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "external_process",
+          "physical_line": 14,
+          "summary_sha256": "151801a559ea604414f86885911bbdc0bf6a4c70a8f9fd6d1bfcbbddc4f9116f",
+          "reason_code": "REJECT_EXTERNAL_PROCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "external_process",
+          "physical_line": 15,
+          "summary_sha256": "35379f0bca585960143d8059d5698f9315f7de65a9bd7f32cb7c4e60212241ed",
+          "reason_code": "REJECT_EXTERNAL_PROCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "external_process",
+          "physical_line": 16,
+          "summary_sha256": "2de849702db32f25434fe0c7b3f044c98c21982638f55edf7002fbc194d7eaf3",
+          "reason_code": "REJECT_EXTERNAL_PROCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "external_process",
+          "physical_line": 17,
+          "summary_sha256": "05f2834f3646a327e9a56221cc30bd63d174a4071953fd09a955d3253eac7666",
+          "reason_code": "REJECT_EXTERNAL_PROCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "external_process",
+          "physical_line": 18,
+          "summary_sha256": "28d0c69ac2f3d9ee02a4ae5eda5f66a96d23a44ab23d4065122cebb8bb591349",
+          "reason_code": "REJECT_EXTERNAL_PROCESS",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 44,
+          "summary_sha256": "d2d763ca6096c55f4e89141442b9956a53a330d68c0a528cfffbf28bb2448d85",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 45,
+          "summary_sha256": "721629debb714b2f541b72eaabd1666352b21b29eaeb9e8c62ad0e7bcb7acfcd",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 46,
+          "summary_sha256": "c8e0958af5938bdba97c8ba8534d09c03ff5bc6c14e5effef7ea5163a59c26c5",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 52,
+          "summary_sha256": "6d12dc9a2d9b3aeb24453497f604b2a677f36f986b85d1b5c9fc756d47f8b19c",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 62,
+          "summary_sha256": "266f2f3689ca1eaafabfcc55dfa6ef38cc81586ca7f09d22477a3c863f8709fe",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 63,
+          "summary_sha256": "96130514b14a058d691e5b5aee1cf9ea387fe178bcf0f7c9cf298ad5d2a24fff",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        },
+        {
+          "finding_type": "url",
+          "physical_line": 64,
+          "summary_sha256": "df92992713cde342776813e36d56c09f6c6af23080bee2b6810da8fa5280fd50",
+          "reason_code": "REJECT_NETWORK_ACTION",
+          "blocking_credential": false
+        }
+      ],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 表外字.txt",
+      "normalized_relative_path": "导出 - 主码 - 表外字.txt",
+      "file_name": "导出 - 主码 - 表外字.txt",
+      "extension": "txt",
+      "byte_size": 3647,
+      "physical_line_count": 364,
+      "non_empty_line_count": 364,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 362,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "5ed95aaf114327fc39f8cb0f5e43e24b1e013e4914452e65ec33cbb41737c8b1",
+      "file_role": "out_of_table_character",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "alternate export retained as audit-only evidence and excluded from first-release conversion",
+      "syntax_statistics": {
+        "ordinary": 362,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "1b69f55028c4a392d4b835628904bd53eafe82dec1ea98ecef164acad114843c",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "4c2846caa3108170a8f54c3879f1afe7a623717f5dec967c79d72caa1506f281",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - 随心.txt",
+      "normalized_relative_path": "导出 - 主码 - 随心.txt",
+      "file_name": "导出 - 主码 - 随心.txt",
+      "extension": "txt",
+      "byte_size": 419,
+      "physical_line_count": 28,
+      "non_empty_line_count": 28,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 26,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "ed162270768079e279acf5853e56dc8ee09dff7ea61c6cd563a816461bc0ca7b",
+      "file_role": "user_addition",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "eligible content requires explicit merge or record transformation",
+      "syntax_statistics": {
+        "ordinary": 22,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 4,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "fd9599dc37e8269690b69705a6fb41a10c770737b008403d88a2fba72a568ccb",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ddcmd",
+            "physical_line": 3,
+            "sample_sha256": "e0edb155096d3d187abc09254c0a79f20ae4916bb6e9cefe71bcb5c11c568995",
+            "error_code": "REJECT_UNKNOWN_COMMAND_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 5,
+            "sample_sha256": "8d4e058345eb4acc52ca464fc1a53c91dc528ed4d96f1df3e5f0a1f5d674baf5",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 主码 - Ｏ符.txt",
+      "normalized_relative_path": "导出 - 主码 - O符.txt",
+      "file_name": "导出 - 主码 - Ｏ符.txt",
+      "extension": "txt",
+      "byte_size": 30796,
+      "physical_line_count": 1684,
+      "non_empty_line_count": 1684,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 1682,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "62d1bb83359daefc90903723087528ef0c677f2adb144fc0f5361fcec8c45f08",
+      "file_role": "symbol_table",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "TRANSFORM",
+      "decision_reason": "eligible content requires explicit merge or record transformation",
+      "syntax_statistics": {
+        "ordinary": 593,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 1089,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "8818704a205b155486dcdf4b1545370691cc99b40e25f464f553fddb57fda116",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ddcmd",
+            "physical_line": 20,
+            "sample_sha256": "fa45dd1c3fa23ae0422ff5c3f7b76cf92919e7709cee3b1258972e83ede61993",
+            "error_code": "REJECT_UNKNOWN_COMMAND_SYNTAX",
+            "recommendation": "isolate and require explicit support"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "d754fd8be4a40bd9a607a28febb56244b6281dfc49bc3a55e22d0de1297ca3ad",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 次显 - 「全码字」.txt",
+      "normalized_relative_path": "导出 - 次显 - 「全码字」.txt",
+      "file_name": "导出 - 次显 - 「全码字」.txt",
+      "extension": "txt",
+      "byte_size": 21521,
+      "physical_line_count": 2140,
+      "non_empty_line_count": 2140,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 2138,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "7dea0af2441faab7af2b33b106a5eab6ba07e60a4ff18f1e9f253216883f8515",
+      "file_role": "full_code_character",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "alternate export retained as audit-only evidence and excluded from first-release conversion",
+      "syntax_statistics": {
+        "ordinary": 2138,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "b2e7caa399b6470169d394e4812909bc2fd7dffc79fefeff1ad31a5b5b39d032",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "71798b5325ab249a656381ddaf6abe7561dcf18d576acbf7fef6ca8433c36e94",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    },
+    {
+      "source_root": "码表",
+      "relative_path": "导出 - 辅码 - 「二简次选」.txt",
+      "normalized_relative_path": "导出 - 辅码 - 「二简次选」.txt",
+      "file_name": "导出 - 辅码 - 「二简次选」.txt",
+      "extension": "txt",
+      "byte_size": 611,
+      "physical_line_count": 68,
+      "non_empty_line_count": 68,
+      "comment_line_count": 0,
+      "configuration_header_line_count": 0,
+      "data_record_line_count": 66,
+      "unrecognized_line_count": 0,
+      "detected_encoding": "UTF-8 with BOM",
+      "has_utf8_bom": true,
+      "newline_style": "CRLF",
+      "has_final_newline": true,
+      "sha256": "ec2a1469db7561e8d2c4f0e7ea8cbc483356f42b1a71c35f9dd0dd52a7643847",
+      "file_role": "two_key_secondary_table",
+      "role_evidence": "export name plus matching content syntax",
+      "security_classification": "clean",
+      "decision": "DEFERRED",
+      "decision_reason": "alternate export retained as audit-only evidence and excluded from first-release conversion",
+      "syntax_statistics": {
+        "ordinary": 66,
+        "user_deletion": 0,
+        "user_pin": 0,
+        "user_position": 0,
+        "user_mixed_rule": 0,
+        "cmd": 0,
+        "ddcmd": 0,
+        "configuration_header": 0,
+        "configuration_item": 2,
+        "comment": 0,
+        "empty": 0,
+        "unrecognized": 0,
+        "first_occurrences": [
+          {
+            "syntax": "configuration_item",
+            "physical_line": 1,
+            "sample_sha256": "954ad14b88a553eba3c6baf1400efd78b8ccfb0519884621d50e73c8df3db10f",
+            "error_code": "REFERENCE_ONLY_CONFIGURATION",
+            "recommendation": "parse only as non-executable reference"
+          },
+          {
+            "syntax": "ordinary",
+            "physical_line": 3,
+            "sample_sha256": "c79e703b00aefae60e6fd5d2f7b818993b36aa275d7b5bde0c6162768ff8fc24",
+            "error_code": "ACCEPT_TABLE_RECORD",
+            "recommendation": "retain with source line"
+          }
+        ]
+      },
+      "security_findings": [],
+      "read_error": null
+    }
+  ],
+  "path_conflicts": [],
+  "comparisons": [
+    {
+      "comparison_id": "cmp-1f8d642a7e8cfc31",
+      "left_source": "小鹤音形/0.2.拼字.txt",
+      "right_source": "码表/导出 - 主码 - 拼字.txt",
+      "comparison_type": "same_records_different_order",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": true,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 88020,
+      "left_only_count": 0,
+      "right_only_count": 0,
+      "order_difference": true,
+      "syntax_difference": true,
+      "same_text_different_code": 0,
+      "same_code_different_text": 0,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-46b3088a534ebf51",
+      "left_source": "小鹤音形/2.6.符号.txt",
+      "right_source": "码表/导出 - 主码 - Ｏ符.txt",
+      "comparison_type": "partial_overlap",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": false,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 557,
+      "left_only_count": 384,
+      "right_only_count": 1125,
+      "order_difference": false,
+      "syntax_difference": true,
+      "same_text_different_code": 0,
+      "same_code_different_text": 76,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-72af9cfa30af1a62",
+      "left_source": "小鹤音形/2.5.全码词.txt",
+      "right_source": "码表/导出 - 主码 - 全码词.txt",
+      "comparison_type": "partial_overlap",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": false,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 14,
+      "left_only_count": 486,
+      "right_only_count": 488,
+      "order_difference": false,
+      "syntax_difference": true,
+      "same_text_different_code": 486,
+      "same_code_different_text": 0,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-765bb709426f1c69",
+      "left_source": "小鹤音形/2.2.二简次选.txt",
+      "right_source": "码表/导出 - 辅码 - 「二简次选」.txt",
+      "comparison_type": "same_records_different_order",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": true,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 66,
+      "left_only_count": 0,
+      "right_only_count": 0,
+      "order_difference": true,
+      "syntax_difference": true,
+      "same_text_different_code": 0,
+      "same_code_different_text": 0,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-95dd734dd9b45f48",
+      "left_source": "小鹤音形/2.3.直通-安卓.txt",
+      "right_source": "码表/导出 - 主码 - 直通.txt",
+      "comparison_type": "different",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": false,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 0,
+      "left_only_count": 252,
+      "right_only_count": 62,
+      "order_difference": false,
+      "syntax_difference": true,
+      "same_text_different_code": 0,
+      "same_code_different_text": 33,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-bf981735b1255f49",
+      "left_source": "小鹤音形/2.9.全码字.txt",
+      "right_source": "码表/导出 - 次显 - 「全码字」.txt",
+      "comparison_type": "partial_overlap",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": false,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 1644,
+      "left_only_count": 8,
+      "right_only_count": 494,
+      "order_difference": false,
+      "syntax_difference": true,
+      "same_text_different_code": 14,
+      "same_code_different_text": 91,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-e5f3d654bffcd37c",
+      "left_source": "小鹤音形/2.4.表外字.txt",
+      "right_source": "码表/导出 - 主码 - 表外字.txt",
+      "comparison_type": "same_records_different_order",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": true,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 362,
+      "left_only_count": 0,
+      "right_only_count": 0,
+      "order_difference": true,
+      "syntax_difference": true,
+      "same_text_different_code": 0,
+      "same_code_different_text": 0,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-f25f4d9ebccdf540",
+      "left_source": "小鹤音形/1.2.快符-外接.txt",
+      "right_source": "码表/导出 - 主码 - 快符.txt",
+      "comparison_type": "partial_overlap",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": false,
+      "record_order_identical": false,
+      "semantic_role_identical": true,
+      "overlap_count": 1,
+      "left_only_count": 27,
+      "right_only_count": 26,
+      "order_difference": false,
+      "syntax_difference": true,
+      "same_text_different_code": 13,
+      "same_code_different_text": 1,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    },
+    {
+      "comparison_id": "cmp-fb818515d0e8a10b",
+      "left_source": "小鹤音形/1.0.分类.txt",
+      "right_source": "码表/导出 - 主码 - 次选字词.txt",
+      "comparison_type": "partial_overlap",
+      "byte_identical": false,
+      "normalized_text_identical": false,
+      "record_set_identical": false,
+      "record_order_identical": false,
+      "semantic_role_identical": false,
+      "overlap_count": 1657,
+      "left_only_count": 37,
+      "right_only_count": 31,
+      "order_difference": false,
+      "syntax_difference": true,
+      "same_text_different_code": 5,
+      "same_code_different_text": 1,
+      "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
+      "requires_manual_confirmation": false
+    }
+  ],
+  "blocking_reasons": []
+}

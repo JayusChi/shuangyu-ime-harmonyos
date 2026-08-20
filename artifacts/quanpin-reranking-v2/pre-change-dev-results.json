@@ -1,0 +1,241 @@
+{
+  "allKeyLatencyMicros": {
+    "max": 25696,
+    "mean": 2073.3423948220066,
+    "p50": 1522,
+    "p95": 7041,
+    "p99": 15110,
+    "samples": 1545
+  },
+  "datasetManifestSha256": "0ba1d069ec667fa14f86646dc0b9f3f3dfd60548863367848dd55b220d89c545",
+  "datasetSha256": "cdacc655bdbeb4cc326c0f65f66cc8c7394ad5fff520c8297a3a8ff5eaf1555c",
+  "deterministicCandidateOutputs": true,
+  "engineLoadLatencyMicros": {
+    "max": 248306,
+    "mean": 221155,
+    "p50": 215369,
+    "p95": 248306,
+    "p99": 248306,
+    "samples": 3
+  },
+  "environment": {
+    "arch": "x86_64",
+    "cargoProfile": "release",
+    "os": "windows",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "groups": {
+    "byActualNgramHit": {
+      "no_ngram_hit": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 40,
+        "mrr": 0.9,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.1,
+        "top1Rate": 0.9,
+        "top3Rate": 0.9,
+        "top5Rate": 0.9
+      }
+    },
+    "byCategory": {
+      "ambiguous": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 1,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 1,
+        "top3Rate": 1,
+        "top5Rate": 1
+      },
+      "clean": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 0.875,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.125,
+        "top1Rate": 0.875,
+        "top3Rate": 0.875,
+        "top5Rate": 0.875
+      },
+      "long_sentence": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 1,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 1,
+        "top3Rate": 1,
+        "top5Rate": 1
+      },
+      "modern_colloquial": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 0.75,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.25,
+        "top1Rate": 0.75,
+        "top3Rate": 0.75,
+        "top5Rate": 0.75
+      },
+      "proper_name": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 0.875,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.125,
+        "top1Rate": 0.875,
+        "top3Rate": 0.875,
+        "top5Rate": 0.875
+      }
+    }
+  },
+  "hardLimits": {
+    "bigramQueriesPerKey": 96,
+    "candidatePool": 16,
+    "modelFileBytes": 262144,
+    "modelLoadMicros": 250000,
+    "modelMemoryBytes": 524288,
+    "rerankMicrosPerKey": 5000,
+    "trigramQueriesPerKey": 12
+  },
+  "interpretation": {
+    "contextSource": "Only formal candidates explicitly selected within each case.",
+    "deviceDataIncluded": false,
+    "hostDataOnly": true
+  },
+  "measurementKind": "host-release-ImeEngine-explicit-context-per-key",
+  "metrics": {
+    "averageExtraSelectionsWhenRecalled": 0,
+    "averageFirstCandidateRankWhenRecalled": 1,
+    "count": 40,
+    "mrr": 0.9,
+    "noCandidateRate": 0,
+    "targetUnrecalledRate": 0.1,
+    "top1Rate": 0.9,
+    "top3Rate": 0.9,
+    "top5Rate": 0.9
+  },
+  "modelEnabled": false,
+  "modelFileBytes": 0,
+  "modelLastErrorCode": "",
+  "modelLoadMicros": 0,
+  "modelMemoryBytes": 0,
+  "modelSha256": null,
+  "modelVersion": 2,
+  "ngram": {
+    "bigramHitRate": 0,
+    "bigramHits": 0,
+    "bigramQueries": 0,
+    "casesWithHitRate": 0,
+    "maxBigramQueriesPerKey": 0,
+    "maxCandidatePool": 0,
+    "maxCandidatesScored": 0,
+    "maxRerankMicros": 0,
+    "maxTrigramQueriesPerKey": 0,
+    "queryCacheCapacity": 0,
+    "skippedRerankCalls": 0,
+    "timeoutFallbacks": 0,
+    "trigramBackoffRate": 0,
+    "trigramBackoffs": 0,
+    "trigramHitRate": 0,
+    "trigramHits": 0,
+    "trigramQueries": 0
+  },
+  "productionLexiconSha256": "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+  "runCount": 3,
+  "runs": [
+    {
+      "candidateOutputSha256": "637637c5266243644a34142d0ba7d453b0d18537a84e3b4a275b4fef0a6a330c",
+      "keyLatencyMicros": {
+        "max": 18346,
+        "mean": 2080.392233009709,
+        "p50": 1586,
+        "p95": 6215,
+        "p99": 15045,
+        "samples": 515
+      },
+      "metrics": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 40,
+        "mrr": 0.9,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.1,
+        "top1Rate": 0.9,
+        "top3Rate": 0.9,
+        "top5Rate": 0.9
+      },
+      "run": 1
+    },
+    {
+      "candidateOutputSha256": "637637c5266243644a34142d0ba7d453b0d18537a84e3b4a275b4fef0a6a330c",
+      "keyLatencyMicros": {
+        "max": 15583,
+        "mean": 1840.3126213592234,
+        "p50": 1294,
+        "p95": 6304,
+        "p99": 12995,
+        "samples": 515
+      },
+      "metrics": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 40,
+        "mrr": 0.9,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.1,
+        "top1Rate": 0.9,
+        "top3Rate": 0.9,
+        "top5Rate": 0.9
+      },
+      "run": 2
+    },
+    {
+      "candidateOutputSha256": "637637c5266243644a34142d0ba7d453b0d18537a84e3b4a275b4fef0a6a330c",
+      "keyLatencyMicros": {
+        "max": 25696,
+        "mean": 2299.322330097087,
+        "p50": 1572,
+        "p95": 8322,
+        "p99": 18141,
+        "samples": 515
+      },
+      "metrics": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 40,
+        "mrr": 0.9,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.1,
+        "top1Rate": 0.9,
+        "top3Rate": 0.9,
+        "top5Rate": 0.9
+      },
+      "run": 3
+    }
+  ],
+  "safetyContract": {
+    "asciiLeakCount": 0,
+    "contextSetupFailureCount": 0,
+    "engineErrorCount": 0,
+    "nonExplicitAutomaticCommitCount": 0,
+    "rawInputStateLossCount": 0
+  },
+  "sampleCount": 40,
+  "schemaVersion": "quanpin-context-reranking-results/2",
+  "targetKeyLatencyMicros": {
+    "max": 25696,
+    "mean": 2453.689416419387,
+    "p50": 1601,
+    "p95": 9384,
+    "p99": 15925,
+    "samples": 1011
+  }
+}

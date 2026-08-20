@@ -1,0 +1,23 @@
+# category	code	status	syllables	pending	error
+normal	ni	Complete	ni		none
+normal	xm	Complete	xian		none
+normal	vh	Complete	zhang		none
+normal	ii	Complete	chi		none
+normal	ui	Complete	shi		none
+normal	jv	Complete	ju		none
+normal	qt	Complete	que		none
+normal	nv	Complete	nv		none
+normal	lo	Ambiguous	lo,luo		none
+zero	aa	Complete	a		none
+zero	ai	Complete	ai		none
+zero	ad	Complete	ai		none
+zero	ah	Complete	ang		none
+zero	ee	Complete	e		none
+zero	eg	Complete	eng		none
+zero	oo	Complete	o		none
+zero	ou	Complete	ou		none
+invalid	qg	Invalid			InvalidCode
+incomplete	n	Incomplete		n	none
+incomplete	nix	Incomplete	ni	x	none
+sequence	nixm	Complete	ni,xian		none
+sequence	nix	 Incomplete	ni	x	none

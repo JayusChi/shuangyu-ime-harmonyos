@@ -1,0 +1,17 @@
+----syntax=cn, code
+----leadkey='
+----config=ime-yd.ini
+=	_
+$cmd(‘’keyboard(<21>),‘’)	'$_
+$cmd(“”keyboard(<21>),“”)	bd
+$cmd(‘’keyboard(<21>),‘’)	bd
+$cmd(《》keyboard(<21>),《》)	bd
+$cmd(〈〉keyboard(<21>),〈〉)	bd
+$cmd(（）keyboard(<21>),（）)	bd
+$cmd(〔〕keyboard(<21>),〔〕)	bd
+$cmd(「」keyboard(<21>),「」)	bd
+$cmd(『』keyboard(<21>),『』)	bd
+$cmd(【】keyboard(<21>),【】)	bd
+$cmd(〖〗keyboard(<21>),〖〗)	bd
+$cmd(［］keyboard(<21>),［］)	bd
+$cmd(｛｝keyboard(<21>),｛｝)	bd

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "quanpin-context-reranking-v2-blind-status/1",
+  "status": "not_run",
+  "asOfDate": "2026-08-17",
+  "reason": "No new V2 blind dataset and frozen manifest were supplied. Historical blind data is public regression-only and was not reused as blind evidence.",
+  "commandsExecuted": 0,
+  "tuningAfterBlind": false,
+  "metrics": null
+}
+

@@ -1,0 +1,61 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "双羽输入法主模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "双羽输入法设置"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "双羽输入法"
+    },
+    {
+      "name": "Stage0InputMethodAbility_desc",
+      "value": "双羽输入法扩展"
+    },
+    {
+      "name": "Stage0InputMethodAbility_label",
+      "value": "双羽输入法"
+    },
+    { "name": "settings_title", "value": "双羽输入法" },
+    { "name": "settings_entry_page", "value": "pages/Index" },
+    { "name": "settings_subtitle", "value": "本地设置，修改后立即应用" },
+    { "name": "settings_saved", "value": "已保存" },
+    { "name": "input_settings", "value": "输入设置" },
+    { "name": "input_presentation", "value": "电脑端键盘显示" },
+    { "name": "input_presentation_desc", "value": "自动适配 2in1 与 Tablet 外接键盘，也可手动固定展示模式" },
+    { "name": "shuangpin_scheme", "value": "双拼方案" },
+    { "name": "shuangpin_scheme_desc", "value": "仅显示引擎中真实可用的方案" },
+    { "name": "yinxing_hint_candidate_count", "value": "精准匹配提示数量" },
+    { "name": "yinxing_hint_candidate_count_desc", "value": "小鹤音形未精确命中时，按词库顺序显示1～9个编码提示" },
+    { "name": "user_learning", "value": "用户学习" },
+    { "name": "user_learning_desc", "value": "关闭后停止学习新的候选选择，不会自动删除已有记录" },
+    { "name": "appearance", "value": "外观" },
+    { "name": "theme", "value": "主题" },
+    { "name": "theme_desc", "value": "设置页与键盘共用同一套颜色 Token" },
+    { "name": "keyboard_height", "value": "键盘高度" },
+    { "name": "keyboard_height_desc", "value": "标准档保持阶段 10 高度与 15vp 底部间距" },
+    { "name": "candidate_font", "value": "候选字号" },
+    { "name": "candidate_font_desc", "value": "仅调整候选内容，不影响按键标签" },
+    { "name": "candidate_presentation", "value": "候选窗位置" },
+    { "name": "candidate_presentation_desc_available", "value": "手机和平板可选择键盘候选栏，或跟随光标显示在输入框下方" },
+    { "name": "candidate_presentation_desc_unavailable", "value": "当前环境不支持输入框下方候选窗，将使用键盘候选栏" },
+    { "name": "feedback", "value": "按键反馈" },
+    { "name": "haptic", "value": "震动强度" },
+    { "name": "haptic_desc", "value": "设备不支持时会安全降级" },
+    { "name": "key_sound", "value": "按键音" },
+    { "name": "key_sound_desc", "value": "尊重系统静音策略，播放失败不影响输入" },
+    { "name": "data_management", "value": "数据管理" },
+    { "name": "clear_user_model", "value": "清空用户词频" },
+    { "name": "clear_user_model_desc", "value": "只清除本地学习排序，不删除系统词库或设置" },
+    { "name": "clear_user_model_confirm", "value": "此操作不可恢复。确定清空已学习的用户词频吗？" },
+    { "name": "cancel", "value": "取消" },
+    { "name": "clear", "value": "清空" },
+    { "name": "switch_input_method", "value": "切换输入法" },
+    { "name": "switch_input_method_long_press", "value": "切换输入法，长按打开系统输入法选择器" },
+    { "name": "hide_keyboard", "value": "收起键盘" }
+  ]
+}

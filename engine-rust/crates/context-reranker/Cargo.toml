@@ -1,0 +1,9 @@
+[package]
+name = "context-reranker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "context_reranker"
+path = "src/lib.rs"

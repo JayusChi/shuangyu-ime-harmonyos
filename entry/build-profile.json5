@@ -1,0 +1,84 @@
+{
+  "apiType": "stageMode",
+  "buildOption": {
+    "resOptions": {
+      "copyCodeResource": {
+        "enable": false
+      }
+    },
+    "externalNativeOptions": {
+      "path": "./src/main/cpp/CMakeLists.txt",
+      "arguments": "",
+      "cppFlags": "",
+      "abiFilters": [
+        "arm64-v8a",
+        "x86_64"
+      ]
+    }
+  },
+  "buildOptionSet": [
+    {
+      "name": "release",
+      "arkOptions": {
+        "obfuscation": {
+          "ruleOptions": {
+            "enable": false,
+            "files": [
+              "./obfuscation-rules.txt"
+            ]
+          }
+        }
+      },
+      "nativeLib": {
+        "debugSymbol": {
+          "strip": true,
+          "exclude": []
+        }
+      }
+    },
+  ],
+  "targets": [
+    {
+      "name": "default",
+      "source": {
+        "pages": [
+          "pages/Index",
+          "pages/UserLexicon",
+          "pages/XiaoheYinxingCategoryManagerPage",
+          "stage0/Stage0Keyboard",
+          "presentation/keyboard/KeyboardRoot",
+          "presentation/keyboard/KeyboardRootStage3",
+          "presentation/candidate/FloatingCandidateRoot"
+        ]
+      }
+    },
+    {
+      "name": "internalDebug",
+      "source": {
+        "pages": [
+          "pages/DebugIndex",
+          "pages/Index",
+          "pages/UserLexicon",
+          "pages/XiaoheYinxingCategoryManagerPage",
+          "pages/DebugStage10",
+          "pages/DebugCodeTable",
+          "pages/DebugStage1167Editor",
+          "stage0/Stage0Keyboard",
+          "presentation/keyboard/KeyboardRoot",
+          "presentation/keyboard/KeyboardRootStage3",
+          "presentation/candidate/FloatingCandidateRoot",
+          "presentation/candidate/ComputerCandidateProbeRoot"
+        ]
+      },
+      "resource": {
+        "directories": [
+          "./src/internalDebug/resources",
+          "./src/main/resources"
+        ]
+      }
+    },
+    {
+      "name": "ohosTest",
+    }
+  ]
+}

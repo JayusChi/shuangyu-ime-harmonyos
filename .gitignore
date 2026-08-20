@@ -1,0 +1,87 @@
+/node_modules
+/oh_modules
+/local.properties
+/build-profile.json5
+/build-profile.signing.local.json5
+/.idea
+/.hvigor
+/.appanalyzer
+/.claude
+/.agents
+/.cxx
+/.test
+/.stage11_5_tmp
+/.quanpin_v2_tmp
+
+**/build
+**/.test
+**/target
+**/.hvigor
+**/.idea
+**/node_modules
+**/oh_modules
+
+engine-rust/target/
+entry/.preview/
+entry/.cxx/
+
+*.log
+*.tmp
+*.bak
+
+/stage0_*.png
+/stage0_*.json
+/stage1_*.png
+/stage1_*.jpeg
+/stage1_*.json
+/*_layout.json
+
+*.p12
+*.pfx
+*.jks
+*.cer
+*.p7b
+*.keystore
+*.pem
+*.key
+*.app
+*.hap
+*.dmp
+
+# One-off local diagnostics and AI-assisted development material.
+/debug-layout.json
+/status1167b.json
+/提示词模板/
+/Bug问题.txt
+/优化建议.md
+/0.4.0交付问题.md
+
+# Keep compact evidence summaries in Git. Raw device screenshots, UI dumps,
+# JSON traces and logs stay local and can be archived as release artifacts.
+/docs/evidence/**
+!/docs/evidence/**/
+!/docs/evidence/**/*.md
+
+# Keep only reproducible baselines, datasets, manifests and final summaries.
+# Large generated failure listings and intermediate optimization rounds stay local.
+/artifacts/*
+!/artifacts/candidate-baseline/
+!/artifacts/quanpin-evaluation/
+!/artifacts/pinyin9-evaluation/
+!/artifacts/quanpin-lexicon-v2/
+!/artifacts/quanpin-reranking-v2/
+!/artifacts/quanpin-quality-improvement/
+!/artifacts/pinyin9-optimization-20260819-round4/
+!/artifacts/pinyin9-joint-decoder-evaluation-v3/
+!/artifacts/pinyin9-joint-decoder-evaluation/
+!/artifacts/0.4.0/
+/artifacts/**/*-failures.jsonl
+/artifacts/**/*.old-*
+/artifacts/0.4.0/*
+!/artifacts/0.4.0/AGC_UPLOAD_README.md
+!/artifacts/0.4.0/RELEASE_NOTES_zh-CN.txt
+!/artifacts/0.4.0/SHA256SUMS.txt
+
+# Customer-delivered Android IME configuration contained live credentials.
+# It is not a HarmonyOS dictionary input and must never be reintroduced.
+/小鹤音形/ime.android.ini

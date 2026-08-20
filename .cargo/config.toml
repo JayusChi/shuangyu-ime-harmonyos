@@ -1,0 +1,5 @@
+[target.aarch64-unknown-linux-ohos]
+linker = "scripts/toolchains/aarch64-unknown-linux-ohos-linker.cmd"
+
+[target.x86_64-unknown-linux-ohos]
+linker = "scripts/toolchains/x86_64-unknown-linux-ohos-linker.cmd"

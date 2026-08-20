@@ -1,0 +1,284 @@
+{
+    "schemaVersion":  "quanpin-implementation-freeze/1",
+    "frozenAt":  "2026-08-14T03:50:28.7104965Z",
+    "gitIdentityUsed":  false,
+    "datasetBaselineIdentitySha256":  "f68c3006ee1c714eb9f1c543439785fd1164e61b6ef21a4d8da851d2b1e2ba22",
+    "datasetManifestSha256":  "df9e2944b4bacf5c2323f3360ae477f1cb305a4b0e7ace424561c9bb2a9efedc",
+    "productionLexiconSha256":  "6a5f0567ca52c3e0ae539c9753109652c3c98218a0bfba1ad492d4ec494d6ff4",
+    "productionLexiconBytes":  3741328,
+    "engineVersion":  "0.0.1-quanpin-features",
+    "interfaceVersion":  9,
+    "abiVersion":  9,
+    "settingsSchemaVersion":  7,
+    "defaults":  {
+                     "configVersion":  1,
+                     "spellingCorrectionEnabled":  false,
+                     "maximumEditDistance":  1,
+                     "fuzzyOptions":  [
+
+                                      ]
+                 },
+    "hardLimits":  {
+                       "maximumCorrectableRawLength":  32,
+                       "maximumSpellingVariants":  512,
+                       "maximumSpellingSearchNodes":  1024,
+                       "maximumCorrectionQueryPaths":  32,
+                       "maximumCandidatesPerExpansionPath":  3,
+                       "maximumFuzzyQueryPaths":  32,
+                       "maximumFuzzyChangesPerPath":  2,
+                       "maximumCombinedQueryPaths":  8,
+                       "maximumSentenceDecodePathsPerSpellingKind":  4,
+                       "maximumFuzzySentenceDecodePaths":  8,
+                       "maximumCombinedSentenceDecodePaths":  4,
+                       "maximumMergedCandidates":  256,
+                       "featureCacheCapacity":  0
+                   },
+    "files":  [
+                  {
+                      "path":  "engine-rust/Cargo.lock",
+                      "bytes":  2288,
+                      "sha256":  "1da94d43a5efb606314ab2b699ebe6ccf18f36e2073f5c67f2f7063f646d317b"
+                  },
+                  {
+                      "path":  "engine-rust/crates/engine-protocol/src/composition.rs",
+                      "bytes":  15473,
+                      "sha256":  "5954a3b132325c2944faacd54406b0ee361542391a8e833fc778d15e781ab38f"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/Cargo.toml",
+                      "bytes":  817,
+                      "sha256":  "f3800962e83ad857ef53068a81fc23d2d16aa5055e415fb6bc29817a84451ddb"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/src/lib.rs",
+                      "bytes":  2926,
+                      "sha256":  "f9236c689b190f54eb6660af5aafdf89905b1a997b43f633aad44d0450df3ce8"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/src/formal.rs",
+                      "bytes":  109149,
+                      "sha256":  "039f7cb3c06a1aee65d8f42bdbd93b254746e5ced0ef31cdb36dec6caeff6e5d"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/src/candidate_session.rs",
+                      "bytes":  5677,
+                      "sha256":  "4f9a9416670e4bd13a3ab21e522624f567ce6337f8a578b3e6924e3567db0def"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/src/quanpin_features.rs",
+                      "bytes":  18223,
+                      "sha256":  "7511644776056364b5c8087f37f8142ad25cd3f3dbdf062ece173ba10b6890b6"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/examples/precise_match_stage0_baseline.rs",
+                      "bytes":  11793,
+                      "sha256":  "1c6e4efe3fe67536c25a602ee6aacb77b80d952f399e8fb30c477e22edf171b4"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/examples/quanpin_feature_inspect.rs",
+                      "bytes":  958,
+                      "sha256":  "8ab7c8d4986b8744638471169851cd2ed0f1c2dd1ff5db21bb50159426f2331e"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/examples/quanpin_feature_runtime.rs",
+                      "bytes":  1535,
+                      "sha256":  "dc2bc370dc7ce7ac3df53b5593fda02f2733ccad753a9174129a17a06b1053a0"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/examples/stage0_shuangpin_baseline.rs",
+                      "bytes":  9935,
+                      "sha256":  "0c92cb8fea781c0a733e9065ddca9f6d541b847a13cafa51a095c4eeb986a7fc"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/examples/stage11_5_benchmark.rs",
+                      "bytes":  3823,
+                      "sha256":  "fc8664e8de89d60ef989144fcb112c52b340ce0fe8376ccc6c0278ae79bbd6d3"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/examples/t9_stage3_benchmark.rs",
+                      "bytes":  5529,
+                      "sha256":  "8215a3bbcc2c816e7e4c606e31d773ab9d0bf9e5a592ffb964eb428c3284d04c"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/code_table_backend.rs",
+                      "bytes":  23110,
+                      "sha256":  "2640c64eb7dd462673027a9e07a8792d72d84f1777e35e13e38d9d62e2396bc5"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/precise_match_stage0_baseline.rs",
+                      "bytes":  4839,
+                      "sha256":  "5684ab829769b3fa34c9ba6a7da77873e37a057f32869585b213b8be26737820"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/quanpin_features.rs",
+                      "bytes":  7585,
+                      "sha256":  "67a44658d07a1ee25070607e77b8936832b91e9f2eb52d0d77c23ce80b789368"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/quanpin_quality.rs",
+                      "bytes":  6759,
+                      "sha256":  "7dc465cbba6f3d1023c98f342e523841116ac7e4253225f50c7917b26d0fefac"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/quanpin_stage2.rs",
+                      "bytes":  9926,
+                      "sha256":  "147270e0bc7c757516c34930e100cec5c9e3a3fb582c9667d9221d301f8c082b"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/stage11_5_production_corpus.rs",
+                      "bytes":  6466,
+                      "sha256":  "359ffe953d792e02c95c37171ee8cfd3bf77d879bc36516220841053768632f8"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/stage7_cases.rs",
+                      "bytes":  5728,
+                      "sha256":  "a4fcab82e1d2004e9521ce2bb078e19f6dcffd4c712025edff34e53ccf48cf92"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/stage8_cases.rs",
+                      "bytes":  5467,
+                      "sha256":  "fb28d0e25acb9d19c01918269e0bea9680dce62e45b012f396cfaffee589c083"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/stage9_cases.rs",
+                      "bytes":  6139,
+                      "sha256":  "0f01cf59f4bfb78d6a01450d67d7b6c45509ba79138d274a9e3c8e2f923774df"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/t9_stage3.rs",
+                      "bytes":  7377,
+                      "sha256":  "d89a0d31e310895d6eefcf10d2384bd395d59a4877688bb5c7f3107c80278816"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/user_lexicon_cases.rs",
+                      "bytes":  4948,
+                      "sha256":  "b0ece3629a8873807ba77058fc08a36536cdd10685b012b8a71914249a9280a3"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/xiaohe_yinxing_production.rs",
+                      "bytes":  27723,
+                      "sha256":  "f15f83017bccecbb417593fe38fb9e683c0ebc1cf8ed1542916d9f723a7089da"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-ffi/src/lib.rs",
+                      "bytes":  88132,
+                      "sha256":  "8caf9924fee4e8eb2b958b4e36c578da45b3c7e7804654a1841b8399d8c8ca85"
+                  },
+                  {
+                      "path":  "engine-rust/tools/candidate-baseline/src/lib.rs",
+                      "bytes":  85535,
+                      "sha256":  "8ff7eca2f63eb1564a7618aca8348a5b6f140f4cca55b6abf6838f5c4545b01e"
+                  },
+                  {
+                      "path":  "engine-rust/tools/candidate-baseline/src/main.rs",
+                      "bytes":  9009,
+                      "sha256":  "a9fe6ca4ba0dae582535274e8f6f2a95c7bc0e48e2c8d8d994ec52b707bdb316"
+                  },
+                  {
+                      "path":  "engine-rust/tools/candidate-baseline/src/quanpin_evaluation.rs",
+                      "bytes":  40430,
+                      "sha256":  "7b49dc7118e26eee57ac2fc93f5a897b0b3b634045cc5be8401609c34de61cdb"
+                  },
+                  {
+                      "path":  "entry/src/main/cpp/bridge/rust_engine_bridge.h",
+                      "bytes":  2373,
+                      "sha256":  "7f77b2305402c2a57dbab7444159b6ccf6c2dd08bbbec4d444000286a08d67c0"
+                  },
+                  {
+                      "path":  "entry/src/main/cpp/napi/engine_napi.cpp",
+                      "bytes":  27535,
+                      "sha256":  "e742082f4a9736e93fbb8f4a3f4b4e1ed4e29904f6d57b181824b9ef28c94aac"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/infrastructure/native/NativeEngineTypes.ets",
+                      "bytes":  5089,
+                      "sha256":  "b91b6a3b671b44831baf2ee0c487fe899f154cf66572b97dc2f0b12c73c27f3c"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/infrastructure/native/NativeEngineGateway.ets",
+                      "bytes":  23347,
+                      "sha256":  "5a97c951321f0085eb1b6e4b6d12cd481ac4b3afc02398fdee8be26f4be68cad"
+                  },
+                  {
+                      "path":  "entry/src/main/types/libime_bridge/index.d.ts",
+                      "bytes":  5888,
+                      "sha256":  "39f7a647dc5624fb45931e465bbbad6d805f98c5df8e8590ce6a9bbd4fb4df33"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/application/EngineCoordinator.ets",
+                      "bytes":  18255,
+                      "sha256":  "a547e673a51275d873af41149b8efe44db3db293b6091502928e05c1feb9f0c8"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/application/InputSessionController.ets",
+                      "bytes":  79671,
+                      "sha256":  "f5b44273471bfdc1c91ef7bdad859d153ef7e1ce1cda3822751dac11b9d09ca9"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/application/SettingsController.ets",
+                      "bytes":  31170,
+                      "sha256":  "f2e3891d3447befadf41ea63f04ffd31e8a989af3af0f8210524da5390c228d5"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/domain/settings/ImeSettings.ets",
+                      "bytes":  10705,
+                      "sha256":  "d289824e0ce4ecd2b5e1785b12e3950690f0e4c83fe723aa23d2dcdb04413614"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/infrastructure/storage/SettingsMigration.ets",
+                      "bytes":  4561,
+                      "sha256":  "588d60791ec45354fce69023d49aa8094ab4629b0e1e2bb4040a483eeabb61d9"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/infrastructure/storage/SettingsValidator.ets",
+                      "bytes":  7788,
+                      "sha256":  "c18837a4e3de2cefa21e391bd82e616d95488309a227f0469e3242f2634aa8eb"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/infrastructure/storage/SettingsRepository.ets",
+                      "bytes":  16182,
+                      "sha256":  "29357e6e2cb05930a4bc7bb8b5f036026b662124674115c9ce5f41b1d1ac64e6"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/presentation/settings/SettingsPage.ets",
+                      "bytes":  18663,
+                      "sha256":  "c4ae10476a77e0c47477e5ab9d9faed1251292ec1254b4495025dffb359d6ef1"
+                  },
+                  {
+                      "path":  "entry/src/test/Stage2Controller.test.ets",
+                      "bytes":  69149,
+                      "sha256":  "14ceb4d2c2e6fb5f42de01aba9d6bbe52eb5c1f04d3df21f3f81d0ac9c394129"
+                  },
+                  {
+                      "path":  "entry/src/test/Stage11.test.ets",
+                      "bytes":  58613,
+                      "sha256":  "6ad1b9b743c012bb76a342071294eb50f9dee56a6288729621e256979830ab69"
+                  },
+                  {
+                      "path":  "docs/API_CONTRACT.md",
+                      "bytes":  27547,
+                      "sha256":  "dd460ef65551d2641dcbc9ffdfd6f2b719939881cdadd480710d363219c09e04"
+                  },
+                  {
+                      "path":  "docs/ACTION_PROTOCOL.md",
+                      "bytes":  3598,
+                      "sha256":  "1b2fa234039bf45908046dbffe0bb84cdc01feec28d370d3fb5601bb09382195"
+                  },
+                  {
+                      "path":  "docs/DIRECT_ENCODING_SIX_REQUIREMENTS.md",
+                      "bytes":  2718,
+                      "sha256":  "76b94157ff00316aa068703afd581e8a3edff23e733650cfb0c3a1c13b6386e2"
+                  },
+                  {
+                      "path":  "scripts/evaluate-quanpin-quality.ps1",
+                      "bytes":  3918,
+                      "sha256":  "f08ff116ae6239f96d2d3e239eccbcebc4fbb308105d9beb39d6f1f14a4d0073"
+                  },
+                  {
+                      "path":  "scripts/freeze-quanpin-implementation.ps1",
+                      "bytes":  6632,
+                      "sha256":  "278ac6a334c960910d05f00e4380624458798f02078e768f70f79cc897149574"
+                  }
+              ],
+    "mutationPolicy":  "Run blind exactly once (three repetitions) against this source/config identity. Any subsequent algorithm, parameter, source, config, production lexicon, or frozen dataset change requires a new implementation version and a new freeze manifest."
+}

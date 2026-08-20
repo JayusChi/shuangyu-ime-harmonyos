@@ -1,0 +1,23 @@
+[package]
+name = "ime-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "ime_ffi"
+crate-type = ["staticlib"]
+
+[dependencies]
+code-table-runtime = { path = "../code-table-runtime" }
+engine-protocol = { path = "../engine-protocol" }
+ime-engine = { path = "../ime-engine" }
+user-lexicon = { path = "../user-lexicon" }
+user-model = { path = "../user-model" }
+
+[dev-dependencies]
+code-table-fixture-generator = { path = "../../tools/code-table-fixture-generator" }
+lexicon-core = { path = "../lexicon-core" }
+
+[lints.clippy]
+undocumented_unsafe_blocks = "deny"

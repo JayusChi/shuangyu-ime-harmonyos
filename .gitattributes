@@ -1,0 +1,18 @@
+*.ets text eol=crlf
+*.ts text eol=crlf
+*.json5 text eol=crlf
+*.ps1 text eol=crlf
+*.rs text eol=crlf
+*.cpp text eol=crlf
+*.h text eol=crlf
+*.md text eol=crlf
+*.png binary
+*.hap binary
+*.a binary
+*.so binary
+
+# Large deterministic runtime and test assets are versioned through Git LFS.
+*.hsyx filter=lfs diff=lfs merge=lfs -text
+*.lex filter=lfs diff=lfs merge=lfs -text
+*.qng filter=lfs diff=lfs merge=lfs -text
+dictionaries/generated/xiaohe-yinxing-production/trace-index.jsonl filter=lfs diff=lfs merge=lfs -text

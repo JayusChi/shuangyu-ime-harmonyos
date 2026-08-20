@@ -1,0 +1,341 @@
+{
+  "aggregateKeyLatencyMicros": {
+    "max": 139923,
+    "mean": 10318.55744680851,
+    "p50": 2061,
+    "p95": 60484,
+    "p99": 94636,
+    "samples": 14100
+  },
+  "contextReranking": {
+    "bigramHits": 0,
+    "bigramQueries": 1946,
+    "casesWithHit": 0,
+    "enabled": true,
+    "lastErrorCode": "",
+    "maxBigramQueriesPerKey": 40,
+    "maxCandidatePool": 16,
+    "maxRerankMicros": 13,
+    "maxTrigramQueriesPerKey": 0,
+    "modelFileBytes": 37659,
+    "modelLoadMicros": 1158,
+    "modelMemoryBytes": 253268,
+    "modelVersion": 2,
+    "timeoutFallbacks": 0,
+    "trigramBackoffs": 0,
+    "trigramHits": 0,
+    "trigramQueries": 0
+  },
+  "datasetManifestSha256": "df9e2944b4bacf5c2323f3360ae477f1cb305a4b0e7ace424561c9bb2a9efedc",
+  "deterministicCandidateOutputs": true,
+  "engineLoadLatencyMicros": {
+    "max": 210277,
+    "mean": 198999,
+    "p50": 194531,
+    "p95": 210277,
+    "p99": 210277,
+    "samples": 3
+  },
+  "engineVersion": "0.0.1-quanpin-features",
+  "environment": {
+    "arch": "x86_64",
+    "cargoProfile": "release",
+    "os": "windows",
+    "processorIdentifier": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "featureExpansion": {
+    "candidateExpansionsMax": 0,
+    "candidateExpansionsMean": 0,
+    "correctionQueryPathsMax": 0,
+    "correctionQueryPathsMean": 0,
+    "fuzzyQueryPathsMax": 0,
+    "fuzzyQueryPathsMean": 0,
+    "inputTooLongSampleCount": 0,
+    "sentenceDecoderPathsMax": 0,
+    "sentenceDecoderPathsMean": 0,
+    "spellingVariantsGeneratedMax": 0,
+    "spellingVariantsGeneratedMean": 0,
+    "truncatedSampleCount": 0
+  },
+  "fuzzyOptionExecution": "DISABLED_FOR_PERFORMANCE_COMPARISON: no fuzzy option is enabled.",
+  "fuzzyOptionsEnabled": false,
+  "groups": {
+    "byCategory": {
+      "abbrev_mixed_incomplete": {
+        "averageFirstRankWhenRecalled": null,
+        "count": 20,
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 1,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "common_character_word": {
+        "averageFirstRankWhenRecalled": 1.2380952380952381,
+        "count": 45,
+        "mrr": 0.8865079365079366,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.06666666666666667,
+        "top1Rate": 0.8666666666666667,
+        "top3Rate": 0.8888888888888888,
+        "top5Rate": 0.9111111111111111
+      },
+      "common_phrase_2_4": {
+        "averageFirstRankWhenRecalled": 1.6734693877551021,
+        "count": 60,
+        "mrr": 0.7769607843137256,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.18333333333333332,
+        "top1Rate": 0.7666666666666667,
+        "top3Rate": 0.7833333333333333,
+        "top5Rate": 0.7833333333333333
+      },
+      "fuzzy": {
+        "averageFirstRankWhenRecalled": 1.5,
+        "count": 12,
+        "mrr": 0.125,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.8333333333333334,
+        "top1Rate": 0.08333333333333333,
+        "top3Rate": 0.16666666666666666,
+        "top5Rate": 0.16666666666666666
+      },
+      "long_ambiguous": {
+        "averageFirstRankWhenRecalled": 1,
+        "count": 30,
+        "mrr": 0.6,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.4,
+        "top1Rate": 0.6,
+        "top3Rate": 0.6,
+        "top5Rate": 0.6
+      },
+      "modern_chat": {
+        "averageFirstRankWhenRecalled": 1.2619047619047619,
+        "count": 60,
+        "mrr": 0.6263888888888889,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.3,
+        "top1Rate": 0.5666666666666667,
+        "top3Rate": 0.6833333333333333,
+        "top5Rate": 0.7
+      },
+      "polyphone_homophone": {
+        "averageFirstRankWhenRecalled": 2,
+        "count": 25,
+        "mrr": 0.8235555555555556,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.08,
+        "top1Rate": 0.8,
+        "top3Rate": 0.84,
+        "top5Rate": 0.88
+      },
+      "proper_name_domain": {
+        "averageFirstRankWhenRecalled": 6.666666666666667,
+        "count": 30,
+        "mrr": 0.9501960784313727,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 0.9333333333333333,
+        "top3Rate": 0.9666666666666667,
+        "top5Rate": 0.9666666666666667
+      },
+      "typo": {
+        "averageFirstRankWhenRecalled": null,
+        "count": 18,
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 1,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      }
+    },
+    "byInputKind": {
+      "clean": {
+        "averageFirstRankWhenRecalled": 2.2107843137254903,
+        "count": 270,
+        "mrr": 0.7081059584327558,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.24444444444444444,
+        "top1Rate": 0.6851851851851852,
+        "top3Rate": 0.725925925925926,
+        "top5Rate": 0.737037037037037
+      },
+      "fuzzy": {
+        "averageFirstRankWhenRecalled": 1.5,
+        "count": 12,
+        "mrr": 0.125,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.8333333333333334,
+        "top1Rate": 0.08333333333333333,
+        "top3Rate": 0.16666666666666666,
+        "top5Rate": 0.16666666666666666
+      },
+      "typo": {
+        "averageFirstRankWhenRecalled": null,
+        "count": 18,
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 1,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      }
+    },
+    "byRawInputLength": {
+      "01-04": {
+        "averageFirstRankWhenRecalled": 29.333333333333332,
+        "count": 8,
+        "mrr": 0.5632352941176471,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.25,
+        "top1Rate": 0.5,
+        "top3Rate": 0.625,
+        "top5Rate": 0.625
+      },
+      "05-08": {
+        "averageFirstRankWhenRecalled": 1.2073170731707317,
+        "count": 102,
+        "mrr": 0.7639822595704948,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.19607843137254902,
+        "top1Rate": 0.7450980392156863,
+        "top3Rate": 0.7745098039215687,
+        "top5Rate": 0.7941176470588235
+      },
+      "09-12": {
+        "averageFirstRankWhenRecalled": 2,
+        "count": 48,
+        "mrr": 0.6378676470588235,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.3125,
+        "top1Rate": 0.625,
+        "top3Rate": 0.6458333333333334,
+        "top5Rate": 0.6458333333333334
+      },
+      "13-20": {
+        "averageFirstRankWhenRecalled": 1.3870967741935485,
+        "count": 99,
+        "mrr": 0.5847362514029181,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.37373737373737376,
+        "top1Rate": 0.5555555555555556,
+        "top3Rate": 0.6161616161616161,
+        "top5Rate": 0.6161616161616161
+      },
+      "21+": {
+        "averageFirstRankWhenRecalled": 1.173913043478261,
+        "count": 43,
+        "mrr": 0.5058139534883721,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.46511627906976744,
+        "top1Rate": 0.4883720930232558,
+        "top3Rate": 0.5116279069767442,
+        "top5Rate": 0.5348837209302325
+      }
+    }
+  },
+  "interpretation": {
+    "deviceDataIncluded": false,
+    "hostDataOnly": true,
+    "lowScoresCauseProcessFailure": false
+  },
+  "measurementKind": "host-release-ImeEngine-per-key",
+  "metrics": {
+    "averageFirstRankWhenRecalled": 2.203883495145631,
+    "count": 300,
+    "mrr": 0.6422953625894802,
+    "noCandidateRate": 0,
+    "targetUnrecalledRate": 0.31333333333333335,
+    "top1Rate": 0.62,
+    "top3Rate": 0.66,
+    "top5Rate": 0.67
+  },
+  "processPeakWorkingSetBytes": 86200320,
+  "productionLexiconBytes": 3746486,
+  "productionLexiconSha256": "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+  "releaseModeRequired": true,
+  "runCount": 3,
+  "runs": [
+    {
+      "candidateOutputSha256": "70e84758eafe02fff565e4061767af2a3c7b35fac09c29e4e94dd3e9569dbd59",
+      "keyLatencyMicros": {
+        "max": 139923,
+        "mean": 10276.042127659575,
+        "p50": 1962,
+        "p95": 60812,
+        "p99": 93324,
+        "samples": 4700
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 2.203883495145631,
+        "count": 300,
+        "mrr": 0.6422953625894802,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.31333333333333335,
+        "top1Rate": 0.62,
+        "top3Rate": 0.66,
+        "top5Rate": 0.67
+      },
+      "run": 1
+    },
+    {
+      "candidateOutputSha256": "70e84758eafe02fff565e4061767af2a3c7b35fac09c29e4e94dd3e9569dbd59",
+      "keyLatencyMicros": {
+        "max": 128701,
+        "mean": 10172.166170212766,
+        "p50": 1949,
+        "p95": 60456,
+        "p99": 94808,
+        "samples": 4700
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 2.203883495145631,
+        "count": 300,
+        "mrr": 0.6422953625894802,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.31333333333333335,
+        "top1Rate": 0.62,
+        "top3Rate": 0.66,
+        "top5Rate": 0.67
+      },
+      "run": 2
+    },
+    {
+      "candidateOutputSha256": "70e84758eafe02fff565e4061767af2a3c7b35fac09c29e4e94dd3e9569dbd59",
+      "keyLatencyMicros": {
+        "max": 125936,
+        "mean": 10507.46404255319,
+        "p50": 2281,
+        "p95": 60484,
+        "p99": 94972,
+        "samples": 4700
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 2.203883495145631,
+        "count": 300,
+        "mrr": 0.6422953625894802,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.31333333333333335,
+        "top1Rate": 0.62,
+        "top3Rate": 0.66,
+        "top5Rate": 0.67
+      },
+      "run": 3
+    }
+  ],
+  "safetyContract": {
+    "asciiLeakCount": 0,
+    "engineErrorCount": 0,
+    "nonExplicitAutomaticCommitCount": 0,
+    "stateLossCount": 0
+  },
+  "sampleCount": 300,
+  "schemaVersion": "quanpin-quality-baseline-results/1",
+  "schemeId": "quanpin",
+  "spellingCorrectionEnabled": false,
+  "split": "dev"
+}

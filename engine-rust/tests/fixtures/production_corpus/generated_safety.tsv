@@ -1,0 +1,54 @@
+caseId	category	rawShuangpinInput	expectedSyllables	expectedTopCandidate	allowedCandidates	forbiddenCandidates	maxExpectedRank	notes
+incomplete-a	incomplete	a					0	single-key incomplete input must remain safe
+incomplete-b	incomplete	b					0	single-key incomplete input must remain safe
+incomplete-c	incomplete	c					0	single-key incomplete input must remain safe
+incomplete-d	incomplete	d					0	single-key incomplete input must remain safe
+incomplete-e	incomplete	e					0	single-key incomplete input must remain safe
+incomplete-f	incomplete	f					0	single-key incomplete input must remain safe
+incomplete-g	incomplete	g					0	single-key incomplete input must remain safe
+incomplete-h	incomplete	h					0	single-key incomplete input must remain safe
+incomplete-i	incomplete	i					0	single-key incomplete input must remain safe
+incomplete-j	incomplete	j					0	single-key incomplete input must remain safe
+incomplete-k	incomplete	k					0	single-key incomplete input must remain safe
+incomplete-l	incomplete	l					0	single-key incomplete input must remain safe
+incomplete-m	incomplete	m					0	single-key incomplete input must remain safe
+incomplete-n	incomplete	n					0	single-key incomplete input must remain safe
+incomplete-o	incomplete	o					0	single-key incomplete input must remain safe
+incomplete-p	incomplete	p					0	single-key incomplete input must remain safe
+incomplete-q	incomplete	q					0	single-key incomplete input must remain safe
+incomplete-r	incomplete	r					0	single-key incomplete input must remain safe
+incomplete-s	incomplete	s					0	single-key incomplete input must remain safe
+incomplete-t	incomplete	t					0	single-key incomplete input must remain safe
+incomplete-u	incomplete	u					0	single-key incomplete input must remain safe
+incomplete-v	incomplete	v					0	single-key incomplete input must remain safe
+incomplete-w	incomplete	w					0	single-key incomplete input must remain safe
+incomplete-x	incomplete	x					0	single-key incomplete input must remain safe
+incomplete-y	incomplete	y					0	single-key incomplete input must remain safe
+incomplete-z	incomplete	z					0	single-key incomplete input must remain safe
+illegal-001	illegal	1					0	illegal character input must not panic or expose candidates
+illegal-002	illegal	2					0	illegal character input must not panic or expose candidates
+illegal-003	illegal	0					0	illegal character input must not panic or expose candidates
+illegal-004	illegal	@					0	illegal character input must not panic or expose candidates
+illegal-005	illegal	#					0	illegal character input must not panic or expose candidates
+illegal-006	illegal	$					0	illegal character input must not panic or expose candidates
+illegal-007	illegal	%					0	illegal character input must not panic or expose candidates
+illegal-008	illegal	&					0	illegal character input must not panic or expose candidates
+illegal-009	illegal	*					0	illegal character input must not panic or expose candidates
+illegal-010	illegal	-					0	illegal character input must not panic or expose candidates
+illegal-011	illegal	_					0	illegal character input must not panic or expose candidates
+illegal-012	illegal	=					0	illegal character input must not panic or expose candidates
+illegal-013	illegal	+					0	illegal character input must not panic or expose candidates
+illegal-014	illegal	/					0	illegal character input must not panic or expose candidates
+illegal-015	illegal	:					0	illegal character input must not panic or expose candidates
+illegal-016	illegal	;					0	illegal character input must not panic or expose candidates
+illegal-017	illegal	.					0	illegal character input must not panic or expose candidates
+illegal-018	illegal	,					0	illegal character input must not panic or expose candidates
+illegal-019	illegal	?					0	illegal character input must not panic or expose candidates
+illegal-020	illegal	!					0	illegal character input must not panic or expose candidates
+illegal-021	illegal	A					0	illegal character input must not panic or expose candidates
+illegal-022	illegal	Z					0	illegal character input must not panic or expose candidates
+illegal-023	illegal	a1					0	illegal character input must not panic or expose candidates
+illegal-024	illegal	ni@					0	illegal character input must not panic or expose candidates
+illegal-025	illegal	中					0	illegal character input must not panic or expose candidates
+illegal-026	illegal	é					0	illegal character input must not panic or expose candidates
+illegal-027	illegal	🙂					0	illegal character input must not panic or expose candidates

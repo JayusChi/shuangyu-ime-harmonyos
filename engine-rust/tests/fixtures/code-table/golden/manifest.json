@@ -1,0 +1,32 @@
+{
+  "formatVersion": 1,
+  "bundleId": "code-table-fixture-golden-v1",
+  "displayName": "码表输入（测试）",
+  "fixtureOnly": true,
+  "categories": [
+    {
+      "id": "core",
+      "displayName": "核心黄金",
+      "sourcePath": "core.txt",
+      "order": 10,
+      "defaultEnabled": true,
+      "expectedEntryCount": 6,
+      "sourceSha256": "7b6684ba35fed50ccb053c13b6e5e4907191ae67f0b3447f6f04dcde602f798e"
+    },
+    {
+      "id": "phrases",
+      "displayName": "短语黄金",
+      "sourcePath": "phrases.txt",
+      "order": 20,
+      "defaultEnabled": true,
+      "expectedEntryCount": 5,
+      "sourceSha256": "404f02d2c767891c433a156ba1ba5558b248be4a1760d4c6031d5d77b9812d48"
+    }
+  ],
+  "guideTable": {
+    "id": "guide",
+    "sourcePath": "guide.txt",
+    "expectedEntryCount": 4,
+    "sourceSha256": "f3648b8292f92c742cc7051ce041d97ead0d956eeac76edf3d0ff20805d5df57"
+  }
+}

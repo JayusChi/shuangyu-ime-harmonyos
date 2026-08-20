@@ -1,0 +1,95 @@
+{
+    "schemaVersion":  "quanpin-v2-source-manifest/1",
+    "asOfDate":  "2026-08-14",
+    "catalogSha256":  "ebe08e0b0fe19530a73ea00f058361531a1a09082d63b0528056daf0e2121f24",
+    "inheritedSources":  [
+                             {
+                                 "path":  "dictionaries/source/rime-pinyin-simp/pinyin_simp.dict.yaml",
+                                 "sha256":  "e341598343a0f0f2035bb1aafc34a7f3bb7887deeecb3f60796262aaa2983e6b",
+                                 "license":  "Apache-2.0"
+                             },
+                             {
+                                 "path":  "dictionaries/source/stage11_5_short_sentences.tsv",
+                                 "sha256":  "fb32c346dd26de894a6ecef568e6692754ed533aa769ef994909512c2955c61a",
+                                 "license":  "Apache-2.0"
+                             }
+                         ],
+    "v2Sources":  [
+                      {
+                          "path":  "dictionaries/source/quanpin-v2/base.tsv",
+                          "sha256":  "e83b4781308e2acf85a661ab83e6c7cfed7e1b7f73f5b73459d4a189965fa686",
+                          "sourceIds":  [
+                                            "project-v2-colloquial",
+                                            "project-v2-proper"
+                                        ],
+                          "license":  "Apache-2.0",
+                          "updatedAt":  "2026-08-14",
+                          "processingRule":  "manual-independent-curation-v1"
+                      },
+                      {
+                          "path":  "dictionaries/source/quanpin-v2/domains.tsv",
+                          "sha256":  "169509ab09ea39fcbba0675bd4ea17e2da1a3d0d478da7776f83bc4a11161b96",
+                          "sourceIds":  [
+                                            "project-v2-domain"
+                                        ],
+                          "license":  "Apache-2.0",
+                          "updatedAt":  "2026-08-14",
+                          "processingRule":  "manual-domain-taxonomy-v1"
+                      },
+                      {
+                          "path":  "dictionaries/source/quanpin-v2/hotwords-2026-08.tsv",
+                          "sha256":  "fc04310cacebc8b21c49a1734804d58e9de96616c0135f5486c2b73062cbcbdf",
+                          "sourceIds":  [
+                                            "project-v2-hot"
+                                        ],
+                          "license":  "Apache-2.0",
+                          "updatedAt":  "2026-08-14",
+                          "processingRule":  "monthly-or-quarterly-review-expire-v1"
+                      },
+                      {
+                          "path":  "dictionaries/source/quanpin-v2/filter-policy.txt",
+                          "sha256":  "f6f369b5dfc0b7e3c497473aaa5c7f8be877972d9ced6e80ababd45289e0b3ce",
+                          "sourceIds":  [
+                                            "project-v2-safety-policy"
+                                        ],
+                          "license":  "Apache-2.0",
+                          "updatedAt":  "2026-08-14",
+                          "processingRule":  "literal-substring-reject-v1"
+                      }
+                  ],
+    "frequencyTiers":  {
+                           "base":  {
+                                        "low":  600,
+                                        "core":  6000,
+                                        "normal":  1600,
+                                        "high":  4000
+                                    },
+                           "domain":  {
+                                          "low":  400,
+                                          "core":  1600,
+                                          "normal":  1000,
+                                          "high":  1400
+                                      },
+                           "hot":  {
+                                       "low":  500,
+                                       "core":  1000,
+                                       "normal":  650,
+                                       "high":  800
+                                   }
+                       },
+    "hardLimits":  {
+                       "maxRows":  10000,
+                       "maxTextCharacters":  16,
+                       "maxSyllables":  16,
+                       "maxFieldCharacters":  256,
+                       "maxFrequency":  6000
+                   },
+    "stats":  {
+                  "inputRows":  145,
+                  "acceptedRows":  132,
+                  "inheritedDuplicates":  13,
+                  "mergedDuplicates":  1,
+                  "expired":  0,
+                  "filtered":  0
+              }
+}

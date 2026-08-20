@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "quanpin-evaluation-sources/1",
+  "sources": [
+    {
+      "authoredAt": "2026-08-13",
+      "commercialImeData": false,
+      "engineGeneratedExpectedText": false,
+      "externalData": false,
+      "id": "project-authored:quanpin-quality-baseline-v1",
+      "license": "PROJECT-INTERNAL-AUTHORED-DATA",
+      "method": "Manually authored words and morpheme templates; deterministic combinations and typo transformations are independent of engine output.",
+      "name": "HarmonyOS_Input project-authored evaluation prompts",
+      "version": "1.0.0"
+    }
+  ]
+}

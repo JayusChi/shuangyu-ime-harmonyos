@@ -1,0 +1,13 @@
+[package]
+name = "candidate-query"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "candidate_query"
+path = "src/lib.rs"
+
+[dependencies]
+candidate-ranking = { path = "../candidate-ranking" }
+lexicon-core = { path = "../lexicon-core" }

@@ -1,0 +1,19 @@
+# Stage 8 hand-authored sentence decoder test lexicon.
+# Format: word<TAB>pinyin<TAB>frequency<TAB>source
+你	ni	100000	stage8_sentence_test
+尼	ni	50000	stage8_sentence_test
+泥	ni	49000	stage8_sentence_test
+拟	ni	48000	stage8_sentence_test
+逆	ni	47000	stage8_sentence_test
+呢	ni	46000	stage8_sentence_test
+好	hao	95000	stage8_sentence_test
+你好	ni hao	120000	stage8_sentence_test
+法	fa	80000	stage8_sentence_test
+输入	shu ru	82000	stage8_sentence_test
+输入法	shu ru fa	90000	stage8_sentence_test
+小鹤	xiao he	85000	stage8_sentence_test
+双拼	shuang pin	84000	stage8_sentence_test
+小鹤双拼	xiao he shuang pin	88000	stage8_sentence_test
+期间	qi jian	70000	stage8_sentence_test
+其间	qi jian	70000	stage8_sentence_test
+你	ni	5	stage8_sentence_duplicate

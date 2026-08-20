@@ -1,0 +1,81 @@
+{
+  "baselineId": "pinyin9-quality-v1-20260817",
+  "baselineIdentitySha256": "b9f3ec2afc691b45858fc6fde81d2c6fa3720c426dc0fef05af803bb74b090b4",
+  "categoryDistribution": {
+    "abbreviation": 32,
+    "adjacent_key": 32,
+    "brand_domain": 28,
+    "common_character_word": 192,
+    "common_phrase_2_4": 252,
+    "explicit_boundary": 32,
+    "extra_digit": 32,
+    "fuzzy_dialect": 32,
+    "high_digit_collision": 32,
+    "incomplete_tail": 32,
+    "long_ambiguous": 110,
+    "long_continuous": 32,
+    "missing_digit": 32,
+    "modern_chat": 252,
+    "multiple_pinyin_paths": 32,
+    "organization_name": 20,
+    "person_name": 20,
+    "place_name": 40,
+    "polyphone_homophone": 112,
+    "proper_name_domain": 110,
+    "segmentation_ambiguity": 32,
+    "transposition": 32
+  },
+  "files": [
+    {
+      "bytes": 1382,
+      "path": "DATASET_PROVENANCE.md",
+      "sampleCount": 0,
+      "sha256": "c04e75a048c8da834915e57bc964e462679700b457e27085b91ac584829a53e2"
+    },
+    {
+      "bytes": 205191,
+      "path": "blind.jsonl",
+      "sampleCount": 465,
+      "sha256": "812ea89de709f313f46ef8154d402c29bd91c1ed46f61ecdf4c1eef15f8c6373"
+    },
+    {
+      "bytes": 67963,
+      "path": "dev.jsonl",
+      "sampleCount": 155,
+      "sha256": "e86af37afc793e1a740631caad28f3707f8c5253d4eefdbb0e7fe624dfa3e048"
+    },
+    {
+      "bytes": 446176,
+      "path": "public-regression.jsonl",
+      "sampleCount": 900,
+      "sha256": "c0dbf072f99e31504f833e38df768005ef9940af8defa703d9fc0fcacfdc64ae"
+    },
+    {
+      "bytes": 1405,
+      "path": "sources.json",
+      "sampleCount": 0,
+      "sha256": "3a7c4f710522bf09cb33edbb3b2158a73277e8f5802bb0e7e82ccb80e4afad2e"
+    }
+  ],
+  "frozenAt": "2026-08-17T00:00:00+08:00",
+  "gitIdentityUsed": false,
+  "inputKindDistribution": {
+    "abbreviated": 32,
+    "adjacent_key": 32,
+    "clean": 1264,
+    "explicit_boundary": 32,
+    "extra_digit": 32,
+    "fuzzy_dialect": 32,
+    "incomplete_tail": 32,
+    "missing_digit": 32,
+    "transposition": 32
+  },
+  "mutationPolicy": "Any byte change is a hard error. The blind partition may be evaluated by exactly one command, internally repeated three times, only after the implementation manifest is frozen.",
+  "sampleCount": 1520,
+  "schemaVersion": "pinyin9-evaluation-freeze/1",
+  "splitDistribution": {
+    "blind": 465,
+    "dev": 155,
+    "public-regression": 900
+  }
+}

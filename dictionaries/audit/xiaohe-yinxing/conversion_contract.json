@@ -1,0 +1,851 @@
+{
+  "contract_version": "1.1.0",
+  "scheme_id": "xiaohe-yinxing",
+  "bundle_id": "xiaohe-yinxing-production",
+  "data_version": "source-receipt-1",
+  "converter_version": "yinxing-converter/0-not-implemented",
+  "audit_manifest_sha256": "d45b2fe3930cf10c30a9f4887a7fe2cc98dc90b7f06ec490e56b9ff7718cb189",
+  "source_roots": [
+    "码表",
+    "小鹤音形"
+  ],
+  "source_files": [
+    {
+      "source": "小鹤音形/0.0.小鹤.txt",
+      "sha256": "13c56147d7a57a52a49995a1740a2bf39036668dc98d3699e358095a3ddf1587",
+      "role": "core_code_table",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/0.2.拼字.txt",
+      "sha256": "7a34921c867d87ffcd05ce21350247af08d3633142d24f962944464389cd0879",
+      "role": "spelling_resource",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "小鹤音形/1.0.分类.txt",
+      "sha256": "e4be5f6cac3241e32d78ada9a3832d4c8c1a6280efd371c02f4018ff9c388d64",
+      "role": "category_table",
+      "decision": "ACCEPTED",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/1.2.快符-外接.txt",
+      "sha256": "fa74b00a7e5193fb538622d8bdb2ba05317df42b5cbf8b7bd8285a20056c91b9",
+      "role": "quick_symbol",
+      "decision": "ACCEPTED",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.1.一简次选.txt",
+      "sha256": "b94a493950865c2a50ac183d720cb780e461e9e96fcc66af1c640436777166e2",
+      "role": "one_key_secondary_table",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.2.二简次选.txt",
+      "sha256": "bb4de08f46c0de37c1453de58284c4983bacb94ad49c42a3bfea1945ac91ecb9",
+      "role": "two_key_secondary_table",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.3.直通-安卓.txt",
+      "sha256": "5f87f4ac6f3fe1b526ec94a748e0fe246ffb4a033d3ae03d90b5b7fcdedfeb69",
+      "role": "direct_input",
+      "decision": "REJECTED",
+      "conversion_input": false
+    },
+    {
+      "source": "小鹤音形/2.4.表外字.txt",
+      "sha256": "3745660392bce41cd63b6ce7ee5a2860c173b8bb22957b16a05c5dcd2a05eed4",
+      "role": "out_of_table_character",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.5.全码词.txt",
+      "sha256": "93f1e500ae0ecb10e7f8d750d39a662365c822ef225391c1fdcb94c3eb942257",
+      "role": "full_code_word",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.6.符号-安卓.txt",
+      "sha256": "8cfa08c8461c2c8be0d41c0d30293d72eecd907bbfa41fab2d435ef3f344d003",
+      "role": "android_reference",
+      "decision": "REJECTED",
+      "conversion_input": false
+    },
+    {
+      "source": "小鹤音形/2.6.符号.txt",
+      "sha256": "fc16fc10fcd79fece83889ef81620ac0b7c0b8d6464e650e967586445a153dcc",
+      "role": "symbol_table",
+      "decision": "ACCEPTED",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.7.符号组-安卓.txt",
+      "sha256": "dc3c5b6b4821065b7c51ce833e43211274ff579e230b1f297205be5f1519481c",
+      "role": "android_reference",
+      "decision": "REJECTED",
+      "conversion_input": false
+    },
+    {
+      "source": "小鹤音形/2.7.符号组.txt",
+      "sha256": "2a665b6d1eff4af5ff6368f3f8bb79b513e08864ff472e9add7c47870eb171a7",
+      "role": "symbol_group",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.8.生僻字.txt",
+      "sha256": "04bdd5aed3bef1de822ede15473698bf3657a5df82ed498eff5d92e8b4b45023",
+      "role": "rare_character",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/2.9.全码字.txt",
+      "sha256": "a3f4054bdcacac6427355b246dd86496fe09025a5b5058d0f8185a8f4cbee722",
+      "role": "full_code_character",
+      "decision": "TRANSFORM",
+      "conversion_input": true
+    },
+    {
+      "source": "小鹤音形/hans2hant.txt",
+      "sha256": "c2a40fdccf6394dfe7285487f12bb9f8ef9abf38fd0ffb92138535bec490c821",
+      "role": "simplified_traditional_resource",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "小鹤音形/ime.android.ini",
+      "sha256": "fda5c1b9977396c306c577084522a4888956df4c7eb875ef650f1aebd14767a8",
+      "role": "configuration_reference",
+      "decision": "REJECTED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 全码词.txt",
+      "sha256": "2fd230ce4ce81d3632376ceaf0e56835f7d4923292cc9ac5ca70a894a78482a7",
+      "role": "full_code_word",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 快符.txt",
+      "sha256": "669f89874ca0063719416bd1f868e3fac922ca0dbb9e3760259ffd96d57bf5ee",
+      "role": "quick_symbol",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 拼字.txt",
+      "sha256": "66a8040316714493f442bd0c7dafcc3e3a2168144166f3633695b733c746ba78",
+      "role": "spelling_resource",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 次选字词.txt",
+      "sha256": "5b09e7c6f9cb4ea184599771a7229cfd1db9437577a106f5aa1670f187e834bb",
+      "role": "secondary_candidate_table",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 用户.txt",
+      "sha256": "4857e5d81cab2fb4f76a40b3415b47d70f6334db2312fcae14a98158d6aca1d9",
+      "role": "user_mixed_rule",
+      "decision": "TRANSFORM",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 直通.txt",
+      "sha256": "2b442f4ae49af3617bf6178dec565ac7ac7f3217f841ef1535326903bce075e5",
+      "role": "direct_input",
+      "decision": "REJECTED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 表外字.txt",
+      "sha256": "5ed95aaf114327fc39f8cb0f5e43e24b1e013e4914452e65ec33cbb41737c8b1",
+      "role": "out_of_table_character",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - 随心.txt",
+      "sha256": "ed162270768079e279acf5853e56dc8ee09dff7ea61c6cd563a816461bc0ca7b",
+      "role": "user_addition",
+      "decision": "TRANSFORM",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 主码 - Ｏ符.txt",
+      "sha256": "62d1bb83359daefc90903723087528ef0c677f2adb144fc0f5361fcec8c45f08",
+      "role": "symbol_table",
+      "decision": "TRANSFORM",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 次显 - 「全码字」.txt",
+      "sha256": "7dea0af2441faab7af2b33b106a5eab6ba07e60a4ff18f1e9f253216883f8515",
+      "role": "full_code_character",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    },
+    {
+      "source": "码表/导出 - 辅码 - 「二简次选」.txt",
+      "sha256": "ec2a1469db7561e8d2c4f0e7ea8cbc483356f42b1a71c35f9dd0dd52a7643847",
+      "role": "two_key_secondary_table",
+      "decision": "DEFERRED",
+      "conversion_input": false
+    }
+  ],
+  "categories": [
+    {
+      "category_id": "core",
+      "display_name": "核心主表",
+      "role": "core_code_table",
+      "authoritative_source": "小鹤音形/0.0.小鹤.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/0.0.小鹤.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "Only numbered core source enters the first release."
+    },
+    {
+      "category_id": "category-secondary",
+      "display_name": "分类/次选",
+      "role": "category_table",
+      "authoritative_source": "小鹤音形/1.0.分类.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 次选字词.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/1.0.分类.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The overlapping export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "quick-symbol",
+      "display_name": "快符",
+      "role": "quick_symbol",
+      "authoritative_source": "小鹤音形/1.2.快符-外接.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 快符.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/1.2.快符-外接.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_user_2026-08-13",
+      "requires_manual_confirmation": false,
+      "notes": "Semicolon-guided ordinary records are enabled; trusted built-in actions remain separately mapped."
+    },
+    {
+      "category_id": "one-key-secondary",
+      "display_name": "一简次选",
+      "role": "one_key_secondary_table",
+      "authoritative_source": "小鹤音形/2.1.一简次选.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/2.1.一简次选.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "Unique numbered source enters the first release."
+    },
+    {
+      "category_id": "two-key-secondary",
+      "display_name": "二简次选",
+      "role": "two_key_secondary_table",
+      "authoritative_source": "小鹤音形/2.2.二简次选.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 辅码 - 「二简次选」.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.2.二简次选.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "out-of-table-character",
+      "display_name": "表外字",
+      "role": "out_of_table_character",
+      "authoritative_source": "小鹤音形/2.4.表外字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 表外字.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.4.表外字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "full-code-word",
+      "display_name": "全码词",
+      "role": "full_code_word",
+      "authoritative_source": "小鹤音形/2.5.全码词.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 全码词.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.5.全码词.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "symbol",
+      "display_name": "符号",
+      "role": "symbol_table",
+      "authoritative_source": "小鹤音形/2.6.符号.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - Ｏ符.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.6.符号.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_user_2026-08-13",
+      "requires_manual_confirmation": false,
+      "notes": "The o-guided symbol table supplies symbols, grouped symbols, special characters, and emoji."
+    },
+    {
+      "category_id": "symbol-group",
+      "display_name": "符号组",
+      "role": "symbol_group",
+      "authoritative_source": "小鹤音形/2.7.符号组.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/2.7.符号组.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_user_2026-08-13",
+      "requires_manual_confirmation": false,
+      "notes": "The apostrophe-led source is normalized to o-prefixed codes for the HarmonyOS runtime."
+    },
+    {
+      "category_id": "rare-character",
+      "display_name": "生僻字",
+      "role": "rare_character",
+      "authoritative_source": "小鹤音形/2.8.生僻字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/2.8.生僻字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "Unique numbered source enters the first release."
+    },
+    {
+      "category_id": "full-code-character",
+      "display_name": "全码字",
+      "role": "full_code_character",
+      "authoritative_source": "小鹤音形/2.9.全码字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 次显 - 「全码字」.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.9.全码字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    }
+  ],
+  "merge_plan": [
+    {
+      "category_id": "core",
+      "ordered_sources": [
+        "小鹤音形/0.0.小鹤.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "category-secondary",
+      "ordered_sources": [
+        "小鹤音形/1.0.分类.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "quick-symbol",
+      "ordered_sources": [
+        "小鹤音形/1.2.快符-外接.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "one-key-secondary",
+      "ordered_sources": [
+        "小鹤音形/2.1.一简次选.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "two-key-secondary",
+      "ordered_sources": [
+        "小鹤音形/2.2.二简次选.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "out-of-table-character",
+      "ordered_sources": [
+        "小鹤音形/2.4.表外字.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "full-code-word",
+      "ordered_sources": [
+        "小鹤音形/2.5.全码词.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "symbol",
+      "ordered_sources": [
+        "小鹤音形/2.6.符号.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "symbol-group",
+      "ordered_sources": [
+        "小鹤音形/2.7.符号组.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "rare-character",
+      "ordered_sources": [
+        "小鹤音形/2.8.生僻字.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "full-code-character",
+      "ordered_sources": [
+        "小鹤音形/2.9.全码字.txt"
+      ],
+      "blocked": false
+    }
+  ],
+  "record_syntax": [
+    "ordinary",
+    "user_deletion",
+    "user_pin",
+    "user_position",
+    "user_mixed_rule",
+    "cmd",
+    "ddcmd",
+    "configuration_header",
+    "configuration_item",
+    "comment",
+    "empty",
+    "unrecognized"
+  ],
+  "user_rule_policy": {
+    "ordinary": "transform",
+    "delete": "transform exact text+code",
+    "pin": "transform stable fixed prefix",
+    "position": "transform 1-based global position",
+    "mixed": "reject until explicitly defined"
+  },
+  "command_whitelist": [
+    "plain_text",
+    "plain_symbol",
+    "date_time_metadata",
+    "approved_paired_symbol",
+    "internal_cursor_action_metadata"
+  ],
+  "rejection_rules": [
+    {
+      "reason_code": "REJECT_EXTERNAL_PROCESS",
+      "reason": "external process or shell"
+    },
+    {
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "reason": "network, URL, FTP, or WebDAV action"
+    },
+    {
+      "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+      "reason": "assigned credential, token, key, or certificate"
+    },
+    {
+      "reason_code": "REJECT_EMBEDDED_ACCOUNT",
+      "reason": "account or email material"
+    },
+    {
+      "reason_code": "REJECT_PLATFORM_SPECIFIC_KEYCODE",
+      "reason": "unmapped Android or Windows keycode"
+    },
+    {
+      "reason_code": "REJECT_UNSUPPORTED_COMMAND",
+      "reason": "unsupported platform command"
+    },
+    {
+      "reason_code": "REJECT_UNKNOWN_COMMAND_SYNTAX",
+      "reason": "unknown command syntax"
+    },
+    {
+      "reason_code": "REJECT_UNSAFE_PATH_ACCESS",
+      "reason": "absolute or external path access"
+    }
+  ],
+  "deferred_features": [
+    "spelling",
+    "all_direct_input",
+    "simplified_traditional_conversion",
+    "hidden_dictionary",
+    "correction",
+    "english_completion",
+    "date_time_actions",
+    "paired_symbol_actions",
+    "cursor_actions"
+  ],
+  "security_policy": {
+    "offline_only": true,
+    "execute_source_commands": false,
+    "redacted_findings": true,
+    "credential_policy": "credential findings block unless the entire source file is rejected, quarantined, and replaced by a value-free derivative",
+    "raw_source_in_hap": false,
+    "quarantined_source": "小鹤音形/ime.android.ini",
+    "sanitized_configuration": "sanitized_configuration.json",
+    "sanitized_configuration_sha256": "b4b7705055953e0c65d579767875516fd11c8c973af810b3821045551e0d04f0"
+  },
+  "missing_references": [
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 41,
+      "referenced_path": "$userpath$/小鹤用户词库.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 49,
+      "referenced_path": "sys-autoword.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_UNSUPPORTED_SYSTEM_REFERENCE",
+      "next_stage_action": "exclude the unavailable legacy system action table",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 53,
+      "referenced_path": "sys-reset.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_UNSUPPORTED_SYSTEM_REFERENCE",
+      "next_stage_action": "exclude the unavailable legacy system action table",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 617,
+      "referenced_path": "*.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_WILDCARD_REFERENCE",
+      "next_stage_action": "do not expand legacy platform globs",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 619,
+      "referenced_path": "*-win.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_WILDCARD_REFERENCE",
+      "next_stage_action": "do not expand legacy platform globs",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 649,
+      "referenced_path": "1.1.快通-安卓.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_PLATFORM_REFERENCE",
+      "next_stage_action": "exclude the missing Android or Windows resource",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 669,
+      "referenced_path": "2.3.用户-安卓.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 671,
+      "referenced_path": "$userpath$/小鹤用户词库.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 672,
+      "referenced_path": "$userpath$/小鹤用户-安卓.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 697,
+      "referenced_path": "2.7.引导词库.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 698,
+      "referenced_path": "$userpath$/小鹤引导词库.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 715,
+      "referenced_path": "暗首选.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 716,
+      "referenced_path": "暗纠错.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 717,
+      "referenced_path": "暗诗词.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 718,
+      "referenced_path": "暗符号.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 720,
+      "referenced_path": "2.3.用户-安卓.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 721,
+      "referenced_path": "$userpath$/小鹤用户词库.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 722,
+      "referenced_path": "$userpath$/小鹤用户-安卓.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_DYNAMIC_USER_REFERENCE",
+      "next_stage_action": "use the existing project user-lexicon contract instead",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 724,
+      "referenced_path": "英文补全.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 729,
+      "referenced_path": "纠错.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 740,
+      "referenced_path": "0.6.暗查形.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 742,
+      "referenced_path": "0.8.暗繁体.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    },
+    {
+      "reference_file": "小鹤音形/ime.android.ini",
+      "reference_line": 743,
+      "referenced_path": "0.8.特别.txt",
+      "reason": "referenced_file_not_found",
+      "decision": "DEFERRED",
+      "reason_code": "DEFER_MISSING_OPTIONAL_RESOURCE",
+      "next_stage_action": "retain the reference for a later customer delivery; do not synthesize data",
+      "blocks_conversion": false
+    }
+  ],
+  "approval_metadata": {
+    "manager_confirmed": true,
+    "customer_confirmed": true,
+    "confirmation_evidence": "PROJECT_STATE.md (user authorization recorded 2026-07-22)",
+    "received_date": "unknown_not_required_by_user_direction",
+    "approval_status": "approved_for_project_conversion_and_hap_delivery",
+    "approval_reference": "PROJECT_STATE.md",
+    "source_owner": "customer_provided",
+    "usage_scope": "project conversion, validation, and product use",
+    "distribution_scope": "project HAP and customer delivery",
+    "modification_allowed": true,
+    "hap_distribution_allowed": true,
+    "notes": "Authorization is based on the user's explicit 2026-07-22 direction; this record does not invent a separate license identifier or receipt date."
+  },
+  "expected_outputs": [
+    "category tables in HSPCTF-compatible production container",
+    "conversion rejection report",
+    "source-line trace index",
+    "sanitized configuration reference without source values"
+  ],
+  "blocking_reasons": [],
+  "conversion_allowed": true
+}

@@ -1,0 +1,64 @@
+﻿---config@码表分类=主码-4
+---config@码表别名=直通
+$ddcmd(床前明月光，疑是地上霜。举头望明月，低头思故乡。,『静夜思』)	jysi
+$ddcmd(help(pc.html),[使用入门])	orm
+$ddcmd(run(%apppath%\),[安装目录])	oav
+$ddcmd(<date.yyyy>年<date.m>月<date.d>日, <date.yyyy>年<date.m>月<date.d>日)	orq
+$ddcmd(<date.yyyy>-<date.mm>-<date.dd>, <date.yyyy>-<date.mm>-<date.dd>)	orq
+$ddcmd(<time.h>:<time.mm> <date.Z>, <time.h>:<time.mm> <date.Z>)	ouj
+$ddcmd(<time.h>点<time.mm>分,<time.h>点<time.mm>分)	ouj
+$ddcmd(run(https://www.baidu.com/s?wd=<last.0>),[百度]：<last.0>)	oss
+$ddcmd(run(cmd.exe),[命令提示行])	ocm
+$ddcmd(run(::{20D04FE0-3AEA-1069-A2D8-08002B30309D}),[我的电脑])	odn
+$ddcmd(run(control.exe),[控制面板])	okv
+$ddcmd(run(winword.exe),[word])	owd
+$ddcmd(run(excel.exe),[excel])	oec
+$ddcmd(run(notepad.exe),[记事本])	oju
+$ddcmd(run(mspaint.exe),[画图])	oht
+$ddcmd(run(calc.exe),[计算器])	ojs
+$ddcmd(help(keyboardmap.html,900,800),[字根图])	ozg
+$ddcmd(keyboard(<86+Win>),[剪贴板])	ojt
+$ddcmd(keyboard(<83+Shift+Win>),[截屏])	ojp
+$ddcmd(config(/do anjianshezhi),[按键定义])	oaj
+$ddcmd(config(/do 常用),[设置菜单])	ocd
+$ddcmd(config(/do 界面),[界面项])	ojm
+$ddcmd(config(/do 码表),[码表项])	omb
+$ddcmd(config(/do 高级),[高级项])	ogj
+$ddcmd(config(/do gaojishezhi),[高级设置])	ogj
+$ddcmd(config(/do about),[关于项])	ogy
+$ddcmd(set([-IME设置-],嵌入文本内容=嵌入编码),[嵌入编码])	oqr
+$ddcmd(set([-IME设置-],嵌入文本内容=嵌入首选),[嵌入首选])	oqr
+$ddcmd(set([-IME设置-],嵌入文本内容=传统样式),[传统])	oqr
+$ddcmd(set([-IME设置-],隐藏候选窗口=否),[显示候选])	ohx
+$ddcmd(set([-IME设置-],隐藏候选窗口=是),[盲打])	ohx
+$ddcmd(set([-SKIN设置-],候选序号是否可见=是),[显示序号])	oxhc
+$ddcmd(set([-SKIN设置-],候选序号是否可见=否),[不显])	oxhc
+$ddcmd(config(/do 剪贴板反查),[复制反查])	ofi
+$ddcmd(config(/do 在线加词),[加词])	ojc
+$ddcmd(convert(中英文标点,切换),[中英标点切换])	ovy
+$ddcmd(convert(全半角,切换),[全半角切换])	oqb
+$ddcmd(convert(繁体输出,切换),[简繁切换])	ojf
+$ddcmd(keyboard(<35><36+Shift><8>),[删行])	oui
+$ddcmd(keyboard(<35><36+Shift><8>),[删行])	oiu
+$ddcmd(config(/dict <last.1>),[字典]：<last.1>)	ozd
+$ddcmd(run(https://www.zdic.net/hans/<last.1>),[汉典]：<last.1>)	ozd
+$ddcmd(run(https://flypy.cc/ix/?q=<last.1>),[查]：<last.1>)	oix
+$ddcmd(run(https://flypy.cc/if),[拆分练习])	oif
+$ddcmd(set([-IME设置-],检索次显码表=是),显示<全码字>)	oqm
+$ddcmd(set([-IME设置-],检索次显码表=否),[隐藏])	oqm
+$ddcmd(set([-IME设置-],输入方案=主+辅),启用<二简次选>)	oej
+$ddcmd(set([-IME设置-],输入方案=主),[关闭])	oej
+$ddcmd(keyboard(<173>),[静音开关])	ojy
+$ddcmd(run(https://flypy.cc/win_record.html),「更新日志」)	ogx
+$ddcmd(set([-DME设置-],空码清屏码长=12),[空码清屏12])	oqma
+$ddcmd(set([-DME设置-],空码清屏码长=4),[4])	oqma
+$ddcmd(set([-DME设置-],候选唯一自动上屏码长=0),[四码后顶])	odp
+$ddcmd(set([-DME设置-],候选唯一自动上屏码长=4),[自动上屏])	odp
+$ddcmd(set([-DME设置-],上屏引导键=;),[启用快符])	oyd
+$ddcmd(set([-DME设置-],上屏引导键=),[关闭])	oyd
+$ddcmd(set([-DME设置-],查询输入只查单字=是),[万能键查字])	oiz
+$ddcmd(set([-DME设置-],查询输入只查单字=否),[查字词])	oiz
+$ddcmd(　　　　蜀道难·李白\r\r噫吁嚱，危乎高哉！蜀道之难难于上青天！\r蚕丛及鱼凫，开国何茫然！\r尔来四万八千岁，不与秦塞通人烟。\r西当太白有鸟道，可以横绝峨眉巅。\r地崩山摧壮士死，然后天梯石栈相钩连。\r上有六龙回日之高标，下有冲波逆折之回川。\r黄鹤之飞尚不得过，猿猱欲度愁攀援。\r青泥何盘盘，百步九折萦岩峦。\r扪参历井仰胁息，以手抚膺坐长叹。\r问君西游何时还？畏途巉岩不可攀。\r但见悲鸟号古木，雄飞雌从绕林间。\r又闻子规啼夜月，愁空山。\r蜀道之难难于上青天，使人听此凋朱颜！\r连峰去天不盈尺，枯松倒挂倚绝壁。\r飞湍瀑流争喧豗，砯崖转石万壑雷。\r其险也如此，嗟尔远道之人，胡为乎来哉！\r剑阁峥嵘而崔嵬，一夫当关，万夫莫开。\r所守或匪亲，化为狼与豺，\r朝避猛虎，夕避长蛇，磨牙吮血，杀人如麻。\r锦城虽云乐，不如早还家。\r蜀道之难，难于上青天，侧身西望长咨嗟！\r,『蜀道难·李白』)	udnj
+$ddcmd(run(https://flypy.cc),[小鹤官网])	xhgw
+$ddcmd(run(http://flypy.ysepan.com),[小鹤网盘])	xhwp
+$ddcmd(run(https://flypy.cc/help),[小鹤入门])	xhrm

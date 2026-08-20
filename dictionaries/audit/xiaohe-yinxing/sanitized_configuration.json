@@ -1,0 +1,177 @@
+{
+  "sanitized_configuration_version": "1.0.0",
+  "source_file": "小鹤音形/ime.android.ini",
+  "source_sha256": "fda5c1b9977396c306c577084522a4888956df4c7eb875ef650f1aebd14767a8",
+  "scope": "non-executable audit reference only",
+  "contains_source_values": false,
+  "contains_credentials": false,
+  "runtime_configuration": false,
+  "eligible_for_conversion": false,
+  "eligible_for_hap": false,
+  "original_source_disposition": "REJECTED_AND_QUARANTINED",
+  "credential_containment_complete": true,
+  "removed_findings": [
+    {
+      "physical_line": 52,
+      "finding_type": "windows_absolute_path",
+      "reason_code": "REJECT_UNSAFE_PATH_ACCESS",
+      "source_line_sha256": "701d20001b8fa8b66f80d0a2cc81e987c163a8c8709d06ae3ce41acb87198511",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 215,
+      "finding_type": "ip_address",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "005a302611749771085081003f90f7e2419f370d44b66e211a820933160eca11",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 556,
+      "finding_type": "url",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "a86a1c3fff0cf9e825ee8f7ca135372b6b753130158fc4659ae782c6823d3068",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 562,
+      "finding_type": "credential",
+      "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+      "source_line_sha256": "a233b707f51ee94dad8a0642fc850870dadd720c4e0a31f1cf7b1f470a15224b",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 570,
+      "finding_type": "url",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "1e593434dc6934a39c8cdb9c650a3696d8329c6ab94fd5a52715c8e50070e36f",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 578,
+      "finding_type": "credential",
+      "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+      "source_line_sha256": "a233b707f51ee94dad8a0642fc850870dadd720c4e0a31f1cf7b1f470a15224b",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 581,
+      "finding_type": "url",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "6bba6eb5c0969a08faef5d9851b5c0507a8aa292f1f8e6248724f4d0e53de8e6",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 583,
+      "finding_type": "credential",
+      "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+      "source_line_sha256": "ffa70dead834e3abe802d2fb12242b2cf6c5fea2f0855ba669e9b419413c4e6b",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 590,
+      "finding_type": "credential",
+      "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+      "source_line_sha256": "d2d529a7e25fc61dc92882eade14edbbaa835560b704be9f3675ae81e115e0d2",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 599,
+      "finding_type": "url",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "37de2c3cb115ef64bbe4605f74e7bea655eadb19d7f9f4a08acc1f8bd6c784ed",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 603,
+      "finding_type": "webdav",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "56973358f69ba1b7d994023e054de01863bbe07d457cf0b4a85256d35a5f5ea3",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 604,
+      "finding_type": "webdav",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "e1cd2af54f9f8c3728fba137745515a635704a9d040add4c0c533703267309eb",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 605,
+      "finding_type": "webdav",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "f6f2d1e62128295124422ee7d3921376eeec46f9170b81e916d5c5938ce1a447",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 608,
+      "finding_type": "url",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "0c4ba3b1f09cea9b88b6ea5b1303947d7400fb7a2a3e85a1d832809042bdfc95",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 610,
+      "finding_type": "email",
+      "reason_code": "REJECT_EMBEDDED_ACCOUNT",
+      "source_line_sha256": "28f4a5c397e3261e779d09c9bfa643d8a9b702ee9444c4d58ef50f91de5cb5fb",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 612,
+      "finding_type": "credential",
+      "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+      "source_line_sha256": "927be5ec8baec9f085f26224744c4c7454cc6febc714c51ab4063f353e695898",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 638,
+      "finding_type": "webdav",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "4da71c7e0eac1ffd93e949e3c2da9fd1b34836215cd3a00884293a5be514d876",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 639,
+      "finding_type": "webdav",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "b652dc9ee93c393716b7aeed7f87415f890c75d38a46b471000bc369f838d94a",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 641,
+      "finding_type": "webdav",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "6b1f32c147305fd14a8f26fdc99288613b6b5babece67b9c2099b810e5fb422e",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 642,
+      "finding_type": "webdav",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "5afb19fd1f58794608a53510937000a5851866601494697f0aeeb6dfb90385c6",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 643,
+      "finding_type": "credential",
+      "reason_code": "REJECT_EMBEDDED_CREDENTIAL",
+      "source_line_sha256": "0b44aa811a27391759ab5f8694b155f0bc236aa3a05911c8ec3570785eb2875b",
+      "disposition": "removed_from_safe_derivative"
+    },
+    {
+      "physical_line": 643,
+      "finding_type": "url",
+      "reason_code": "REJECT_NETWORK_ACTION",
+      "source_line_sha256": "0b44aa811a27391759ab5f8694b155f0bc236aa3a05911c8ec3570785eb2875b",
+      "disposition": "removed_from_safe_derivative"
+    }
+  ],
+  "retained_capability_classes": [
+    "plain_text_metadata",
+    "plain_symbol_metadata",
+    "date_time_metadata_candidate",
+    "paired_symbol_metadata_candidate",
+    "internal_cursor_action_metadata_candidate"
+  ],
+  "notes": "No INI key or value is copied. This derivative proves disposition only and cannot configure a runtime."
+}

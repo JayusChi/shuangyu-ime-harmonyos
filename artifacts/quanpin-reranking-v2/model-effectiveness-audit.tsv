@@ -1,0 +1,114 @@
+# schemaVersion=quanpin-context-model-effectiveness-audit/1
+# auditedBigrams=2048
+# comparableBigramPairs=1824
+# baseLowerThanTop1=156
+# improvedBigramPairs=120
+# unchangedBigramPairs=1704
+# worsenedBigramPairs=0
+# auditedTrigrams=27
+# comparableTrigramPairs=27
+# improvedTrigramPairs=0
+# unchangedTrigramPairs=27
+# worsenedTrigramPairs=0
+# note=Model-derived offline diagnostic; not an independent dev or blind quality set.
+kind	left	leftRaw	middle	middleRaw	right	rightRaw	baseRank	rerankedRank
+bigram	一动	yidong			不动	budong	2	1
+bigram	一如	yiru			既往	jiwang	2	1
+bigram	一本	yiben			正经	zhengjing	2	1
+bigram	一步	yibu			一步	yibu	5	2
+bigram	三国	sanguo			演义	yanyi	2	1
+bigram	不良	buliang			反应	fanying	2	1
+bigram	与此	yuci			同时	tongshi	7	2
+bigram	专项	zhuanxiang			整治	zhengzhi	2	1
+bigram	中国	zhongguo			人寿	renshou	2	1
+bigram	中国	zhongguo			市场	shichang	8	2
+bigram	中央	zhongyang			军委	junwei	2	1
+bigram	中秋	zhongqiu			快乐	kuaile	5	3
+bigram	二级	erji			市场	shichang	8	2
+bigram	交易	jiaoyi			市场	shichang	8	2
+bigram	人才	rencai			市场	shichang	8	2
+bigram	人道	rendao			主义	zhuyi	2	1
+bigram	以下	yixia			简称	jiancheng	2	1
+bigram	价值	jiazhi			取向	quxiang	3	1
+bigram	信息	xinxi			发布	fabu	2	1
+bigram	免费	mianfei			下载	xiazai	7	2
+bigram	党委	dangwei			书记	shuji	2	1
+bigram	公司	gongsi			治理	zhili	2	1
+bigram	共产	gongchan			主义	zhuyi	2	1
+bigram	出乎	chuhu			意料	yiliao	2	1
+bigram	刚刚	ganggang			开始	kaishi	3	2
+bigram	到哪	daona			里去	liqu	2	1
+bigram	千千	qianqian			万万	wanwan	2	1
+bigram	卡巴	kaba			斯基	siji	6	1
+bigram	县委	xianwei			书记	shuji	2	1
+bigram	发展	fazhan			机遇	jiyu	3	1
+bigram	发扬	fayang			光大	guangda	2	1
+bigram	发表	fabiao			声明	shengming	2	1
+bigram	可以	keyi			下载	xiazai	7	2
+bigram	司法	sifa			考试	kaoshi	6	3
+bigram	哈哈	haha			大笑	daxiao	3	1
+bigram	商业	shangye			贿赂	huilu	2	1
+bigram	回头	huitou			细说	xishuo	2	1
+bigram	国内	guonei			市场	shichang	8	2
+bigram	国防	guofang			部长	buzhang	2	1
+bigram	国际	guoji			合作	hezuo	2	1
+bigram	国际	guoji			市场	shichang	8	2
+bigram	国际	guoji			油价	youjia	3	1
+bigram	坚持	jianchi			不懈	buxie	4	2
+bigram	基金	jijin			经理	jingli	2	1
+bigram	大多	daduo			数人	shuren	2	1
+bigram	大话	dahua			西游	xiyou	2	1
+bigram	客户	kehu			经理	jingli	2	1
+bigram	密密	mimi			麻麻	mama	3	2
+bigram	市场	shichang			秩序	zhixu	2	1
+bigram	帝国	diguo			主义	zhuyi	2	1
+bigram	开开	kaikai			心心	xinxin	2	1
+bigram	恐怖	kongbu			主义	zhuyi	2	1
+bigram	手机	shouji			号码	haoma	2	1
+bigram	手机	shouji			市场	shichang	8	2
+bigram	批发	pifa			市场	shichang	8	2
+bigram	技术	jishu			进步	jinbu	2	1
+bigram	招商	zhaoshang			引资	yinzi	5	1
+bigram	文明	wenming			用语	yongyu	3	1
+bigram	新兴	xinxing			市场	shichang	8	2
+bigram	新年	xinnian			快乐	kuaile	5	3
+bigram	方方	fangfang			面面	mianmian	2	1
+bigram	旅游	lvyou			景点	jingdian	2	1
+bigram	无缘	wuyuan			无故	wugu	2	1
+bigram	暴风	baofeng			影音	yingyin	2	1
+bigram	有意	youyi			无意	wuyi	3	1
+bigram	朝鲜	chaoxian			半岛	bandao	3	1
+bigram	期货	qihuo			市场	shichang	8	2
+bigram	检验	jianyan			检疫	jianyi	3	2
+bigram	民族	minzu			主义	zhuyi	2	1
+bigram	汽车	qiche			市场	shichang	8	2
+bigram	浮出	fuchu			水面	shuimian	2	1
+bigram	海外	haiwai			市场	shichang	8	2
+bigram	消费	xiaofei			市场	shichang	8	2
+bigram	清清	qingqing			楚楚	chuchu	3	1
+bigram	火影	huoying			忍者	renzhe	2	1
+bigram	点点	diandian			滴滴	didi	3	1
+bigram	烟花	yanhua			爆竹	baozhu	5	1
+bigram	爱国	aiguo			主义	zhuyi	2	1
+bigram	生日	shengri			快乐	kuaile	5	3
+bigram	电子	dianzi			商务	shangwu	2	1
+bigram	电话	dianhua			号码	haoma	2	1
+bigram	皮肤	pifu			过敏	guomin	2	1
+bigram	目前	muqian			市场	shichang	8	2
+bigram	省委	shengwei			书记	shuji	2	1
+bigram	社会	shehui			主义	zhuyi	2	1
+bigram	社会	shehui			各界	gejie	2	1
+bigram	社会	shehui			进步	jinbu	2	1
+bigram	科技	keji			进步	jinbu	2	1
+bigram	突然	turan			觉得	juede	3	2
+bigram	经济	jingji			合作	hezuo	2	1
+bigram	经贸	jingmao			合作	hezuo	2	1
+bigram	综合	zonghe			治理	zhili	2	1
+bigram	网络	wangluo			连接	lianjie	2	1
+bigram	美国	meiguo			市场	shichang	8	2
+bigram	股票	gupiao			市场	shichang	8	2
+bigram	自学	zixue			考试	kaoshi	6	3
+bigram	自由	ziyou			主义	zhuyi	2	1
+bigram	节日	jieri			快乐	kuaile	5	3
+bigram	行政	xingzheng			处罚	chufa	2	1
+bigram	计划	jihua			生育	shengyu	2	1

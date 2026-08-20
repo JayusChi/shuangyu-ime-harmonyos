@@ -1,0 +1,12 @@
+[package]
+name = "sentence-decoder"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "sentence_decoder"
+path = "src/lib.rs"
+
+[dependencies]
+lexicon-core = { path = "../lexicon-core" }

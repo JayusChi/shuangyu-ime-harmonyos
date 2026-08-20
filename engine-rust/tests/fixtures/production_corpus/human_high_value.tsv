@@ -1,0 +1,31 @@
+caseId	category	rawShuangpinInput	expectedSyllables	expectedTopCandidate	allowedCandidates	forbiddenCandidates	maxExpectedRank	notes
+poly-001	polyphone	ybhh	yin hang		银行		3	行: hang in 银行
+poly-002	polyphone	xkds	xing dong		行动		3	行: xing in 行动
+poly-003	polyphone	vhda	zhang da		长大		3	长: zhang in 长大
+poly-004	polyphone	ihig	chang cheng		长城		3	长: chang in 长城
+poly-005	polyphone	vsyc	zhong yao		重要		3	重: zhong in 重要
+poly-006	polyphone	isxb	chong xin		重新		3	重: chong in 重新
+poly-007	polyphone	ybyt	yin yue		音乐		3	乐: yue in 音乐
+poly-008	polyphone	kkle	kuai le		快乐		3	乐: le in 快乐
+poly-009	polyphone	hdyz	hai you		还有		3	还: hai in 还有
+poly-010	polyphone	gvhr	gui huan		归还		3	还: huan in 归还
+poly-011	polyphone	dedc	de dao		得到		3	得: de in 得到
+poly-012	polyphone	fhbm	fang bian		方便		3	便: bian in 方便
+poly-013	polyphone	pmyi	pian yi		便宜		3	便: pian in 便宜
+poly-014	polyphone	xizh	xi zang		西藏		3	藏: zang in 西藏
+poly-015	polyphone	uzch	shou cang		收藏		3	藏: cang in 收藏
+poly-016	polyphone	vcyh	zhao yang		朝阳		5	朝: zhao reading retained
+poly-017	polyphone	icyh	chao yang		朝阳		5	朝: chao reading retained
+poly-018	polyphone	iruo	chuan shuo		传说		3	传: chuan in 传说
+poly-019	polyphone	jxqi	jia qi		假期		3	假: jia in 假期
+poly-020	polyphone	uvjn	shui jiao		睡觉		3	觉: jiao in 睡觉
+poly-021	polyphone	tmks	tian kong		天空		3	空: kong in 天空
+poly-022	polyphone	uull	shu liang		数量		3	数: shu in 数量
+poly-023	polyphone	tnvg	tiao zheng		调整		3	调: tiao in 调整
+poly-024	polyphone	ybww	yin wei		因为		3	为: wei in 因为
+poly-025	polyphone	xlhu	xiang hu		相互		3	相: xiang in 相互
+poly-026	polyphone	xtxn	xue xiao		学校		3	校: xiao in 学校
+poly-027	polyphone	xmxt	xian xue		鲜血		5	血: xue in 鲜血
+daily-001	double	nihc	ni hao		你好		3	common greeting
+daily-002	double	xpxp	xie xie		谢谢		3	common thanks
+phrase-001	phrase	buyskeqi	bu yong ke qi		不用客气		5	common fixed phrase

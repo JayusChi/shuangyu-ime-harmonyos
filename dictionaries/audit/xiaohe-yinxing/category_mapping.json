@@ -1,0 +1,209 @@
+{
+  "mapping_version": "1.0.0",
+  "categories": [
+    {
+      "category_id": "core",
+      "display_name": "核心主表",
+      "role": "core_code_table",
+      "authoritative_source": "小鹤音形/0.0.小鹤.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/0.0.小鹤.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "Only numbered core source enters the first release."
+    },
+    {
+      "category_id": "category-secondary",
+      "display_name": "分类/次选",
+      "role": "category_table",
+      "authoritative_source": "小鹤音形/1.0.分类.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 次选字词.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/1.0.分类.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The overlapping export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "one-key-secondary",
+      "display_name": "一简次选",
+      "role": "one_key_secondary_table",
+      "authoritative_source": "小鹤音形/2.1.一简次选.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/2.1.一简次选.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "Unique numbered source enters the first release."
+    },
+    {
+      "category_id": "two-key-secondary",
+      "display_name": "二简次选",
+      "role": "two_key_secondary_table",
+      "authoritative_source": "小鹤音形/2.2.二简次选.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 辅码 - 「二简次选」.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.2.二简次选.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "out-of-table-character",
+      "display_name": "表外字",
+      "role": "out_of_table_character",
+      "authoritative_source": "小鹤音形/2.4.表外字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 表外字.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.4.表外字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "full-code-word",
+      "display_name": "全码词",
+      "role": "full_code_word",
+      "authoritative_source": "小鹤音形/2.5.全码词.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 全码词.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.5.全码词.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "rare-character",
+      "display_name": "生僻字",
+      "role": "rare_character",
+      "authoritative_source": "小鹤音形/2.8.生僻字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/2.8.生僻字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "Unique numbered source enters the first release."
+    },
+    {
+      "category_id": "full-code-character",
+      "display_name": "全码字",
+      "role": "full_code_character",
+      "authoritative_source": "小鹤音形/2.9.全码字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 次显 - 「全码字」.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.9.全码字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "requires_manual_confirmation": false,
+      "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "quick-symbol",
+      "display_name": "快符",
+      "role": "quick_symbol",
+      "authoritative_source": "小鹤音形/1.2.快符-外接.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 快符.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/1.2.快符-外接.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-08-12",
+      "requires_manual_confirmation": false,
+      "notes": "Semicolon-led quick symbols for faster input."
+    },
+    {
+      "category_id": "symbol-table",
+      "display_name": "符号",
+      "role": "symbol_table",
+      "authoritative_source": "小鹤音形/2.6.符号.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - Ｏ符.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.6.符号.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "frozen_by_user_authorization_2026-08-12",
+      "requires_manual_confirmation": false,
+      "notes": "Symbol tables including special characters and emojis."
+    }
+  ]
+}

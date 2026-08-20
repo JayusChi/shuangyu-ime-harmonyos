@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "quanpin-anonymous-input-distribution/1",
+  "sourceKind": "opt-in-local-aggregate",
+  "collectionWindow": {
+    "startDate": "2026-08-01",
+    "endDate": "2026-08-07"
+  },
+  "privacyContract": {
+    "aggregationOnly": true,
+    "optIn": true,
+    "containsRawInput": false,
+    "containsCandidateText": false,
+    "containsEditorText": false,
+    "containsApplicationIdentity": false,
+    "containsUserIdentifier": false,
+    "minimumBucketCount": 20
+  },
+  "totalEvents": 100,
+  "rawInputLengthBands": {
+    "01-04": 20,
+    "05-08": 20,
+    "09-12": 20,
+    "13-20": 20,
+    "21+": 20
+  }
+}

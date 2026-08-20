@@ -1,0 +1,654 @@
+{
+  "schema_version": "candidate-baseline/interactions/1",
+  "shape_four_code_unique": {
+    "scheme_id": "xiaohe-yinxing",
+    "input": "aaba",
+    "steps": [
+      {
+        "key": "a",
+        "result": {
+          "success": true,
+          "raw_input": "a",
+          "preedit_text": "a",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "complete",
+          "candidate_count": 2,
+          "candidates": [
+            {
+              "text": "啊",
+              "reading": "a",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:0"
+            },
+            {
+              "text": "安装",
+              "reading": "a",
+              "source": "one-key-secondary",
+              "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:7"
+            }
+          ],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "",
+          "composition_finished": false,
+          "json_utf8_bytes": 630
+        }
+      },
+      {
+        "key": "a",
+        "result": {
+          "success": true,
+          "raw_input": "aa",
+          "preedit_text": "aa",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "complete",
+          "candidate_count": 1,
+          "candidates": [
+            {
+              "text": "阿",
+              "reading": "aa",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:5"
+            }
+          ],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "",
+          "composition_finished": false,
+          "json_utf8_bytes": 497
+        }
+      },
+      {
+        "key": "b",
+        "result": {
+          "success": true,
+          "raw_input": "aab",
+          "preedit_text": "aab",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "complete",
+          "candidate_count": 4,
+          "candidates": [
+            {
+              "text": "阿爸",
+              "reading": "aaba",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:152"
+            },
+            {
+              "text": "阿伯",
+              "reading": "aabo",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:153"
+            },
+            {
+              "text": "傲岸不群",
+              "reading": "aabq",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:154"
+            },
+            {
+              "text": "皑皑白雪",
+              "reading": "aabx",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:155"
+            }
+          ],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "",
+          "composition_finished": false,
+          "json_utf8_bytes": 863
+        }
+      },
+      {
+        "key": "a",
+        "result": {
+          "success": true,
+          "raw_input": "",
+          "preedit_text": "",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "empty",
+          "candidate_count": 0,
+          "candidates": [],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "阿爸",
+          "composition_finished": true,
+          "json_utf8_bytes": 389
+        }
+      }
+    ]
+  },
+  "shape_four_code_multiple": {
+    "scheme_id": "xiaohe-yinxing",
+    "input": "ahqi",
+    "steps": [
+      {
+        "key": "a",
+        "result": {
+          "success": true,
+          "raw_input": "a",
+          "preedit_text": "a",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "complete",
+          "candidate_count": 2,
+          "candidates": [
+            {
+              "text": "啊",
+              "reading": "a",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:0"
+            },
+            {
+              "text": "安装",
+              "reading": "a",
+              "source": "one-key-secondary",
+              "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:7"
+            }
+          ],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "",
+          "composition_finished": false,
+          "json_utf8_bytes": 630
+        }
+      },
+      {
+        "key": "h",
+        "result": {
+          "success": true,
+          "raw_input": "ah",
+          "preedit_text": "ah",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "complete",
+          "candidate_count": 1,
+          "candidates": [
+            {
+              "text": "昂",
+              "reading": "ah",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:14"
+            }
+          ],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "",
+          "composition_finished": false,
+          "json_utf8_bytes": 498
+        }
+      },
+      {
+        "key": "q",
+        "result": {
+          "success": true,
+          "raw_input": "ahq",
+          "preedit_text": "ahq",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "complete",
+          "candidate_count": 2,
+          "candidates": [
+            {
+              "text": "昂起",
+              "reading": "ahqi",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:258"
+            },
+            {
+              "text": "爱恨情仇",
+              "reading": "ahqi",
+              "source": "category-secondary",
+              "stable_id": "ct:xiaohe-yinxing-production:category-secondary:401"
+            }
+          ],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "",
+          "composition_finished": false,
+          "json_utf8_bytes": 655
+        }
+      },
+      {
+        "key": "i",
+        "result": {
+          "success": true,
+          "raw_input": "ahqi",
+          "preedit_text": "ahqi",
+          "parsed_syllables": [],
+          "pending_code": "",
+          "parser_state": "complete",
+          "candidate_count": 2,
+          "candidates": [
+            {
+              "text": "昂起",
+              "reading": "ahqi",
+              "source": "core",
+              "stable_id": "ct:xiaohe-yinxing-production:core:258"
+            },
+            {
+              "text": "爱恨情仇",
+              "reading": "ahqi",
+              "source": "category-secondary",
+              "stable_id": "ct:xiaohe-yinxing-production:category-secondary:401"
+            }
+          ],
+          "candidate_page": 0,
+          "has_previous_page": false,
+          "has_next_page": false,
+          "commit_text": "",
+          "composition_finished": false,
+          "json_utf8_bytes": 657
+        }
+      }
+    ]
+  },
+  "shape_h_paging": {
+    "scheme_id": "xiaohe-yinxing",
+    "input": "h",
+    "first_page": {
+      "success": true,
+      "raw_input": "h",
+      "preedit_text": "h",
+      "parsed_syllables": [],
+      "pending_code": "",
+      "parser_state": "complete",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "text": "和",
+          "reading": "h",
+          "source": "core",
+          "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+        },
+        {
+          "text": "忽略",
+          "reading": "h",
+          "source": "one-key-secondary",
+          "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:12"
+        }
+      ],
+      "candidate_page": 0,
+      "has_previous_page": false,
+      "has_next_page": false,
+      "commit_text": "",
+      "composition_finished": false,
+      "json_utf8_bytes": 635
+    },
+    "next_page": null,
+    "previous_page": null
+  },
+  "double_pinyin_h_paging": {
+    "scheme_id": "xiaohe",
+    "input": "h",
+    "first_page": {
+      "success": true,
+      "raw_input": "h",
+      "preedit_text": "h",
+      "parsed_syllables": [],
+      "pending_code": "h",
+      "parser_state": "incomplete",
+      "candidate_count": 9,
+      "candidates": [
+        {
+          "text": "和",
+          "reading": "he",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-he-和"
+        },
+        {
+          "text": "好",
+          "reading": "hao",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hao-好"
+        },
+        {
+          "text": "还",
+          "reading": "hai",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hai-还"
+        },
+        {
+          "text": "呵呵",
+          "reading": "he he",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-he_he-呵呵"
+        },
+        {
+          "text": "会",
+          "reading": "hui",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hui-会"
+        },
+        {
+          "text": "回复日期",
+          "reading": "hui fu ri qi",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hui_fu_ri_qi-回复日期"
+        },
+        {
+          "text": "还是",
+          "reading": "hai shi",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hai_shi-还是"
+        },
+        {
+          "text": "很",
+          "reading": "hen",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hen-很"
+        },
+        {
+          "text": "后",
+          "reading": "hou",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hou-后"
+        }
+      ],
+      "candidate_page": 0,
+      "has_previous_page": false,
+      "has_next_page": true,
+      "commit_text": "",
+      "composition_finished": false,
+      "json_utf8_bytes": 1369
+    },
+    "next_page": {
+      "success": true,
+      "raw_input": "h",
+      "preedit_text": "h",
+      "parsed_syllables": [],
+      "pending_code": "h",
+      "parser_state": "incomplete",
+      "candidate_count": 9,
+      "candidates": [
+        {
+          "text": "哈哈",
+          "reading": "ha ha",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-ha_ha-哈哈"
+        },
+        {
+          "text": "还有",
+          "reading": "hai you",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hai_you-还有"
+        },
+        {
+          "text": "或",
+          "reading": "huo",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-huo-或"
+        },
+        {
+          "text": "号",
+          "reading": "hao",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hao-号"
+        },
+        {
+          "text": "很多",
+          "reading": "hen duo",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hen_duo-很多"
+        },
+        {
+          "text": "话",
+          "reading": "hua",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hua-话"
+        },
+        {
+          "text": "或者",
+          "reading": "huo zhe",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-huo_zhe-或者"
+        },
+        {
+          "text": "哈",
+          "reading": "ha",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-ha-哈"
+        },
+        {
+          "text": "好像",
+          "reading": "hao xiang",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hao_xiang-好像"
+        }
+      ],
+      "candidate_page": 1,
+      "has_previous_page": true,
+      "has_next_page": true,
+      "commit_text": "",
+      "composition_finished": false,
+      "json_utf8_bytes": 1378
+    },
+    "previous_page": {
+      "success": true,
+      "raw_input": "h",
+      "preedit_text": "h",
+      "parsed_syllables": [],
+      "pending_code": "h",
+      "parser_state": "incomplete",
+      "candidate_count": 9,
+      "candidates": [
+        {
+          "text": "和",
+          "reading": "he",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-he-和"
+        },
+        {
+          "text": "好",
+          "reading": "hao",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hao-好"
+        },
+        {
+          "text": "还",
+          "reading": "hai",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hai-还"
+        },
+        {
+          "text": "呵呵",
+          "reading": "he he",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-he_he-呵呵"
+        },
+        {
+          "text": "会",
+          "reading": "hui",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hui-会"
+        },
+        {
+          "text": "回复日期",
+          "reading": "hui fu ri qi",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hui_fu_ri_qi-回复日期"
+        },
+        {
+          "text": "还是",
+          "reading": "hai shi",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hai_shi-还是"
+        },
+        {
+          "text": "很",
+          "reading": "hen",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hen-很"
+        },
+        {
+          "text": "后",
+          "reading": "hou",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hou-后"
+        }
+      ],
+      "candidate_page": 0,
+      "has_previous_page": false,
+      "has_next_page": true,
+      "commit_text": "",
+      "composition_finished": false,
+      "json_utf8_bytes": 1369
+    }
+  },
+  "shape_h_first_candidate_commit": {
+    "scheme_id": "xiaohe-yinxing",
+    "input": "h",
+    "selected_page_index": 0,
+    "selected_text": "和",
+    "before": {
+      "success": true,
+      "raw_input": "h",
+      "preedit_text": "h",
+      "parsed_syllables": [],
+      "pending_code": "",
+      "parser_state": "complete",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "text": "和",
+          "reading": "h",
+          "source": "core",
+          "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+        },
+        {
+          "text": "忽略",
+          "reading": "h",
+          "source": "one-key-secondary",
+          "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:12"
+        }
+      ],
+      "candidate_page": 0,
+      "has_previous_page": false,
+      "has_next_page": false,
+      "commit_text": "",
+      "composition_finished": false,
+      "json_utf8_bytes": 635
+    },
+    "after": {
+      "success": true,
+      "raw_input": "",
+      "preedit_text": "",
+      "parsed_syllables": [],
+      "pending_code": "",
+      "parser_state": "empty",
+      "candidate_count": 0,
+      "candidates": [],
+      "candidate_page": 0,
+      "has_previous_page": false,
+      "has_next_page": false,
+      "commit_text": "和",
+      "composition_finished": true,
+      "json_utf8_bytes": 386
+    }
+  },
+  "double_pinyin_h_first_candidate_commit": {
+    "scheme_id": "xiaohe",
+    "input": "h",
+    "selected_page_index": 0,
+    "selected_text": "和",
+    "before": {
+      "success": true,
+      "raw_input": "h",
+      "preedit_text": "h",
+      "parsed_syllables": [],
+      "pending_code": "h",
+      "parser_state": "incomplete",
+      "candidate_count": 9,
+      "candidates": [
+        {
+          "text": "和",
+          "reading": "he",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-he-和"
+        },
+        {
+          "text": "好",
+          "reading": "hao",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hao-好"
+        },
+        {
+          "text": "还",
+          "reading": "hai",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hai-还"
+        },
+        {
+          "text": "呵呵",
+          "reading": "he he",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-he_he-呵呵"
+        },
+        {
+          "text": "会",
+          "reading": "hui",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hui-会"
+        },
+        {
+          "text": "回复日期",
+          "reading": "hui fu ri qi",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hui_fu_ri_qi-回复日期"
+        },
+        {
+          "text": "还是",
+          "reading": "hai shi",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hai_shi-还是"
+        },
+        {
+          "text": "很",
+          "reading": "hen",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hen-很"
+        },
+        {
+          "text": "后",
+          "reading": "hou",
+          "source": "rime_pinyin_simp",
+          "stable_id": "lex-v115-hou-后"
+        }
+      ],
+      "candidate_page": 0,
+      "has_previous_page": false,
+      "has_next_page": true,
+      "commit_text": "",
+      "composition_finished": false,
+      "json_utf8_bytes": 1369
+    },
+    "after": {
+      "success": true,
+      "raw_input": "",
+      "preedit_text": "",
+      "parsed_syllables": [],
+      "pending_code": "",
+      "parser_state": "empty",
+      "candidate_count": 0,
+      "candidates": [],
+      "candidate_page": 0,
+      "has_previous_page": false,
+      "has_next_page": false,
+      "commit_text": "和",
+      "composition_finished": true,
+      "json_utf8_bytes": 386
+    }
+  }
+}

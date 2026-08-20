@@ -1,0 +1,16 @@
+[package]
+name = "candidate-baseline"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+candidate-query = { path = "../../crates/candidate-query" }
+candidate-ranking = { path = "../../crates/candidate-ranking" }
+code-table-runtime = { path = "../../crates/code-table-runtime" }
+engine-protocol = { path = "../../crates/engine-protocol" }
+ime-engine = { path = "../../crates/ime-engine" }
+context-reranker = { path = "../../crates/context-reranker" }
+lexicon-core = { path = "../../crates/lexicon-core" }
+pinyin-syllable = { path = "../../crates/pinyin-syllable" }
+shuangpin-parser = { path = "../../crates/shuangpin-parser" }

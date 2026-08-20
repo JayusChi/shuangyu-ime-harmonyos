@@ -1,0 +1,13 @@
+text	pinyin	frequencyTier	category	sourceId	updatedAt	expiresAt	domain	layer	processingRule
+鸿蒙空间计算	hong meng kong jian ji suan	low	hotword	project-v2-hot	2026-06-12	2026-12-31		hot	monthly-review-expire-v1
+智能体框架	zhi neng ti kuang jia	low	hotword	project-v2-hot	2026-06-12	2026-12-31		hot	monthly-review-expire-v1
+技能化	ji neng hua	low	hotword	project-v2-hot	2026-06-12	2026-12-31		hot	monthly-review-expire-v1
+端云协同	duan yun xie tong	low	hotword	project-v2-hot	2026-06-12	2027-06-30		hot	monthly-review-expire-v1
+超节点	chao jie dian	low	hotword	project-v2-hot	2026-02-28	2027-02-28		hot	monthly-review-expire-v1
+灵衢	ling qu	low	hotword	project-v2-hot	2026-02-28	2027-02-28		hot	monthly-review-expire-v1
+低空经济	di kong jing ji	low	hotword	project-v2-hot	2026-05-01	2027-05-01		hot	quarterly-review-expire-v1
+首发经济	shou fa jing ji	low	hotword	project-v2-hot	2026-05-01	2027-05-01		hot	quarterly-review-expire-v1
+即时零售	ji shi ling shou	low	hotword	project-v2-hot	2026-05-01	2027-05-01		hot	quarterly-review-expire-v1
+以旧换新	yi jiu huan xin	low	hotword	project-v2-hot	2026-05-01	2027-05-01		hot	quarterly-review-expire-v1
+人工智能赋能	ren gong zhi neng fu neng	low	hotword	project-v2-hot	2026-05-01	2027-05-01		hot	quarterly-review-expire-v1
+情绪价值	qing xu jia zhi	low	hotword	project-v2-hot	2026-05-01	2026-12-31		hot	monthly-review-expire-v1

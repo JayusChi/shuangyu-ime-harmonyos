@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "quanpin-v2-resource-metrics/1",
+  "measuredAt": "2026-08-14",
+  "environment": {
+    "measurementKind": "host-release-ImeEngine-per-key",
+    "os": "windows",
+    "arch": "x86_64",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+    "deviceDataIncluded": false
+  },
+  "preChangeDev": {
+    "profile": "archived-v115",
+    "lexiconBytes": 3741328,
+    "loadLatencyMicrosMean": 213020.0,
+    "loadLatencyMicrosP95": 216746,
+    "processPeakWorkingSetBytes": 77000704,
+    "keyLatencyMicros": { "p50": 1505, "p95": 8671, "p99": 13459, "mean": 2496.7470334412083, "max": 21898 }
+  },
+  "postChangeDefaultDev": {
+    "profile": "default-base-plus-active-hot",
+    "lexiconBytes": 3746486,
+    "loadLatencyMicrosMean": 183259.0,
+    "loadLatencyMicrosP95": 186232,
+    "processPeakWorkingSetBytes": 76902400,
+    "keyLatencyMicros": { "p50": 1336, "p95": 7591, "p99": 12186, "mean": 2147.062567421791, "max": 16531 }
+  },
+  "postChangeAllDomainsDev": {
+    "profile": "all-domains-evaluation",
+    "lexiconBytes": 3751923,
+    "loadLatencyMicrosMean": 183603.0,
+    "loadLatencyMicrosP95": 194148,
+    "processPeakWorkingSetBytes": 76853248,
+    "keyLatencyMicros": { "p50": 1201, "p95": 7339, "p99": 12320, "mean": 2087.982740021575, "max": 16354 }
+  },
+  "postChangeBlind": {
+    "profile": "all-domains-evaluation",
+    "lexiconBytes": 3751923,
+    "loadLatencyMicrosMean": 188313.0,
+    "loadLatencyMicrosP95": 200626,
+    "processPeakWorkingSetBytes": 78389248,
+    "keyLatencyMicros": { "p50": 1271, "p95": 7401, "p99": 12101, "mean": 2092.390161470015, "max": 20036 }
+  },
+  "releaseHap": {
+    "preChangeBytes": 39514683,
+    "postChangeBytes": 39864517,
+    "deltaBytes": 349834,
+    "deltaPercent": 0.8853266012535138,
+    "postChangeSha256": "acdb817314c0039ca6f45ff0d9e71aeed6983a89bf5e6cfcd8fdb441b31798b4"
+  },
+  "interpretation": "Host measurements are descriptive, not device acceptance thresholds. Peak working set is process-wide and blind uses a different sample set from dev."
+}

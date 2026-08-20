@@ -1,0 +1,30 @@
+﻿---config@码表分类=主码-5
+---config@码表别名=快符
+：	;
+；	;
+$ddcmd(：“,：“)	;q
+？	;w
+（	;e
+）	;r
+$ddcmd(\t,\t)	;t
+《	;y
+》	;u
+$ddcmd(keyboard(<73+Shift+Alt+Ctrl>),[撤销])	;i
+$ddcmd(「」keyboard(<37>),「」)	;o
+$ddcmd(『』keyboard(<37>),『』)	;p
+！	;a
+$ddcmd(……,……)	;s
+、	;d
+$ddcmd(<last.1>,<last.1>)	;f
+·	;g
+$ddcmd(《》keyboard(<37>),《》)	;h
+$ddcmd(“”keyboard(<37>),“”)	;j
+$ddcmd(（）keyboard(<37>),（）)	;k
+$ddcmd(〔〕keyboard(<37>),〔〕)	;l
+“	;z
+→	;x
+”	;c
+$ddcmd(——,——)	;v
+　	;b
+$ddcmd(keyboard(<35>),[End])	;n
+@	;m

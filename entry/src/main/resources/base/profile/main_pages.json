@@ -1,0 +1,11 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/UserLexicon",
+    "pages/XiaoheYinxingCategoryManagerPage",
+    "stage0/Stage0Keyboard",
+    "presentation/keyboard/KeyboardRoot",
+    "presentation/keyboard/KeyboardRootStage3",
+    "presentation/candidate/FloatingCandidateRoot"
+  ]
+}

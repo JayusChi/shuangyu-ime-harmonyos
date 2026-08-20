@@ -1,0 +1,252 @@
+{
+  "allKeyLatencyMicros": {
+    "max": 17052,
+    "mean": 1763.2498381877022,
+    "p50": 1247,
+    "p95": 5987,
+    "p99": 13294,
+    "samples": 1545
+  },
+  "datasetManifestSha256": "0ba1d069ec667fa14f86646dc0b9f3f3dfd60548863367848dd55b220d89c545",
+  "datasetSha256": "cdacc655bdbeb4cc326c0f65f66cc8c7394ad5fff520c8297a3a8ff5eaf1555c",
+  "deterministicCandidateOutputs": true,
+  "engineLoadLatencyMicros": {
+    "max": 200619,
+    "mean": 190346.33333333334,
+    "p50": 185979,
+    "p95": 200619,
+    "p99": 200619,
+    "samples": 3
+  },
+  "environment": {
+    "arch": "x86_64",
+    "cargoProfile": "release",
+    "os": "windows",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "groups": {
+    "byActualNgramHit": {
+      "ngram_hit": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 11,
+        "mrr": 1,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 1,
+        "top3Rate": 1,
+        "top5Rate": 1
+      },
+      "no_ngram_hit": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 29,
+        "mrr": 0.8620689655172413,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.13793103448275862,
+        "top1Rate": 0.8620689655172413,
+        "top3Rate": 0.8620689655172413,
+        "top5Rate": 0.8620689655172413
+      }
+    },
+    "byCategory": {
+      "ambiguous": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 1,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 1,
+        "top3Rate": 1,
+        "top5Rate": 1
+      },
+      "clean": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 0.875,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.125,
+        "top1Rate": 0.875,
+        "top3Rate": 0.875,
+        "top5Rate": 0.875
+      },
+      "long_sentence": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 1,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 1,
+        "top3Rate": 1,
+        "top5Rate": 1
+      },
+      "modern_colloquial": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 0.75,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.25,
+        "top1Rate": 0.75,
+        "top3Rate": 0.75,
+        "top5Rate": 0.75
+      },
+      "proper_name": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 8,
+        "mrr": 0.875,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.125,
+        "top1Rate": 0.875,
+        "top3Rate": 0.875,
+        "top5Rate": 0.875
+      }
+    }
+  },
+  "hardLimits": {
+    "bigramQueriesPerKey": 96,
+    "candidatePool": 16,
+    "modelFileBytes": 262144,
+    "modelLoadMicros": 250000,
+    "modelMemoryBytes": 524288,
+    "rerankMicrosPerKey": 5000,
+    "trigramQueriesPerKey": 12
+  },
+  "interpretation": {
+    "contextSource": "Only formal candidates explicitly selected within each case.",
+    "deviceDataIncluded": false,
+    "hostDataOnly": true
+  },
+  "measurementKind": "host-release-ImeEngine-explicit-context-per-key",
+  "metrics": {
+    "averageExtraSelectionsWhenRecalled": 0,
+    "averageFirstCandidateRankWhenRecalled": 1,
+    "count": 40,
+    "mrr": 0.9,
+    "noCandidateRate": 0,
+    "targetUnrecalledRate": 0.1,
+    "top1Rate": 0.9,
+    "top3Rate": 0.9,
+    "top5Rate": 0.9
+  },
+  "modelEnabled": true,
+  "modelFileBytes": 37659,
+  "modelLastErrorCode": "",
+  "modelLoadMicros": 1109,
+  "modelMemoryBytes": 253268,
+  "modelSha256": "91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c",
+  "modelVersion": 2,
+  "ngram": {
+    "bigramHitRate": 0.09016393442622951,
+    "bigramHits": 11,
+    "bigramQueries": 122,
+    "casesWithHitRate": 0.275,
+    "maxBigramQueriesPerKey": 16,
+    "maxCandidatePool": 16,
+    "maxCandidatesScored": 8,
+    "maxRerankMicros": 6,
+    "maxTrigramQueriesPerKey": 1,
+    "queryCacheCapacity": 0,
+    "skippedRerankCalls": 63,
+    "timeoutFallbacks": 0,
+    "trigramBackoffRate": 1,
+    "trigramBackoffs": 2,
+    "trigramHitRate": 0,
+    "trigramHits": 0,
+    "trigramQueries": 2
+  },
+  "productionLexiconSha256": "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+  "runCount": 3,
+  "runs": [
+    {
+      "candidateOutputSha256": "637637c5266243644a34142d0ba7d453b0d18537a84e3b4a275b4fef0a6a330c",
+      "keyLatencyMicros": {
+        "max": 17052,
+        "mean": 1815.5126213592232,
+        "p50": 1391,
+        "p95": 6062,
+        "p99": 13571,
+        "samples": 515
+      },
+      "metrics": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 40,
+        "mrr": 0.9,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.1,
+        "top1Rate": 0.9,
+        "top3Rate": 0.9,
+        "top5Rate": 0.9
+      },
+      "run": 1
+    },
+    {
+      "candidateOutputSha256": "637637c5266243644a34142d0ba7d453b0d18537a84e3b4a275b4fef0a6a330c",
+      "keyLatencyMicros": {
+        "max": 13784,
+        "mean": 1664.8466019417476,
+        "p50": 1170,
+        "p95": 5306,
+        "p99": 12971,
+        "samples": 515
+      },
+      "metrics": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 40,
+        "mrr": 0.9,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.1,
+        "top1Rate": 0.9,
+        "top3Rate": 0.9,
+        "top5Rate": 0.9
+      },
+      "run": 2
+    },
+    {
+      "candidateOutputSha256": "637637c5266243644a34142d0ba7d453b0d18537a84e3b4a275b4fef0a6a330c",
+      "keyLatencyMicros": {
+        "max": 16327,
+        "mean": 1809.3902912621359,
+        "p50": 1247,
+        "p95": 5987,
+        "p99": 14459,
+        "samples": 515
+      },
+      "metrics": {
+        "averageExtraSelectionsWhenRecalled": 0,
+        "averageFirstCandidateRankWhenRecalled": 1,
+        "count": 40,
+        "mrr": 0.9,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.1,
+        "top1Rate": 0.9,
+        "top3Rate": 0.9,
+        "top5Rate": 0.9
+      },
+      "run": 3
+    }
+  ],
+  "safetyContract": {
+    "asciiLeakCount": 0,
+    "contextSetupFailureCount": 0,
+    "engineErrorCount": 0,
+    "nonExplicitAutomaticCommitCount": 0,
+    "rawInputStateLossCount": 0
+  },
+  "sampleCount": 40,
+  "schemaVersion": "quanpin-context-reranking-results/2",
+  "targetKeyLatencyMicros": {
+    "max": 17052,
+    "mean": 2084.6557863501484,
+    "p50": 1426,
+    "p95": 8503,
+    "p99": 14010,
+    "samples": 1011
+  }
+}

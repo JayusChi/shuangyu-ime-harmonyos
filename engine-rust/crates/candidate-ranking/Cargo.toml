@@ -1,0 +1,11 @@
+[package]
+name = "candidate-ranking"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "candidate_ranking"
+path = "src/lib.rs"
+
+[dependencies]

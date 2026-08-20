@@ -1,0 +1,175 @@
+{
+    "schemaVersion":  "quanpin-v2-implementation-freeze/1",
+    "frozenAt":  "2026-08-14T07:09:33.7512959Z",
+    "gitIdentityUsed":  false,
+    "implementationIdentitySha256":  "794f864a4c25affcd658c7f5f2a06f08c83ec7b1618007c22ab7851a6cf4c0b7",
+    "previousV1Dataset":  {
+                              "manifestPath":  "artifacts/quanpin-evaluation/freeze-manifest.json",
+                              "manifestSha256":  "df9e2944b4bacf5c2323f3360ae477f1cb305a4b0e7ace424561c9bb2a9efedc",
+                              "identitySha256":  "f68c3006ee1c714eb9f1c543439785fd1164e61b6ef21a4d8da851d2b1e2ba22"
+                          },
+    "v2Dataset":  {
+                      "manifestPath":  "artifacts/quanpin-lexicon-v2/freeze-manifest.json",
+                      "manifestSha256":  "165cbe7aa81491603feb508ac2a08a86beabfdc868ab94cd98ec1dab31e0e809",
+                      "identitySha256":  "1536445c0d2faca9ad2785b13b0b54cd5df735b8b2642efd4f7619a5af680347"
+                  },
+    "productionLexiconSha256":  "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+    "productionLexiconBytes":  3746486,
+    "defaultDomainsEnabled":  [
+
+                              ],
+    "blindCommandRuns":  3,
+    "files":  [
+                  {
+                      "path":  "engine-rust/Cargo.lock",
+                      "bytes":  2288,
+                      "sha256":  "1da94d43a5efb606314ab2b699ebe6ccf18f36e2073f5c67f2f7063f646d317b"
+                  },
+                  {
+                      "path":  "engine-rust/tools/candidate-baseline/src/lib.rs",
+                      "bytes":  85840,
+                      "sha256":  "e6bbdb60d7352172d74bc381b804faad1662cf27959e7f0e63911cef9afcfa37"
+                  },
+                  {
+                      "path":  "engine-rust/tools/candidate-baseline/src/quanpin_evaluation.rs",
+                      "bytes":  43429,
+                      "sha256":  "fd2fe43f9a8ec80e4db3520dbda448565a651cfd3833b38b32fce15c5b6b5453"
+                  },
+                  {
+                      "path":  "engine-rust/tools/lexicon-builder/src/parser.rs",
+                      "bytes":  16474,
+                      "sha256":  "5206bdac1e7429ca5bed373951b4fe999a1fa0fa0445c5e64dae3f7621270a40"
+                  },
+                  {
+                      "path":  "engine-rust/crates/ime-engine/tests/quanpin_lexicon_v2.rs",
+                      "bytes":  5130,
+                      "sha256":  "4b56ce1c61e94d12319bc2421a8a4eaa82d02f12687ce1c03122c52248e74b16"
+                  },
+                  {
+                      "path":  "dictionaries/source/quanpin-v2/base.tsv",
+                      "bytes":  7200,
+                      "sha256":  "e83b4781308e2acf85a661ab83e6c7cfed7e1b7f73f5b73459d4a189965fa686"
+                  },
+                  {
+                      "path":  "dictionaries/source/quanpin-v2/domains.tsv",
+                      "bytes":  9007,
+                      "sha256":  "169509ab09ea39fcbba0675bd4ea17e2da1a3d0d478da7776f83bc4a11161b96"
+                  },
+                  {
+                      "path":  "dictionaries/source/quanpin-v2/hotwords-2026-08.tsv",
+                      "bytes":  1418,
+                      "sha256":  "fc04310cacebc8b21c49a1734804d58e9de96616c0135f5486c2b73062cbcbdf"
+                  },
+                  {
+                      "path":  "dictionaries/source/quanpin-v2/filter-policy.txt",
+                      "bytes":  228,
+                      "sha256":  "f6f369b5dfc0b7e3c497473aaa5c7f8be877972d9ced6e80ababd45289e0b3ce"
+                  },
+                  {
+                      "path":  "dictionaries/source/quanpin-v2/source-catalog.json",
+                      "bytes":  2325,
+                      "sha256":  "ebe08e0b0fe19530a73ea00f058361531a1a09082d63b0528056daf0e2121f24"
+                  },
+                  {
+                      "path":  "artifacts/quanpin-lexicon-v2/source-manifest.json",
+                      "bytes":  4866,
+                      "sha256":  "2e4ff523df467cd88c08382646a036feb9ecfd27aa9ef640c7f0e31a462bc5a0"
+                  },
+                  {
+                      "path":  "artifacts/quanpin-lexicon-v2/build-manifest.json",
+                      "bytes":  5299,
+                      "sha256":  "91019fdfd1ae60f5f4ffeee24d72570f59edea57bdb5fa3b0800a88f5090558a"
+                  },
+                  {
+                      "path":  "artifacts/quanpin-lexicon-v2/freeze-manifest.json",
+                      "bytes":  2374,
+                      "sha256":  "165cbe7aa81491603feb508ac2a08a86beabfdc868ab94cd98ec1dab31e0e809"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/default.lex",
+                      "bytes":  3746486,
+                      "sha256":  "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/all_domains.lex",
+                      "bytes":  3751923,
+                      "sha256":  "e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/education.lex",
+                      "bytes":  3747431,
+                      "sha256":  "afc4d124f14e9a8092c827cf14cc1bb8a8d3159c03e10392b0ad103da11bd518"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/finance.lex",
+                      "bytes":  3747501,
+                      "sha256":  "9c7904e61f92cd6ec8d0dd6e159ecefe8cd3a735b33ebe0c6ecd983af1d8e84e"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/legal.lex",
+                      "bytes":  3747149,
+                      "sha256":  "c649e982401f060aae37aca7b50a8879de6ee1d1b9c9146a4cab08dc43125630"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/medical.lex",
+                      "bytes":  3747391,
+                      "sha256":  "6dd305ee7891e2c3993bbe14f5d22446bacd4d4d4796a83d035e32eb8e2e8392"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/software.lex",
+                      "bytes":  3747454,
+                      "sha256":  "073d5bcbc0a09f558dec670f9692ac571a013a0649f79fcc7fca8188d58d6fdc"
+                  },
+                  {
+                      "path":  "dictionaries/generated/quanpin-v2/technology.lex",
+                      "bytes":  3747512,
+                      "sha256":  "05cba5d056e5f56537b43e06b509499f2526ede78ecf3f7b561a06e2bef8fcd1"
+                  },
+                  {
+                      "path":  "entry/src/main/resources/rawfile/production.lex",
+                      "bytes":  3746486,
+                      "sha256":  "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201"
+                  },
+                  {
+                      "path":  "entry/src/main/ets/infrastructure/resource/LexiconResourceInstaller.ets",
+                      "bytes":  4955,
+                      "sha256":  "13afc46aa4096d838aeaf7f77d0debe8576925617e2cefc4e6917451cbddb79b"
+                  },
+                  {
+                      "path":  "entry/src/internalDebug/ets/infrastructure/resource/CodeTableFixtureInstaller.ets",
+                      "bytes":  9465,
+                      "sha256":  "f242e0b021171c5fc46a04b777f59d3daad8435e1727e9adb189009437fb1cd5"
+                  },
+                  {
+                      "path":  "scripts/build-quanpin-lexicon-v2.ps1",
+                      "bytes":  15350,
+                      "sha256":  "0c54dc86a876fe3a527725a9c5d13d68e868c840473850a1a29ce12ab973c311"
+                  },
+                  {
+                      "path":  "scripts/create-quanpin-v2-dataset.ps1",
+                      "bytes":  8599,
+                      "sha256":  "30bf03f15dca1299ca10a483d9d8adb172db03fc3dd04a54a258d08a7c4ce221"
+                  },
+                  {
+                      "path":  "scripts/create-quanpin-v2-dataset-utf8.ps1",
+                      "bytes":  728,
+                      "sha256":  "06a8262976c0c0c273a08688ba7ab05608cd9ececfce68848d7a1eab15d23c96"
+                  },
+                  {
+                      "path":  "scripts/evaluate-quanpin-lexicon-v2.ps1",
+                      "bytes":  3691,
+                      "sha256":  "512229ba5a95501257763e22c1e1d95ca005d1ad03b4c991d101e767b34df23b"
+                  },
+                  {
+                      "path":  "scripts/verify-release-hap.ps1",
+                      "bytes":  15302,
+                      "sha256":  "1e9231cfa735f4c98bbb1f7b9e4db409ae2314b604320473313cc6f647b457d3"
+                  },
+                  {
+                      "path":  "scripts/test-quanpin-lexicon-v2.ps1",
+                      "bytes":  1975,
+                      "sha256":  "fbb981b7f1f5786505aee867d3011c84e13c6a94323ef162289bddcfb2ce17f5"
+                  }
+              ],
+    "mutationPolicy":  "After this freeze, blind may run exactly once with three internal repetitions. Any source, rule, binary, evaluator, test, or dataset change invalidates the blind result and requires a new version."
+}

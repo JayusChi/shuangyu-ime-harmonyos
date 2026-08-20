@@ -1,0 +1,11 @@
+{
+    "schemaVersion":  "quanpin-v2-blind-receipt/1",
+    "executedAt":  "2026-08-14T07:09:46.8998759Z",
+    "runs":  3,
+    "profile":  "all_domains",
+    "implementationIdentitySha256":  "794f864a4c25affcd658c7f5f2a06f08c83ec7b1618007c22ab7851a6cf4c0b7",
+    "datasetIdentitySha256":  "1536445c0d2faca9ad2785b13b0b54cd5df735b8b2642efd4f7619a5af680347",
+    "resultsSha256":  "3e855b3aac18911a2b0f1a7d097c8c2f8a5e265f4d5801cc32b858318f3050c8",
+    "failuresSha256":  "01407bd25079017e685d20a24a252caf3d9d4b2a7614fc94c0736607d443e8d4",
+    "mutationPolicy":  "Result is final for this implementation identity; no post-blind tuning is permitted."
+}

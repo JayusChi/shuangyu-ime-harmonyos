@@ -1,0 +1,9 @@
+[package]
+name = "user-model"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "user_model"
+path = "src/lib.rs"

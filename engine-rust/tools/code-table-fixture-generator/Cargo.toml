@@ -1,0 +1,10 @@
+[package]
+name = "code-table-fixture-generator"
+edition = "2021"
+version = "0.0.1"
+license = "UNLICENSED"
+
+[dependencies]
+lexicon-builder = { path = "../lexicon-builder" }
+lexicon-core = { path = "../../crates/lexicon-core" }
+
