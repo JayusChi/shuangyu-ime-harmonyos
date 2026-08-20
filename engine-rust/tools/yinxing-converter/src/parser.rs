@@ -216,21 +216,22 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
         } else {
             base_code
         };
-        let (code, normalized_changed) = match normalize_code(code_to_normalize) {
-            Ok(value) => value,
-            Err(reason) => {
-                reject(
-                    &mut stats,
-                    &mut rejected,
-                    &input.spec.source_file_id,
-                    physical_line,
-                    reason,
-                    "code must be one to four ASCII letters",
-                    &digest,
-                );
-                continue;
-            }
-        };
+        let (code, normalized_changed) =
+            match normalize_category_code(&input.spec.category_id, code_to_normalize) {
+                Ok(value) => value,
+                Err(reason) => {
+                    reject(
+                        &mut stats,
+                        &mut rejected,
+                        &input.spec.source_file_id,
+                        physical_line,
+                        reason,
+                        "code must be one to four ASCII letters",
+                        &digest,
+                    );
+                    continue;
+                }
+            };
         let changed = normalized_changed || input.spec.category_id == "symbol-group";
         stats.max_code_length = stats.max_code_length.max(code.len() as u64);
         stats.max_word_length = stats.max_word_length.max(text_field.chars().count() as u64);
@@ -310,6 +311,20 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
         rejected,
         stats,
     })
+}
+
+/// The customer quick-symbol format reserves `_` for the bare guide prefix and
+/// `;` for pressing the guide key a second time.  Keep those two triggers in
+/// the isolated quick-symbol lexicon; every ordinary category continues to use
+/// the frozen one-to-four ASCII-letter grammar.
+fn normalize_category_code(
+    category_id: &str,
+    value: &str,
+) -> std::result::Result<(String, bool), &'static str> {
+    if category_id == "quick-symbol" && matches!(value, "_" | ";") {
+        return Ok((value.to_owned(), false));
+    }
+    normalize_code(value)
 }
 
 fn decode_text<'a>(bytes: &'a [u8], source_file_id: &str) -> Result<&'a str> {
@@ -477,6 +492,13 @@ mod tests {
         }
     }
 
+    fn quick_symbol_input(bytes: &[u8]) -> SourceInput {
+        let mut source = input(bytes);
+        source.spec.category_id = "quick-symbol".into();
+        source.spec.role = "quick_symbol".into();
+        source
+    }
+
     fn contract() -> ValidatedContract {
         ValidatedContract {
             categories: Vec::new(),
@@ -517,6 +539,25 @@ mod tests {
         assert!(is_configuration_header("--leadkey='"));
         assert!(is_comment("-- ordinary comment"));
         assert!(!is_comment("$cmd(x,x)\tabcd"));
+    }
+
+    #[test]
+    fn quick_symbol_prefix_and_repeat_triggers_are_preserved_but_stay_isolated() {
+        let result = parse_category(
+            &quick_symbol_input("：\t_\n；\t;\n：“\tq\n".as_bytes()),
+            &contract(),
+        )
+        .unwrap();
+        assert_eq!(
+            result
+                .system_records
+                .iter()
+                .map(|record| (record.text.as_str(), record.code.as_str()))
+                .collect::<Vec<_>>(),
+            [("：", "_"), ("；", ";"), ("：“", "q")]
+        );
+        assert!(normalize_category_code("core", "_").is_err());
+        assert!(normalize_category_code("symbol", ";").is_err());
     }
 
     #[test]

@@ -1,5 +1,5 @@
 {
-  "accepted_record_count": 74680,
+  "accepted_record_count": 74682,
   "action_metadata_file": {
     "byte_size": 91060,
     "path": "action-metadata.json",
@@ -8,7 +8,7 @@
   "audit_manifest_version": "1.1.0",
   "auditor_version": "yinxing-source-auditor/1.1.0",
   "build_timestamp_policy": "omitted",
-  "bundle_content_sha256": "23673a6c86ddfedd98ba2a30942a1c3f13d077d86bb0e98cc5223ce50b8e3fa5",
+  "bundle_content_sha256": "c35a3691b023f823e6340588d74df184ecd65fe915a83a35b42feac77355e9c8",
   "bundle_id": "xiaohe-yinxing-production",
   "category_count": 11,
   "category_files": [
@@ -39,15 +39,15 @@
       "source_sha256": "e4be5f6cac3241e32d78ada9a3832d4c8c1a6280efd371c02f4018ff9c388d64"
     },
     {
-      "byte_size": 1014,
+      "byte_size": 1134,
       "category_id": "quick-symbol",
       "default_enabled": true,
       "display_name": "快符",
-      "entry_count": 15,
+      "entry_count": 17,
       "file": "categories/quick-symbol.lex",
       "order": 2,
       "role": "quick_symbol",
-      "sha256": "332ba807d831b986fd7e11deeef1e8e01d06b2602ea605d1bd179b1b49435c79",
+      "sha256": "5fbf66b10404c083e5b5bdb7ff6822f10b7b1e9435f972bc0e7c2387493e7ec7",
       "source_file_id": "src-02",
       "source_sha256": "fa74b00a7e5193fb538622d8bdb2ba05317df42b5cbf8b7bd8285a20056c91b9"
     },
@@ -67,7 +67,7 @@
     {
       "byte_size": 4139,
       "category_id": "two-key-secondary",
-      "default_enabled": true,
+      "default_enabled": false,
       "display_name": "二简次选",
       "entry_count": 66,
       "file": "categories/two-key-secondary.lex",
@@ -93,7 +93,7 @@
     {
       "byte_size": 31148,
       "category_id": "full-code-word",
-      "default_enabled": true,
+      "default_enabled": false,
       "display_name": "全码词",
       "entry_count": 464,
       "file": "categories/full-code-word.lex",
@@ -132,7 +132,7 @@
     {
       "byte_size": 31131,
       "category_id": "rare-character",
-      "default_enabled": true,
+      "default_enabled": false,
       "display_name": "生僻字",
       "entry_count": 498,
       "file": "categories/rare-character.lex",
@@ -145,7 +145,7 @@
     {
       "byte_size": 103270,
       "category_id": "full-code-character",
-      "default_enabled": true,
+      "default_enabled": false,
       "display_name": "全码字",
       "entry_count": 1652,
       "file": "categories/full-code-character.lex",
@@ -171,7 +171,7 @@
   ],
   "command_policy_sha256": "6b5073dde18d5cc7d051a4febb4285d0116fc6f9e7846c830497de91b8f3e030",
   "conflict_record_count": 1,
-  "conversion_contract_sha256": "3dc09eb1e768ae3c56b4411ccc47ff3990f46bbe9b7c3d41c0033eb8589234fd",
+  "conversion_contract_sha256": "624ad86ab5b2702fd49b9cd1acac498706ee0f74411ec111d6d1b9a1dad7decf",
   "conversion_contract_version": "1.1.0",
   "converter_version": "yinxing-converter/1.0.0",
   "data_version": "source-receipt-1",
@@ -180,7 +180,7 @@
   "format_version": "1.0",
   "input_file_count": 11,
   "manifest_version": 1,
-  "rejected_record_count": 339,
+  "rejected_record_count": 337,
   "scheme_id": "xiaohe-yinxing",
   "source_files": [
     {
@@ -285,14 +285,14 @@
   ],
   "source_manifest_sha256": "d45b2fe3930cf10c30a9f4887a7fe2cc98dc90b7f06ec490e56b9ff7718cb189",
   "statistics_file": {
-    "byte_size": 101138,
+    "byte_size": 100588,
     "path": "build-report.json",
-    "sha256": "3765b02a2217f81c43081e0dff4aa9b6dcf658c0bc9ec00f654ba3728f92f882"
+    "sha256": "f26ae08c11382ea20e399f5dddf095bf47dcf7e7d2d58297bed13160070fc167"
   },
   "trace_metadata_file": {
-    "byte_size": 20863273,
+    "byte_size": 20863833,
     "path": "trace-index.jsonl",
-    "sha256": "75fc7bb56992cc54374b667867689f49138440609370d003d3dd9cf6eff549dc"
+    "sha256": "513a53875fd81826cd6aa4744f5df15dfe49690ba2e6bd154033ce3ae21bb3d1"
   },
   "transformed_record_count": 779,
   "user_rule_file": {

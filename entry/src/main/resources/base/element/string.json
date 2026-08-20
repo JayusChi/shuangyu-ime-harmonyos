@@ -29,8 +29,6 @@
     { "name": "input_presentation_desc", "value": "自动适配 2in1 与 Tablet 外接键盘，也可手动固定展示模式" },
     { "name": "shuangpin_scheme", "value": "双拼方案" },
     { "name": "shuangpin_scheme_desc", "value": "仅显示引擎中真实可用的方案" },
-    { "name": "yinxing_hint_candidate_count", "value": "精准匹配提示数量" },
-    { "name": "yinxing_hint_candidate_count_desc", "value": "小鹤音形未精确命中时，按词库顺序显示1～9个编码提示" },
     { "name": "user_learning", "value": "用户学习" },
     { "name": "user_learning_desc", "value": "关闭后停止学习新的候选选择，不会自动删除已有记录" },
     { "name": "appearance", "value": "外观" },

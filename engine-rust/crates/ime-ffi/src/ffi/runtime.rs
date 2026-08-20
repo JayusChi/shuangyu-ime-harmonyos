@@ -69,7 +69,8 @@ fn validate_key_arg(key: &str) -> Result<char, ImeErrorCode> {
     let Some(ch) = chars.next() else {
         return Err(ImeErrorCode::InvalidArgument);
     };
-    if chars.next().is_some() || !(ch.is_ascii_lowercase() || ch == ';' || matches!(ch, '2'..='9'))
+    if chars.next().is_some()
+        || !(ch.is_ascii_lowercase() || ch == ';' || ch == '`' || matches!(ch, '2'..='9'))
     {
         return Err(ImeErrorCode::InvalidArgument);
     }
@@ -99,5 +100,4 @@ fn engine_from_handle<'a>(
     // SAFETY: handle is non-null and must have been returned by ime_engine_create.
     Ok(unsafe { &mut *handle })
 }
-
 

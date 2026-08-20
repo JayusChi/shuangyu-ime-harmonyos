@@ -13,13 +13,15 @@ use crate::category::CategorySelectionSnapshot;
 use crate::error::{CodeTableError, CodeTableErrorKind};
 use crate::query::{
     exact_system_candidates, longer_system_candidates, longer_system_codes, query_isolated_table,
-    query_with_strategy_and_snapshot, CodeTableCandidate, CodeTableMatch, CodeTableQueryStrategy,
-    QuerySnapshot,
+    query_with_strategy_and_snapshot, wildcard_system_candidates, CodeTableCandidate,
+    CodeTableMatch, CodeTableQueryStrategy, QuerySnapshot,
 };
 
-const MAX_PRECISE_HINT_CANDIDATES: usize = 9;
+const PRECISE_HINT_CANDIDATE_LIMIT: usize = 1;
 
 const MAX_CODE_TABLE_SOURCE_CANDIDATES: usize = 4096;
+const GUIDE_PREFIX_DEFAULT_CODE: &str = "_";
+const GUIDE_REPEAT_CODE: &str = ";";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CodeTableInputState {
@@ -264,9 +266,40 @@ impl CodeTableStateMachine {
 
     pub fn process_key(&mut self, key: char) -> Result<CodeTableProcessOutcome, CodeTableError> {
         if key == ';' {
+            if self.input_state == CodeTableInputState::GuidePrefix {
+                let commit_text = self
+                    .query_guide_code(GUIDE_REPEAT_CODE)
+                    .candidates
+                    .into_iter()
+                    .find(|candidate| candidate.code == GUIDE_REPEAT_CODE)
+                    .map(|candidate| candidate.text);
+                if commit_text.is_some() {
+                    self.reset();
+                    return Ok(CodeTableProcessOutcome { commit_text });
+                }
+            }
             self.raw_code.clear();
             self.clear_query_state();
             self.input_state = CodeTableInputState::GuidePrefix;
+            self.requery_guide();
+            return Ok(CodeTableProcessOutcome::default());
+        }
+        if key == '`' {
+            if matches!(
+                self.input_state,
+                CodeTableInputState::GuidePrefix | CodeTableInputState::GuideCode
+            ) {
+                self.reset();
+            }
+            if self.raw_code.len() >= self.commit_policy.normal_code_max_length {
+                return Err(CodeTableError::new(
+                    CodeTableErrorKind::CodeTooLong,
+                    "universal code reached the configured limit",
+                ));
+            }
+            self.raw_code.push(key);
+            self.input_state = CodeTableInputState::NormalCode;
+            self.requery();
             return Ok(CodeTableProcessOutcome::default());
         }
         if !key.is_ascii_lowercase() {
@@ -284,6 +317,18 @@ impl CodeTableStateMachine {
         let category_snapshot = self.category_selection_snapshot();
         let user_snapshot = Arc::clone(&self.user_lexicon);
         let mut outcome = CodeTableProcessOutcome::default();
+        if self.raw_code.contains('`') {
+            if self.raw_code.len() >= self.commit_policy.normal_code_max_length {
+                return Err(CodeTableError::new(
+                    CodeTableErrorKind::CodeTooLong,
+                    "universal code reached the configured limit",
+                ));
+            }
+            self.raw_code.push(key);
+            self.input_state = CodeTableInputState::NormalCode;
+            self.requery_with_snapshots(&category_snapshot, &user_snapshot);
+            return Ok(outcome);
+        }
         if self.input_state == CodeTableInputState::NormalCode
             && self.raw_code.len() >= self.commit_policy.top_screen_length
         {
@@ -669,6 +714,18 @@ impl CodeTableStateMachine {
         category_snapshot: &CategorySelectionSnapshot,
         user_snapshot: &UserLexiconSnapshot,
     ) -> QuerySnapshot {
+        if raw_code.contains('`') {
+            return QuerySnapshot {
+                raw_code: raw_code.to_owned(),
+                match_type: Some(CodeTableMatch::Prefix),
+                candidates: wildcard_system_candidates(
+                    &self.bundle,
+                    category_snapshot,
+                    raw_code,
+                    self.max_candidates,
+                ),
+            };
+        }
         if self.query_strategy == CodeTableQueryStrategy::DeterministicXiaoheYinxing {
             return self.query_deterministic_for_snapshots(
                 raw_code,
@@ -791,7 +848,7 @@ impl CodeTableStateMachine {
             };
         }
 
-        let hint_limit = MAX_PRECISE_HINT_CANDIDATES.min(self.max_candidates);
+        let hint_limit = PRECISE_HINT_CANDIDATE_LIMIT.min(self.max_candidates);
         let source_limit = hint_limit
             .saturating_add(user_snapshot.entries().len())
             .min(MAX_CODE_TABLE_SOURCE_CANDIDATES);
@@ -820,10 +877,21 @@ impl CodeTableStateMachine {
     }
 
     fn requery_guide(&mut self) {
-        if self.raw_code.is_empty() {
-            self.clear_query_state();
-            return;
-        }
+        let query_code = if self.raw_code.is_empty() {
+            if self.input_state != CodeTableInputState::GuidePrefix {
+                self.clear_query_state();
+                return;
+            }
+            GUIDE_PREFIX_DEFAULT_CODE
+        } else {
+            self.raw_code.as_str()
+        };
+        let query = self.query_guide_code(query_code);
+        self.query_cache = Some(query);
+        self.current_page = 0;
+    }
+
+    fn query_guide_code(&self, query_code: &str) -> QuerySnapshot {
         let category_snapshot = self.category_selection_snapshot();
         let production_quick_symbols = self
             .bundle
@@ -838,18 +906,18 @@ impl CodeTableStateMachine {
             .as_ref()
             .or_else(|| production_quick_symbols.filter(|_| quick_symbols_enabled));
         let mut query = guide_category
-            .map(|guide| query_isolated_table(&self.bundle.bundle_id, guide, &self.raw_code))
+            .map(|guide| query_isolated_table(&self.bundle.bundle_id, guide, query_code))
             .unwrap_or_else(|| QuerySnapshot {
-                raw_code: self.raw_code.clone(),
+                raw_code: query_code.to_owned(),
                 match_type: None,
                 candidates: Vec::new(),
             });
         if quick_symbols_enabled {
             if let Some(table) = &self.action_table {
-                let functional = table.query_exact_or_prefix(&self.raw_code);
+                let functional = table.query_exact_or_prefix(query_code);
                 let functional_exact = functional
                     .first()
-                    .is_some_and(|record| record.code == self.raw_code);
+                    .is_some_and(|record| record.code == query_code);
                 if functional_exact {
                     query.candidates.clear();
                 }
@@ -866,7 +934,7 @@ impl CodeTableStateMachine {
                 query
                     .candidates
                     .extend(functional.into_iter().filter_map(|record| {
-                        let record_match = if record.code == self.raw_code {
+                        let record_match = if record.code == query_code {
                             CodeTableMatch::Exact
                         } else {
                             CodeTableMatch::Prefix
@@ -888,8 +956,7 @@ impl CodeTableStateMachine {
             }
         }
         query.candidates.truncate(self.max_candidates);
-        self.query_cache = Some(query);
-        self.current_page = 0;
+        query
     }
 
     fn exact_candidates_for(&self, code: &str) -> Vec<CodeTableCandidate> {

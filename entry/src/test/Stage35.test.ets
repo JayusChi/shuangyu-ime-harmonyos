@@ -139,17 +139,18 @@ export default function stage35Test() {
       const tabletIds = tablet.rows[3].keys.map((key) => key.id);
       expect(phoneIds.indexOf('input-method-switch')).assertEqual(-1);
       expect(tabletIds.indexOf('input-method-switch') > -1).assertTrue();
-      expect(tablet.rows[3].keys[1].action.type).assertEqual(KeyboardActionType.SWITCH_INPUT_METHOD);
-      expect(tablet.rows[3].keys[1].longPressAction?.type)
+      const switchKey = tablet.rows[3].keys.find((key) => key.id === 'input-method-switch');
+      expect(switchKey?.action.type).assertEqual(KeyboardActionType.SWITCH_INPUT_METHOD);
+      expect(switchKey?.longPressAction?.type)
         .assertEqual(KeyboardActionType.SHOW_INPUT_METHOD_PICKER);
       expect(phone.rows[0].keys.map((key) => key.id).join(','))
         .assertEqual(tablet.rows[0].keys.map((key) => key.id).join(','));
       const phoneWeight = phone.rows[3].keys.reduce((sum: number, key) => sum + key.weight, 0);
       const tabletWeight = tablet.rows[3].keys.reduce((sum: number, key) => sum + key.weight, 0);
       expect(tabletWeight).assertEqual(phoneWeight);
-      const languageKey = phone.rows[3].keys.find((key) => key.id === 'language');
-      expect(languageKey?.action.type).assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
-      expect(languageKey?.longPressAction === undefined).assertTrue();
+      const spaceKey = phone.rows[3].keys.find((key) => key.id === 'space');
+      expect(spaceKey?.longPressAction?.type).assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
+      expect(spaceKey?.swipeUpAction?.type).assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
     });
 
     it('keeps the inline fallback reachable in numeric phone and symbol layouts', 0, () => {

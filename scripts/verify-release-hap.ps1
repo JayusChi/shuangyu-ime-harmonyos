@@ -23,8 +23,8 @@ $expectedProductionLexiconSize = 3751923
 $expectedProductionLexiconSha256 = 'e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365'
 $expectedQuanpinContextModelSize = 37659
 $expectedQuanpinContextModelSha256 = '91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c'
-$expectedYinxingBundleSize = 26039550
-$expectedYinxingBundleSha256 = '6010300516e9e58da6cbbb4d136f70db0be137743122b2c29ce3175fe76fc4f5'
+$expectedYinxingBundleSize = 26039684
+$expectedYinxingBundleSha256 = 'cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94'
 $releaseForbiddenPermissions = @('ohos.permission.INTERNET')
 $forbiddenDebugContent = @(
     'DebugStage10',

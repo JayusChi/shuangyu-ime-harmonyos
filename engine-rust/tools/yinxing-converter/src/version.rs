@@ -14,7 +14,7 @@ pub const FROZEN_CONVERTER_PLACEHOLDER: &str = "yinxing-converter/0-not-implemen
 pub const SOURCE_MANIFEST_SHA256: &str =
     "d45b2fe3930cf10c30a9f4887a7fe2cc98dc90b7f06ec490e56b9ff7718cb189";
 pub const CONVERSION_CONTRACT_SHA256: &str =
-    "3dc09eb1e768ae3c56b4411ccc47ff3990f46bbe9b7c3d41c0033eb8589234fd";
+    "624ad86ab5b2702fd49b9cd1acac498706ee0f74411ec111d6d1b9a1dad7decf";
 pub const SANITIZED_CONFIGURATION_SHA256: &str =
     "b4b7705055953e0c65d579767875516fd11c8c973af810b3821045551e0d04f0";
 pub const CATEGORY_COUNT: usize = 11;

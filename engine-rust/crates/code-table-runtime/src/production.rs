@@ -25,24 +25,24 @@ const EXPECTED_CONTRACT_VERSION: &str = "1.1.0";
 const EXPECTED_SOURCE_MANIFEST_HASH: &str =
     "d45b2fe3930cf10c30a9f4887a7fe2cc98dc90b7f06ec490e56b9ff7718cb189";
 const EXPECTED_CONTRACT_HASH: &str =
-    "3dc09eb1e768ae3c56b4411ccc47ff3990f46bbe9b7c3d41c0033eb8589234fd";
+    "624ad86ab5b2702fd49b9cd1acac498706ee0f74411ec111d6d1b9a1dad7decf";
 const EXPECTED_CONTENT_HASH: &str =
-    "23673a6c86ddfedd98ba2a30942a1c3f13d077d86bb0e98cc5223ce50b8e3fa5";
+    "c35a3691b023f823e6340588d74df184ecd65fe915a83a35b42feac77355e9c8";
 const EXPECTED_ARCHIVE_HASH: &str =
-    "6010300516e9e58da6cbbb4d136f70db0be137743122b2c29ce3175fe76fc4f5";
+    "cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94";
 const EXPECTED_ARCHIVE_FILE_COUNT: usize = 16;
-const EXPECTED_CATEGORIES: [(&str, usize); 11] = [
-    ("core", 68_505),
-    ("category-secondary", 1_690),
-    ("quick-symbol", 15),
-    ("one-key-secondary", 26),
-    ("two-key-secondary", 66),
-    ("out-of-table-character", 362),
-    ("full-code-word", 464),
-    ("symbol", 623),
-    ("symbol-group", 743),
-    ("rare-character", 498),
-    ("full-code-character", 1_652),
+const EXPECTED_CATEGORIES: [(&str, usize, bool); 11] = [
+    ("core", 68_505, true),
+    ("category-secondary", 1_690, true),
+    ("quick-symbol", 17, true),
+    ("one-key-secondary", 26, true),
+    ("two-key-secondary", 66, false),
+    ("out-of-table-character", 362, true),
+    ("full-code-word", 464, false),
+    ("symbol", 623, true),
+    ("symbol-group", 743, true),
+    ("rare-character", 498, false),
+    ("full-code-character", 1_652, false),
 ];
 const FLAG_MANIFEST: u16 = 1;
 const FLAG_CATEGORY: u16 = 2;
@@ -434,7 +434,10 @@ impl ProductionManifest {
             validate_path(&path)?;
             let default_enabled = boolean(required(item, "default_enabled")?, "default_enabled")?;
             let entry_count = usize_value(required(item, "entry_count")?, "entry_count")?;
-            if strict_frozen && (!default_enabled || entry_count != EXPECTED_CATEGORIES[index].1) {
+            if strict_frozen
+                && (default_enabled != EXPECTED_CATEGORIES[index].2
+                    || entry_count != EXPECTED_CATEGORIES[index].1)
+            {
                 return Err(error(
                     CodeTableErrorKind::MetadataMismatch,
                     "category default/count differs from frozen profile",

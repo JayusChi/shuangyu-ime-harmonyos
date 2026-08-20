@@ -55,6 +55,7 @@ import { UndoCommitManager } from './UndoCommitManager';
 import { UserLexiconDocumentEditor } from './UserLexiconController';
 
 import { ImeInputService } from './ImeInputService';
+import { SmartPeriodController, SmartPeriodInputAction } from './SmartPeriodController';
 
 const TAG = 'InputSessionController';
 const LOGGER = new Logger(TAG);
@@ -91,6 +92,7 @@ export class InputSessionControllerBase {
   protected readonly settingsController: SettingsController;
   protected readonly inputMethodSwitcher: InputMethodSwitcher;
   protected readonly quanpinContextModelInstaller: QuanpinContextModelResourceInstaller;
+  protected readonly smartPeriodController: SmartPeriodController;
   protected userModelPath?: string;
   protected userLexiconPath?: string;
   protected abilityContext?: InputMethodExtensionContext;
@@ -119,7 +121,8 @@ export class InputSessionControllerBase {
     userLexiconPathProvider: UserLexiconPathProvider = new UserLexiconPathProvider(),
     inputMethodSwitcher: InputMethodSwitcher = getSharedInputMethodSwitcher(),
     quanpinContextModelInstaller: QuanpinContextModelResourceInstaller =
-      new QuanpinContextModelResourceInstaller()
+      new QuanpinContextModelResourceInstaller(),
+    smartPeriodController: SmartPeriodController = new SmartPeriodController()
   ) {
     this.store = store;
     this.imeService = imeService;
@@ -131,6 +134,7 @@ export class InputSessionControllerBase {
     this.userLexiconPathProvider = userLexiconPathProvider;
     this.inputMethodSwitcher = inputMethodSwitcher;
     this.quanpinContextModelInstaller = quanpinContextModelInstaller;
+    this.smartPeriodController = smartPeriodController;
     const actionHandlers: ProtocolActionHandlers = new SessionProtocolActionHandlers(
       (generation: number): Promise<boolean> => this.repeatLastCommit(generation),
       (generation: number): Promise<boolean> => this.undoLastCommit(generation)
@@ -158,6 +162,10 @@ export class InputSessionControllerBase {
 
   getInputSessionGeneration(): number {
     return this.store.getSessionGeneration();
+  }
+
+  beginInputAction(timestampMs: number = Date.now()): SmartPeriodInputAction {
+    return this.smartPeriodController.beginInput(timestampMs);
   }
 
   isInputSessionGenerationCurrent(generation: number): boolean {
@@ -681,4 +689,3 @@ export class InputSessionControllerBase {
     }
   }
 }
-

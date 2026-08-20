@@ -1,6 +1,6 @@
 import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
-import { KeyboardAction, KeyboardActionType } from '../domain/keyboard/KeyboardAction';
+import { EditorExtendAction, KeyboardAction, KeyboardActionType } from '../domain/keyboard/KeyboardAction';
 import { NativeEngineGateway } from '../infrastructure/native/NativeEngineGateway';
 import { NativeEngineGatewayContract } from '../infrastructure/native/NativeEngineTypes';
 import { InputSessionState, InputSessionStateListener } from '../state/InputSessionStore';
@@ -14,6 +14,7 @@ import {
   CandidateExpansionAvailability,
   CandidatePageDirection
 } from '../domain/candidate/CandidateExpansionPolicy';
+import { SmartPeriodInputAction } from './SmartPeriodController';
 
 const TAG = 'KeyboardController';
 const LOGGER = new Logger(TAG);
@@ -56,6 +57,11 @@ export class KeyboardController {
 
   getInputMethodSwitchCapabilities(): InputMethodSwitchCapabilities {
     return this.sessionController.getInputMethodSwitchCapabilities();
+  }
+
+  /** Invalidates a pending double-press sequence for a key handled by the host. */
+  noteExternalInputAction(timestampMs: number = Date.now()): void {
+    this.sessionController.beginInputAction(timestampMs);
   }
 
   async commitCandidate(candidateIndex: number): Promise<InputOperationResult> {
@@ -126,6 +132,18 @@ export class KeyboardController {
     });
   }
 
+  /** Restores a cold-start letter when the eventual editor policy is passthrough. */
+  async insertDeferredPhysicalCharacter(character: string): Promise<InputOperationResult> {
+    return this.enqueueInputOperation('deferred_hardware_character',
+      async (generation: number): Promise<InputOperationResult> => {
+        const result = await this.sessionController.insertCharacter(character, generation);
+        if (result.success && this.sessionController.isInputSessionGenerationCurrent(generation)) {
+          this.feedbackController.accepted();
+        }
+        return result;
+      });
+  }
+
   async handlePhysicalEnter(): Promise<InputOperationResult> {
     return this.enqueueInputOperation('hardware_enter', async (generation: number): Promise<InputOperationResult> => {
       const state = this.sessionController.getState();
@@ -148,9 +166,19 @@ export class KeyboardController {
     });
   }
 
+  /** Routes a hardware semicolon through the code-table guide state machine. */
+  async handlePhysicalGuideSemicolon(): Promise<InputOperationResult> {
+    return this.enqueueInputOperation('hardware_guide_semicolon', async (generation: number): Promise<InputOperationResult> => {
+      return this.sessionController.insertCharacter(';', generation);
+    });
+  }
+
   async insertPhysicalPunctuation(character: string): Promise<InputOperationResult> {
-    return this.enqueueInputOperation('hardware_punctuation', async (generation: number): Promise<InputOperationResult> => {
-      return this.sessionController.insertPhysicalPunctuation(character, generation);
+    return this.enqueueInputOperation('hardware_punctuation', async (
+      generation: number,
+      inputAction: SmartPeriodInputAction
+    ): Promise<InputOperationResult> => {
+      return this.sessionController.insertPhysicalPunctuation(character, generation, inputAction);
     });
   }
 
@@ -252,8 +280,11 @@ export class KeyboardController {
   }
 
   async handleAction(action: KeyboardAction): Promise<InputOperationResult> {
-    return this.enqueueInputOperation(action.type, async (generation: number): Promise<InputOperationResult> => {
-      const result = await this.executeActionInternal(action, generation);
+    return this.enqueueInputOperation(action.type, async (
+      generation: number,
+      inputAction: SmartPeriodInputAction
+    ): Promise<InputOperationResult> => {
+      const result = await this.executeActionInternal(action, generation, inputAction);
       if (result.success && this.sessionController.isInputSessionGenerationCurrent(generation)) {
         this.feedbackController.accepted(action.type === KeyboardActionType.DELETE);
       }
@@ -263,7 +294,8 @@ export class KeyboardController {
 
   private async executeActionInternal(
     action: KeyboardAction,
-    generation: number
+    generation: number,
+    inputAction: SmartPeriodInputAction
   ): Promise<InputOperationResult> {
     let result: InputOperationResult;
     switch (action.type) {
@@ -274,7 +306,7 @@ export class KeyboardController {
         result = await this.sessionController.insertT9PinyinDigit(action.digit, generation);
         break;
       case KeyboardActionType.CHARACTER:
-        result = await this.sessionController.insertCharacter(action.character, generation);
+        result = await this.sessionController.insertCharacter(action.character, generation, inputAction);
         break;
       case KeyboardActionType.DELETE:
         result = await this.sessionController.deleteBackward(generation);
@@ -355,6 +387,24 @@ export class KeyboardController {
           : inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'undo last commit failed');
         break;
       }
+      case KeyboardActionType.SELECT_ALL:
+        result = await this.sessionController.performEditorExtendAction(EditorExtendAction.SELECT_ALL, generation);
+        break;
+      case KeyboardActionType.CUT:
+        result = await this.sessionController.performEditorExtendAction(EditorExtendAction.CUT, generation);
+        break;
+      case KeyboardActionType.COPY:
+        result = await this.sessionController.performEditorExtendAction(EditorExtendAction.COPY, generation);
+        break;
+      case KeyboardActionType.PASTE:
+        result = await this.sessionController.performEditorExtendAction(EditorExtendAction.PASTE, generation);
+        break;
+      case KeyboardActionType.CANCEL_COMPOSITION:
+        result = await this.sessionController.cancelComposition(generation);
+        break;
+      case KeyboardActionType.UNIVERSAL_KEY:
+        result = await this.sessionController.insertUniversalKey(generation);
+        break;
       default:
         LOGGER.warn('unsupported keyboard action');
         this.sessionController.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'unsupported keyboard action');
@@ -365,9 +415,10 @@ export class KeyboardController {
 
   private enqueueInputOperation(
     label: string,
-    task: (generation: number) => Promise<InputOperationResult>
+    task: (generation: number, inputAction: SmartPeriodInputAction) => Promise<InputOperationResult>
   ): Promise<InputOperationResult> {
     const generation = this.sessionController.getInputSessionGeneration();
+    const inputAction = this.sessionController.beginInputAction();
     this.actionSequence += 1;
     const sequence = this.actionSequence;
     LOGGER.debug(`input action queued: type=${label}, generation=${generation}, sequence=${sequence}`);
@@ -382,7 +433,7 @@ export class KeyboardController {
 
       LOGGER.debug(`input action started: type=${label}, generation=${generation}, sequence=${sequence}`);
       try {
-        const result = await task(generation);
+        const result = await task(generation, inputAction);
         if (!this.sessionController.isInputSessionGenerationCurrent(generation)) {
           LOGGER.info(
             `stale input action completed without state update: type=${label}, ` +

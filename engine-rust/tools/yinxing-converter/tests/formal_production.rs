@@ -42,23 +42,24 @@ fn formal_bundle_queries_are_stable_across_code_lengths_and_categories() {
         36
     );
 
-    let enabled = bundle.default_enabled_category_ids();
+    let defaults = bundle.default_enabled_category_ids();
     assert_eq!(
-        enabled,
+        defaults,
         [
             "core",
             "category-secondary",
             "quick-symbol",
             "one-key-secondary",
-            "two-key-secondary",
             "out-of-table-character",
-            "full-code-word",
             "symbol",
             "symbol-group",
-            "rare-character",
-            "full-code-character",
         ]
     );
+    let enabled = bundle
+        .categories
+        .iter()
+        .map(|category| category.id.clone())
+        .collect::<Vec<_>>();
     let category_rank = enabled
         .iter()
         .enumerate()

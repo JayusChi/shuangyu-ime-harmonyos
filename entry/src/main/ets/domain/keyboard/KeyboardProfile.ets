@@ -8,7 +8,7 @@ export enum KeyboardInputScheme {
 }
 
 export enum KeyboardLayoutKind {
-  SEVENTEEN_KEY = 'seventeen-key',
+  EIGHTEEN_KEY = 'eighteen-key',
   QWERTY_26_KEY = 'qwerty-26-key',
   T9_9_KEY = 't9-9-key'
 }
@@ -30,13 +30,15 @@ export interface KeyboardProfile {
   enabled: boolean;
 }
 
-export const XIAOHE_17_PROFILE_ID: string = 'xiaohe-17';
+export const XIAOHE_18_PROFILE_ID: string = 'xiaohe-18';
 export const XIAOHE_26_PROFILE_ID: string = 'xiaohe-26';
 export const QUANPIN_26_PROFILE_ID: string = 'quanpin-26';
 export const PINYIN_9_PROFILE_ID: string = 'pinyin-9';
-export const XIAOHE_YINXING_17_PROFILE_ID: string = 'xiaohe-yinxing-17';
 export const XIAOHE_YINXING_26_PROFILE_ID: string = 'xiaohe-yinxing-26';
 export const DEFAULT_KEYBOARD_PROFILE_ID: string = XIAOHE_26_PROFILE_ID;
+
+const LEGACY_XIAOHE_17_PROFILE_ID: string = 'xiaohe-17';
+const LEGACY_XIAOHE_YINXING_17_PROFILE_ID: string = 'xiaohe-yinxing-17';
 
 const SHUANGPIN_CAPABILITIES: KeyboardCapability[] = [
   KeyboardCapability.LETTER_INPUT,
@@ -50,10 +52,10 @@ const YINXING_CAPABILITIES: KeyboardCapability[] = [
 /** Product keyboard profiles. Each enabled entry has a complete engine and UI. */
 export const KEYBOARD_PROFILES: KeyboardProfile[] = [
   {
-    profileId: XIAOHE_17_PROFILE_ID,
-    displayName: '17 键双拼',
+    profileId: XIAOHE_18_PROFILE_ID,
+    displayName: '18 键双拼',
     inputScheme: KeyboardInputScheme.XIAOHE_SHUANGPIN,
-    layoutKind: KeyboardLayoutKind.SEVENTEEN_KEY,
+    layoutKind: KeyboardLayoutKind.EIGHTEEN_KEY,
     engineSchemeId: 'xiaohe',
     supportedCapabilities: SHUANGPIN_CAPABILITIES.slice(),
     enabled: true
@@ -86,15 +88,6 @@ export const KEYBOARD_PROFILES: KeyboardProfile[] = [
     enabled: true
   },
   {
-    profileId: XIAOHE_YINXING_17_PROFILE_ID,
-    displayName: '17 键小鹤音形',
-    inputScheme: KeyboardInputScheme.XIAOHE_YINXING,
-    layoutKind: KeyboardLayoutKind.SEVENTEEN_KEY,
-    engineSchemeId: 'xiaohe-yinxing',
-    supportedCapabilities: YINXING_CAPABILITIES.slice(),
-    enabled: true
-  },
-  {
     profileId: XIAOHE_YINXING_26_PROFILE_ID,
     displayName: '26 键小鹤音形',
     inputScheme: KeyboardInputScheme.XIAOHE_YINXING,
@@ -118,6 +111,12 @@ export function enabledKeyboardProfiles(): KeyboardProfile[] {
 }
 
 export function normalizeKeyboardProfileId(profileId: string | undefined): string {
+  if (profileId === LEGACY_XIAOHE_17_PROFILE_ID) {
+    return XIAOHE_18_PROFILE_ID;
+  }
+  if (profileId === LEGACY_XIAOHE_YINXING_17_PROFILE_ID) {
+    return XIAOHE_YINXING_26_PROFILE_ID;
+  }
   return isEnabledKeyboardProfile(profileId) ? profileId as string : DEFAULT_KEYBOARD_PROFILE_ID;
 }
 
@@ -125,9 +124,8 @@ export function keyboardProfileForLegacy(
   schemeId: string | undefined,
   legacyLayout: string | undefined
 ): string {
-  const isSeventeenKey = legacyLayout === 'seventeen_key' || legacyLayout === KeyboardLayoutKind.SEVENTEEN_KEY;
   if (schemeId === 'xiaohe-yinxing') {
-    return isSeventeenKey ? XIAOHE_YINXING_17_PROFILE_ID : XIAOHE_YINXING_26_PROFILE_ID;
+    return XIAOHE_YINXING_26_PROFILE_ID;
   }
   if (schemeId === 'quanpin') {
     return QUANPIN_26_PROFILE_ID;
@@ -136,7 +134,9 @@ export function keyboardProfileForLegacy(
     return PINYIN_9_PROFILE_ID;
   }
   if (schemeId === undefined || schemeId.length === 0 || schemeId === 'xiaohe') {
-    return isSeventeenKey ? XIAOHE_17_PROFILE_ID : XIAOHE_26_PROFILE_ID;
+    const isCompactPinyin = legacyLayout === 'seventeen_key' || legacyLayout === 'seventeen-key' ||
+      legacyLayout === 'eighteen_key' || legacyLayout === KeyboardLayoutKind.EIGHTEEN_KEY;
+    return isCompactPinyin ? XIAOHE_18_PROFILE_ID : XIAOHE_26_PROFILE_ID;
   }
   return DEFAULT_KEYBOARD_PROFILE_ID;
 }

@@ -71,6 +71,10 @@ function enterKey(context: EditorContext): KeyboardKeySpec {
  * row. Only 2-9 produce T9 actions; real digits remain in the number layout.
  */
 export function createPinyin9KeyboardLayout(context: EditorContext): KeyboardLayoutSpec {
+  const space = key('space', '空格', KeyboardKeyKind.SPACE, 4.6, SPACE_ACTION,
+    '空格，上滑或长按切换中英文', '中/英');
+  space.longPressAction = TOGGLE_LANGUAGE_ACTION;
+  space.swipeUpAction = TOGGLE_LANGUAGE_ACTION;
   return {
     rows: [
       {
@@ -106,9 +110,7 @@ export function createPinyin9KeyboardLayout(context: EditorContext): KeyboardLay
       },
       {
         keys: [
-          key('language', '中', KeyboardKeyKind.MODE_SWITCH, 1.2, TOGGLE_LANGUAGE_ACTION,
-            '切换到英文键盘'),
-          key('space', '空格', KeyboardKeyKind.SPACE, 4.6, SPACE_ACTION, '空格'),
+          space,
           enterKey(context)
         ],
         kind: KeyboardRowKind.BOTTOM_ACTIONS

@@ -1,7 +1,9 @@
 import {
   CURRENT_SETTINGS_SCHEMA_VERSION,
+  DEFAULT_SMART_PERIOD_TIMEOUT_MS,
   SettingsRaw,
   XIAOHE_YINXING_CATEGORY_IDS,
+  XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS,
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION
 } from '../../domain/settings/ImeSettings';
 import { keyboardProfileForLegacy } from '../../domain/keyboard/KeyboardProfile';
@@ -31,11 +33,16 @@ export class SettingsMigration {
     }
 
     if (!migrated.xiaoheYinxingEnabledCategoryIds) {
-      migrated.xiaoheYinxingEnabledCategoryIds = JSON.stringify(XIAOHE_YINXING_CATEGORY_IDS);
+      migrated.xiaoheYinxingEnabledCategoryIds = JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS);
     } else {
       const categoryVersion = Number.parseInt(raw.xiaoheYinxingCategorySchemaVersion ?? '0');
       if (!Number.isFinite(categoryVersion) || categoryVersion < 3) {
         migrated.xiaoheYinxingEnabledCategoryIds = this.enableNewYinxingCategories(
+          migrated.xiaoheYinxingEnabledCategoryIds
+        );
+      }
+      if (!Number.isFinite(categoryVersion) || categoryVersion < 4) {
+        migrated.xiaoheYinxingEnabledCategoryIds = this.migrateLegacyDefaultCategories(
           migrated.xiaoheYinxingEnabledCategoryIds
         );
       }
@@ -45,6 +52,9 @@ export class SettingsMigration {
     }
     if (!migrated.fuzzyOptions) {
       migrated.fuzzyOptions = '[]';
+    }
+    if (!migrated.smartPeriodTimeoutMs) {
+      migrated.smartPeriodTimeoutMs = `${DEFAULT_SMART_PERIOD_TIMEOUT_MS}`;
     }
     migrated.xiaoheYinxingCategorySchemaVersion = `${XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION}`;
     migrated.schemaVersion = `${CURRENT_SETTINGS_SCHEMA_VERSION}`;
@@ -75,6 +85,30 @@ export class SettingsMigration {
       return JSON.stringify(ids);
     } catch (_err) {
       return JSON.stringify(XIAOHE_YINXING_CATEGORY_IDS);
+    }
+  }
+
+  /**
+   * Schema 3 enabled every category by default. Replace only that exact legacy
+   * default profile; customized selections remain authoritative.
+   */
+  private migrateLegacyDefaultCategories(value: string): string {
+    try {
+      const parsed: Object[] = JSON.parse(value) as Object[];
+      if (!Array.isArray(parsed)) {
+        return JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS);
+      }
+      const requested: Set<string> = new Set<string>();
+      parsed.forEach((item: Object) => {
+        if (typeof item === 'string' && XIAOHE_YINXING_CATEGORY_IDS.indexOf(item as string) >= 0) {
+          requested.add(item as string);
+        }
+      });
+      const isLegacyDefault = requested.size === XIAOHE_YINXING_CATEGORY_IDS.length &&
+        XIAOHE_YINXING_CATEGORY_IDS.every((id: string): boolean => requested.has(id));
+      return isLegacyDefault ? JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS) : value;
+    } catch (_err) {
+      return JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS);
     }
   }
 
@@ -112,9 +146,9 @@ export class SettingsMigration {
       userLearningEnabled: raw.userLearningEnabled,
       spellingCorrectionEnabled: raw.spellingCorrectionEnabled,
       fuzzyOptions: raw.fuzzyOptions,
+      smartPeriodTimeoutMs: raw.smartPeriodTimeoutMs,
       inputPresentationPreference: raw.inputPresentationPreference,
       candidatePresentationMode: raw.candidatePresentationMode,
-      xiaoheYinxingHintCandidateCount: raw.xiaoheYinxingHintCandidateCount,
       xiaoheYinxingCategorySchemaVersion: raw.xiaoheYinxingCategorySchemaVersion,
       xiaoheYinxingEnabledCategoryIds: raw.xiaoheYinxingEnabledCategoryIds,
       lexiconSources: raw.lexiconSources,

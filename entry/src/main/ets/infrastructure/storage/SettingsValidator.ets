@@ -12,8 +12,6 @@ import {
   QuanpinFuzzyOption,
   SettingsRaw,
   ThemeMode,
-  MAX_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
-  MIN_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION
 } from '../../domain/settings/ImeSettings';
 import { InputPresentationPreference } from '../../domain/display/InputPresentationMode';
@@ -46,11 +44,9 @@ export class SettingsValidator {
         DEFAULT_IME_SETTINGS.spellingCorrectionEnabled
       ),
       fuzzyOptions: this.fuzzyOptions(raw.fuzzyOptions),
+      smartPeriodTimeoutMs: this.smartPeriodTimeout(raw.smartPeriodTimeoutMs),
       inputPresentationPreference: this.inputPresentationPreference(raw.inputPresentationPreference),
       candidatePresentationMode: this.candidatePresentation(raw.candidatePresentationMode),
-      xiaoheYinxingHintCandidateCount: this.yinxingHintCandidateCount(
-        raw.xiaoheYinxingHintCandidateCount
-      ),
       xiaoheYinxingCategorySchemaVersion: XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
       xiaoheYinxingEnabledCategoryIds: this.yinxingCategories(raw.xiaoheYinxingEnabledCategoryIds),
       lexiconSources: this.lexiconSources(raw.lexiconSources)
@@ -87,6 +83,17 @@ export class SettingsValidator {
     return DEFAULT_IME_SETTINGS.inputPresentationPreference;
   }
 
+  private smartPeriodTimeout(value?: string): number {
+    if (!value) {
+      return DEFAULT_IME_SETTINGS.smartPeriodTimeoutMs;
+    }
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < 0 || parsed > 2000) {
+      return DEFAULT_IME_SETTINGS.smartPeriodTimeoutMs;
+    }
+    return parsed;
+  }
+
   private yinxingCategories(value?: string): string[] {
     if (!value) {
       return DEFAULT_IME_SETTINGS.xiaoheYinxingEnabledCategoryIds.slice();
@@ -115,15 +122,6 @@ export class SettingsValidator {
       return value as CandidatePresentationMode;
     }
     return DEFAULT_IME_SETTINGS.candidatePresentationMode;
-  }
-
-  private yinxingHintCandidateCount(value?: string): number {
-    const parsed = Number.parseInt(value ?? '');
-    if (!Number.isFinite(parsed) || parsed < MIN_XIAOHE_YINXING_HINT_CANDIDATE_COUNT ||
-      parsed > MAX_XIAOHE_YINXING_HINT_CANDIDATE_COUNT) {
-      return DEFAULT_IME_SETTINGS.xiaoheYinxingHintCandidateCount;
-    }
-    return parsed;
   }
 
   private theme(value?: string): ThemeMode {

@@ -3,7 +3,7 @@ import { BaseKey } from './BaseKey';
 import { KeyPreviewPopup } from './KeyPreviewPopup';
 import { KeyboardColorPalette } from '../design/KeyboardPalette';
 import { OrientationMetrics } from '../design/KeyboardMetrics';
-import { KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
+import { KeyboardAction, KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
 import { ShiftState } from '../../../domain/editor/EditorContext';
 
 /**
@@ -20,6 +20,7 @@ export struct LetterKey {
   @State private showPreview: boolean = false;
 
   onKeyClick?: (spec: KeyboardKeySpec) => void;
+  onAlternateAction?: (action: KeyboardAction) => void;
 
   private handlePress(spec: KeyboardKeySpec): void {
     if (spec.previewEnabled) {
@@ -49,7 +50,8 @@ export struct LetterKey {
         shiftState: this.shiftState,
         onKeyPress: (spec: KeyboardKeySpec) => this.handlePress(spec),
         onKeyRelease: (spec: KeyboardKeySpec) => this.handleRelease(spec),
-        onKeyClick: (spec: KeyboardKeySpec) => this.handleClick(spec)
+        onKeyClick: (spec: KeyboardKeySpec) => this.handleClick(spec),
+        onLongPressAction: (action: KeyboardAction) => this.onAlternateAction?.(action)
       })
 
       // 预览弹出

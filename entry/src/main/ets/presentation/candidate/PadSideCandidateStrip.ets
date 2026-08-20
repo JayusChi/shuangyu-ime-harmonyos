@@ -1,4 +1,8 @@
-import { toCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
+import { toContextualCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
+import {
+  CandidateUiMode,
+  resolveCandidateAccessibilityText
+} from '../../domain/candidate/CandidateUiPolicy';
 import { resolveCompositionPreeditView } from '../../domain/candidate/CompositionPreeditView';
 import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
 import { KeyboardColorPalette, LIGHT_PALETTE } from '../keyboard/design/KeyboardPalette';
@@ -12,6 +16,7 @@ export struct PadSideCandidateStrip {
   @Prop pendingCode: string = '';
   @Prop segmentBoundaries: number[] = [];
   @Prop candidates: Candidate[] = [];
+  @Prop candidateUiMode: CandidateUiMode = CandidateUiMode.BROWSABLE;
   @Prop candidateFontSize: number = 14;
   @Prop highlightedIndex: number = -1;
   onCandidateClick?: (candidate: Candidate, index: number) => void;
@@ -46,7 +51,12 @@ export struct PadSideCandidateStrip {
       Scroll() {
         Column({ space: 6 }) {
           ForEach(this.candidates, (candidate: Candidate, index: number) => {
-            Text(toCandidateDisplayItem(candidate, index).displayText)
+            Text(toContextualCandidateDisplayItem(
+              candidate,
+              index,
+              this.candidateUiMode,
+              this.rawInput
+            ).displayText)
               .width('100%')
               .fontSize(this.candidateFontSize)
               .fontColor(this.palette.candidateText)
@@ -59,7 +69,13 @@ export struct PadSideCandidateStrip {
               .backgroundColor(index === this.highlightedIndex
                 ? this.palette.functionKeyBackground
                 : this.palette.candidateBackground)
-              .accessibilityText(toCandidateDisplayItem(candidate, index).accessibilityText)
+              .accessibilityText(resolveCandidateAccessibilityText(
+                this.candidateUiMode,
+                this.rawInput,
+                index,
+                candidate.text,
+                candidate.reading
+              ))
               .onClick(() => this.onCandidateClick?.(candidate, index))
           }, (candidate: Candidate) => candidate.id)
         }

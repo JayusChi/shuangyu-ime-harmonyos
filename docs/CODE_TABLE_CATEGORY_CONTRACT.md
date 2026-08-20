@@ -1,19 +1,22 @@
 # 小鹤音形产品分类合同
 
-状态：阶段 11.6.5 冻结。分类 schema version 为 `1`；合同来源是冻结正式 bundle 的 manifest，运行时不得扫描目录或猜测分类。
+状态：阶段 11.6.5 建立，2026-08-20 更新默认启用画像。运行时分类 schema version 为 `1`；合同来源是冻结正式 bundle 的 manifest，运行时不得扫描目录或猜测分类。
 
 | order | id | 显示名称 | kind | defaultEnabled | required | userToggleable |
 | ---: | --- | --- | --- | --- | --- | --- |
 | 0 | `core` | 核心主表 | `PRIMARY` | true | true | false |
 | 1 | `category-secondary` | 分类/次选 | `PRIMARY_EQUIVALENT` | true | false | true |
-| 2 | `one-key-secondary` | 一简次选 | `PRIMARY_EQUIVALENT` | true | false | true |
-| 3 | `two-key-secondary` | 二简次选 | `PRIMARY_EQUIVALENT` | true | false | true |
-| 4 | `out-of-table-character` | 表外字 | `EXTENSION` | true | false | true |
-| 5 | `full-code-word` | 全码词 | `EXTENSION` | true | false | true |
-| 6 | `rare-character` | 生僻字 | `EXTENSION` | true | false | true |
-| 7 | `full-code-character` | 全码字 | `EXTENSION` | true | false | true |
+| 2 | `quick-symbol` | 快符 | `EXTENSION` | true | false | true |
+| 3 | `one-key-secondary` | 一简次选 | `PRIMARY_EQUIVALENT` | true | false | true |
+| 4 | `two-key-secondary` | 二简次选 | `PRIMARY_EQUIVALENT` | false | false | true |
+| 5 | `out-of-table-character` | 表外字 | `EXTENSION` | true | false | true |
+| 6 | `full-code-word` | 全码词 | `EXTENSION` | false | false | true |
+| 7 | `symbol` | 符号 | `EXTENSION` | true | false | true |
+| 8 | `symbol-group` | 符号组 | `EXTENSION` | true | false | true |
+| 9 | `rare-character` | 生僻字 | `EXTENSION` | false | false | true |
+| 10 | `full-code-character` | 全码字 | `EXTENSION` | false | false | true |
 
-默认八类全部开启，以保持 11.6.3/11.6.4 正式系统候选基线。空选择至少恢复 `core`；重复 ID 稳定去重；未知 ID 在运行时 API 中拒绝并保持旧快照，在设置迁移中忽略；最终 enabled 列表始终按合同 order 规范化。
+完整直通语法尚未支持，因此二简次选、全码词、生僻字、全码字默认关闭，需要时由用户手动开启；其余七类默认开启。空选择至少恢复 `core`；重复 ID 稳定去重；未知 ID 在运行时 API 中拒绝并保持旧快照，在设置迁移中忽略；最终 enabled 列表始终按合同 order 规范化。
 
 ## USER 与 FUNCTIONAL 边界
 
@@ -27,6 +30,6 @@
 
 ## 设置与可见性
 
-设置 schema version 为 `2`，分类字段包含独立 schema version 和 canonical enabled ID 数组。旧设置缺字段时迁移为八类全开；重复、未知、乱序和空数组按上述规则规范化，迁移幂等。
+当前设置 schema version 为 `8`，分类字段使用独立 schema version `4` 和 canonical enabled ID 数组。旧设置缺字段时迁移为当前七类默认集合；旧版“全部开启”快照会迁移为新默认，非全开自定义组合保持不变。重复、未知、乱序和空数组按上述规则规范化，迁移幂等。
 
-分类模型、控制器和可复用行组件位于 main 层，但可见入口只存在于 `entry/src/internalDebug`。Release 的默认设置页、页面清单和资源不显示小鹤音形分类，也不包含冻结 `.hsyx` bundle。
+分类模型、控制器、正式设置入口和 `.hsyx` bundle 均位于 main 产品链路。分类管理页的“重置为默认”使用上述七类集合，“全部启用”仍可作为显式手动操作。

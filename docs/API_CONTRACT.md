@@ -17,9 +17,9 @@ fuzzyOptions?: FuzzyOptionId[]      // 缺省 []，最多 8 项
 错误配置版本或超过 8 项均拒绝创建。纠错后的拼音不进入跨层结果，`rawInput` 始终保留
 用户原始按键，纠错/模糊候选的 `consumedRawLen` 覆盖原始输入长度。
 
-设置 schema version 为 `7`。迁移缺省关闭全部功能；设置变更通过创建并恢复完整运行时
+设置 schema version 为 `8`。迁移缺省关闭全拼纠错/模糊音，智能句号窗口缺省为 500 毫秒；设置变更通过创建并恢复完整运行时
 状态的新 Rust handle 事务式应用，成功后才替换旧 handle 和持久化快照。创建或持久化失败
-时恢复最后有效配置。输入法进程冷启动从共享的同一 schema 7 快照恢复；非 `quanpin`
+时恢复最后有效配置。输入法进程冷启动从共享的同一 schema 8 快照恢复；非 `quanpin`
 profile 不执行扩展，切回 `quanpin` 时继续使用已保存的全拼设置。
 
 ## 26 键全拼和 9 键计划阶段 4：九键 UI 动作合同
@@ -159,12 +159,14 @@ Pad/Phone 输入法切换完全位于 ArkTS `InputMethodSwitcher` 适配器与 I
 
 ## ArkTS 设置契约
 
-`SettingsController` 是设置页面唯一写入口。Preferences 写入成功后才发布新的 `SettingsStore` 快照；写入失败时内存状态不前移。配置 schemaVersion 当前为 `7`，`keyboardProfileId` 是方案与布局的唯一真实来源；`schemeId` 只作为派生兼容字段持久化。未知或尚未启用的档案安全回退到 `xiaohe-26`。正式码表分类先在 native 原子替换，成功后再保存；保存失败恢复旧分类和旧组合。
+`SettingsController` 是设置页面唯一写入口。Preferences 写入成功后才发布新的 `SettingsStore` 快照；写入失败时内存状态不前移。配置 schemaVersion 当前为 `8`，`keyboardProfileId` 是方案与布局的唯一真实来源；`schemeId` 只作为派生兼容字段持久化。未知或尚未启用的档案安全回退到 `xiaohe-26`。正式码表分类先在 native 原子替换，成功后再保存；保存失败恢复旧分类和旧组合。
 
-主 Ability 的 Preferences 是 canonical 设置存储；成功写入后把同一规范化 schema 7 快照发布到
+主 Ability 的 Preferences 是 canonical 设置存储；成功写入后把同一规范化 schema 8 快照发布到
 本包 `SHARED_CONFIG` DataProxy，供 `:inputMethod` 进程冷启动读取。输入法进程不写 canonical
 Preferences。Preferences 或共享快照任一步保存失败时必须恢复上一个持久化快照；不能发布一个
 Native 未生效或只在单进程可见的方案状态。完整决策见 ADR 0019。
+
+`smartPeriodTimeoutMs` 取值为 `0..2000` 的整数，`0` 表示关闭，默认为 `500`。中文句号的两次按键到达间隔不大于该值、且两次之间没有其他输入动作时，输入法才核对并尝试将光标前的 `。` 替换为单个 `.`；核对失败或超时时仅插入新的 `。`。
 
 用户学习的有效会话值为：
 

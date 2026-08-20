@@ -11,6 +11,7 @@ import {
   shouldShowCandidateExpansionAction
 } from '../main/ets/domain/candidate/CandidateUiPolicy';
 import { Candidate } from '../main/ets/infrastructure/native/NativeEngineTypes';
+import { toContextualCandidateDisplayItem } from '../main/ets/domain/candidate/CandidateDisplayItem';
 
 function candidate(id: string, text: string, reading: string, source: string = 'core'): Candidate {
   return { id: id, text: text, reading: reading, source: source };
@@ -75,31 +76,47 @@ export default function xiaoheYinxingCandidateUiTest() {
         CandidateUiMode.PRECISE_MATCH, 'un', 0, '伤脑筋', 'unjb'
       )).assertEqual('精准匹配提示，第 1 个，伤脑筋，后续编码 jb');
       expect(resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, 'un', candidates, 2
-      ).map((candidate) => candidate.text).join('|')).assertEqual('伤脑筋|施耐庵');
+        CandidateUiMode.PRECISE_MATCH, 'un', candidates
+      ).map((candidate) => candidate.text).join('|')).assertEqual('伤脑筋');
     });
 
-    it('exact candidates lock the branch and hint count clamps to one through nine', 0, () => {
+    it('shares continuation hint display text across bar, floating and pad candidate surfaces', 0, () => {
+      expect(toContextualCandidateDisplayItem(
+        candidate('name', '那么', 'name'),
+        0,
+        CandidateUiMode.PRECISE_MATCH,
+        'nam'
+      ).displayText).assertEqual('那么 e');
+      expect(toContextualCandidateDisplayItem(
+        candidate('unuq', '熟能生巧', 'unuq'),
+        0,
+        CandidateUiMode.PRECISE_MATCH,
+        'un'
+      ).displayText).assertEqual('熟能生巧 uq');
+      expect(toContextualCandidateDisplayItem(
+        candidate('name', '那么', 'name'),
+        0,
+        CandidateUiMode.BROWSABLE,
+        'nam'
+      ).displayText).assertEqual('那么');
+    });
+
+    it('exact candidates remain complete while empty-code hints are fixed to one', 0, () => {
       const mixed: Candidate[] = [
-        candidate('exact', '精确', 'un'),
+        candidate('exact-1', '精确一', 'un'),
+        candidate('exact-2', '精确二', 'un'),
         candidate('hint', '提示', 'unjb')
       ];
       expect(resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, 'un', mixed, 9
-      ).length).assertEqual(1);
-      expect(resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, 'un', mixed, 9
-      )[0].text).assertEqual('精确');
+        CandidateUiMode.PRECISE_MATCH, 'un', mixed
+      ).map((item: Candidate): string => item.text).join('|')).assertEqual('精确一|精确二');
 
       const hints: Candidate[] = [];
       for (let index = 0; index < 12; index += 1) {
         hints.push(candidate(`${index}`, `提示${index}`, `un${index}x`));
       }
       expect(resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, 'un', hints, 99
-      ).length).assertEqual(9);
-      expect(resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, 'un', hints, 0
+        CandidateUiMode.PRECISE_MATCH, 'un', hints
       ).length).assertEqual(1);
     });
 
@@ -109,7 +126,7 @@ export default function xiaoheYinxingCandidateUiTest() {
       ];
 
       const visible = resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, ';f', guideCandidates, 9
+        CandidateUiMode.PRECISE_MATCH, ';f', guideCandidates
       );
 
       expect(visible.length).assertEqual(1);
@@ -122,8 +139,13 @@ export default function xiaoheYinxingCandidateUiTest() {
 
       const quickSymbol = candidate('quick:q', '：“', 'q', 'quick-symbol');
       expect(resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, ';q', [quickSymbol], 9
+        CandidateUiMode.PRECISE_MATCH, ';q', [quickSymbol]
       )[0].id).assertEqual('quick:q');
+
+      const guideDefault = candidate('quick:_', '：', '_', 'quick-symbol');
+      expect(resolveVisibleCandidates(
+        CandidateUiMode.PRECISE_MATCH, ';', [guideDefault]
+      )[0].text).assertEqual('：');
     });
   });
 }

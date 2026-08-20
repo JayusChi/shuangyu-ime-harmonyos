@@ -26,7 +26,21 @@ export enum KeyboardActionType {
   SECOND_CANDIDATE_OR_PUNCTUATION = 'second_candidate_or_punctuation',
   SECOND_CANDIDATE_OR_COMMA = 'second_candidate_or_comma',
   REPEAT_LAST_COMMIT = 'repeat_last_commit',
-  UNDO_LAST_COMMIT = 'undo_last_commit'
+  UNDO_LAST_COMMIT = 'undo_last_commit',
+  SELECT_ALL = 'select_all',
+  CUT = 'cut',
+  COPY = 'copy',
+  PASTE = 'paste',
+  CANCEL_COMPOSITION = 'cancel_composition',
+  UNIVERSAL_KEY = 'universal_key'
+}
+
+/** Native editor actions exposed by HarmonyOS InputClient.sendExtendAction. */
+export enum EditorExtendAction {
+  SELECT_ALL = 0,
+  CUT = 3,
+  COPY = 4,
+  PASTE = 5
 }
 
 export interface KeyboardAction {
@@ -127,6 +141,30 @@ export const REPEAT_LAST_COMMIT_ACTION: KeyboardAction = {
 
 export const UNDO_LAST_COMMIT_ACTION: KeyboardAction = {
   type: KeyboardActionType.UNDO_LAST_COMMIT
+};
+
+export const SELECT_ALL_ACTION: KeyboardAction = {
+  type: KeyboardActionType.SELECT_ALL
+};
+
+export const CUT_ACTION: KeyboardAction = {
+  type: KeyboardActionType.CUT
+};
+
+export const COPY_ACTION: KeyboardAction = {
+  type: KeyboardActionType.COPY
+};
+
+export const PASTE_ACTION: KeyboardAction = {
+  type: KeyboardActionType.PASTE
+};
+
+export const CANCEL_COMPOSITION_ACTION: KeyboardAction = {
+  type: KeyboardActionType.CANCEL_COMPOSITION
+};
+
+export const UNIVERSAL_KEY_ACTION: KeyboardAction = {
+  type: KeyboardActionType.UNIVERSAL_KEY
 };
 
 export function isSingleAsciiLetter(value: string | undefined): boolean {

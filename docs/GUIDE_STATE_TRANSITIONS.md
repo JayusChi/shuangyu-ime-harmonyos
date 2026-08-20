@@ -4,15 +4,15 @@
 
 | 当前状态 | 输入 | 新状态 | raw | 候选/动作 | 提交与清理 |
 | --- | --- | --- | --- | --- | --- |
-| `Idle` | `;` | `GuidePrefix` | 空（协议展示为 `;`） | 空，不枚举引导表 | 无提交 |
+| `Idle` | `;` | `GuidePrefix` | 空（协议展示为 `;`） | 仅精确查询 `_` 默认候选 | 无提交 |
 | `NormalCode` | `;` | `GuidePrefix` | 空 | 清除普通查询，不访问普通表 | 无提交 |
 | `GuidePrefix` | `a-z` | `GuideCode` | 追加首字母 | 仅查 guide/action 表 | 无提交 |
-| `GuidePrefix` | `;` | `GuidePrefix` | 空 | 空 | 确定性重启引导 |
+| `GuidePrefix` | `;` | `Idle` | 空 | 精确查询 `;` 保留项 | 直接提交（模板默认 `；`） |
 | `GuidePrefix` | 非法键 | `Idle` | 空 | 空，`INVALID_KEY` | 只清一次 |
 | `GuidePrefix` | Backspace | `Idle` | 空 | 空 | 只清一次 |
 | `GuidePrefix` | Space/Enter | `Idle` | 空 | 空 | 不提交字面分号 |
 | `GuideCode` | `a-z` | `GuideCode` | 追加字母 | 仅查 guide/action 表 | 无提交 |
-| `GuideCode` | `;` | `GuidePrefix` | 空 | 空 | 确定性重启引导 |
+| `GuideCode` | `;` | `GuidePrefix` | 空 | 仅精确查询 `_` 默认候选 | 确定性重启引导 |
 | `GuideCode` | 非法键 | `Idle` | 空 | 空，`INVALID_KEY` | 只清一次 |
 | `GuideCode` | Backspace（仍有字母） | `GuideCode` | 删除一字母 | 重新查询独立表 | 无提交 |
 | `GuideCode` | Backspace（删至空） | `GuidePrefix` | 空 | 空 | 无提交 |

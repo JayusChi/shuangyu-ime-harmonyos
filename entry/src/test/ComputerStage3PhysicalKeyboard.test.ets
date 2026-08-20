@@ -11,7 +11,9 @@ import {
   PhysicalKeyConsumptionTracker,
   PhysicalEditorSuffixTracker,
   PhysicalKeySnapshot,
+  PhysicalKeyStartupDeferral,
   PhysicalKeySessionSnapshot,
+  resolveUnmodifiedPhysicalLetter,
   resolvePhysicalKeyCommand
 } from '../main/ets/domain/keyboard/PhysicalKeyboardRouting';
 import { Candidate, CompositionResult } from '../main/ets/infrastructure/native/NativeEngineTypes';
@@ -257,6 +259,26 @@ export default function computerStage3PhysicalKeyboardTest() {
       expect(tracker.consumeRelease(2031)).assertFalse();
     });
 
+    it('defers a cold-start letter DOWN and UP pair without claiming other host keys', 0, () => {
+      const deferral = new PhysicalKeyStartupDeferral();
+      expect(deferral.shouldDefer(key(2030))).assertTrue();
+      expect(deferral.shouldDefer(key(2030, 0, false))).assertTrue();
+      expect(deferral.shouldDefer(key(2030, 0, false))).assertFalse();
+      expect(deferral.shouldDefer(key(2002))).assertFalse();
+      expect(deferral.shouldDefer(key(2030, 0, true, true))).assertFalse();
+      expect(deferral.shouldDefer(key(2031))).assertTrue();
+      deferral.reset();
+      expect(deferral.shouldDefer(key(2031, 0, false))).assertFalse();
+    });
+
+    it('preserves the literal letter for a deferred English or password fallback', 0, () => {
+      expect(resolveUnmodifiedPhysicalLetter(key(2030, 78))).assertEqual('N');
+      const shiftedFallback = key(2030);
+      shiftedFallback.shiftKey = true;
+      expect(resolveUnmodifiedPhysicalLetter(shiftedFallback)).assertEqual('N');
+      expect(resolveUnmodifiedPhysicalLetter(key(2030, 0, true, true))).assertUndefined();
+    });
+
     it('deletes appended punctuation before handing Backspace to composition', 0, () => {
       const tracker = new PhysicalEditorSuffixTracker();
       expect(tracker.consumePunctuationDelete()).assertFalse();
@@ -364,6 +386,10 @@ export default function computerStage3PhysicalKeyboardTest() {
       noSecondCandidate.candidateCount = 0;
       const guide = resolvePhysicalKeyCommand(key(2062), noSecondCandidate);
       expect(guide.type).assertEqual(PhysicalKeyCommandType.SYMBOL_GUIDE);
+      noSecondCandidate.rawInput = ';';
+      noSecondCandidate.candidateCount = 1;
+      expect(resolvePhysicalKeyCommand(key(2062), noSecondCandidate).type)
+        .assertEqual(PhysicalKeyCommandType.SYMBOL_GUIDE);
       const letter = resolvePhysicalKeyCommand(key(2017), noSecondCandidate);
       expect(letter.type).assertEqual(PhysicalKeyCommandType.LETTER);
       expect(resolveSymbolGuide(letter.letter ?? '')).assertEqual('……');

@@ -95,6 +95,7 @@ struct KeyboardRoot {
   private readonly settingsController: SettingsController = getSharedSettingsController();
 
   @State private keyboardMode: KeyboardMode = KeyboardMode.ENGLISH;
+  @State private languageMode: KeyboardMode = KeyboardMode.ENGLISH;
   @State private editorContext: EditorContext = createUnknownEditorContext();
   @State private shiftState: ShiftState = ShiftState.LOWERCASE;
   @State private chineseCapsLock: boolean = false;
@@ -121,7 +122,6 @@ struct KeyboardRoot {
   @State private keyboardHeightMode: KeyboardHeightMode = KeyboardHeightMode.STANDARD;
   @State private candidateFontSize: number = 14;
   @State private candidateUiMode: CandidateUiMode = resolveCandidateUiMode(DEFAULT_SCHEME_ID);
-  @State private yinxingHintCandidateCount: number = 9;
   @State private inputMethodSwitchAvailable: boolean = false;
   @State private inputMethodPickerAvailable: boolean = false;
   @State private shuangpinLayout: ShuangpinKeyboardLayout = DEFAULT_SHUANGPIN_KEYBOARD_LAYOUT;
@@ -166,6 +166,10 @@ struct KeyboardRoot {
   private refreshState(): void {
     const state = this.controller.getState();
     this.keyboardMode = state.keyboardMode;
+    this.languageMode = state.keyboardMode === KeyboardMode.CHINESE ||
+      state.keyboardMode === KeyboardMode.ENGLISH
+      ? state.keyboardMode
+      : state.modeBeforeTransient;
     this.editorContext = state.editorContext;
     this.shiftState = state.shiftState;
     this.chineseCapsLock = state.chineseCapsLock;
@@ -233,7 +237,6 @@ struct KeyboardRoot {
     this.keyboardHeightMode = settings.keyboardHeightMode;
     this.candidateFontSize = this.resolveCandidateFontSize(settings.candidateFontSizeMode);
     this.candidateUiMode = resolveCandidateUiMode(settings.schemeId);
-    this.yinxingHintCandidateCount = settings.xiaoheYinxingHintCandidateCount;
     if (!allowsCandidateBrowsing(this.candidateUiMode) && this.candidatePanelExpanded) {
       this.controller.setCandidatePanelExpanded(false);
       this.candidatePanelExpanded = false;
@@ -257,8 +260,7 @@ struct KeyboardRoot {
     return resolveVisibleCandidates(
       this.candidateUiMode,
       this.rawInput,
-      this.candidates,
-      this.yinxingHintCandidateCount
+      this.candidates
     );
   }
 
@@ -423,7 +425,8 @@ struct KeyboardRoot {
         metrics: this.metrics,
         keyboardMode: this.keyboardMode,
         shiftState: this.shiftState,
-        onKeyClick: (s: KeyboardKeySpec) => this.dispatchAction(s.action)
+        onKeyClick: (s: KeyboardKeySpec) => this.dispatchAction(s.action),
+        onAlternateAction: (action: KeyboardAction) => this.dispatchAction(action)
       })
     } else {
       BaseKey({
@@ -432,7 +435,7 @@ struct KeyboardRoot {
         metrics: this.metrics,
         keyboardMode: this.keyboardMode,
         shiftState: this.shiftState,
-        longPressEnabled: this.inputMethodPickerAvailable,
+        longPressEnabled: true,
         onKeyClick: (s: KeyboardKeySpec) => this.dispatchAction(s.action),
         onLongPressAction: (action: KeyboardAction) => this.dispatchAction(action)
       })
@@ -485,6 +488,8 @@ struct KeyboardRoot {
         keyboardLayout: this.shuangpinLayout,
         keyboardProfileName: this.keyboardProfileName(),
         inputMethodPickerAvailable: this.inputMethodPickerAvailable,
+        keyboardMode: this.languageMode,
+        languageSwitchAvailable: this.editorContext.chineseModeAllowed && this.editorContext.englishModeAllowed,
         errorMessage: this.lastErrorMessage,
         candidateFontSize: this.candidateFontSize,
         onCandidateClick: (candidate: Candidate, index: number) => this.commitCandidate(index),

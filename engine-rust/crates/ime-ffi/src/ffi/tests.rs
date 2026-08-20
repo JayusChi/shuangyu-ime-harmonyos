@@ -389,6 +389,30 @@ mod tests {
     }
 
     #[test]
+    fn code_table_universal_key_crosses_the_existing_ffi() {
+        let path = code_table_bundle_path()
+            .to_string_lossy()
+            .replace('\\', "\\\\");
+        let config = format!(
+            "{{\"interfaceVersion\":7,\"schemeId\":\"code-table-fixture\",\"codeTableBundlePath\":\"{path}\",\"candidatePageSize\":5}}"
+        );
+        let mut handle = ptr::null_mut();
+        assert_eq!(
+            ffi_create(config.as_ptr(), config.len(), &mut handle),
+            ImeErrorCode::Success.as_i32()
+        );
+        let mut out = ImeBuffer::empty();
+        assert_eq!(
+            ime_engine_process_key(handle, b"`".as_ptr(), 1, &mut out),
+            ImeErrorCode::Success.as_i32()
+        );
+        let json = take_buffer(out);
+        assert!(json.contains("\"success\":true"), "{json}");
+        assert!(json.contains("\"rawInput\":\"`\""), "{json}");
+        assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
+    }
+
+    #[test]
     fn stage1167_top_screen_serializes_commit_and_new_segment_without_abi_change() {
         let bundle = code_table_bundle_path();
         let user_path = std::env::temp_dir().join(format!(
@@ -1407,5 +1431,4 @@ mod tests {
         assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
     }
 }
-
 
