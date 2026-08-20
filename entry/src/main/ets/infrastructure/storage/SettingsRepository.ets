@@ -33,9 +33,9 @@ interface SettingsPreferenceKeys {
   USER_LEARNING_ENABLED: string;
   SPELLING_CORRECTION_ENABLED: string;
   FUZZY_OPTIONS: string;
+  SMART_PERIOD_TIMEOUT_MS: string;
   INPUT_PRESENTATION_PREFERENCE: string;
   CANDIDATE_PRESENTATION_MODE: string;
-  XIAOHE_YINXING_HINT_CANDIDATE_COUNT: string;
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: string;
   XIAOHE_YINXING_ENABLED_CATEGORY_IDS: string;
   LEXICON_SOURCES: string;
@@ -57,9 +57,9 @@ const KEYS: SettingsPreferenceKeys = {
   USER_LEARNING_ENABLED: 'user_learning_enabled',
   SPELLING_CORRECTION_ENABLED: 'quanpin_spelling_correction_enabled',
   FUZZY_OPTIONS: 'quanpin_fuzzy_options',
+  SMART_PERIOD_TIMEOUT_MS: 'smart_period_timeout_ms',
   INPUT_PRESENTATION_PREFERENCE: 'input_presentation_preference',
   CANDIDATE_PRESENTATION_MODE: 'candidate_presentation_mode',
-  XIAOHE_YINXING_HINT_CANDIDATE_COUNT: 'xiaohe_yinxing_hint_candidate_count',
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: 'xiaohe_yinxing_category_schema_version',
   XIAOHE_YINXING_ENABLED_CATEGORY_IDS: 'xiaohe_yinxing_enabled_category_ids',
   LEXICON_SOURCES: 'lexicon_sources',
@@ -220,12 +220,9 @@ export class SettingsRepository implements SettingsRepositoryContract {
       userLearningEnabled: await this.readString(storage, KEYS.USER_LEARNING_ENABLED),
       spellingCorrectionEnabled: await this.readString(storage, KEYS.SPELLING_CORRECTION_ENABLED),
       fuzzyOptions: await this.readString(storage, KEYS.FUZZY_OPTIONS),
+      smartPeriodTimeoutMs: await this.readString(storage, KEYS.SMART_PERIOD_TIMEOUT_MS),
       inputPresentationPreference: await this.readString(storage, KEYS.INPUT_PRESENTATION_PREFERENCE),
       candidatePresentationMode: await this.readString(storage, KEYS.CANDIDATE_PRESENTATION_MODE),
-      xiaoheYinxingHintCandidateCount: await this.readString(
-        storage,
-        KEYS.XIAOHE_YINXING_HINT_CANDIDATE_COUNT
-      ),
       xiaoheYinxingCategorySchemaVersion: await this.readString(
         storage,
         KEYS.XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION
@@ -254,12 +251,9 @@ export class SettingsRepository implements SettingsRepositoryContract {
     await storage.put(KEYS.USER_LEARNING_ENABLED, raw.userLearningEnabled ?? '');
     await storage.put(KEYS.SPELLING_CORRECTION_ENABLED, raw.spellingCorrectionEnabled ?? '');
     await storage.put(KEYS.FUZZY_OPTIONS, raw.fuzzyOptions ?? '');
+    await storage.put(KEYS.SMART_PERIOD_TIMEOUT_MS, raw.smartPeriodTimeoutMs ?? '');
     await storage.put(KEYS.INPUT_PRESENTATION_PREFERENCE, raw.inputPresentationPreference ?? '');
     await storage.put(KEYS.CANDIDATE_PRESENTATION_MODE, raw.candidatePresentationMode ?? '');
-    await storage.put(
-      KEYS.XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
-      raw.xiaoheYinxingHintCandidateCount ?? ''
-    );
     await storage.put(
       KEYS.XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
       raw.xiaoheYinxingCategorySchemaVersion ?? ''
@@ -365,9 +359,9 @@ export class SettingsRepository implements SettingsRepositoryContract {
       `themeMode=${settings.themeMode}, keyboardHeightMode=${settings.keyboardHeightMode}, ` +
       `candidateFontSizeMode=${settings.candidateFontSizeMode}, hapticLevel=${settings.hapticLevel}, ` +
       `keySoundEnabled=${settings.keySoundEnabled}, userLearningEnabled=${settings.userLearningEnabled}, ` +
+      `smartPeriodTimeoutMs=${settings.smartPeriodTimeoutMs}, ` +
       `inputPresentationPreference=${settings.inputPresentationPreference}, ` +
       `candidatePresentationMode=${settings.candidatePresentationMode}, ` +
-      `xiaoheYinxingHintCandidateCount=${settings.xiaoheYinxingHintCandidateCount}, ` +
       `xiaoheYinxingCategorySchemaVersion=${settings.xiaoheYinxingCategorySchemaVersion}, ` +
       `xiaoheYinxingEnabledCategoryCount=${settings.xiaoheYinxingEnabledCategoryIds.length}`;
   }

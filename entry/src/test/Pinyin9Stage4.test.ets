@@ -25,9 +25,12 @@ export default function pinyin9Stage4Test() {
       expect(layout.rows[2].keys.map((key: KeyboardKeySpec) => key.label).join('|')).assertEqual('7|8|9');
       expect(layout.rows[3].keys.map((key: KeyboardKeySpec) => key.label).join('|'))
         .assertEqual('符/123|0|删除');
-      expect(layout.rows[4].keys[0].label).assertEqual('中');
-      expect(layout.rows[4].keys[1].label).assertEqual('空格');
-      expect(layout.rows[4].keys[2].action.type).assertEqual(KeyboardActionType.ENTER);
+      expect(layout.rows[4].keys[0].label).assertEqual('空格');
+      expect(layout.rows[4].keys[0].longPressAction?.type)
+        .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
+      expect(layout.rows[4].keys[0].swipeUpAction?.type)
+        .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
+      expect(layout.rows[4].keys[1].action.type).assertEqual(KeyboardActionType.ENTER);
     });
 
     it('uses dedicated T9 actions and complete primary-secondary labels for 2 through 9', 0, () => {
@@ -80,8 +83,8 @@ export default function pinyin9Stage4Test() {
         ShuangpinKeyboardLayout.TWENTY_SIX_KEY,
         PINYIN_9_PROFILE_ID
       );
-      expect(number.rows[0].keys[1].label).assertEqual('2');
-      expect(number.rows[0].keys[1].action.type).assertEqual(KeyboardActionType.CHARACTER);
+      expect(number.rows[0].keys[2].label).assertEqual('2');
+      expect(number.rows[0].keys[2].action.type).assertEqual(KeyboardActionType.CHARACTER);
     });
 
     it('preserves Rust pinyin publication order and marks only current path selected', 0, () => {

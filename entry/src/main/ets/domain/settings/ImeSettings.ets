@@ -74,9 +74,9 @@ export interface ImeSettings {
   userLearningEnabled: boolean;
   spellingCorrectionEnabled: boolean;
   fuzzyOptions: QuanpinFuzzyOption[];
+  smartPeriodTimeoutMs: number;
   inputPresentationPreference: InputPresentationPreference;
   candidatePresentationMode: CandidatePresentationMode;
-  xiaoheYinxingHintCandidateCount: number;
   xiaoheYinxingCategorySchemaVersion: number;
   xiaoheYinxingEnabledCategoryIds: string[];
   lexiconSources: LexiconSourceConfig[];
@@ -95,9 +95,9 @@ export interface SettingsRaw {
   userLearningEnabled?: string;
   spellingCorrectionEnabled?: string;
   fuzzyOptions?: string;
+  smartPeriodTimeoutMs?: string;
   inputPresentationPreference?: string;
   candidatePresentationMode?: string;
-  xiaoheYinxingHintCandidateCount?: string;
   xiaoheYinxingCategorySchemaVersion?: string;
   xiaoheYinxingEnabledCategoryIds?: string;
   lexiconSources?: string;
@@ -112,11 +112,10 @@ export interface ShuangpinSchemeOption {
   displayName: string;
 }
 
-export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 7;
-export const MIN_XIAOHE_YINXING_HINT_CANDIDATE_COUNT: number = 1;
-export const MAX_XIAOHE_YINXING_HINT_CANDIDATE_COUNT: number = 9;
-export const DEFAULT_XIAOHE_YINXING_HINT_CANDIDATE_COUNT: number = 9;
-export const XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: number = 3;
+export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 8;
+export const DEFAULT_SMART_PERIOD_TIMEOUT_MS: number = 500;
+export const SMART_PERIOD_TIMEOUT_OPTIONS_MS: number[] = [0, 300, 500, 800, 1000];
+export const XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: number = 4;
 export const XIAOHE_YINXING_CATEGORY_IDS: string[] = [
   'core',
   'category-secondary',
@@ -130,6 +129,15 @@ export const XIAOHE_YINXING_CATEGORY_IDS: string[] = [
   'rare-character',
   'full-code-character'
 ];
+export const XIAOHE_YINXING_DEFAULT_DISABLED_CATEGORY_IDS: string[] = [
+  'two-key-secondary',
+  'full-code-word',
+  'rare-character',
+  'full-code-character'
+];
+export const XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS: string[] = XIAOHE_YINXING_CATEGORY_IDS.filter(
+  (id: string): boolean => XIAOHE_YINXING_DEFAULT_DISABLED_CATEGORY_IDS.indexOf(id) < 0
+);
 export const XIAOHE_YINXING_CATEGORY_UI_IDS: string[] = XIAOHE_YINXING_CATEGORY_IDS.filter(
   (id: string): boolean => id !== 'symbol-group'
 );
@@ -156,11 +164,11 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   userLearningEnabled: true,
   spellingCorrectionEnabled: false,
   fuzzyOptions: [],
+  smartPeriodTimeoutMs: DEFAULT_SMART_PERIOD_TIMEOUT_MS,
   inputPresentationPreference: InputPresentationPreference.AUTO,
   candidatePresentationMode: CandidatePresentationMode.AUTO,
-  xiaoheYinxingHintCandidateCount: DEFAULT_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
   xiaoheYinxingCategorySchemaVersion: XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
-  xiaoheYinxingEnabledCategoryIds: XIAOHE_YINXING_CATEGORY_IDS.slice(),
+  xiaoheYinxingEnabledCategoryIds: XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS.slice(),
   lexiconSources: []
 };
 
@@ -197,9 +205,9 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     userLearningEnabled: settings.userLearningEnabled,
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled,
     fuzzyOptions: settings.fuzzyOptions.slice(),
+    smartPeriodTimeoutMs: settings.smartPeriodTimeoutMs,
     inputPresentationPreference: settings.inputPresentationPreference,
     candidatePresentationMode: settings.candidatePresentationMode,
-    xiaoheYinxingHintCandidateCount: settings.xiaoheYinxingHintCandidateCount,
     xiaoheYinxingCategorySchemaVersion: settings.xiaoheYinxingCategorySchemaVersion,
     xiaoheYinxingEnabledCategoryIds: settings.xiaoheYinxingEnabledCategoryIds.slice(),
     lexiconSources: settings.lexiconSources.map((src: LexiconSourceConfig): LexiconSourceConfig => ({
@@ -224,12 +232,12 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.keySoundEnabled === right.keySoundEnabled &&
     left.userLearningEnabled === right.userLearningEnabled &&
     left.spellingCorrectionEnabled === right.spellingCorrectionEnabled &&
+    left.smartPeriodTimeoutMs === right.smartPeriodTimeoutMs &&
     left.fuzzyOptions.length === right.fuzzyOptions.length &&
     left.fuzzyOptions.every((option: QuanpinFuzzyOption, index: number): boolean =>
       option === right.fuzzyOptions[index]) &&
     left.inputPresentationPreference === right.inputPresentationPreference &&
     left.candidatePresentationMode === right.candidatePresentationMode &&
-    left.xiaoheYinxingHintCandidateCount === right.xiaoheYinxingHintCandidateCount &&
     left.xiaoheYinxingCategorySchemaVersion === right.xiaoheYinxingCategorySchemaVersion &&
     left.xiaoheYinxingEnabledCategoryIds.length === right.xiaoheYinxingEnabledCategoryIds.length &&
     left.xiaoheYinxingEnabledCategoryIds.every((id: string, index: number) =>
@@ -263,9 +271,9 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     userLearningEnabled: settings.userLearningEnabled ? 'true' : 'false',
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled ? 'true' : 'false',
     fuzzyOptions: JSON.stringify(settings.fuzzyOptions),
+    smartPeriodTimeoutMs: `${settings.smartPeriodTimeoutMs}`,
     inputPresentationPreference: settings.inputPresentationPreference,
     candidatePresentationMode: settings.candidatePresentationMode,
-    xiaoheYinxingHintCandidateCount: `${settings.xiaoheYinxingHintCandidateCount}`,
     xiaoheYinxingCategorySchemaVersion: `${settings.xiaoheYinxingCategorySchemaVersion}`,
     xiaoheYinxingEnabledCategoryIds: JSON.stringify(settings.xiaoheYinxingEnabledCategoryIds),
     lexiconSources: JSON.stringify(settings.lexiconSources)

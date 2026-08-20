@@ -31,6 +31,9 @@ function isGuideInput(rawInput: string): boolean {
  * Candidate matching must therefore compare the same code domain.
  */
 function comparableInputCode(rawInput: string): string {
+  if (rawInput === ';') {
+    return '_';
+  }
   return isGuideInput(rawInput) ? rawInput.substring(1) : rawInput;
 }
 
@@ -67,8 +70,7 @@ export function isPreciseMatchHintCandidate(
 export function resolveVisibleCandidates(
   mode: CandidateUiMode,
   rawInput: string,
-  candidates: Candidate[],
-  hintCandidateCount: number
+  candidates: Candidate[]
 ): Candidate[] {
   if (mode !== CandidateUiMode.PRECISE_MATCH || candidates.length === 0) {
     return candidates;
@@ -78,10 +80,9 @@ export function resolveVisibleCandidates(
   if (exact.length > 0) {
     return exact;
   }
-  const limit = Math.max(1, Math.min(9, Math.trunc(hintCandidateCount)));
   return candidates
     .filter((candidate: Candidate) => isPreciseMatchHintCandidate(mode, rawInput, candidate))
-    .slice(0, limit);
+    .slice(0, 1);
 }
 
 /**

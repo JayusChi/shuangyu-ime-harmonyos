@@ -4,10 +4,15 @@ import { ShuangpinKeyboardLayout } from '../../../domain/keyboard/ShuangpinKeybo
 import {
   createCharacterInputAction,
   createLetterInputAction,
+  CANCEL_COMPOSITION_ACTION,
+  COPY_ACTION,
+  CUT_ACTION,
   DELETE_ACTION,
   ENTER_ACTION,
   KeyboardAction,
   KeyboardMode,
+  PASTE_ACTION,
+  SELECT_ALL_ACTION,
   SHOW_INPUT_METHOD_PICKER_ACTION,
   SHIFT_ACTION,
   SPACE_ACTION,
@@ -15,6 +20,7 @@ import {
   TOGGLE_CHINESE_CAPS_LOCK_ACTION,
   TOGGLE_NUMBER_ACTION,
   TOGGLE_SYMBOL_ACTION,
+  UNIVERSAL_KEY_ACTION,
   SWITCH_INPUT_METHOD_ACTION,
   SECOND_CANDIDATE_OR_PUNCTUATION_ACTION,
   SECOND_CANDIDATE_OR_COMMA_ACTION
@@ -59,7 +65,7 @@ function key(
 
 function letterKey(letter: string, shiftState: ShiftState): KeyboardKeySpec {
   const label = shiftState === ShiftState.LOWERCASE ? letter.toLowerCase() : letter.toUpperCase();
-  return key(
+  const spec = key(
     `letter-${letter}`,
     label,
     KeyboardKeyKind.LETTER,
@@ -67,6 +73,71 @@ function letterKey(letter: string, shiftState: ShiftState): KeyboardKeySpec {
     createLetterInputAction(letter),
     `字母 ${label}`
   );
+  const upper = upperDeckForLetter(letter);
+  if (upper) {
+    spec.upperLabel = upper.label;
+    spec.longPressAction = upper.action;
+    spec.swipeUpAction = upper.action;
+    spec.accessibilityLabel = `字母 ${label}，上滑或长按${upper.accessibilityLabel}`;
+  }
+  return spec;
+}
+
+interface UpperDeckSpec {
+  label: string;
+  action: KeyboardAction;
+  accessibilityLabel: string;
+}
+
+function upperCharacter(character: string): UpperDeckSpec {
+  return {
+    label: character,
+    action: createCharacterInputAction(character),
+    accessibilityLabel: `输入 ${character}`
+  };
+}
+
+function upperDeckForLetter(letter: string): UpperDeckSpec | undefined {
+  const topIndex = QWERTY_TOP_ROW.indexOf(letter);
+  if (topIndex >= 0) {
+    return upperCharacter(topIndex === 9 ? '0' : `${topIndex + 1}`);
+  }
+  switch (letter) {
+    case 'a':
+      return { label: '全选', action: SELECT_ALL_ACTION, accessibilityLabel: '全选' };
+    case 's':
+      return upperCharacter('*');
+    case 'd':
+      return upperCharacter('/');
+    case 'f':
+      return upperCharacter(';');
+    case 'g':
+      return upperCharacter('!');
+    case 'h':
+      return upperCharacter('-');
+    case 'j':
+      return upperCharacter('#');
+    case 'k':
+      return upperCharacter('+');
+    case 'l':
+      return upperCharacter('@');
+    case 'z':
+      return { label: '万能', action: UNIVERSAL_KEY_ACTION, accessibilityLabel: '输入万能键' };
+    case 'x':
+      return { label: '剪切', action: CUT_ACTION, accessibilityLabel: '剪切所选文本' };
+    case 'c':
+      return { label: '复制', action: COPY_ACTION, accessibilityLabel: '复制所选文本' };
+    case 'v':
+      return { label: '粘贴', action: PASTE_ACTION, accessibilityLabel: '粘贴' };
+    case 'b':
+      return upperCharacter('-');
+    case 'n':
+      return upperCharacter('`');
+    case 'm':
+      return upperCharacter("'");
+    default:
+      return undefined;
+  }
 }
 
 function characterKey(character: string, id: string = character): KeyboardKeySpec {
@@ -78,6 +149,20 @@ function characterKey(character: string, id: string = character): KeyboardKeySpe
     createCharacterInputAction(character),
     `输入符号 ${character}`
   );
+}
+
+function upperCharacterKey(
+  character: string,
+  upperCharacterValue: string,
+  id: string
+): KeyboardKeySpec {
+  const spec = characterKey(character, id);
+  const upperAction = createCharacterInputAction(upperCharacterValue);
+  spec.upperLabel = upperCharacterValue;
+  spec.longPressAction = upperAction;
+  spec.swipeUpAction = upperAction;
+  spec.accessibilityLabel = `输入 ${character}，上滑或长按输入 ${upperCharacterValue}`;
+  return spec;
 }
 
 function segmentedKey(
@@ -108,12 +193,21 @@ function segmentedKey(
   return spec;
 }
 
-function groupedLetterKey(id: string, letters: string): KeyboardKeySpec {
-  const labels = letters.split('');
+function groupedLetterKey(
+  id: string,
+  letters: string,
+  shiftState: ShiftState,
+  weight: number
+): KeyboardKeySpec {
+  const sourceLetters = letters.split('');
+  const labels = sourceLetters.map((letter: string): string =>
+    shiftState === ShiftState.LOWERCASE ? letter.toLowerCase() : letter.toUpperCase());
   return segmentedKey(
     `group-${id}`,
     labels,
-    labels.map((letter: string) => createLetterInputAction(letter.toLowerCase()))
+    sourceLetters.map((letter: string) => createLetterInputAction(letter.toLowerCase())),
+    KeyboardKeyKind.LETTER,
+    weight
   );
 }
 
@@ -170,6 +264,17 @@ function chineseShiftKey(chineseCapsLock: boolean): KeyboardKeySpec {
   );
 }
 
+function escapeKey(): KeyboardKeySpec {
+  return key(
+    'escape',
+    'Esc',
+    KeyboardKeyKind.FUNCTION,
+    KEY_WEIGHTS.SHIFT,
+    CANCEL_COMPOSITION_ACTION,
+    '取消当前中文组合'
+  );
+}
+
 function createStandardLetterRows(shiftState: ShiftState, chineseMode: boolean = false): KeyboardRowSpec[] {
   return [
     { keys: letterRow(QWERTY_TOP_ROW, shiftState), kind: KeyboardRowKind.TOP_LETTERS },
@@ -192,7 +297,7 @@ function createChineseLetterRows(chineseCapsLock: boolean): KeyboardRowSpec[] {
     { keys: letterRow(QWERTY_MIDDLE_ROW, uppercase), kind: KeyboardRowKind.MIDDLE_LETTERS },
     {
       keys: [
-        chineseShiftKey(chineseCapsLock),
+        escapeKey(),
         ...letterRow(QWERTY_BOTTOM_ROW, uppercase),
         deleteKey(KEY_WEIGHTS.DELETE)
       ],
@@ -206,33 +311,11 @@ function createTextBottomRow(
   chineseMode: boolean,
   showInputMethodSwitchKey: boolean = false
 ): KeyboardRowSpec {
-  if (chineseMode) {
-    // 26键中文底行与17键对齐：符/123、中/英、空格、标点(次选)、动作键
-    const punctuation = segmentedKey(
-      'punctuation-comma-period',
-      ['，', '。'],
-      [SECOND_CANDIDATE_OR_COMMA_ACTION, createCharacterInputAction('。')],
-      KeyboardKeyKind.FUNCTION,
-      1.25
-    );
-    const keys: KeyboardKeySpec[] = [];
-    keys.push(key('number', '符/123', KeyboardKeyKind.MODE_SWITCH, 1.2,
-      TOGGLE_NUMBER_ACTION, '切换到数字和符号键盘'));
-    if (showInputMethodSwitchKey) {
-      keys.push(inputMethodSwitchKey());
-    }
-    keys.push(key('language', '中', KeyboardKeyKind.MODE_SWITCH, 1.05,
-      TOGGLE_LANGUAGE_ACTION, '切换到英文键盘'));
-    const spaceWeight = showInputMethodSwitchKey
-      ? 3.5 - KEY_WEIGHTS.MODE_SWITCH
-      : 3.5;
-    keys.push(key('space', '空格', KeyboardKeyKind.SPACE, spaceWeight, SPACE_ACTION, '空格'));
-    keys.push(punctuation);
-    keys.push(enterKey(context, KEY_WEIGHTS.ENTER));
-    return { keys, kind: KeyboardRowKind.BOTTOM_ACTIONS };
-  }
-  // English mode bottom row unchanged
   const keys: KeyboardKeySpec[] = [];
+  if (context.symbolModeAllowed) {
+    keys.push(key('symbol', '符', KeyboardKeyKind.MODE_SWITCH, KEY_WEIGHTS.MODE_SWITCH,
+      TOGGLE_SYMBOL_ACTION, '切换到符号键盘'));
+  }
   if (context.numberModeAllowed) {
     keys.push(key('number', '123', KeyboardKeyKind.MODE_SWITCH, KEY_WEIGHTS.MODE_SWITCH,
       TOGGLE_NUMBER_ACTION, '切换到数字键盘'));
@@ -240,24 +323,34 @@ function createTextBottomRow(
   if (showInputMethodSwitchKey) {
     keys.push(inputMethodSwitchKey());
   }
-  if (context.chineseModeAllowed) {
-    const languageKey = key('language', '中', KeyboardKeyKind.MODE_SWITCH,
-      KEY_WEIGHTS.MODE_SWITCH, TOGGLE_LANGUAGE_ACTION, '切换到中文键盘');
-    keys.push(languageKey);
-  }
   const spaceWeight = showInputMethodSwitchKey
     ? KEY_WEIGHTS.SPACE - KEY_WEIGHTS.MODE_SWITCH
     : KEY_WEIGHTS.SPACE;
-  keys.push(key('space', '空格', KeyboardKeyKind.SPACE, spaceWeight, SPACE_ACTION, '空格'));
-  if (context.symbolModeAllowed) {
-    keys.push(key('symbol', '#+=', KeyboardKeyKind.MODE_SWITCH, KEY_WEIGHTS.MODE_SWITCH,
-      TOGGLE_SYMBOL_ACTION, '切换到符号键盘'));
-  }
+  const space = key('space', '空格', KeyboardKeyKind.SPACE, spaceWeight, SPACE_ACTION,
+    '空格，上滑或长按切换中英文');
+  space.upperLabel = '中/英';
+  space.longPressAction = TOGGLE_LANGUAGE_ACTION;
+  space.swipeUpAction = TOGGLE_LANGUAGE_ACTION;
+  keys.push(space);
+  keys.push(segmentedKey(
+    'punctuation-comma-period',
+    chineseMode ? ['，', '。'] : [',', '.'],
+    chineseMode
+      ? [SECOND_CANDIDATE_OR_COMMA_ACTION, createCharacterInputAction('。')]
+      : [createCharacterInputAction(','), createCharacterInputAction('.')],
+    KeyboardKeyKind.FUNCTION,
+    1.25
+  ));
   keys.push(enterKey(context, KEY_WEIGHTS.ENTER));
   return { keys, kind: KeyboardRowKind.BOTTOM_ACTIONS };
 }
 
-function createSeventeenKeyTextLayout(context: EditorContext, chineseMode: boolean): KeyboardLayoutSpec {
+function createEighteenKeyTextLayout(
+  context: EditorContext,
+  chineseMode: boolean,
+  shiftState: ShiftState,
+  chineseCapsLock: boolean
+): KeyboardLayoutSpec {
   const punctuation = segmentedKey(
     'punctuation-comma-period',
     chineseMode ? ['，', '。'] : [',', '.'],
@@ -267,52 +360,70 @@ function createSeventeenKeyTextLayout(context: EditorContext, chineseMode: boole
     KeyboardKeyKind.FUNCTION,
     1.25
   );
+  const letterShiftState = chineseMode ? ShiftState.ONE_SHOT_UPPERCASE : shiftState;
   return {
     rows: [
       {
         keys: [
-          groupedLetterKey('hp', 'HP'),
-          groupedLetterKey('sh', 'SH'),
-          groupedLetterKey('zh', 'ZH'),
-          groupedLetterKey('b', 'B'),
-          groupedLetterKey('oxv', 'OXV'),
-          groupedLetterKey('ms', 'MS')
-        ]
-      },
-      {
-        keys: [
-          groupedLetterKey('l', 'L'),
-          groupedLetterKey('d', 'D'),
-          groupedLetterKey('y', 'Y'),
-          groupedLetterKey('wz', 'WZ'),
-          groupedLetterKey('jk', 'JK'),
-          groupedLetterKey('nr', 'NR')
-        ]
-      },
-      {
-        keys: [
-          groupedLetterKey('ch', 'CH'),
-          groupedLetterKey('q', 'Q'),
-          groupedLetterKey('g', 'G'),
-          groupedLetterKey('cf', 'CF'),
-          groupedLetterKey('t', 'T'),
-          deleteKey(1)
-        ]
-      },
-      {
-        keys: [
-          key('number', '符/123', KeyboardKeyKind.MODE_SWITCH, 1.2,
-            TOGGLE_NUMBER_ACTION, '切换到数字和符号键盘'),
-          key('language', chineseMode ? '中' : '英', KeyboardKeyKind.MODE_SWITCH, 1.05,
-            TOGGLE_LANGUAGE_ACTION, chineseMode ? '切换到英文键盘' : '切换到中文键盘'),
-          key('space', '空格', KeyboardKeyKind.SPACE, 3.5, SPACE_ACTION, '空格'),
-          punctuation,
-          enterKey(context, KEY_WEIGHTS.ENTER)
+          groupedLetterKey('q', 'Q', letterShiftState, 0.9),
+          groupedLetterKey('we', 'WE', letterShiftState, 1.25),
+          groupedLetterKey('rt', 'RT', letterShiftState, 1.25),
+          groupedLetterKey('y', 'Y', letterShiftState, 0.9),
+          groupedLetterKey('u', 'U', letterShiftState, 0.9),
+          groupedLetterKey('io', 'IO', letterShiftState, 1.25),
+          groupedLetterKey('p', 'P', letterShiftState, 0.9)
         ],
+        kind: KeyboardRowKind.TOP_LETTERS
+      },
+      {
+        keys: [
+          groupedLetterKey('a', 'A', letterShiftState, 0.9),
+          groupedLetterKey('sd', 'SD', letterShiftState, 1.25),
+          groupedLetterKey('fg', 'FG', letterShiftState, 1.25),
+          groupedLetterKey('h', 'H', letterShiftState, 0.9),
+          groupedLetterKey('jk', 'JK', letterShiftState, 1.25),
+          groupedLetterKey('l', 'L', letterShiftState, 0.9)
+        ],
+        kind: KeyboardRowKind.MIDDLE_LETTERS
+      },
+      {
+        keys: [
+          chineseMode ? escapeKey() : shiftKey(shiftState),
+          groupedLetterKey('z', 'Z', letterShiftState, 0.9),
+          groupedLetterKey('xc', 'XC', letterShiftState, 1.25),
+          groupedLetterKey('v', 'V', letterShiftState, 0.9),
+          groupedLetterKey('bn', 'BN', letterShiftState, 1.25),
+          groupedLetterKey('m', 'M', letterShiftState, 0.9),
+          deleteKey(KEY_WEIGHTS.DELETE)
+        ],
+        kind: KeyboardRowKind.BOTTOM_LETTERS
+      },
+      {
+        keys: createEighteenKeyBottomKeys(context, punctuation),
         kind: KeyboardRowKind.BOTTOM_ACTIONS
       }
     ]
   };
+}
+
+function createEighteenKeyBottomKeys(
+  context: EditorContext,
+  punctuation: KeyboardKeySpec
+): KeyboardKeySpec[] {
+  const space = key('space', '空格', KeyboardKeyKind.SPACE, 3.5, SPACE_ACTION,
+    '空格，上滑或长按切换中英文');
+  space.upperLabel = '中/英';
+  space.longPressAction = TOGGLE_LANGUAGE_ACTION;
+  space.swipeUpAction = TOGGLE_LANGUAGE_ACTION;
+  return [
+    key('symbol', '符', KeyboardKeyKind.MODE_SWITCH, 1.05,
+      TOGGLE_SYMBOL_ACTION, '切换到符号键盘'),
+    key('number', '123', KeyboardKeyKind.MODE_SWITCH, 1.05,
+      TOGGLE_NUMBER_ACTION, '切换到数字键盘'),
+    space,
+    punctuation,
+    enterKey(context, KEY_WEIGHTS.ENTER)
+  ];
 }
 
 function createChineseLayout(
@@ -361,6 +472,69 @@ function createEnglishLayout(
 }
 
 function createNumberLayout(context: EditorContext, showInputMethodSwitchKey: boolean): KeyboardLayoutSpec {
+  if (context.englishModeAllowed || context.chineseModeAllowed) {
+    return createReferenceNumberLayout(context, showInputMethodSwitchKey);
+  }
+  return createRestrictedNumberLayout(context, showInputMethodSwitchKey);
+}
+
+function createReferenceNumberLayout(
+  context: EditorContext,
+  showInputMethodSwitchKey: boolean
+): KeyboardLayoutSpec {
+  const bottomKeys: KeyboardKeySpec[] = [
+    upperCharacterKey('/', ';', 'slash'),
+    upperCharacterKey(',', '¥', 'comma'),
+    upperCharacterKey('0', '$', 'zero'),
+    upperCharacterKey('.', '€', 'decimal')
+  ];
+  if (showInputMethodSwitchKey) {
+    bottomKeys.push(inputMethodSwitchKey());
+  }
+  bottomKeys.push(enterKey(context, 1));
+  return {
+    rows: [
+      {
+        keys: [
+          upperCharacterKey('+', '@', 'plus'),
+          characterKey('1', 'one'),
+          characterKey('2', 'two'),
+          characterKey('3', 'three'),
+          key('number-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
+            TOGGLE_NUMBER_ACTION, '返回文字键盘')
+        ]
+      },
+      {
+        keys: [
+          upperCharacterKey('-', '%', 'minus'),
+          characterKey('4', 'four'),
+          characterKey('5', 'five'),
+          characterKey('6', 'six'),
+          key('symbol', '符号', KeyboardKeyKind.MODE_SWITCH, 1,
+            TOGGLE_SYMBOL_ACTION, '切换到更多符号')
+        ]
+      },
+      {
+        keys: [
+          upperCharacterKey('*', '#', 'star'),
+          characterKey('7', 'seven'),
+          characterKey('8', 'eight'),
+          characterKey('9', 'nine'),
+          deleteKey(1)
+        ]
+      },
+      {
+        keys: bottomKeys,
+        kind: KeyboardRowKind.BOTTOM_ACTIONS
+      }
+    ]
+  };
+}
+
+function createRestrictedNumberLayout(
+  context: EditorContext,
+  showInputMethodSwitchKey: boolean
+): KeyboardLayoutSpec {
   const fourthRow: KeyboardKeySpec[] = [];
   if (context.numberDecimalAllowed) {
     fourthRow.push(characterKey('.', 'decimal'));
@@ -418,22 +592,28 @@ function createPhoneLayout(context: EditorContext, showInputMethodSwitchKey: boo
 }
 
 function createSymbolLayout(context: EditorContext, showInputMethodSwitchKey: boolean): KeyboardLayoutSpec {
-  const bottomKeys: KeyboardKeySpec[] = [];
+  const bottomKeys: KeyboardKeySpec[] = [
+    ...['=', '+', '-', '×', '÷', '~'].map((value: string) => characterKey(value))
+  ];
   if (showInputMethodSwitchKey) {
     bottomKeys.push(inputMethodSwitchKey());
   }
-  bottomKeys.push(
-    key('symbol-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1.2, TOGGLE_SYMBOL_ACTION, '返回之前的键盘'),
-    key('space', '空格', KeyboardKeyKind.SPACE, KEY_WEIGHTS.SYMBOL_SPACE, SPACE_ACTION, '空格'),
-    deleteKey(),
-    enterKey(context, KEY_WEIGHTS.SYMBOL_ENTER)
-  );
+  bottomKeys.push(deleteKey(1));
   return {
     rows: [
-      { keys: ['!', '@', '#', '$', '%', '^', '&', '*'].map((value: string) => characterKey(value)) },
-      { keys: ['(', ')', '-', '_', '=', '+', '[', ']'].map((value: string) => characterKey(value)) },
-      { keys: ['.', ',', '?', '/', ':', ';', "'", '"'].map((value: string) => characterKey(value)) },
-      { keys: bottomKeys }
+      {
+        keys: [
+          key('symbol-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
+            TOGGLE_SYMBOL_ACTION, '返回之前的键盘'),
+          ...['#', '&', '¥', '`', '^', '—'].map((value: string) => characterKey(value))
+        ]
+      },
+      { keys: ['·', '*', '%', '<', '>', '"', "'"].map((value: string) => characterKey(value)) },
+      { keys: ['{', '}', '[', ']', '(', ')', '\\'].map((value: string) => characterKey(value)) },
+      {
+        keys: bottomKeys,
+        kind: KeyboardRowKind.BOTTOM_ACTIONS
+      }
     ]
   };
 }
@@ -453,8 +633,8 @@ export function createStage10KeyboardLayout(
       if (keyboardProfileId === PINYIN_9_PROFILE_ID) {
         return createPinyin9KeyboardLayout(context);
       }
-      if (shuangpinLayout === ShuangpinKeyboardLayout.SEVENTEEN_KEY) {
-        return createSeventeenKeyTextLayout(context, true);
+      if (shuangpinLayout === ShuangpinKeyboardLayout.EIGHTEEN_KEY) {
+        return createEighteenKeyTextLayout(context, true, shiftState, chineseCapsLock);
       }
       return createChineseLayout(context, chineseCapsLock, showInputMethodSwitchKey);
     case KeyboardMode.NUMBER:
@@ -464,8 +644,8 @@ export function createStage10KeyboardLayout(
     case KeyboardMode.SYMBOL:
       return createSymbolLayout(context, showInputMethodSwitchKey);
     default:
-      if (shuangpinLayout === ShuangpinKeyboardLayout.SEVENTEEN_KEY) {
-        return createSeventeenKeyTextLayout(context, false);
+      if (shuangpinLayout === ShuangpinKeyboardLayout.EIGHTEEN_KEY) {
+        return createEighteenKeyTextLayout(context, false, shiftState, false);
       }
       return createEnglishLayout(context, shiftState, showInputMethodSwitchKey);
   }

@@ -6,11 +6,12 @@ import {
   isEnabledKeyboardProfile,
   keyboardProfileForLegacy,
   KeyboardLayoutKind,
+  normalizeKeyboardProfileId,
   PINYIN_9_PROFILE_ID,
   QUANPIN_26_PROFILE_ID,
-  XIAOHE_17_PROFILE_ID,
+  XIAOHE_18_PROFILE_ID,
   XIAOHE_26_PROFILE_ID,
-  XIAOHE_YINXING_17_PROFILE_ID
+  XIAOHE_YINXING_26_PROFILE_ID
 } from '../main/ets/domain/keyboard/KeyboardProfile';
 import { SettingsMigration } from '../main/ets/infrastructure/storage/SettingsMigration';
 import { SettingsValidator } from '../main/ets/infrastructure/storage/SettingsValidator';
@@ -26,14 +27,31 @@ export default function keyboardProfileTest() {
       expect(isEnabledKeyboardProfile(PINYIN_9_PROFILE_ID)).assertTrue();
     });
 
-    it('migrates legacy 17 and 26 key Xiaohe layout values', 0, () => {
-      expect(keyboardProfileForLegacy('xiaohe', 'seventeen_key')).assertEqual(XIAOHE_17_PROFILE_ID);
+    it('migrates legacy 17 key Xiaohe to the replacement 18 key profile', 0, () => {
+      expect(keyboardProfileForLegacy('xiaohe', 'seventeen_key')).assertEqual(XIAOHE_18_PROFILE_ID);
+      expect(keyboardProfileForLegacy('xiaohe', 'eighteen_key')).assertEqual(XIAOHE_18_PROFILE_ID);
       expect(keyboardProfileForLegacy('xiaohe', 'twenty_six_key')).assertEqual(XIAOHE_26_PROFILE_ID);
     });
 
-    it('preserves the Xiaohe Yinxing scheme while migrating its legacy layout', 0, () => {
+    it('migrates every legacy Xiaohe Yinxing layout to its full keyboard', 0, () => {
       expect(keyboardProfileForLegacy('xiaohe-yinxing', 'seventeen_key'))
-        .assertEqual(XIAOHE_YINXING_17_PROFILE_ID);
+        .assertEqual(XIAOHE_YINXING_26_PROFILE_ID);
+      expect(keyboardProfileForLegacy('xiaohe-yinxing', 'twenty_six_key'))
+        .assertEqual(XIAOHE_YINXING_26_PROFILE_ID);
+      expect(normalizeKeyboardProfileId('xiaohe-yinxing-17'))
+        .assertEqual(XIAOHE_YINXING_26_PROFILE_ID);
+      const restored = new SettingsValidator().validate({
+        keyboardProfileId: 'xiaohe-yinxing-17', schemeId: 'xiaohe-yinxing'
+      });
+      expect(restored.keyboardProfileId).assertEqual(XIAOHE_YINXING_26_PROFILE_ID);
+      expect(restored.schemeId).assertEqual('xiaohe-yinxing');
+    });
+
+    it('upgrades the persisted 17 key profile id to the 18 key profile', 0, () => {
+      expect(normalizeKeyboardProfileId('xiaohe-17')).assertEqual(XIAOHE_18_PROFILE_ID);
+      const restored = new SettingsValidator().validate({ keyboardProfileId: 'xiaohe-17' });
+      expect(restored.keyboardProfileId).assertEqual(XIAOHE_18_PROFILE_ID);
+      expect(restored.schemeId).assertEqual('xiaohe');
     });
 
     it('recovers a legacy quanpin engine choice to the only legal QWERTY profile', 0, () => {
@@ -51,10 +69,10 @@ export default function keyboardProfileTest() {
 
     it('uses profile as the validated source of scheme and rejects only disabled profiles', 0, () => {
       const valid = new SettingsValidator().validate({
-        keyboardProfileId: XIAOHE_17_PROFILE_ID,
+        keyboardProfileId: XIAOHE_18_PROFILE_ID,
         schemeId: 'xiaohe-yinxing'
       });
-      expect(valid.keyboardProfileId).assertEqual(XIAOHE_17_PROFILE_ID);
+      expect(valid.keyboardProfileId).assertEqual(XIAOHE_18_PROFILE_ID);
       expect(valid.schemeId).assertEqual('xiaohe');
 
       const quanpin = new SettingsValidator().validate({ keyboardProfileId: QUANPIN_26_PROFILE_ID });
@@ -78,10 +96,11 @@ export default function keyboardProfileTest() {
 
     it('keeps every legal new profile unchanged and derives its matching engine scheme', 0, () => {
       const expected = [
-        `${XIAOHE_17_PROFILE_ID}:xiaohe`,
+        `${XIAOHE_18_PROFILE_ID}:xiaohe`,
         `${XIAOHE_26_PROFILE_ID}:xiaohe`,
         `${QUANPIN_26_PROFILE_ID}:quanpin`,
-        `${PINYIN_9_PROFILE_ID}:pinyin-9`
+        `${PINYIN_9_PROFILE_ID}:pinyin-9`,
+        `${XIAOHE_YINXING_26_PROFILE_ID}:xiaohe-yinxing`
       ];
       const actual = expected.map((entry: string): string => {
         const profileId = entry.split(':')[0];
@@ -116,6 +135,14 @@ export default function keyboardProfileTest() {
     it('publishes unique enabled profile identifiers', 0, () => {
       const ids = enabledKeyboardProfiles().map((profile) => profile.profileId);
       expect(new Set<string>(ids).size).assertEqual(ids.length);
+    });
+
+    it('offers Xiaohe Yinxing only as a full QWERTY keyboard', 0, () => {
+      const yinxingProfiles = enabledKeyboardProfiles()
+        .filter((profile) => profile.engineSchemeId === 'xiaohe-yinxing');
+      expect(yinxingProfiles.length).assertEqual(1);
+      expect(yinxingProfiles[0].profileId).assertEqual(XIAOHE_YINXING_26_PROFILE_ID);
+      expect(yinxingProfiles[0].layoutKind).assertEqual(KeyboardLayoutKind.QWERTY_26_KEY);
     });
   });
 }

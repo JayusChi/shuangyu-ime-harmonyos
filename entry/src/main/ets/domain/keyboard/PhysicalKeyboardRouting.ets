@@ -26,6 +26,7 @@ export interface PhysicalKeySnapshot {
   ctrlKey: boolean;
   altKey: boolean;
   logoKey: boolean;
+  shiftKey?: boolean;
 }
 
 export interface PhysicalKeySessionSnapshot {
@@ -69,6 +70,22 @@ const KEYCODE_0 = 2000;
 const KEYCODE_9 = 2009;
 
 const NO_COMMAND: PhysicalKeyCommand = { type: PhysicalKeyCommandType.NONE };
+
+/** Resolves an unmodified hardware letter without depending on session state. */
+export function resolveUnmodifiedPhysicalLetter(key: PhysicalKeySnapshot): string | undefined {
+  if (key.ctrlKey || key.altKey || key.logoKey) {
+    return undefined;
+  }
+  if (key.unicodeChar > 0) {
+    const character = String.fromCharCode(key.unicodeChar);
+    return /^[a-zA-Z]$/.test(character) ? character : undefined;
+  }
+  if (key.keyCode < KEYCODE_A || key.keyCode > KEYCODE_Z) {
+    return undefined;
+  }
+  const lowerCase = String.fromCharCode(97 + key.keyCode - KEYCODE_A);
+  return key.shiftKey === true ? lowerCase.toUpperCase() : lowerCase;
+}
 
 function punctuationFromKeyCode(keyCode: number): string {
   switch (keyCode) {
@@ -167,6 +184,9 @@ export function resolvePhysicalKeyCommand(
   // exists it arms the one-shot symbol guide instead of inserting punctuation.
   // With exactly one candidate it commits the first and arms the guide.
   if (character === ';') {
+    if (session.rawInput.startsWith(';')) {
+      return { type: PhysicalKeyCommandType.SYMBOL_GUIDE };
+    }
     if (session.candidateCount >= 2) {
       return { type: PhysicalKeyCommandType.SECOND_CANDIDATE, candidateIndex: 1 };
     }
@@ -266,6 +286,30 @@ export class PhysicalKeyConsumptionTracker {
 
   reset(): void {
     this.consumedKeyCodes = [];
+  }
+}
+
+/**
+ * Claims plain letter DOWN/UP pairs while the IME runtime is still starting.
+ * Other keys keep their normal host routing until the active editor policy is
+ * available, so cold start never swallows shortcuts, digits or controls.
+ */
+export class PhysicalKeyStartupDeferral {
+  private readonly consumption = new PhysicalKeyConsumptionTracker();
+
+  shouldDefer(key: PhysicalKeySnapshot): boolean {
+    if (!key.isDown) {
+      return this.consumption.consumeRelease(key.keyCode);
+    }
+    if (resolveUnmodifiedPhysicalLetter(key) === undefined) {
+      return false;
+    }
+    this.consumption.recordConsumedDown(key.keyCode);
+    return true;
+  }
+
+  reset(): void {
+    this.consumption.reset();
   }
 }
 

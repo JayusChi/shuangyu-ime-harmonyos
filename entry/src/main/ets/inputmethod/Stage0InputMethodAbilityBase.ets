@@ -5,9 +5,13 @@ import { Logger } from '../common/logging/Logger';
 import { Configuration, ConfigurationConstant } from '@kit.AbilityKit';
 import { getSharedSettingsController } from '../application/SettingsController';
 import { HarmonySystemThemeBackend, SystemThemeMonitor } from '../application/SystemThemeMonitor';
-import { KeyEvent } from '@kit.InputKit';
+import { Action, KeyEvent } from '@kit.InputKit';
 import { getSharedKeyboardLayoutPreferenceController } from '../application/KeyboardLayoutPreferenceController';
 import { ImeSettings } from '../domain/settings/ImeSettings';
+import {
+  PhysicalKeySnapshot,
+  PhysicalKeyStartupDeferral
+} from '../domain/keyboard/PhysicalKeyboardRouting';
 
 const TAG = 'Stage0InputMethodAbility';
 const LOGGER = new Logger(TAG);
@@ -21,6 +25,7 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
   private runtimeGeneration = 0;
   private runtimeInitialization?: Promise<void>;
   private systemThemeMonitor?: SystemThemeMonitor;
+  private readonly startupPhysicalKeys = new PhysicalKeyStartupDeferral();
 
   private readonly onInputStart = (
     keyboardController: inputMethodEngine.KeyboardController,
@@ -56,11 +61,34 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
   };
 
   private readonly onPhysicalKeyEvent = (event: KeyEvent): boolean => {
-    if (!this.runtimeReady) {
+    if (this.runtimeReady) {
+      return this.lifecycleDispatcher.handlePhysicalKeyEvent(event);
+    }
+    const snapshot = this.snapshotPhysicalKeyEvent(event);
+    if (!this.startupPhysicalKeys.shouldDefer(snapshot)) {
       return false;
     }
-    return this.lifecycleDispatcher.handlePhysicalKeyEvent(event);
+    // inputStart is registered before the first hardware key, and all queued
+    // callbacks share the same initialization promise. Replaying here keeps
+    // their arrival order while returning true synchronously prevents the host
+    // editor from committing the cold-start letter a second time.
+    this.runAfterInitialization((): void => {
+      this.lifecycleDispatcher.handleDeferredPhysicalKeyEvent(snapshot);
+    });
+    return true;
   };
+
+  private snapshotPhysicalKeyEvent(event: KeyEvent): PhysicalKeySnapshot {
+    return {
+      isDown: event.action === Action.DOWN,
+      unicodeChar: event.unicodeChar,
+      keyCode: event.key.code,
+      ctrlKey: event.ctrlKey,
+      altKey: event.altKey,
+      logoKey: event.logoKey,
+      shiftKey: event.shiftKey
+    };
+  }
 
   onCreate(want: Want): void {
     LOGGER.info(`InputMethodExtensionAbility onCreate: process=${this.context.processName}`);
@@ -155,6 +183,7 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
     this.systemThemeMonitor = undefined;
     getSharedSettingsController().stopCrossRuntimeSync();
     this.registered = false;
+    this.startupPhysicalKeys.reset();
     this.runtimeInitialization = undefined;
     this.imeAbility = undefined;
     this.keyboardDelegate = undefined;

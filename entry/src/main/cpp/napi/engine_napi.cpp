@@ -394,7 +394,7 @@ bool ReadHandleAndIndexArguments(napi_env env, napi_callback_info info, uint32_t
 bool IsSingleCodeTableKey(const std::string& value) {
     return value.length() == 1 &&
            ((value[0] >= 'a' && value[0] <= 'z') ||
-            (value[0] >= '2' && value[0] <= '9') || value[0] == ';');
+            (value[0] >= '2' && value[0] <= '9') || value[0] == ';' || value[0] == '`');
 }
 } // namespace
 
@@ -472,7 +472,10 @@ napi_value ProcessKey(napi_env env, napi_callback_info info) {
         return nullptr;
     }
     if (!IsSingleCodeTableKey(key)) {
-        ThrowNativeError(env, IME_INVALID_ARGUMENT, "processKey requires one lowercase ASCII letter, T9 digit, or guide key");
+        ThrowNativeError(
+            env,
+            IME_INVALID_ARGUMENT,
+            "processKey requires one lowercase ASCII letter, T9 digit, guide key, or universal key");
         return nullptr;
     }
 

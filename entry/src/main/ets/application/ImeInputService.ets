@@ -1,4 +1,5 @@
 import { EnterAction } from '../domain/editor/EditorContext';
+import { EditorExtendAction } from '../domain/keyboard/KeyboardAction';
 import { ProtocolActionImeService } from './ProtocolActionExecutor';
 
 export interface ImeInputService extends ProtocolActionImeService {
@@ -22,7 +23,7 @@ export interface ImeInputService extends ProtocolActionImeService {
   deleteBackward(count?: number): Promise<boolean>;
   deleteBackwardIfMatches?(text: string): Promise<boolean>;
   moveToLineEnd?(): Promise<boolean>;
+  sendExtendAction?(action: EditorExtendAction): Promise<boolean>;
   sendEnter(action?: EnterAction): Promise<boolean>;
   hideKeyboard(): Promise<boolean>;
 }
-

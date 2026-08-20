@@ -28,6 +28,7 @@ import computerStage3PhysicalKeyboardTest from './ComputerStage3PhysicalKeyboard
 import computerStage5Test from './ComputerStage5.test';
 import directControlUserLexiconTest from './DirectControlUserLexicon.test';
 import pinyin9Stage4Test from './Pinyin9Stage4.test';
+import keyboardAlternateGestureTest from './KeyboardAlternateGesture.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -60,4 +61,5 @@ export default function testsuite() {
   computerStage5Test();
   directControlUserLexiconTest();
   pinyin9Stage4Test();
+  keyboardAlternateGestureTest();
 }

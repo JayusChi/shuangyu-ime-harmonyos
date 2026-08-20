@@ -72,7 +72,7 @@
       "merge_order": [
         "小鹤音形/2.2.二简次选.txt"
       ],
-      "default_enabled": true,
+      "default_enabled": false,
       "first_release_scope": "authoritative_source_only",
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
@@ -114,7 +114,7 @@
       "merge_order": [
         "小鹤音形/2.5.全码词.txt"
       ],
-      "default_enabled": true,
+      "default_enabled": false,
       "first_release_scope": "authoritative_source_only",
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
@@ -133,7 +133,7 @@
       "merge_order": [
         "小鹤音形/2.8.生僻字.txt"
       ],
-      "default_enabled": true,
+      "default_enabled": false,
       "first_release_scope": "authoritative_source_only",
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
@@ -154,7 +154,7 @@
       "merge_order": [
         "小鹤音形/2.9.全码字.txt"
       ],
-      "default_enabled": true,
+      "default_enabled": false,
       "first_release_scope": "authoritative_source_only",
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",

@@ -1,8 +1,14 @@
 # Project State
 
-更新时间：2026-08-19
+更新时间：2026-08-20
 
 ## 当前阶段
+
+**小鹤音形四类默认关闭 IMPLEMENTED / HOST_BUILD_VALIDATED / ARKTS_RUNNER_BLOCKED / DEVICE_NOT_RUN（2026-08-20）** — 因完整直通语法尚未支持，二简次选、全码词、生僻字、全码字现在默认关闭，需要时可从设置页手动开启。新装、重置、旧版全开快照迁移和 Rust bundle manifest 已统一；非全开自定义分类组合不会被升级覆盖。正式 bundle 为 26,039,684 bytes、SHA-256 `cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94`。正式包重建/校验、基线生成、Rust runtime/engine/FFI/converter、双 ABI OHOS Release Native 和 default debug HAP 均通过；ArkTS 单测编译通过，但 Windows Hypium 宿主执行器连续两次在启动用例后无报告挂起，未记作全量 PASS；设备验收未运行。
+
+**智能句号 IMPLEMENTED / HOST_VALIDATED / DEVICE_NOT_RUN（2026-08-20）** — 中文句号在 300/500/800/1000 毫秒可配置时间窗内连续输入时，安全替换为单个 ASCII `.`；超时保留两个中文句号，也可关闭。虚拟键盘和实体键盘均接入，替换前核对光标前文本，按键时间以入队到达时刻为准。设置 schema 为 8，ArkTS 全量单测与工程编译通过；真实 USB/蓝牙键盘及多宿主编辑器设备验收未运行。
+
+**小鹤音形空码后续提示固定单项 IMPLEMENTED / HOST_VALIDATED / DEVICE_NOT_RUN（2026-08-20）** — 客户确认空码时只显示源序第 1 项后续提示，不再需要 9 项或数量设置。Rust 查询和 ArkTS 所有候选表面同时固定为 1，并退出旧数量字段、持久化键和设置页控件；精确同码重码仍完整保留。Rust 状态机 81/81、正式词库 `un` 首项专项、ArkTS 454/454 及工程编译通过；设备验收未运行。本条结论替代 2026-08-05 阶段 6 中“1～9 项可设置”的产品结论；该阶段的 9 项验收记录仍作为历史证据保留。
 
 **小鹤音形冷启动与内存优化 IMPLEMENTED / HOST_RELEASE_VALIDATED / ARM64_BUILD_PASS / ARM64_DEVICE_NOT_RUN（2026-08-19）** — `.hsyx` 生产加载已改为只读 mmap、流式 SHA/content hash、查询专用 compact metadata 和按文件身份共享的弱缓存不可变索引；ArkTS 安装器增加绑定 SHA/inode/size/mtime/ctime 的原子校验回执，后续冷启动不再重复哈希已安装的 26 MB 文件，Native 边界仍校验冻结完整 SHA。Windows x86_64 Release 5 进程加载 P50 `633.962 → 163.511 ms`，同进程复用 P50 `636.181 → 0.258 ms`，load 内存增量 P50 `59.20 → 15.59 MB`，峰值工作集 `147.39 → 46.47 MB`。相关 Rust、严格 Clippy、ArkTS 与 ARM64 OHOS Release 构建 PASS；当前只连接三台 x86_64 emulator，真实 ARM64 加载/RSS 为 `NOT_RUN`，已提供拒绝 emulator 的采集脚本。详见 `docs/evidence/2026-08-19-yinxing-cold-start-memory/README.md`。
 

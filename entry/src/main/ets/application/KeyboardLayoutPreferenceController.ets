@@ -63,8 +63,8 @@ export class KeyboardLayoutPreferenceController {
 
   async select(layout: ShuangpinKeyboardLayout): Promise<boolean> {
     const current = this.settings.getSettings();
-    const targetLayout = layout === ShuangpinKeyboardLayout.SEVENTEEN_KEY
-      ? KeyboardLayoutKind.SEVENTEEN_KEY
+    const targetLayout = layout === ShuangpinKeyboardLayout.EIGHTEEN_KEY
+      ? KeyboardLayoutKind.EIGHTEEN_KEY
       : KeyboardLayoutKind.QWERTY_26_KEY;
     const profileId = keyboardProfileForEngineScheme(current.schemeId, targetLayout);
     if (!profileId) {
@@ -93,8 +93,8 @@ export class KeyboardLayoutPreferenceController {
 
   private refreshFromSettings(): void {
     const layoutKind = keyboardProfileLayoutKind(this.settings.getSettings().keyboardProfileId);
-    this.replace(layoutKind === KeyboardLayoutKind.SEVENTEEN_KEY
-      ? ShuangpinKeyboardLayout.SEVENTEEN_KEY
+    this.replace(layoutKind === KeyboardLayoutKind.EIGHTEEN_KEY
+      ? ShuangpinKeyboardLayout.EIGHTEEN_KEY
       : ShuangpinKeyboardLayout.TWENTY_SIX_KEY);
   }
 

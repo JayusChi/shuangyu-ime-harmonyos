@@ -12,8 +12,8 @@ import {
   SettingsWindowCoordinator
 } from '../application/SettingsWindowCoordinator';
 import {
-  XIAOHE_YINXING_CATEGORY_IDS,
-  XIAOHE_YINXING_CATEGORY_UI_IDS
+  XIAOHE_YINXING_CATEGORY_UI_IDS,
+  XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS
 } from '../domain/settings/ImeSettings';
 import { Logger } from '../common/logging/Logger';
 import { SettingsStateListener } from '../state/SettingsStore';
@@ -170,7 +170,7 @@ struct XiaoheYinxingCategoryManagerPage {
   }
 
   private async resetToDefault(): Promise<void> {
-    this.enabledCategoryIds = XIAOHE_YINXING_CATEGORY_IDS.slice();
+    this.enabledCategoryIds = XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS.slice();
     this.hasChanges = true;
     this.showToast('已重置为默认设置');
   }

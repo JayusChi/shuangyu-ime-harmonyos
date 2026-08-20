@@ -10,8 +10,6 @@ import {
   isAvailableScheme,
   KeyboardHeightMode,
   LexiconSourceConfig,
-  MAX_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
-  MIN_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
   normalizeXiaoheYinxingCategoryIds,
   QUANPIN_FUZZY_OPTIONS,
   QUANPIN_SCHEME_ID,
@@ -232,6 +230,15 @@ export class SettingsController {
     });
   }
 
+  async setSmartPeriodTimeoutMs(timeoutMs: number): Promise<SettingsOperationResult> {
+    if (!Number.isInteger(timeoutMs) || timeoutMs < 0 || timeoutMs > 2000) {
+      return { success: false, message: '智能句号时间参数无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.smartPeriodTimeoutMs = timeoutMs;
+    });
+  }
+
   async setCandidatePresentationMode(value: CandidatePresentationMode): Promise<SettingsOperationResult> {
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.candidatePresentationMode = value;
@@ -241,16 +248,6 @@ export class SettingsController {
   async setInputPresentationPreference(value: InputPresentationPreference): Promise<SettingsOperationResult> {
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.inputPresentationPreference = value;
-    });
-  }
-
-  async setXiaoheYinxingHintCandidateCount(value: number): Promise<SettingsOperationResult> {
-    if (!Number.isInteger(value) || value < MIN_XIAOHE_YINXING_HINT_CANDIDATE_COUNT ||
-      value > MAX_XIAOHE_YINXING_HINT_CANDIDATE_COUNT) {
-      return { success: false, message: '精准匹配提示数量无效' };
-    }
-    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
-      settings.xiaoheYinxingHintCandidateCount = value;
     });
   }
 
@@ -665,9 +662,9 @@ export class SettingsController {
       `candidateFontSizeMode=${settings.candidateFontSizeMode}, hapticLevel=${settings.hapticLevel}, ` +
       `keySoundEnabled=${settings.keySoundEnabled}, userLearningEnabled=${settings.userLearningEnabled}, ` +
       `spellingCorrectionEnabled=${settings.spellingCorrectionEnabled}, ` +
+      `smartPeriodTimeoutMs=${settings.smartPeriodTimeoutMs}, ` +
       `fuzzyOptions=${settings.fuzzyOptions.join('|')}, ` +
       `inputPresentationPreference=${settings.inputPresentationPreference}, ` +
-      `xiaoheYinxingHintCandidateCount=${settings.xiaoheYinxingHintCandidateCount}, ` +
       `xiaoheYinxingEnabledCategoryCount=${settings.xiaoheYinxingEnabledCategoryIds.length}`;
   }
 
