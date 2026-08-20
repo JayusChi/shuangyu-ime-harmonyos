@@ -1,0 +1,2176 @@
+{
+  "candidateOutputSha256ByRun": [
+    "55039211208aad00a3aa7fdc5ef68e47d32f994657adbe95223f23bceaad9f02",
+    "55039211208aad00a3aa7fdc5ef68e47d32f994657adbe95223f23bceaad9f02",
+    "55039211208aad00a3aa7fdc5ef68e47d32f994657adbe95223f23bceaad9f02"
+  ],
+  "datasetManifestSha256": "a9158b860f6f75a4ee60c799ad313818e668302364eb01431de4536147a1ad23",
+  "deterministicCandidateOutputs": true,
+  "engineLoadLatencyMicros": {
+    "max": 191269,
+    "mean": 186532.33333333334,
+    "p50": 185117,
+    "p95": 191269,
+    "p99": 191269,
+    "samples": 3
+  },
+  "engineVersion": "0.0.1-quanpin-features",
+  "environment": {
+    "arch": "x86_64",
+    "cargoProfile": "release",
+    "os": "windows",
+    "processorIdentifier": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "groups": {
+    "byCategory": {
+      "abbreviation": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.25,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 2,
+          "pathPrunedRate": 0.25
+        },
+        "keyLatencyMicros": {
+          "max": 27080,
+          "mean": 4263.047619047619,
+          "p50": 190,
+          "p95": 24736,
+          "p99": 27080,
+          "samples": 63
+        },
+        "mrr": 0,
+        "noCandidateRate": 0.75,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 8,
+          "samplesAt32PathLimit": 2
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 58379,
+          "mean": 33625.125,
+          "p50": 27489,
+          "p95": 58379,
+          "p99": 58379,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "adjacent_key": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 57745,
+          "mean": 18727.380434782608,
+          "p50": 18658,
+          "p95": 45331,
+          "p99": 57745,
+          "samples": 92
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 270523,
+          "mean": 215573.5,
+          "p50": 215004,
+          "p95": 270523,
+          "p99": 270523,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "brand_domain": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.2857142857142857,
+        "canonicalPathPrunedAt32Rate": 0.7142857142857143,
+        "canonicalPinyinNotIn32PathsRate": 0.7142857142857143,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0.2857142857142857,
+        "canonicalPinyinPathTop5Rate": 0.2857142857142857,
+        "count": 7,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 2,
+          "pathPresentCandidateMissingRate": 0.2857142857142857,
+          "pathPrunedCount": 5,
+          "pathPrunedRate": 0.7142857142857143
+        },
+        "keyLatencyMicros": {
+          "max": 94137,
+          "mean": 33320.414814814816,
+          "p50": 27687,
+          "p95": 84849,
+          "p99": 92480,
+          "samples": 135
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 7
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 760440,
+          "mean": 642840.7142857143,
+          "p50": 668697,
+          "p95": 760440,
+          "p99": 760440,
+          "samples": 7
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "common_character_word": {
+        "averageCandidateSelectionRank": 1,
+        "averageFirstRankWhenRecalled": 1,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0,
+        "canonicalPinyinNotIn32PathsRate": 0,
+        "canonicalPinyinPathTop1Rate": 0.625,
+        "canonicalPinyinPathTop3Rate": 1,
+        "canonicalPinyinPathTop5Rate": 1,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 0,
+          "pathPrunedRate": 0
+        },
+        "keyLatencyMicros": {
+          "max": 29508,
+          "mean": 5677.1,
+          "p50": 507,
+          "p95": 29508,
+          "p99": 29508,
+          "samples": 20
+        },
+        "mrr": 1,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 2,
+          "mean": 1.875,
+          "samplesAt32PathLimit": 0
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 30041,
+          "mean": 14235.875,
+          "p50": 16550,
+          "p95": 30041,
+          "p99": 30041,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 0,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 1,
+        "top3Rate": 1,
+        "top5Rate": 1
+      },
+      "common_phrase_2_4": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 102074,
+          "mean": 34502.07843137255,
+          "p50": 28151,
+          "p95": 80631,
+          "p99": 95924,
+          "samples": 153
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 759535,
+          "mean": 660129.25,
+          "p50": 649423,
+          "p95": 759535,
+          "p99": 759535,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "explicit_boundary": {
+        "averageCandidateSelectionRank": 1,
+        "averageFirstRankWhenRecalled": 1,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.625,
+        "canonicalPathPrunedAt32Rate": 0.25,
+        "canonicalPinyinNotIn32PathsRate": 0.25,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0.375,
+        "canonicalPinyinPathTop5Rate": 0.375,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 5,
+          "pathPresentCandidateMissingRate": 0.625,
+          "pathPrunedCount": 2,
+          "pathPrunedRate": 0.25
+        },
+        "keyLatencyMicros": {
+          "max": 110795,
+          "mean": 41592.27857142857,
+          "p50": 38133,
+          "p95": 104308,
+          "p99": 110428,
+          "samples": 140
+        },
+        "mrr": 0.125,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 825054,
+          "mean": 729046.5,
+          "p50": 769803,
+          "p95": 825054,
+          "p99": 825054,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 0.875,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0.125,
+        "top3Rate": 0.125,
+        "top5Rate": 0.125
+      },
+      "extra_digit": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 65248,
+          "mean": 23173.96551724138,
+          "p50": 19816,
+          "p95": 58070,
+          "p99": 64753,
+          "samples": 116
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 413774,
+          "mean": 336254.375,
+          "p50": 335359,
+          "p95": 413774,
+          "p99": 413774,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "fuzzy_dialect": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.125,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 1,
+          "pathPrunedRate": 0.125
+        },
+        "keyLatencyMicros": {
+          "max": 24889,
+          "mean": 5906.34693877551,
+          "p50": 1889,
+          "p95": 22062,
+          "p99": 24889,
+          "samples": 49
+        },
+        "mrr": 0,
+        "noCandidateRate": 0.25,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 12.25,
+          "samplesAt32PathLimit": 1
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 63737,
+          "mean": 36263.875,
+          "p50": 36217,
+          "p95": 63737,
+          "p99": 63737,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "high_digit_collision": {
+        "averageCandidateSelectionRank": 1,
+        "averageFirstRankWhenRecalled": 1,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.125,
+        "canonicalPathPrunedAt32Rate": 0.75,
+        "canonicalPinyinNotIn32PathsRate": 0.75,
+        "canonicalPinyinPathTop1Rate": 0.125,
+        "canonicalPinyinPathTop3Rate": 0.125,
+        "canonicalPinyinPathTop5Rate": 0.125,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 1,
+          "pathPresentCandidateMissingRate": 0.125,
+          "pathPrunedCount": 6,
+          "pathPrunedRate": 0.75
+        },
+        "keyLatencyMicros": {
+          "max": 44972,
+          "mean": 17137.13829787234,
+          "p50": 17568,
+          "p95": 40463,
+          "p99": 44972,
+          "samples": 94
+        },
+        "mrr": 0.125,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 247610,
+          "mean": 201596.125,
+          "p50": 213314,
+          "p95": 247610,
+          "p99": 247610,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 0.875,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0.125,
+        "top3Rate": 0.125,
+        "top5Rate": 0.125
+      },
+      "incomplete_tail": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 99101,
+          "mean": 33479.64137931034,
+          "p50": 32545,
+          "p95": 85012,
+          "p99": 97363,
+          "samples": 145
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 784210,
+          "mean": 607047.625,
+          "p50": 631484,
+          "p95": 784210,
+          "p99": 784210,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "long_continuous": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 851613,
+          "mean": 293182.5251046025,
+          "p50": 220349,
+          "p95": 740534,
+          "p99": 828166,
+          "samples": 478
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 1
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 19892011,
+          "mean": 17518050.5,
+          "p50": 18786695,
+          "p95": 19892011,
+          "p99": 19892011,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "missing_digit": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.875,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 7,
+          "pathPrunedRate": 0.875
+        },
+        "keyLatencyMicros": {
+          "max": 59694,
+          "mean": 14320.24,
+          "p50": 10309,
+          "p95": 46226,
+          "p99": 59694,
+          "samples": 75
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 29.5,
+          "samplesAt32PathLimit": 7
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 196558,
+          "mean": 134452.25,
+          "p50": 156577,
+          "p95": 196558,
+          "p99": 196558,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "modern_chat": {
+        "averageCandidateSelectionRank": 1.5,
+        "averageFirstRankWhenRecalled": 1.5,
+        "candidateRecalledButWrongTop1Rate": 0.125,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.75,
+        "canonicalPinyinNotIn32PathsRate": 0.75,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 1,
+          "candidateRecalledRankingErrorRate": 0.125,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 6,
+          "pathPrunedRate": 0.75
+        },
+        "keyLatencyMicros": {
+          "max": 119747,
+          "mean": 40774.65838509317,
+          "p50": 33808,
+          "p95": 101994,
+          "p99": 117855,
+          "samples": 161
+        },
+        "mrr": 0.1875,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 903688,
+          "mean": 820843.125,
+          "p50": 845115,
+          "p95": 903688,
+          "p99": 903688,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 0.75,
+        "top1CorrectionEventsPer100ChineseCharacters": 1.7857142857142858,
+        "top1Rate": 0.125,
+        "top3Rate": 0.25,
+        "top5Rate": 0.25
+      },
+      "multiple_pinyin_paths": {
+        "averageCandidateSelectionRank": 87,
+        "averageFirstRankWhenRecalled": 87,
+        "candidateRecalledButWrongTop1Rate": 0.5,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.375,
+        "canonicalPathPrunedAt32Rate": 0,
+        "canonicalPinyinNotIn32PathsRate": 0,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0.5,
+        "canonicalPinyinPathTop5Rate": 0.5,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 4,
+          "candidateRecalledRankingErrorRate": 0.5,
+          "pathPresentCandidateMissingCount": 3,
+          "pathPresentCandidateMissingRate": 0.375,
+          "pathPrunedCount": 0,
+          "pathPrunedRate": 0
+        },
+        "keyLatencyMicros": {
+          "max": 93942,
+          "mean": 26150.03149606299,
+          "p50": 21597,
+          "p95": 67417,
+          "p99": 88193,
+          "samples": 127
+        },
+        "mrr": 0.13144614145687308,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 666873,
+          "mean": 415334.125,
+          "p50": 383728,
+          "p95": 666873,
+          "p99": 666873,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 0.375,
+        "top1CorrectionEventsPer100ChineseCharacters": 12.121212121212121,
+        "top1Rate": 0.125,
+        "top3Rate": 0.125,
+        "top5Rate": 0.125
+      },
+      "organization_name": {
+        "averageCandidateSelectionRank": 1,
+        "averageFirstRankWhenRecalled": 1,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.8,
+        "canonicalPinyinNotIn32PathsRate": 0.8,
+        "canonicalPinyinPathTop1Rate": 0.2,
+        "canonicalPinyinPathTop3Rate": 0.2,
+        "canonicalPinyinPathTop5Rate": 0.2,
+        "count": 5,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 4,
+          "pathPrunedRate": 0.8
+        },
+        "keyLatencyMicros": {
+          "max": 159981,
+          "mean": 48983.79661016949,
+          "p50": 43615,
+          "p95": 116797,
+          "p99": 141498,
+          "samples": 118
+        },
+        "mrr": 0.2,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 5
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 1553864,
+          "mean": 1156297.4,
+          "p50": 1094215,
+          "p95": 1553864,
+          "p99": 1553864,
+          "samples": 5
+        },
+        "targetUnrecalledRate": 0.8,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0.2,
+        "top3Rate": 0.2,
+        "top5Rate": 0.2
+      },
+      "person_name": {
+        "averageCandidateSelectionRank": 130,
+        "averageFirstRankWhenRecalled": 130,
+        "candidateRecalledButWrongTop1Rate": 0.4,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.6,
+        "canonicalPathPrunedAt32Rate": 0,
+        "canonicalPinyinNotIn32PathsRate": 0,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0.2,
+        "count": 5,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 2,
+          "candidateRecalledRankingErrorRate": 0.4,
+          "pathPresentCandidateMissingCount": 3,
+          "pathPresentCandidateMissingRate": 0.6,
+          "pathPrunedCount": 0,
+          "pathPrunedRate": 0
+        },
+        "keyLatencyMicros": {
+          "max": 57541,
+          "mean": 19956.8,
+          "p50": 20397,
+          "p95": 50680,
+          "p99": 57541,
+          "samples": 65
+        },
+        "mrr": 0.00338123415046492,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 5
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 322828,
+          "mean": 259702,
+          "p50": 281698,
+          "p95": 322828,
+          "p99": 322828,
+          "samples": 5
+        },
+        "targetUnrecalledRate": 0.6,
+        "top1CorrectionEventsPer100ChineseCharacters": 10,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "place_name": {
+        "averageCandidateSelectionRank": 38,
+        "averageFirstRankWhenRecalled": 38,
+        "candidateRecalledButWrongTop1Rate": 0.8,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.1,
+        "canonicalPinyinNotIn32PathsRate": 0.1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0.5,
+        "canonicalPinyinPathTop5Rate": 0.5,
+        "count": 10,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 8,
+          "candidateRecalledRankingErrorRate": 0.8,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 1,
+          "pathPrunedRate": 0.1
+        },
+        "keyLatencyMicros": {
+          "max": 56067,
+          "mean": 18589.81746031746,
+          "p50": 17528,
+          "p95": 44181,
+          "p99": 55796,
+          "samples": 126
+        },
+        "mrr": 0.14566799638098066,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 10
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 279153,
+          "mean": 234457.5,
+          "p50": 251346,
+          "p95": 279153,
+          "p99": 279153,
+          "samples": 10
+        },
+        "targetUnrecalledRate": 0.1,
+        "top1CorrectionEventsPer100ChineseCharacters": 20,
+        "top1Rate": 0.1,
+        "top3Rate": 0.1,
+        "top5Rate": 0.2
+      },
+      "polyphone_homophone": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.75,
+        "canonicalPathPrunedAt32Rate": 0.25,
+        "canonicalPinyinNotIn32PathsRate": 0.25,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0.25,
+        "canonicalPinyinPathTop5Rate": 0.25,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 6,
+          "pathPresentCandidateMissingRate": 0.75,
+          "pathPrunedCount": 2,
+          "pathPrunedRate": 0.25
+        },
+        "keyLatencyMicros": {
+          "max": 122053,
+          "mean": 41254.07432432433,
+          "p50": 37306,
+          "p95": 100633,
+          "p99": 117346,
+          "samples": 148
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 1207873,
+          "mean": 763431,
+          "p50": 630448,
+          "p95": 1207873,
+          "p99": 1207873,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "segmentation_ambiguity": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 975456,
+          "mean": 317464.34437086096,
+          "p50": 257373,
+          "p95": 836156,
+          "p99": 965808,
+          "samples": 453
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 21727331,
+          "mean": 17976811.5,
+          "p50": 17820469,
+          "p95": 21727331,
+          "p99": 21727331,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "transposition": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 0,
+          "pathPrunedRate": 0
+        },
+        "keyLatencyMicros": {
+          "max": 10583,
+          "mean": 469.6258503401361,
+          "p50": 2,
+          "p95": 4182,
+          "p99": 9489,
+          "samples": 147
+        },
+        "mrr": 0,
+        "noCandidateRate": 1,
+        "pinyinCombinationCount": {
+          "max": 0,
+          "mean": 0,
+          "samplesAt32PathLimit": 0
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 10670,
+          "mean": 8626,
+          "p50": 9088,
+          "p95": 10670,
+          "p99": 10670,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      }
+    },
+    "byDigitLength": {
+      "01-04": {
+        "averageCandidateSelectionRank": 1,
+        "averageFirstRankWhenRecalled": 1,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0,
+        "canonicalPinyinNotIn32PathsRate": 0.1111111111111111,
+        "canonicalPinyinPathTop1Rate": 0.5555555555555556,
+        "canonicalPinyinPathTop3Rate": 0.8888888888888888,
+        "canonicalPinyinPathTop5Rate": 0.8888888888888888,
+        "count": 9,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 0,
+          "pathPrunedRate": 0
+        },
+        "keyLatencyMicros": {
+          "max": 29508,
+          "mean": 5481.708333333333,
+          "p50": 586,
+          "p95": 22334,
+          "p99": 29508,
+          "samples": 24
+        },
+        "mrr": 0.8888888888888888,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 6,
+          "mean": 2.3333333333333335,
+          "samplesAt32PathLimit": 0
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 30041,
+          "mean": 14658.666666666666,
+          "p50": 16550,
+          "p95": 30041,
+          "p99": 30041,
+          "samples": 9
+        },
+        "targetUnrecalledRate": 0.1111111111111111,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0.8888888888888888,
+        "top3Rate": 0.8888888888888888,
+        "top5Rate": 0.8888888888888888
+      },
+      "05-08": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.1875,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 16,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 3,
+          "pathPrunedRate": 0.1875
+        },
+        "keyLatencyMicros": {
+          "max": 27080,
+          "mean": 5051.55652173913,
+          "p50": 459,
+          "p95": 24540,
+          "p99": 26398,
+          "samples": 115
+        },
+        "mrr": 0,
+        "noCandidateRate": 0.5,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 10.5,
+          "samplesAt32PathLimit": 3
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 63737,
+          "mean": 36381.875,
+          "p50": 31009,
+          "p95": 63737,
+          "p99": 63737,
+          "samples": 16
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "09-12": {
+        "averageCandidateSelectionRank": 39.8,
+        "averageFirstRankWhenRecalled": 39.8,
+        "candidateRecalledButWrongTop1Rate": 0.14285714285714285,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.07142857142857142,
+        "canonicalPathPrunedAt32Rate": 0.75,
+        "canonicalPinyinNotIn32PathsRate": 0.75,
+        "canonicalPinyinPathTop1Rate": 0.03571428571428571,
+        "canonicalPinyinPathTop3Rate": 0.14285714285714285,
+        "canonicalPinyinPathTop5Rate": 0.14285714285714285,
+        "count": 28,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 4,
+          "candidateRecalledRankingErrorRate": 0.14285714285714285,
+          "pathPresentCandidateMissingCount": 2,
+          "pathPresentCandidateMissingRate": 0.07142857142857142,
+          "pathPrunedCount": 21,
+          "pathPrunedRate": 0.75
+        },
+        "keyLatencyMicros": {
+          "max": 59694,
+          "mean": 17482.093851132686,
+          "p50": 16104,
+          "p95": 44972,
+          "p99": 56067,
+          "samples": 309
+        },
+        "mrr": 0.04556146722739051,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 28
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 281636,
+          "mean": 193146.07142857142,
+          "p50": 199398,
+          "p95": 270523,
+          "p99": 281636,
+          "samples": 28
+        },
+        "targetUnrecalledRate": 0.8214285714285714,
+        "top1CorrectionEventsPer100ChineseCharacters": 3.5714285714285716,
+        "top1Rate": 0.03571428571428571,
+        "top3Rate": 0.03571428571428571,
+        "top5Rate": 0.07142857142857142
+      },
+      "13-20": {
+        "averageCandidateSelectionRank": 60.142857142857146,
+        "averageFirstRankWhenRecalled": 60.142857142857146,
+        "candidateRecalledButWrongTop1Rate": 0.15714285714285714,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.24285714285714285,
+        "canonicalPathPrunedAt32Rate": 0.44285714285714284,
+        "canonicalPinyinNotIn32PathsRate": 0.5571428571428572,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0.17142857142857143,
+        "canonicalPinyinPathTop5Rate": 0.18571428571428572,
+        "count": 70,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 11,
+          "candidateRecalledRankingErrorRate": 0.15714285714285714,
+          "pathPresentCandidateMissingCount": 17,
+          "pathPresentCandidateMissingRate": 0.24285714285714285,
+          "pathPrunedCount": 31,
+          "pathPrunedRate": 0.44285714285714284
+        },
+        "keyLatencyMicros": {
+          "max": 119747,
+          "mean": 27704.154700854702,
+          "p50": 19946,
+          "p95": 84052,
+          "p99": 105280,
+          "samples": 1170
+        },
+        "mrr": 0.05356334548357402,
+        "noCandidateRate": 0.11428571428571428,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 28.34285714285714,
+          "samplesAt32PathLimit": 62
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 884151,
+          "mean": 463354.5571428572,
+          "p50": 514985,
+          "p95": 827574,
+          "p99": 884151,
+          "samples": 70
+        },
+        "targetUnrecalledRate": 0.8,
+        "top1CorrectionEventsPer100ChineseCharacters": 2.9411764705882355,
+        "top1Rate": 0.04285714285714286,
+        "top3Rate": 0.05714285714285714,
+        "top5Rate": 0.05714285714285714
+      },
+      "21-32": {
+        "averageCandidateSelectionRank": 1,
+        "averageFirstRankWhenRecalled": 1,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.0625,
+        "canonicalPathPrunedAt32Rate": 0.8125,
+        "canonicalPinyinNotIn32PathsRate": 0.8125,
+        "canonicalPinyinPathTop1Rate": 0.0625,
+        "canonicalPinyinPathTop3Rate": 0.125,
+        "canonicalPinyinPathTop5Rate": 0.125,
+        "count": 16,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 1,
+          "pathPresentCandidateMissingRate": 0.0625,
+          "pathPrunedCount": 13,
+          "pathPrunedRate": 0.8125
+        },
+        "keyLatencyMicros": {
+          "max": 159981,
+          "mean": 42622.93539325843,
+          "p50": 36365,
+          "p95": 105509,
+          "p99": 136944,
+          "samples": 356
+        },
+        "mrr": 0.125,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 16
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 1553864,
+          "mean": 948698.75,
+          "p50": 903688,
+          "p95": 1553864,
+          "p99": 1553864,
+          "samples": 16
+        },
+        "targetUnrecalledRate": 0.875,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0.125,
+        "top3Rate": 0.125,
+        "top5Rate": 0.125
+      },
+      "33-64": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 16,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 16,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 975456,
+          "mean": 304997.41675617616,
+          "p50": 232438,
+          "p95": 779841,
+          "p99": 918807,
+          "samples": 931
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 16
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 1
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 21727331,
+          "mean": 17747431,
+          "p50": 17820469,
+          "p95": 21727331,
+          "p99": 21727331,
+          "samples": 16
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      }
+    },
+    "byInputKind": {
+      "abbreviated": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.25,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 2,
+          "pathPrunedRate": 0.25
+        },
+        "keyLatencyMicros": {
+          "max": 27080,
+          "mean": 4263.047619047619,
+          "p50": 190,
+          "p95": 24736,
+          "p99": 27080,
+          "samples": 63
+        },
+        "mrr": 0,
+        "noCandidateRate": 0.75,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 8,
+          "samplesAt32PathLimit": 2
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 58379,
+          "mean": 33625.125,
+          "p50": 27489,
+          "p95": 58379,
+          "p99": 58379,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "adjacent_key": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 57745,
+          "mean": 18727.380434782608,
+          "p50": 18658,
+          "p95": 45331,
+          "p99": 57745,
+          "samples": 92
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 270523,
+          "mean": 215573.5,
+          "p50": 215004,
+          "p95": 270523,
+          "p99": 270523,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "clean": {
+        "averageCandidateSelectionRank": 37.5,
+        "averageFirstRankWhenRecalled": 37.5,
+        "candidateRecalledButWrongTop1Rate": 0.16483516483516483,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.16483516483516483,
+        "canonicalPathPrunedAt32Rate": 0.5274725274725275,
+        "canonicalPinyinNotIn32PathsRate": 0.5274725274725275,
+        "canonicalPinyinPathTop1Rate": 0.07692307692307693,
+        "canonicalPinyinPathTop3Rate": 0.25274725274725274,
+        "canonicalPinyinPathTop5Rate": 0.26373626373626374,
+        "count": 91,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 15,
+          "candidateRecalledRankingErrorRate": 0.16483516483516483,
+          "pathPresentCandidateMissingCount": 15,
+          "pathPresentCandidateMissingRate": 0.16483516483516483,
+          "pathPrunedCount": 48,
+          "pathPrunedRate": 0.5274725274725275
+        },
+        "keyLatencyMicros": {
+          "max": 975456,
+          "mean": 154410.52743022138,
+          "p50": 49051,
+          "p95": 689727,
+          "p99": 853318,
+          "samples": 2078
+        },
+        "mrr": 0.15412258534304524,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 29.35164835164835,
+          "samplesAt32PathLimit": 83
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 1
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 21727331,
+          "mean": 3526240.758241758,
+          "p50": 628575,
+          "p95": 19617717,
+          "p99": 21727331,
+          "samples": 91
+        },
+        "targetUnrecalledRate": 0.6923076923076923,
+        "top1CorrectionEventsPer100ChineseCharacters": 2.192982456140351,
+        "top1Rate": 0.14285714285714285,
+        "top3Rate": 0.15384615384615385,
+        "top5Rate": 0.16483516483516483
+      },
+      "explicit_boundary": {
+        "averageCandidateSelectionRank": 1,
+        "averageFirstRankWhenRecalled": 1,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.625,
+        "canonicalPathPrunedAt32Rate": 0.25,
+        "canonicalPinyinNotIn32PathsRate": 0.25,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0.375,
+        "canonicalPinyinPathTop5Rate": 0.375,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 5,
+          "pathPresentCandidateMissingRate": 0.625,
+          "pathPrunedCount": 2,
+          "pathPrunedRate": 0.25
+        },
+        "keyLatencyMicros": {
+          "max": 110795,
+          "mean": 41592.27857142857,
+          "p50": 38133,
+          "p95": 104308,
+          "p99": 110428,
+          "samples": 140
+        },
+        "mrr": 0.125,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 825054,
+          "mean": 729046.5,
+          "p50": 769803,
+          "p95": 825054,
+          "p99": 825054,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 0.875,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0.125,
+        "top3Rate": 0.125,
+        "top5Rate": 0.125
+      },
+      "extra_digit": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 65248,
+          "mean": 23173.96551724138,
+          "p50": 19816,
+          "p95": 58070,
+          "p99": 64753,
+          "samples": 116
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 413774,
+          "mean": 336254.375,
+          "p50": 335359,
+          "p95": 413774,
+          "p99": 413774,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "fuzzy_dialect": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.125,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 1,
+          "pathPrunedRate": 0.125
+        },
+        "keyLatencyMicros": {
+          "max": 24889,
+          "mean": 5906.34693877551,
+          "p50": 1889,
+          "p95": 22062,
+          "p99": 24889,
+          "samples": 49
+        },
+        "mrr": 0,
+        "noCandidateRate": 0.25,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 12.25,
+          "samplesAt32PathLimit": 1
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 63737,
+          "mean": 36263.875,
+          "p50": 36217,
+          "p95": 63737,
+          "p99": 63737,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "incomplete_tail": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 1,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 8,
+          "pathPrunedRate": 1
+        },
+        "keyLatencyMicros": {
+          "max": 99101,
+          "mean": 33479.64137931034,
+          "p50": 32545,
+          "p95": 85012,
+          "p99": 97363,
+          "samples": 145
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 32,
+          "samplesAt32PathLimit": 8
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 784210,
+          "mean": 607047.625,
+          "p50": 631484,
+          "p95": 784210,
+          "p99": 784210,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "missing_digit": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0.875,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 7,
+          "pathPrunedRate": 0.875
+        },
+        "keyLatencyMicros": {
+          "max": 59694,
+          "mean": 14320.24,
+          "p50": 10309,
+          "p95": 46226,
+          "p99": 59694,
+          "samples": 75
+        },
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 29.5,
+          "samplesAt32PathLimit": 7
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 196558,
+          "mean": 134452.25,
+          "p50": 156577,
+          "p95": 196558,
+          "p99": 196558,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "transposition": {
+        "averageCandidateSelectionRank": null,
+        "averageFirstRankWhenRecalled": null,
+        "candidateRecalledButWrongTop1Rate": 0,
+        "canonicalPathPresentButTargetUnrecalledRate": 0,
+        "canonicalPathPrunedAt32Rate": 0,
+        "canonicalPinyinNotIn32PathsRate": 1,
+        "canonicalPinyinPathTop1Rate": 0,
+        "canonicalPinyinPathTop3Rate": 0,
+        "canonicalPinyinPathTop5Rate": 0,
+        "count": 8,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 0,
+          "candidateRecalledRankingErrorRate": 0,
+          "pathPresentCandidateMissingCount": 0,
+          "pathPresentCandidateMissingRate": 0,
+          "pathPrunedCount": 0,
+          "pathPrunedRate": 0
+        },
+        "keyLatencyMicros": {
+          "max": 10583,
+          "mean": 469.6258503401361,
+          "p50": 2,
+          "p95": 4182,
+          "p99": 9489,
+          "samples": 147
+        },
+        "mrr": 0,
+        "noCandidateRate": 1,
+        "pinyinCombinationCount": {
+          "max": 0,
+          "mean": 0,
+          "samplesAt32PathLimit": 0
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 0
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 10670,
+          "mean": 8626,
+          "p50": 9088,
+          "p95": 10670,
+          "p99": 10670,
+          "samples": 8
+        },
+        "targetUnrecalledRate": 1,
+        "top1CorrectionEventsPer100ChineseCharacters": 0,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      }
+    }
+  },
+  "implementationManifestSha256": "41d778e15db525cfe70a9589b0d84ad21542db17fae47c46f61ecd4d01368cd1",
+  "interpretation": {
+    "commercialImeComparisonIncluded": false,
+    "harmonyOsDeviceDataIncluded": false,
+    "hostDataOnly": true,
+    "lowScoresCauseProcessFailure": false,
+    "qualityPassThresholdDefined": false,
+    "safetyCountersCauseProcessFailure": false
+  },
+  "measurementKind": "Windows-host-release-formal-ImeEngine-per-key",
+  "metrics": {
+    "averageCandidateSelectionRank": 36.241379310344826,
+    "averageFirstRankWhenRecalled": 36.241379310344826,
+    "candidateRecalledButWrongTop1Rate": 0.0967741935483871,
+    "canonicalPathPresentButTargetUnrecalledRate": 0.12903225806451613,
+    "canonicalPathPrunedAt32Rate": 0.5419354838709678,
+    "canonicalPinyinNotIn32PathsRate": 0.6838709677419355,
+    "canonicalPinyinPathTop1Rate": 0.04516129032258064,
+    "canonicalPinyinPathTop3Rate": 0.16774193548387098,
+    "canonicalPinyinPathTop5Rate": 0.17419354838709677,
+    "count": 155,
+    "failureAttribution": {
+      "candidateRecalledRankingErrorCount": 15,
+      "candidateRecalledRankingErrorRate": 0.0967741935483871,
+      "pathPresentCandidateMissingCount": 20,
+      "pathPresentCandidateMissingRate": 0.12903225806451613,
+      "pathPrunedCount": 84,
+      "pathPrunedRate": 0.5419354838709678
+    },
+    "keyLatencyMicros": {
+      "max": 975456,
+      "mean": 116232.24716006884,
+      "p50": 32949,
+      "p95": 629015,
+      "p99": 828166,
+      "samples": 2905
+    },
+    "mrr": 0.09693648558849753,
+    "noCandidateRate": 0.1032258064516129,
+    "pinyinCombinationCount": {
+      "max": 32,
+      "mean": 26.406451612903226,
+      "samplesAt32PathLimit": 125
+    },
+    "safety": {
+      "asciiLeakCount": 0,
+      "engineErrorCount": 0,
+      "nonExplicitAutomaticCommitCount": 0,
+      "stateLossCount": 1
+    },
+    "sampleTotalLatencyMicros": {
+      "max": 21727331,
+      "mean": 2178677.5677419356,
+      "p50": 335359,
+      "p95": 17820469,
+      "p99": 20544611,
+      "samples": 155
+    },
+    "targetUnrecalledRate": 0.8129032258064516,
+    "top1CorrectionEventsPer100ChineseCharacters": 1.4734774066797642,
+    "top1Rate": 0.09032258064516129,
+    "top3Rate": 0.0967741935483871,
+    "top5Rate": 0.1032258064516129
+  },
+  "productionLexiconBytes": 3746486,
+  "productionLexiconSha256": "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+  "runCount": 3,
+  "runs": [
+    {
+      "candidateOutputSha256": "55039211208aad00a3aa7fdc5ef68e47d32f994657adbe95223f23bceaad9f02",
+      "metrics": {
+        "averageCandidateSelectionRank": 36.241379310344826,
+        "averageFirstRankWhenRecalled": 36.241379310344826,
+        "candidateRecalledButWrongTop1Rate": 0.0967741935483871,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.12903225806451613,
+        "canonicalPathPrunedAt32Rate": 0.5419354838709678,
+        "canonicalPinyinNotIn32PathsRate": 0.6838709677419355,
+        "canonicalPinyinPathTop1Rate": 0.04516129032258064,
+        "canonicalPinyinPathTop3Rate": 0.16774193548387098,
+        "canonicalPinyinPathTop5Rate": 0.17419354838709677,
+        "count": 155,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 15,
+          "candidateRecalledRankingErrorRate": 0.0967741935483871,
+          "pathPresentCandidateMissingCount": 20,
+          "pathPresentCandidateMissingRate": 0.12903225806451613,
+          "pathPrunedCount": 84,
+          "pathPrunedRate": 0.5419354838709678
+        },
+        "keyLatencyMicros": {
+          "max": 975456,
+          "mean": 116232.24716006884,
+          "p50": 32949,
+          "p95": 629015,
+          "p99": 828166,
+          "samples": 2905
+        },
+        "mrr": 0.09693648558849753,
+        "noCandidateRate": 0.1032258064516129,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 26.406451612903226,
+          "samplesAt32PathLimit": 125
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 1
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 21727331,
+          "mean": 2178677.5677419356,
+          "p50": 335359,
+          "p95": 17820469,
+          "p99": 20544611,
+          "samples": 155
+        },
+        "targetUnrecalledRate": 0.8129032258064516,
+        "top1CorrectionEventsPer100ChineseCharacters": 1.4734774066797642,
+        "top1Rate": 0.09032258064516129,
+        "top3Rate": 0.0967741935483871,
+        "top5Rate": 0.1032258064516129
+      },
+      "run": 1
+    },
+    {
+      "candidateOutputSha256": "55039211208aad00a3aa7fdc5ef68e47d32f994657adbe95223f23bceaad9f02",
+      "metrics": {
+        "averageCandidateSelectionRank": 36.241379310344826,
+        "averageFirstRankWhenRecalled": 36.241379310344826,
+        "candidateRecalledButWrongTop1Rate": 0.0967741935483871,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.12903225806451613,
+        "canonicalPathPrunedAt32Rate": 0.5419354838709678,
+        "canonicalPinyinNotIn32PathsRate": 0.6838709677419355,
+        "canonicalPinyinPathTop1Rate": 0.04516129032258064,
+        "canonicalPinyinPathTop3Rate": 0.16774193548387098,
+        "canonicalPinyinPathTop5Rate": 0.17419354838709677,
+        "count": 155,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 15,
+          "candidateRecalledRankingErrorRate": 0.0967741935483871,
+          "pathPresentCandidateMissingCount": 20,
+          "pathPresentCandidateMissingRate": 0.12903225806451613,
+          "pathPrunedCount": 84,
+          "pathPrunedRate": 0.5419354838709678
+        },
+        "keyLatencyMicros": {
+          "max": 1019647,
+          "mean": 118768.0660929432,
+          "p50": 33600,
+          "p95": 634468,
+          "p99": 848232,
+          "samples": 2905
+        },
+        "mrr": 0.09693648558849753,
+        "noCandidateRate": 0.1032258064516129,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 26.406451612903226,
+          "samplesAt32PathLimit": 125
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 1
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 22332315,
+          "mean": 2226196.4903225806,
+          "p50": 328813,
+          "p95": 18100116,
+          "p99": 21071230,
+          "samples": 155
+        },
+        "targetUnrecalledRate": 0.8129032258064516,
+        "top1CorrectionEventsPer100ChineseCharacters": 1.4734774066797642,
+        "top1Rate": 0.09032258064516129,
+        "top3Rate": 0.0967741935483871,
+        "top5Rate": 0.1032258064516129
+      },
+      "run": 2
+    },
+    {
+      "candidateOutputSha256": "55039211208aad00a3aa7fdc5ef68e47d32f994657adbe95223f23bceaad9f02",
+      "metrics": {
+        "averageCandidateSelectionRank": 36.241379310344826,
+        "averageFirstRankWhenRecalled": 36.241379310344826,
+        "candidateRecalledButWrongTop1Rate": 0.0967741935483871,
+        "canonicalPathPresentButTargetUnrecalledRate": 0.12903225806451613,
+        "canonicalPathPrunedAt32Rate": 0.5419354838709678,
+        "canonicalPinyinNotIn32PathsRate": 0.6838709677419355,
+        "canonicalPinyinPathTop1Rate": 0.04516129032258064,
+        "canonicalPinyinPathTop3Rate": 0.16774193548387098,
+        "canonicalPinyinPathTop5Rate": 0.17419354838709677,
+        "count": 155,
+        "failureAttribution": {
+          "candidateRecalledRankingErrorCount": 15,
+          "candidateRecalledRankingErrorRate": 0.0967741935483871,
+          "pathPresentCandidateMissingCount": 20,
+          "pathPresentCandidateMissingRate": 0.12903225806451613,
+          "pathPrunedCount": 84,
+          "pathPrunedRate": 0.5419354838709678
+        },
+        "keyLatencyMicros": {
+          "max": 1001013,
+          "mean": 117545.78141135973,
+          "p50": 33188,
+          "p95": 637120,
+          "p99": 831303,
+          "samples": 2905
+        },
+        "mrr": 0.09693648558849753,
+        "noCandidateRate": 0.1032258064516129,
+        "pinyinCombinationCount": {
+          "max": 32,
+          "mean": 26.406451612903226,
+          "samplesAt32PathLimit": 125
+        },
+        "safety": {
+          "asciiLeakCount": 0,
+          "engineErrorCount": 0,
+          "nonExplicitAutomaticCommitCount": 0,
+          "stateLossCount": 1
+        },
+        "sampleTotalLatencyMicros": {
+          "max": 22079805,
+          "mean": 2203293.8322580643,
+          "p50": 331182,
+          "p95": 17952778,
+          "p99": 20973724,
+          "samples": 155
+        },
+        "targetUnrecalledRate": 0.8129032258064516,
+        "top1CorrectionEventsPer100ChineseCharacters": 1.4734774066797642,
+        "top1Rate": 0.09032258064516129,
+        "top3Rate": 0.0967741935483871,
+        "top5Rate": 0.1032258064516129
+      },
+      "run": 3
+    }
+  ],
+  "safetyContract": {
+    "asciiLeakCount": 0,
+    "engineErrorCount": 0,
+    "nonExplicitAutomaticCommitCount": 0,
+    "stateLossCount": 3
+  },
+  "sampleCount": 155,
+  "schemaVersion": "pinyin9-quality-baseline-results/1",
+  "schemeId": "pinyin-9",
+  "split": "dev"
+}

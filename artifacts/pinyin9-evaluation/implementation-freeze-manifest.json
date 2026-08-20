@@ -1,0 +1,109 @@
+{
+  "checklist": {
+    "datasetFrozen": true,
+    "datasetValidated": true,
+    "engineAndParserFrozen": true,
+    "evaluatorFrozen": true,
+    "productionLexiconFrozen": true
+  },
+  "datasetManifestSha256": "a9158b860f6f75a4ee60c799ad313818e668302364eb01431de4536147a1ad23",
+  "files": [
+    {
+      "bytes": 2535,
+      "path": "engine-rust/Cargo.lock",
+      "sha256": "71b92ca918a84ef5ef8d3fa5cf0d6a5e59b4d2f35e75cbc88d13dc53a614d3d9"
+    },
+    {
+      "bytes": 15473,
+      "path": "engine-rust/crates/engine-protocol/src/composition.rs",
+      "sha256": "5954a3b132325c2944faacd54406b0ee361542391a8e833fc778d15e781ab38f"
+    },
+    {
+      "bytes": 869,
+      "path": "engine-rust/crates/ime-engine/Cargo.toml",
+      "sha256": "a14536d7e071150be1bd8ac8651fb6f98d6e76f443f175f601f4edb08c29c8eb"
+    },
+    {
+      "bytes": 5956,
+      "path": "engine-rust/crates/ime-engine/src/candidate_session.rs",
+      "sha256": "45ceebdc6b0b5e4f77411ed49dd0876723c07cc4d0f1d56664120db1302c8f62"
+    },
+    {
+      "bytes": 112839,
+      "path": "engine-rust/crates/ime-engine/src/formal.rs",
+      "sha256": "475e0e5dd9db094e72f5725ec194fba7f05677b90b94bde8be4a68efb3bdeba8"
+    },
+    {
+      "bytes": 3109,
+      "path": "engine-rust/crates/ime-engine/src/lib.rs",
+      "sha256": "131b370b7d69270df32b7e97fd12923d9558d61a01402e92edb10bff69d42659"
+    },
+    {
+      "bytes": 7432,
+      "path": "engine-rust/crates/ime-engine/tests/t9_stage3.rs",
+      "sha256": "67697a1db692100cb5cf8c10645c328364a7a71413b4052f2849fcca439150c5"
+    },
+    {
+      "bytes": 895,
+      "path": "engine-rust/crates/shuangpin-parser/src/lib.rs",
+      "sha256": "1b4ef25c241bffdee7b65b76cfa3854d7af82d625c4e6a5d79a4c7083fff2a0e"
+    },
+    {
+      "bytes": 26671,
+      "path": "engine-rust/crates/shuangpin-parser/src/t9.rs",
+      "sha256": "d8dd711e3ac92da27045bbc48de437d17f35b2fc0633a4db6a8aae545295ce18"
+    },
+    {
+      "bytes": 667,
+      "path": "engine-rust/tools/candidate-baseline/Cargo.toml",
+      "sha256": "dd82f646ace0f2dbb60962d1392a984eb69f0f69ee56759f1a17359e2491fd1c"
+    },
+    {
+      "bytes": 11450,
+      "path": "engine-rust/tools/candidate-baseline/src/eval_json.rs",
+      "sha256": "924bdaef9d731703bf678f959fe6984e37db3eb7d485f2dafb176375382cb33f"
+    },
+    {
+      "bytes": 3506,
+      "path": "engine-rust/tools/candidate-baseline/src/eval_sha256.rs",
+      "sha256": "ee42facea2e9b017ca49b22682212b8c325e7b9017ffbfc0d5a462fcefd18ffc"
+    },
+    {
+      "bytes": 86755,
+      "path": "engine-rust/tools/candidate-baseline/src/lib.rs",
+      "sha256": "59e88b615bf15d88cb79ae0b35ff5d23a8043f2118a3f397c18a8cfdf09642c9"
+    },
+    {
+      "bytes": 19564,
+      "path": "engine-rust/tools/candidate-baseline/src/main.rs",
+      "sha256": "3948f9e0a97748314c86932fb5e8eff7494c6bdf79e05dfb1bcf59bd41dd2fb7"
+    },
+    {
+      "bytes": 32922,
+      "path": "engine-rust/tools/candidate-baseline/src/pinyin9_dataset.rs",
+      "sha256": "cec725ad2c84b17facf83c779d55a6939987bd6694141b7231bcc6f2acd76c94"
+    },
+    {
+      "bytes": 68218,
+      "path": "engine-rust/tools/candidate-baseline/src/pinyin9_evaluation.rs",
+      "sha256": "3aac648aadb858b12d52f7245ae072441ae4631f0fc30415905e87fdaea738d4"
+    },
+    {
+      "bytes": 4160,
+      "path": "scripts/evaluate-pinyin9-quality.ps1",
+      "sha256": "666f8634e3f05441fb0367f9df44a8d6ee2b83124a04d92c067be65e447c7f1e"
+    }
+  ],
+  "frozenAt": "2026-08-17T00:00:00+08:00",
+  "gitIdentityUsed": false,
+  "hardLimits": {
+    "maximumCandidateSnapshot": 256,
+    "maximumPinyinPaths": 32
+  },
+  "mutationPolicy": "The blind receipt can be created once. Any implementation, configuration, lexicon, or dataset byte change requires a new baseline identity.",
+  "productionLexiconBytes": 3746486,
+  "productionLexiconSha256": "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+  "schemaVersion": "pinyin9-implementation-freeze/1",
+  "schemeId": "pinyin-9",
+  "userLearningEnabled": false
+}

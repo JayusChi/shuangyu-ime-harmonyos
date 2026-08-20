@@ -1,0 +1,178 @@
+{
+  "checklist": {
+    "datasetFrozen": true,
+    "datasetValidated": true,
+    "engineAndParserFrozen": true,
+    "evaluatorFrozen": true,
+    "productionLexiconFrozen": true
+  },
+  "datasetManifestSha256": "a9158b860f6f75a4ee60c799ad313818e668302364eb01431de4536147a1ad23",
+  "files": [
+    {
+      "bytes": 2535,
+      "path": "engine-rust/Cargo.lock",
+      "sha256": "71b92ca918a84ef5ef8d3fa5cf0d6a5e59b4d2f35e75cbc88d13dc53a614d3d9"
+    },
+    {
+      "bytes": 15473,
+      "path": "engine-rust/crates/engine-protocol/src/composition.rs",
+      "sha256": "5954a3b132325c2944faacd54406b0ee361542391a8e833fc778d15e781ab38f"
+    },
+    {
+      "bytes": 869,
+      "path": "engine-rust/crates/ime-engine/Cargo.toml",
+      "sha256": "a14536d7e071150be1bd8ac8651fb6f98d6e76f443f175f601f4edb08c29c8eb"
+    },
+    {
+      "bytes": 5956,
+      "path": "engine-rust/crates/ime-engine/src/candidate_session.rs",
+      "sha256": "45ceebdc6b0b5e4f77411ed49dd0876723c07cc4d0f1d56664120db1302c8f62"
+    },
+    {
+      "bytes": 5656,
+      "path": "engine-rust/crates/ime-engine/src/formal.rs",
+      "sha256": "1fcdc5d1b490b8b80df36b2f490fdc4b38171253427624d7824e267d15c760d7"
+    },
+    {
+      "bytes": 3203,
+      "path": "engine-rust/crates/ime-engine/src/lib.rs",
+      "sha256": "137635a3e7c81db27a9db9858a9a641e3f85b724fc87cec0e6c13821a14a2b57"
+    },
+    {
+      "bytes": 4322,
+      "path": "engine-rust/crates/ime-engine/src/t9_joint.rs",
+      "sha256": "d4bf405615f44d1297724df108ba91f57b0e39f9239cb913726c42c95ec9e92a"
+    },
+    {
+      "bytes": 12995,
+      "path": "engine-rust/crates/ime-engine/tests/t9_stage3.rs",
+      "sha256": "f276874a19983d32f36f72dd865a9d284a7b8f025882fc8c3d5cad62ff919676"
+    },
+    {
+      "bytes": 2813,
+      "path": "engine-rust/crates/sentence-decoder/src/context.rs",
+      "sha256": "fbb8f31452ed8386da3c1ab5cdbba04bd80703e7340fff94405ef8dc424732f9"
+    },
+    {
+      "bytes": 19728,
+      "path": "engine-rust/crates/sentence-decoder/src/decoder.rs",
+      "sha256": "0df86aab61851f115252c02ede9d374f0530a818f6d8965ceae548c6eb8e0ebb"
+    },
+    {
+      "bytes": 5990,
+      "path": "engine-rust/crates/sentence-decoder/src/graph.rs",
+      "sha256": "d94f2d63a7140bc243d033d696f362578f6624291be3244fe6ef2ec36fe29206"
+    },
+    {
+      "bytes": 743,
+      "path": "engine-rust/crates/sentence-decoder/src/lib.rs",
+      "sha256": "7404141167111436d2f72c8e779d4ae858642f4d94fde234d399a1f108b27335"
+    },
+    {
+      "bytes": 1952,
+      "path": "engine-rust/crates/sentence-decoder/src/limits.rs",
+      "sha256": "2bb0a0aca231d183a7ea6d14db3ae8811819f2087e03bdfc0ff8cb07f875c057"
+    },
+    {
+      "bytes": 5330,
+      "path": "engine-rust/crates/sentence-decoder/src/path.rs",
+      "sha256": "b9fb3e167f6ce34ad2b3d659afc74c70398e945be8eec5111c1515374ad697c3"
+    },
+    {
+      "bytes": 2410,
+      "path": "engine-rust/crates/sentence-decoder/src/scorer.rs",
+      "sha256": "0b4ed12a416f5b50672245cdc18f07b3a7b83cef70fcff98a5ba2653493c6bce"
+    },
+    {
+      "bytes": 37922,
+      "path": "engine-rust/crates/sentence-decoder/src/t9_joint.rs",
+      "sha256": "bd622438d60e1bfd4d81d68e478287e3745d4974d4edb557f66e57a57a3b5b48"
+    },
+    {
+      "bytes": 934,
+      "path": "engine-rust/crates/shuangpin-parser/src/lib.rs",
+      "sha256": "9396cfb3e922439e997d40125db0b1922455d3b6298a2a0d067486909ace9db9"
+    },
+    {
+      "bytes": 6626,
+      "path": "engine-rust/crates/shuangpin-parser/src/phonetic.rs",
+      "sha256": "bc7fa1acae0ffb169f4a4608440f9c78f924893e2e6c071a1eb8bb0a257a6488"
+    },
+    {
+      "bytes": 35753,
+      "path": "engine-rust/crates/shuangpin-parser/src/t9.rs",
+      "sha256": "71149320a59a1775fd8234f0fcc2b87c2c0df579f15ee4c27fa6378945f5a308"
+    },
+    {
+      "bytes": 667,
+      "path": "engine-rust/tools/candidate-baseline/Cargo.toml",
+      "sha256": "dd82f646ace0f2dbb60962d1392a984eb69f0f69ee56759f1a17359e2491fd1c"
+    },
+    {
+      "bytes": 11450,
+      "path": "engine-rust/tools/candidate-baseline/src/eval_json.rs",
+      "sha256": "924bdaef9d731703bf678f959fe6984e37db3eb7d485f2dafb176375382cb33f"
+    },
+    {
+      "bytes": 3506,
+      "path": "engine-rust/tools/candidate-baseline/src/eval_sha256.rs",
+      "sha256": "ee42facea2e9b017ca49b22682212b8c325e7b9017ffbfc0d5a462fcefd18ffc"
+    },
+    {
+      "bytes": 86868,
+      "path": "engine-rust/tools/candidate-baseline/src/lib.rs",
+      "sha256": "1fc185031319b08a5811e8608d71d345dac41b2d16732dadb182b7ca62ef961e"
+    },
+    {
+      "bytes": 20756,
+      "path": "engine-rust/tools/candidate-baseline/src/main.rs",
+      "sha256": "5b986a8b3f986b4b6e3f3cb4fb634824be9adc7464da8a90272febb7a04abc53"
+    },
+    {
+      "bytes": 32922,
+      "path": "engine-rust/tools/candidate-baseline/src/pinyin9_dataset.rs",
+      "sha256": "cec725ad2c84b17facf83c779d55a6939987bd6694141b7231bcc6f2acd76c94"
+    },
+    {
+      "bytes": 86389,
+      "path": "engine-rust/tools/candidate-baseline/src/pinyin9_evaluation.rs",
+      "sha256": "d3e3fcc9c2aa2004ef448dde52224fb679f3d6b90f7ee85eb679b9c98f2d0290"
+    },
+    {
+      "bytes": 4160,
+      "path": "scripts/evaluate-pinyin9-quality.ps1",
+      "sha256": "666f8634e3f05441fb0367f9df44a8d6ee2b83124a04d92c067be65e447c7f1e"
+    },
+    {
+      "bytes": 7045,
+      "path": "scripts/evaluate-pinyin9-joint-decoder.ps1",
+      "sha256": "97816dc545b03ac01bcfae1cdf16c41734eff3caafa402ac85330175b448a0d9"
+    }
+  ],
+  "frozenAt": "2026-08-19T00:00:00+08:00",
+  "gitIdentityUsed": false,
+  "hardLimits": {
+    "jointBeamWidth": 16,
+    "maximumCandidateSnapshot": 256,
+    "maximumCompatibilityDecodeDigits": 32,
+    "maximumCompatibilityDecodePaths": 32,
+    "maximumDiagnosticPaths": 512,
+    "maximumDirectEntriesPerReading": 64,
+    "maximumDirectPaths": 256,
+    "maximumGraphEdges": 1024,
+    "maximumInternalPinyinHypotheses": 128,
+    "maximumJointPublicPromotions": 4,
+    "maximumLexiconEdgesPerDigitPosition": 64,
+    "maximumLexiconEntriesPerReading": 16,
+    "maximumParserPathsPerOffset": 64,
+    "maximumPublicPinyinPaths": 32,
+    "maximumSentenceWords": 32,
+    "maximumStatesPerDigitPosition": 16
+  },
+  "mutationPolicy": "The blind receipt can be created once. Any implementation, configuration, lexicon, or dataset byte change requires a new baseline identity.",
+  "productionLexiconBytes": 3751923,
+  "productionLexiconSha256": "e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365",
+  "schemaVersion": "pinyin9-joint-decoder-implementation/2",
+  "schemeId": "pinyin-9",
+  "userLearningEnabled": false
+}

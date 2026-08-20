@@ -1,0 +1,6 @@
+# raw_code	parsed_syllables	expected_top	allowed_candidates	forbidden_candidates	partial_allowed	partial_text	remaining_raw	expected_remaining_top
+nihc	ni,hao	你好	你好	输入法	false			
+uurufa	shu,ru,fa	输入法	输入法|输入	你好	true	输入	fa	法
+xnheulpb	xiao,he,shuang,pin	小鹤双拼	小鹤双拼|小鹤	输入法	true	小鹤	ulpb	双拼
+nixm	ni,xian	你xian	你xian	输入法	false			
+qijm	qi,jian	其间	其间|期间	你好	false			

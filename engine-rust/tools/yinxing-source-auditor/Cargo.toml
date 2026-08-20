@@ -1,0 +1,13 @@
+[package]
+name = "yinxing-source-auditor"
+edition = "2021"
+version = "0.0.1"
+license = "UNLICENSED"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "yinxing-source-auditor"
+path = "src/main.rs"
+

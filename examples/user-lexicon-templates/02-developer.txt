@@ -1,0 +1,119 @@
+# 开发者专用词库
+# 包含常用编程语言、框架、工具和技术术语
+
+# ===== 编程语言 =====
+JavaScript	JavaScript	#固
+TypeScript	TypeScript	#固
+Python	Python	#固
+Java	Java
+C++	C++
+Go	Go
+Rust	Rust
+Kotlin	Kotlin
+Swift	Swift
+
+# ===== 前端框架 =====
+React	React	#固
+Vue	Vue	#固
+Angular	Angular
+Next.js	Next.js
+Svelte	Svelte
+Webpack	Webpack
+Vite	Vite
+
+# ===== 后端框架 =====
+Spring Boot	Spring Boot
+Node.js	Node.js
+Express	Express
+Django	Django
+Flask	Flask
+FastAPI	FastAPI
+
+# ===== HarmonyOS开发 =====
+鸿蒙系统	hong meng xi tong	#固
+方舟编译器	fang zhou bian yi qi	#固
+ArkTS	ArkTS	#固
+ArkUI	ArkUI	#固
+分布式软总线	fen bu shi ruan zong xian
+DevEco Studio	DevEco Studio
+Stage模型	Stage mo xing
+FA模型	FA mo xing
+元服务	yuan fu wu
+
+# ===== 数据库 =====
+MySQL	MySQL	#固
+PostgreSQL	PostgreSQL
+MongoDB	MongoDB
+Redis	Redis	#固
+SQLite	SQLite
+Elasticsearch	Elasticsearch
+
+# ===== 云服务 =====
+AWS	AWS
+Azure	Azure
+阿里云	a li yun	#固
+腾讯云	teng xun yun
+华为云	hua wei yun	#固
+
+# ===== DevOps工具 =====
+Docker	Docker	#固
+Kubernetes	Kubernetes	#固
+Jenkins	Jenkins
+GitLab CI	GitLab CI
+GitHub Actions	GitHub Actions
+Ansible	Ansible
+Terraform	Terraform
+
+# ===== 版本控制 =====
+Git	Git	#固
+GitHub	GitHub	#固
+GitLab	GitLab
+Bitbucket	Bitbucket
+SVN	SVN
+
+# ===== 技术术语 =====
+前端	qian duan	#固
+后端	hou duan	#固
+全栈	quan zhan	#固
+微服务	wei fu wu	#固
+容器化	rong qi hua
+持续集成	chi xu ji cheng
+持续部署	chi xu bu shu
+敏捷开发	min jie kai fa
+测试驱动开发	ce shi qu dong kai fa
+领域驱动设计	ling yu qu dong she ji
+
+# ===== API相关 =====
+RESTful	RESTful	#固
+GraphQL	GraphQL
+gRPC	gRPC
+WebSocket	WebSocket
+API网关	API wang guan
+
+# ===== 架构模式 =====
+微前端	wei qian duan
+服务网格	fu wu wang ge
+事件驱动	shi jian qu dong
+CQRS	CQRS
+消息队列	xiao xi dui lie
+
+# ===== 测试相关 =====
+单元测试	dan yuan ce shi	#固
+集成测试	ji cheng ce shi
+端到端测试	duan dao duan ce shi
+Jest	Jest
+Mocha	Mocha
+Cypress	Cypress
+
+# ===== 常用缩写 =====
+API	API	#固
+SDK	SDK	#固
+CLI	CLI
+IDE	IDE
+HTTP	HTTP
+HTTPS	HTTPS
+JSON	JSON
+XML	XML
+YAML	YAML
+SQL	SQL
+NoSQL	NoSQL

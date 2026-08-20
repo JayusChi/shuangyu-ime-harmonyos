@@ -1,0 +1,4 @@
+自定义词	zidycl
+废弃候选	fwqihx#删
+固定候选	gudihx#固
+第二候选	deerhx#2

@@ -1,0 +1,15 @@
+caseId	escapedBytes	expectedCode	expectedLine	expectedField
+invalid-utf8	\xFF\n	CTF_INVALID_UTF8	1	file
+multiple-tabs	测试\tabcd\textra\n	CTF_TAB_EXTRA	1	fields
+missing-tab	测试abcd\n	CTF_TAB_MISSING	1	fields
+empty-word	\tabcd\n	CTF_WORD_EMPTY	1	word
+empty-code	测试\t\n	CTF_CODE_EMPTY	1	code
+invalid-code	测试\tab1d\n	CTF_CODE_INVALID_CHARACTER	1	code
+long-code	测试\t{65xa}\n	CTF_CODE_TOO_LONG	1	code
+long-word	{33x测}\tabcd\n	CTF_WORD_TOO_LONG	1	word
+nul	测试\x00\tabcd\n	CTF_NUL_CHARACTER	1	line
+control	测试\x01\tabcd\n	CTF_CONTROL_CHARACTER	1	line
+delete-marker	测试\tabcd#删\n	CTF_USER_MARKER_FORBIDDEN	1	code
+fixed-marker	测试\tabcd#固\n	CTF_USER_MARKER_FORBIDDEN	1	code
+position-marker	测试\tabcd#2\n	CTF_USER_MARKER_FORBIDDEN	1	code
+duplicate-row	测试\tabcd\n测试\tabcd\n	CTF_DUPLICATE_ROW	2	row

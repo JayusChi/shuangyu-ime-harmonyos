@@ -1,0 +1,25 @@
+# 通用优化词库
+# 适合所有用户使用的基础优化配置
+
+# ===== 删除高频干扰词 =====
+# 这些词太常见，但有时会干扰输入
+的	de	#删
+了	le	#删
+
+# ===== 常用问候语 =====
+你好	ni hao	#固
+谢谢	xie xie	#固
+再见	zai jian	#固
+
+# ===== 常用标点符号 =====
+。	ju hao
+，	dou hao
+！	gan tan hao
+？	wen hao
+…	sheng lue hao
+
+# ===== 常用词组 =====
+没问题	mei wen ti
+不好意思	bu hao yi si
+不客气	bu ke qi
+对不起	dui bu qi

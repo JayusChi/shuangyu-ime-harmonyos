@@ -1,0 +1,38 @@
+{
+    "schema_version":  "xiaohe-yinxing-precise-match-stage0-index/1",
+    "deterministic_generation":  "PASS",
+    "formal_data_modified":  false,
+    "deterministic_files":  [
+                                {
+                                    "path":  "dictionaries/audit/xiaohe-yinxing/precise-match-stage0/formal_bundle_baseline.json",
+                                    "bytes":  5280,
+                                    "sha256":  "ad268a8d8a404d4bf940b423acbae536cf1230e44a92c898819600c1bde1994c"
+                                },
+                                {
+                                    "path":  "dictionaries/audit/xiaohe-yinxing/precise-match-stage0/formal_bundle_manifest_snapshot.json",
+                                    "bytes":  13560,
+                                    "sha256":  "aa9a665c92988f247167ef3fde2642a57dc77715ded30c96d362458de5423257"
+                                },
+                                {
+                                    "path":  "dictionaries/audit/xiaohe-yinxing/precise-match-stage0/progressive_behavior_baseline.json",
+                                    "bytes":  232608,
+                                    "sha256":  "fa0486f24f7ce72ded70f1c8347e1ad3a8960068bbc98c4793ccc88fd021eb2b"
+                                },
+                                {
+                                    "path":  "dictionaries/audit/xiaohe-yinxing/precise-match-stage0/xiaohe_isolation_baseline.json",
+                                    "bytes":  29417,
+                                    "sha256":  "b6741d6d229f2f0eab9bb787b5d06c22dec47a29510ec6b4253aa7210698c5e3"
+                                },
+                                {
+                                    "path":  "dictionaries/audit/xiaohe-yinxing/precise-match-stage0/four_code_user_rule_compatibility.json",
+                                    "bytes":  1125,
+                                    "sha256":  "23d422e4476891c5e31fc71da295989b63450463884522c6ebf0204fbf4dbf0c"
+                                }
+                            ],
+    "performance_file":  {
+                             "path":  "dictionaries/audit/xiaohe-yinxing/precise-match-stage0/performance_baseline.json",
+                             "bytes":  1768,
+                             "sha256":  "1a2a1ed4b74d5051c5dcff11bbb94c6600358aa6f79cd32ca647a008f1b2f459"
+                         },
+    "performance_is_determinism_gated":  false
+}

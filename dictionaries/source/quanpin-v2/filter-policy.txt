@@ -1,0 +1,8 @@
+# Substrings rejected before production build. This list is project-authored
+# safety policy data and is matched literally after Unicode Form C normalization.
+赌博
+博彩
+诈骗教程
+违禁品交易
+代开发票
+色情引流

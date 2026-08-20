@@ -1,0 +1,129 @@
+import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
+import {
+  candidateGridColumnsTemplate,
+  CandidateExpansionLayout
+} from '../../domain/candidate/CandidateExpansionPolicy';
+import { toCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
+import { KeyboardColorPalette, LIGHT_PALETTE } from '../keyboard/design/KeyboardPalette';
+
+export interface CandidatePagerAccessibilitySpec {
+  previous: string;
+  next: string;
+}
+
+export const CANDIDATE_PAGER_ACCESSIBILITY: CandidatePagerAccessibilitySpec = {
+  previous: '上一页候选',
+  next: '下一页候选'
+};
+
+@Component
+export struct CandidateExpansionPanel {
+  @Prop palette: KeyboardColorPalette = LIGHT_PALETTE;
+  @Prop @Watch('resetGridPosition') candidates: Candidate[] = [];
+  @Prop @Watch('resetGridPosition') candidatePage: number = 0;
+  @Prop hasPreviousPage: boolean = false;
+  @Prop hasNextPage: boolean = false;
+  @Prop pageLoading: boolean = false;
+  @Prop candidateFontSize: number = 14;
+  @Prop highlightedIndex: number = -1;
+  @Prop panelWidth: string = '100%';
+  @Prop fillAvailableHeight: boolean = false;
+  @Prop layout: CandidateExpansionLayout = {
+    columnCount: 5,
+    visibleRowCount: 4,
+    cellHeight: 44,
+    panelHeight: 252
+  };
+
+  private readonly gridScroller: Scroller = new Scroller();
+  onCandidateClick?: (candidate: Candidate, index: number) => void;
+  onPreviousPage?: () => void;
+  onNextPage?: () => void;
+
+  private resetGridPosition(): void {
+    this.gridScroller.scrollTo({ xOffset: 0, yOffset: 0 });
+  }
+
+  @Builder
+  private PreviousPageButton() {
+    Button('上一页')
+      .height(36)
+      .layoutWeight(1)
+      .fontSize(12)
+      .fontColor(this.hasPreviousPage && !this.pageLoading
+        ? this.palette.functionKeyText
+        : this.palette.candidateReading)
+      .backgroundColor(this.hasPreviousPage && !this.pageLoading
+        ? this.palette.functionKeyBackground
+        : this.palette.candidateBackground)
+      .borderRadius(6)
+      .enabled(this.hasPreviousPage && !this.pageLoading)
+      .opacity(this.hasPreviousPage && !this.pageLoading ? 1 : 0.5)
+      .accessibilityText(CANDIDATE_PAGER_ACCESSIBILITY.previous)
+      .onClick(() => this.onPreviousPage?.())
+  }
+
+  @Builder
+  private NextPageButton() {
+    Button('下一页')
+      .height(36)
+      .layoutWeight(1)
+      .fontSize(12)
+      .fontColor(this.hasNextPage && !this.pageLoading
+        ? this.palette.functionKeyText
+        : this.palette.candidateReading)
+      .backgroundColor(this.hasNextPage && !this.pageLoading
+        ? this.palette.functionKeyBackground
+        : this.palette.candidateBackground)
+      .borderRadius(6)
+      .enabled(this.hasNextPage && !this.pageLoading)
+      .opacity(this.hasNextPage && !this.pageLoading ? 1 : 0.5)
+      .accessibilityText(CANDIDATE_PAGER_ACCESSIBILITY.next)
+      .onClick(() => this.onNextPage?.())
+  }
+
+  build() {
+    Column({ space: 4 }) {
+      Grid(this.gridScroller) {
+        ForEach(this.candidates, (candidate: Candidate, index: number) => {
+          GridItem() {
+            Text(toCandidateDisplayItem(candidate, index).displayText)
+              .width('100%')
+              .height(this.layout.cellHeight)
+              .fontSize(this.candidateFontSize)
+              .fontColor(this.palette.candidateText)
+              .fontWeight(FontWeight.Medium)
+              .textAlign(TextAlign.Center)
+              .maxLines(2)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .padding({ left: 6, right: 6, top: 4, bottom: 4 })
+              .borderRadius(6)
+              .backgroundColor(index === this.highlightedIndex
+                ? this.palette.functionKeyBackground
+                : this.palette.candidateBackground)
+              .enabled(!this.pageLoading)
+              .opacity(this.pageLoading ? 0.72 : 1)
+              .accessibilityText(toCandidateDisplayItem(candidate, index).accessibilityText)
+              .onClick(() => {
+                if (!this.pageLoading) {
+                  this.onCandidateClick?.(candidate, index);
+                }
+              })
+          }
+        }, (candidate: Candidate) => `${this.candidatePage}-${candidate.id}`)
+      }
+      .columnsTemplate(candidateGridColumnsTemplate(this.layout.columnCount))
+      .columnsGap(4)
+      .rowsGap(4)
+      .layoutWeight(1)
+      .width('100%')
+      .scrollBar(BarState.Auto)
+    }
+    .width(this.panelWidth)
+    .height(this.fillAvailableHeight ? '100%' : this.layout.panelHeight)
+    .layoutWeight(this.fillAvailableHeight ? 1 : 0)
+    .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+    .backgroundColor(this.palette.candidateBackground)
+    .border({ width: { bottom: 1 }, color: this.palette.candidateDivider })
+  }
+}

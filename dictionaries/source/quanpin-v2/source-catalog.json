@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "quanpin-v2-source-catalog/1",
+  "catalogUpdatedAt": "2026-08-14",
+  "license": "Apache-2.0",
+  "licenseFile": "dictionaries/LICENSES/rime-pinyin-simp-Apache-2.0.txt",
+  "authorship": "Project-authored lexical facts and readings; external references validate public names and currency only and are not copied corpora.",
+  "sources": [
+    {
+      "path": "dictionaries/source/quanpin-v2/base.tsv",
+      "sha256": "e83b4781308e2acf85a661ab83e6c7cfed7e1b7f73f5b73459d4a189965fa686",
+      "sourceIds": ["project-v2-colloquial", "project-v2-proper"],
+      "categories": ["modern_colloquial", "proper_person", "proper_place", "proper_org_brand", "proper_product"],
+      "updatedAt": "2026-08-14",
+      "license": "Apache-2.0",
+      "entryCount": 60,
+      "processingRule": "manual-independent-curation-v1"
+    },
+    {
+      "path": "dictionaries/source/quanpin-v2/domains.tsv",
+      "sha256": "169509ab09ea39fcbba0675bd4ea17e2da1a3d0d478da7776f83bc4a11161b96",
+      "sourceIds": ["project-v2-domain"],
+      "categories": ["domain_term"],
+      "domains": ["technology", "software", "education", "medical", "finance", "legal"],
+      "updatedAt": "2026-08-14",
+      "license": "Apache-2.0",
+      "entryCount": 73,
+      "processingRule": "manual-domain-taxonomy-v1"
+    },
+    {
+      "path": "dictionaries/source/quanpin-v2/hotwords-2026-08.tsv",
+      "sha256": "fc04310cacebc8b21c49a1734804d58e9de96616c0135f5486c2b73062cbcbdf",
+      "sourceIds": ["project-v2-hot"],
+      "categories": ["hotword"],
+      "updatedAt": "2026-08-14",
+      "license": "Apache-2.0",
+      "entryCount": 12,
+      "processingRule": "monthly-or-quarterly-review-expire-v1",
+      "termCurrencyReferences": [
+        "https://www.huawei.com/cn/news/2026/6/harmonyos7-hdc",
+        "https://www.huawei.com/cn/news/2026/3/mwc-superpod-computing",
+        "https://www.huawei.com/cn/news/2026/5/embodied-intelligence-agentverse"
+      ]
+    },
+    {
+      "path": "dictionaries/source/quanpin-v2/filter-policy.txt",
+      "sha256": "f6f369b5dfc0b7e3c497473aaa5c7f8be877972d9ced6e80ababd45289e0b3ce",
+      "sourceIds": ["project-v2-safety-policy"],
+      "categories": ["filter_policy"],
+      "updatedAt": "2026-08-14",
+      "license": "Apache-2.0",
+      "processingRule": "literal-substring-reject-v1"
+    }
+  ]
+}

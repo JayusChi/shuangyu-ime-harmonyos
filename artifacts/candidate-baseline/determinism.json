@@ -1,0 +1,42 @@
+{
+    "schema_version":  "candidate-baseline/determinism/1",
+    "result":  "PASS",
+    "compared_run_count":  2,
+    "files":  [
+                  {
+                      "file":  "environment.json",
+                      "sha256":  "31a9daef2927483b08f5c3d624e74b2ff9ebca1f61db650effb5f7bf2568ee7c",
+                      "byte_identical_across_two_runs":  true
+                  },
+                  {
+                      "file":  "flypy-shape-h.json",
+                      "sha256":  "d4a4ec852647c9bfcf2482959b0fee13dafcf7d6aa064c44d3a2cc6d1db3c708",
+                      "byte_identical_across_two_runs":  true
+                  },
+                  {
+                      "file":  "flypy-double-pinyin-h.json",
+                      "sha256":  "6e9a3b51003243e60cb5dbaf409765a3c621eb51ab0de482956ffa1f39f5aaaa",
+                      "byte_identical_across_two_runs":  true
+                  },
+                  {
+                      "file":  "single-key-baseline.json",
+                      "sha256":  "1e0517a113f876241c0957f1d8eece02a9cb6dcb9bd52cbb97f34ed664428692",
+                      "byte_identical_across_two_runs":  true
+                  },
+                  {
+                      "file":  "double-key-baseline.json",
+                      "sha256":  "7332ef6e7d4eff50731b32735061f5d389cb293144e5095f6b41ab0b8deeffbb",
+                      "byte_identical_across_two_runs":  true
+                  },
+                  {
+                      "file":  "sentence-baseline.json",
+                      "sha256":  "f0b4c54fe731d8f3a767e09b47976c6ada92407c3d1994fc7ebaf0361682082b",
+                      "byte_identical_across_two_runs":  true
+                  },
+                  {
+                      "file":  "interaction-baseline.json",
+                      "sha256":  "da3a7683fe2b089816aa605093770731a01ad896cc01920abbef8784fb83671e",
+                      "byte_identical_across_two_runs":  true
+                  }
+              ]
+}

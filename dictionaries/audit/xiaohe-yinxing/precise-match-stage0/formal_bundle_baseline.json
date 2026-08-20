@@ -1,0 +1,101 @@
+{
+    "schema_version":  "xiaohe-yinxing-precise-match-stage0-formal/1",
+    "scheme_id":  "xiaohe-yinxing",
+    "bundle_id":  "xiaohe-yinxing-production",
+    "bundle_path":  "dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx",
+    "bundle_byte_size":  25397952,
+    "bundle_sha256":  "00c7d5a9d6b74a079a7434df23f510aa348fe8fee5bf1eaf72e691d68bcd1e30",
+    "manifest_sha256":  "8696575f96455f6cd65dc5f191a02e0ef5f5ec66d319948825c9918772b293df",
+    "bundle_magic":  "HSPYXP01",
+    "bundle_format_version":  "1.0",
+    "data_version":  "source-receipt-1",
+    "category_count":  8,
+    "ordinary_record_count":  73263,
+    "embedded_rule_count":  36,
+    "categories":  [
+                       {
+                           "category_id":  "core",
+                           "display_name":  "核心主表",
+                           "order":  0,
+                           "entry_count":  68505,
+                           "default_enabled":  true,
+                           "required":  true,
+                           "file":  "categories/core.lex",
+                           "sha256":  "cdc37681700f173f7a9e1abe5315cf5f3c1b5ea33a6b6cbcb52c2069991eb5fb"
+                       },
+                       {
+                           "category_id":  "category-secondary",
+                           "display_name":  "分类/次选",
+                           "order":  1,
+                           "entry_count":  1690,
+                           "default_enabled":  true,
+                           "required":  false,
+                           "file":  "categories/category-secondary.lex",
+                           "sha256":  "e0676343dd756c23556a80eb929e853cdd57b651ddc7588845effe1fc3bed537"
+                       },
+                       {
+                           "category_id":  "one-key-secondary",
+                           "display_name":  "一简次选",
+                           "order":  2,
+                           "entry_count":  26,
+                           "default_enabled":  true,
+                           "required":  false,
+                           "file":  "categories/one-key-secondary.lex",
+                           "sha256":  "27eb79f3703a68b18af949e1249ed266772f377841be08cb50bb415919492670"
+                       },
+                       {
+                           "category_id":  "two-key-secondary",
+                           "display_name":  "二简次选",
+                           "order":  3,
+                           "entry_count":  66,
+                           "default_enabled":  true,
+                           "required":  false,
+                           "file":  "categories/two-key-secondary.lex",
+                           "sha256":  "4d103737f6c6a40b86a2a4c89616d31a772dcc78f7f2e78db2092956c12df9a1"
+                       },
+                       {
+                           "category_id":  "out-of-table-character",
+                           "display_name":  "表外字",
+                           "order":  4,
+                           "entry_count":  362,
+                           "default_enabled":  true,
+                           "required":  false,
+                           "file":  "categories/out-of-table-character.lex",
+                           "sha256":  "61328b2357562618cc277fcc1ed93c55f73be3e5bbdb4ab9f3f3b777d057c9c8"
+                       },
+                       {
+                           "category_id":  "full-code-word",
+                           "display_name":  "全码词",
+                           "order":  5,
+                           "entry_count":  464,
+                           "default_enabled":  true,
+                           "required":  false,
+                           "file":  "categories/full-code-word.lex",
+                           "sha256":  "ea8aed7b4d2aa6280f531ab48b7b25b8ac3e26ffbaa2165403f32c2b5246874c"
+                       },
+                       {
+                           "category_id":  "rare-character",
+                           "display_name":  "生僻字",
+                           "order":  6,
+                           "entry_count":  498,
+                           "default_enabled":  true,
+                           "required":  false,
+                           "file":  "categories/rare-character.lex",
+                           "sha256":  "76b32ea8967cba66892fe44c5db884251af7e243e5e52bf507072ead727df874"
+                       },
+                       {
+                           "category_id":  "full-code-character",
+                           "display_name":  "全码字",
+                           "order":  7,
+                           "entry_count":  1652,
+                           "default_enabled":  true,
+                           "required":  false,
+                           "file":  "categories/full-code-character.lex",
+                           "sha256":  "9969dc88b88620a8e82bab28bb8a52e2fe1bb182eafe78a6875dff344b241f57"
+                       }
+                   ],
+    "requested_permissions":  [
+                                  "ohos.permission.VIBRATE"
+                              ],
+    "network_permission_present":  false
+}

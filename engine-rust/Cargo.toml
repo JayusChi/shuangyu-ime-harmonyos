@@ -1,0 +1,30 @@
+[workspace]
+members = [
+    "crates/code-table-runtime",
+    "crates/candidate-query",
+    "crates/candidate-ranking",
+    "crates/context-reranker",
+    "crates/engine-protocol",
+    "crates/ime-engine",
+    "crates/ime-ffi",
+    "crates/lexicon-core",
+    "crates/pinyin-syllable",
+    "crates/sentence-decoder",
+    "crates/shuangpin-parser",
+    "crates/shuangpin-schema",
+    "crates/user-model",
+    "crates/user-lexicon",
+    "tools/lexicon-builder",
+    "tools/code-table-fixture-generator",
+    "tools/candidate-baseline",
+    "tools/quanpin-context-model-builder",
+    "tools/yinxing-source-auditor",
+    "tools/yinxing-converter",
+    "tools/user-lexicon-tool",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.0.1"
+license = "UNLICENSED"

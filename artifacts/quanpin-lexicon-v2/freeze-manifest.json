@@ -1,0 +1,83 @@
+{
+  "baselineId": "quanpin-lexicon-coverage-v2-20260814",
+  "baselineIdentitySha256": "1536445c0d2faca9ad2785b13b0b54cd5df735b8b2642efd4f7619a5af680347",
+  "categoryDistribution": {
+    "clean": 12,
+    "domain_education": 12,
+    "domain_finance": 12,
+    "domain_legal": 12,
+    "domain_medical": 12,
+    "domain_software": 12,
+    "domain_technology": 12,
+    "hotword": 12,
+    "modern_colloquial": 12,
+    "proper_org_brand": 12,
+    "proper_person": 12,
+    "proper_place": 12
+  },
+  "files": [
+    {
+      "bytes": 650,
+      "categoryDistribution": {},
+      "path": "DATASET_PROVENANCE.md",
+      "sampleCount": 0,
+      "sha256": "4e54c466d75d6d9a02389aa89b75a595d11e7f32868b240cab2db52b61036d5f"
+    },
+    {
+      "bytes": 20387,
+      "categoryDistribution": {
+        "clean": 8,
+        "domain_education": 8,
+        "domain_finance": 8,
+        "domain_legal": 8,
+        "domain_medical": 8,
+        "domain_software": 8,
+        "domain_technology": 8,
+        "hotword": 8,
+        "modern_colloquial": 8,
+        "proper_org_brand": 8,
+        "proper_person": 8,
+        "proper_place": 8
+      },
+      "path": "blind.jsonl",
+      "sampleCount": 96,
+      "sha256": "d48727c55e9f4ede04d054a36e97439ad0f8934768fe68cea21ff61cd96a2afa"
+    },
+    {
+      "bytes": 10113,
+      "categoryDistribution": {
+        "clean": 4,
+        "domain_education": 4,
+        "domain_finance": 4,
+        "domain_legal": 4,
+        "domain_medical": 4,
+        "domain_software": 4,
+        "domain_technology": 4,
+        "hotword": 4,
+        "modern_colloquial": 4,
+        "proper_org_brand": 4,
+        "proper_person": 4,
+        "proper_place": 4
+      },
+      "path": "dev.jsonl",
+      "sampleCount": 48,
+      "sha256": "6931567e0db2d7152e121dca4007b49fbe8de1b513c9d5d59ca7a51615600256"
+    },
+    {
+      "bytes": 943,
+      "categoryDistribution": {},
+      "path": "sources.json",
+      "sampleCount": 0,
+      "sha256": "92b8bd50d8c22fb34683ad80a7316021e069edc56c62432162f47291873a655f"
+    }
+  ],
+  "frozenAt": "2026-08-14T00:00:00+08:00",
+  "gitIdentityUsed": false,
+  "mutationPolicy": "Any byte change is a hard error. A new baseline requires an explicit freeze command with a new baseline id and manifest path.",
+  "sampleCount": 144,
+  "schemaVersion": "quanpin-evaluation-freeze/1",
+  "splitDistribution": {
+    "blind": 96,
+    "dev": 48
+  }
+}

@@ -1,0 +1,25 @@
+META	bundle_sha256	6010300516e9e58da6cbbb4d136f70db0be137743122b2c29ce3175fe76fc4f5
+HEADER	case_id	raw_code	match_type	before_dedup	expected_total_count	expected_category_id	expected_source_order	expected_candidate_id	expected_first_candidates	expected_categories	selection_reason
+CASE	exact_1	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest sorted exact code
+CASE	exact_2	aa	Exact	1	1	core	5	ct:xiaohe-yinxing-production:core:5	阿	core	smallest sorted exact code
+CASE	exact_3	aae	Exact	1	1	core	87	ct:xiaohe-yinxing-production:core:87	阿	core	smallest sorted exact code
+CASE	exact_4	aaba	Exact	1	1	core	152	ct:xiaohe-yinxing-production:core:152	阿爸	core	smallest sorted exact code
+CASE	exact_with_longer	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact code that is also a longer-code prefix
+CASE	prefix_fallback	aab	Prefix	4	4	core	152	ct:xiaohe-yinxing-production:core:152	阿爸|阿伯|傲岸不群|皑皑白雪	core	smallest non-exact prefix with at least two deduplicated candidates
+CASE	no_result	aaaa	Prefix	0	0						smallest four-letter code with no exact or prefix record
+CASE	cross_two	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact code spanning at least two categories
+CASE	cross_three	bcbn	Exact	3	3	core	1454	ct:xiaohe-yinxing-production:core:1454	报表|保镖|鸨	category-secondary|core|full-code-character	smallest exact code spanning at least three categories
+CASE	cross_duplicate	gzx	Prefix	10	9	core	15912	ct:xiaohe-yinxing-production:core:15912	勾选|构想|购销|构陷|构型|狗血|狗熊|工作需要	core	smallest exact-or-prefix query with cross-record duplicate text
+CASE	same_category_multi	bibb	Exact	4	4	core	961	ct:xiaohe-yinxing-production:core:961	毖|皕|比|毙	core|full-code-character|rare-character	smallest exact code with adjacent same-category candidates
+CASE	category_core	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact query exposing this category
+CASE	category_category-secondary	ahqi	Exact	2	2	core	258	ct:xiaohe-yinxing-production:core:258	昂起|爱恨情仇	category-secondary|core	smallest exact query exposing this category
+CASE	category_one-key-secondary	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact query exposing this category
+CASE	category_two-key-secondary	bc	Exact	2	2	core	702	ct:xiaohe-yinxing-production:core:702	报|宝	core|two-key-secondary	smallest exact query exposing this category
+CASE	category_out-of-table-character	aift	Exact	1	1	out-of-table-character	3	ct:xiaohe-yinxing-production:out-of-table-character:3	捱	out-of-table-character	smallest exact query exposing this category
+CASE	category_full-code-word	anjm	Exact	2	2	core	458	ct:xiaohe-yinxing-production:core:458	案件|按键	core|full-code-word	smallest exact query exposing this category
+CASE	category_rare-character	aofe	Exact	2	2	core	67	ct:xiaohe-yinxing-production:core:67	聱|嶅	core|rare-character	smallest exact query exposing this category
+CASE	category_full-code-character	aifu	Exact	2	2	core	281	ct:xiaohe-yinxing-production:core:281	爱抚|挨	core|full-code-character	smallest exact query exposing this category
+CASE	unicode_extension	ana	Exact	1	1	core	79	ct:xiaohe-yinxing-production:core:79	𩽾	core	smallest exact query exposing a supplementary-plane scalar
+CASE	special_symbol	aavi	Exact	1	1	core	176	ct:xiaohe-yinxing-production:core:176	AA制	core	smallest exact query exposing a non-CJK symbol or ASCII scalar
+CASE	max_exact	jumk	Exact	5	5	core	22589	ct:xiaohe-yinxing-production:core:22589	驹|枸|椐|桔|橘	core|full-code-character|rare-character	largest deduplicated exact collision; lexical tie-break
+CASE	max_prefix	un	Prefix	40	39	core	50348	ct:xiaohe-yinxing-production:core:50348	熟能生巧|伤脑筋|施耐庵|史努比|十拿九稳|上年结转|受虐狂|少年郎	core	largest deduplicated non-exact prefix fallback; lexical tie-break

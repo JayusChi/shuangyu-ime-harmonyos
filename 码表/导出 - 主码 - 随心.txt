@@ -1,0 +1,28 @@
+﻿---config@码表分类=主码-3
+---config@码表别名=随心
+$ddcmd(辨,辨)	bmld
+$ddcmd(辫,辫)	bmls
+词频	cpv
+单元	dye
+回忆	hyx
+回改	hgj
+$ddcmd(计,计)	jiyd
+觉得	jdi
+简洁	jjd
+精力	jlv
+基于	jya
+截至	jva
+记忆	jyx
+距离	jlw
+刻意	kys
+便宜	pyb
+梳理	ulw
+事实	uub
+$ddcmd(智,智)	viud
+哲理	vlw
+置顶	vdd
+指示	vue
+指挥	vhf
+整句	vjb
+想想	xxm
+音形	yxk

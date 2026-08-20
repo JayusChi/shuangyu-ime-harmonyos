@@ -1,0 +1,116 @@
+{
+    "schemaVersion":  "quanpin-v2-build-manifest/1",
+    "lexiconVersion":  200,
+    "builderVersion":  1,
+    "asOfDate":  "2026-08-14",
+    "sourceManifestSha256":  "2e4ff523df467cd88c08382646a036feb9ecfd27aa9ef640c7f0e31a462bc5a0",
+    "deterministic":  true,
+    "repetitions":  2,
+    "defaultDomainsEnabled":  [
+
+                              ],
+    "packagedProductionProfile":  "all_domains",
+    "activeHotwordPolicy":  "expiresAt \u003e= asOfDate",
+    "mergePolicy":  "existing text+pinyin wins; V2 conflicts prefer base then active hot then domain, then maximum tier frequency, then lexicographically smallest sourceId; stable pinyin/text/source sort",
+    "categoryCounts":  {
+                           "modern_colloquial":  24,
+                           "proper_org_brand":  9,
+                           "domain_term":  66,
+                           "hotword":  12,
+                           "proper_place":  10,
+                           "proper_person":  8,
+                           "proper_product":  2
+                       },
+    "domainCounts":  {
+                         "education":  11,
+                         "software":  12,
+                         "finance":  12,
+                         "legal":  8,
+                         "technology":  12,
+                         "medical":  11
+                     },
+    "layerCounts":  {
+                        "base":  53,
+                        "domain":  66,
+                        "hot":  12
+                    },
+    "outputs":  [
+                    {
+                        "profile":  "default",
+                        "enabledDomains":  {
+
+                                           },
+                        "entriesAdded":  65,
+                        "bytes":  3746486,
+                        "sha256":  "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201"
+                    },
+                    {
+                        "profile":  "all_domains",
+                        "enabledDomains":  [
+                                               "education",
+                                               "finance",
+                                               "legal",
+                                               "medical",
+                                               "software",
+                                               "technology"
+                                           ],
+                        "entriesAdded":  131,
+                        "bytes":  3751923,
+                        "sha256":  "e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365"
+                    },
+                    {
+                        "profile":  "education",
+                        "enabledDomains":  [
+                                               "education"
+                                           ],
+                        "entriesAdded":  76,
+                        "bytes":  3747431,
+                        "sha256":  "afc4d124f14e9a8092c827cf14cc1bb8a8d3159c03e10392b0ad103da11bd518"
+                    },
+                    {
+                        "profile":  "finance",
+                        "enabledDomains":  [
+                                               "finance"
+                                           ],
+                        "entriesAdded":  77,
+                        "bytes":  3747501,
+                        "sha256":  "9c7904e61f92cd6ec8d0dd6e159ecefe8cd3a735b33ebe0c6ecd983af1d8e84e"
+                    },
+                    {
+                        "profile":  "legal",
+                        "enabledDomains":  [
+                                               "legal"
+                                           ],
+                        "entriesAdded":  73,
+                        "bytes":  3747149,
+                        "sha256":  "c649e982401f060aae37aca7b50a8879de6ee1d1b9c9146a4cab08dc43125630"
+                    },
+                    {
+                        "profile":  "medical",
+                        "enabledDomains":  [
+                                               "medical"
+                                           ],
+                        "entriesAdded":  76,
+                        "bytes":  3747391,
+                        "sha256":  "6dd305ee7891e2c3993bbe14f5d22446bacd4d4d4796a83d035e32eb8e2e8392"
+                    },
+                    {
+                        "profile":  "software",
+                        "enabledDomains":  [
+                                               "software"
+                                           ],
+                        "entriesAdded":  77,
+                        "bytes":  3747454,
+                        "sha256":  "073d5bcbc0a09f558dec670f9692ac571a013a0649f79fcc7fca8188d58d6fdc"
+                    },
+                    {
+                        "profile":  "technology",
+                        "enabledDomains":  [
+                                               "technology"
+                                           ],
+                        "entriesAdded":  77,
+                        "bytes":  3747512,
+                        "sha256":  "05cba5d056e5f56537b43e06b509499f2526ede78ecf3f7b561a06e2bef8fcd1"
+                    }
+                ]
+}

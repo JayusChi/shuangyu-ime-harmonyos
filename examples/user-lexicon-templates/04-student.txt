@@ -1,0 +1,136 @@
+# 学生学习词库
+# 适合中学生、大学生日常学习使用
+
+# ===== 常用学科 =====
+数学	shu xue	#固
+物理	wu li	#固
+化学	hua xue	#固
+生物	sheng wu	#固
+语文	yu wen	#固
+英语	ying yu	#固
+历史	li shi
+地理	di li
+政治	zheng zhi
+计算机	ji suan ji
+
+# ===== 数学术语 =====
+微积分	wei ji fen	#固
+线性代数	xian xing dai shu	#固
+概率论	gai lv lun
+统计学	tong ji xue
+导数	dao shu
+积分	ji fen
+矩阵	ju zhen
+行列式	hang lie shi
+向量	xiang liang
+函数	han shu
+
+# ===== 物理术语 =====
+力学	li xue	#固
+电磁学	dian ci xue	#固
+热力学	re li xue
+光学	guang xue
+量子力学	liang zi li xue
+相对论	xiang dui lun
+牛顿定律	niu dun ding lv
+能量守恒	neng liang shou heng
+动能	dong neng
+势能	shi neng
+
+# ===== 化学术语 =====
+有机化学	you ji hua xue	#固
+无机化学	wu ji hua xue	#固
+物理化学	wu li hua xue
+分析化学	fen xi hua xue
+化学反应	hua xue fan ying
+化学平衡	hua xue ping heng
+氧化还原	yang hua huan yuan
+酸碱中和	suan jian zhong he
+元素周期表	yuan su zhou qi biao
+
+# ===== 学习活动 =====
+作业	zuo ye	#固
+考试	kao shi	#固
+复习	fu xi	#固
+预习	yu xi
+笔记	bi ji
+课程	ke cheng
+讲座	jiang zuo
+实验	shi yan
+论文	lun wen
+报告	bao gao
+
+# ===== 考试相关 =====
+期中考试	qi zhong kao shi	#固
+期末考试	qi mo kao shi	#固
+模拟考	mo ni kao
+高考	gao kao
+中考	zhong kao
+托福	tuo fu
+雅思	ya si
+GRE	GRE
+考研	kao yan
+四六级	si liu ji
+
+# ===== 学校场所 =====
+图书馆	tu shu guan	#固
+教室	jiao shi	#固
+实验室	shi yan shi
+食堂	shi tang
+宿舍	su she
+操场	cao chang
+教学楼	jiao xue lou
+行政楼	xing zheng lou
+体育馆	ti yu guan
+
+# ===== 课程类型 =====
+必修课	bi xiu ke	#固
+选修课	xuan xiu ke
+公共课	gong gong ke
+专业课	zhuan ye ke
+实践课	shi jian ke
+网课	wang ke
+录播课	lu bo ke
+直播课	zhi bo ke
+
+# ===== 学习工具 =====
+教材	jiao cai	#固
+参考书	can kao shu
+习题集	xi ti ji
+知识点	zhi shi dian
+思维导图	si wei dao tu
+错题本	cuo ti ben
+学习笔记	xue xi bi ji
+
+# ===== 学术用语 =====
+研究	yan jiu	#固
+分析	fen xi
+总结	zong jie
+归纳	gui na
+演绎	yan yi
+假设	jia she
+结论	jie lun
+证明	zheng ming
+推导	tui dao
+验证	yan zheng
+
+# ===== 常用动词 =====
+理解	li jie	#固
+掌握	zhang wo
+学习	xue xi
+记忆	ji yi
+复习	fu xi
+练习	lian xi
+背诵	bei song
+抄写	chao xie
+朗读	lang du
+
+# ===== 成绩相关 =====
+满分	man fen	#固
+及格	ji ge
+不及格	bu ji ge
+优秀	you xiu
+良好	liang hao
+平均分	ping jun fen
+绩点	ji dian
+排名	pai ming

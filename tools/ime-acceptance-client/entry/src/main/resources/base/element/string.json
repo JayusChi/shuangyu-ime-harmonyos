@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "双羽输入法独立验收模块"
+    },
+    {
+      "name": "ability_desc",
+      "value": "独立编辑器类型与压力验收"
+    },
+    {
+      "name": "ability_label",
+      "value": "输入法独立验收"
+    }
+  ]
+}

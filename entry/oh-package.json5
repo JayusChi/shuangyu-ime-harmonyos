@@ -1,0 +1,11 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "双羽输入法 HarmonyOS 应用模块",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "libime_bridge.so": "file:./src/main/types/libime_bridge"
+  }
+}

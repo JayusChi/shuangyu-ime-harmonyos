@@ -1,0 +1,61 @@
+text	pinyin	frequencyTier	category	sourceId	updatedAt	expiresAt	domain	layer	processingRule
+稍等一下	shao deng yi xia	high	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+我马上到	wo ma shang dao	high	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+路上小心	lu shang xiao xin	high	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+晚点联系	wan dian lian xi	high	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+记得吃饭	ji de chi fan	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+到家说一声	dao jia shuo yi sheng	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+有事留言	you shi liu yan	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+明天再聊	ming tian zai liao	high	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+发我一份	fa wo yi fen	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+帮我确认	bang wo que ren	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+周末见面	zhou mo jian mian	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+今天辛苦了	jin tian xin ku le	high	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+有空聊聊	you kong liao liao	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+收到请回复	shou dao qing hui fu	high	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+别太离谱	bie tai li pu	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+这波可以	zhe bo ke yi	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+太有感觉了	tai you gan jue le	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+先码住	xian ma zhu	low	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+回头细说	hui tou xi shuo	normal	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+在线等	zai xian deng	low	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+蹲个后续	dun ge hou xu	low	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+情绪拉满	qing xu la man	low	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+狠狠期待	hen hen qi dai	low	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+稳稳拿下	wen wen na xia	low	modern_colloquial	project-v2-colloquial	2026-08-14			base	manual-independent-curation-v1
+袁隆平	yuan long ping	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+屠呦呦	tu you you	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+钱学森	qian xue sen	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+邓稼先	deng jia xian	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+杨振宁	yang zhen ning	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+莫言	mo yan	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+苏炳添	su bing tian	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+樊振东	fan zhen dong	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+郑钦文	zheng qin wen	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+全红婵	quan hong chan	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+雷军	lei jun	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+余承东	yu cheng dong	normal	proper_person	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+雄安新区	xiong an xin qu	normal	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+粤港澳大湾区	yue gang ao da wan qu	normal	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+长三角	chang san jiao	normal	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+成渝地区	cheng yu di qu	normal	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+横琴粤澳	heng qin yue ao	low	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+临港新片区	lin gang xin pian qu	low	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+河套深港	he tao shen gang	low	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+中关村	zhong guan cun	high	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+张江科学城	zhang jiang ke xue cheng	low	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+前海深港	qian hai shen gang	low	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+海南自贸港	hai nan zi mao gang	normal	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+天府新区	tian fu xin qu	normal	proper_place	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+字节跳动	zi jie tiao dong	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+哔哩哔哩	bi li bi li	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+小红书	xiao hong shu	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+拼多多	pin duo duo	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+美团	mei tuan	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+京东	jing dong	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+华为云	hua wei yun	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+蚂蚁集团	ma yi ji tuan	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+小米汽车	xiao mi qi che	normal	proper_product	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+鸿蒙智行	hong meng zhi xing	normal	proper_product	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+国家电网	guo jia dian wang	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1
+中国商飞	zhong guo shang fei	normal	proper_org_brand	project-v2-proper	2026-08-14			base	manual-public-name-curation-v1

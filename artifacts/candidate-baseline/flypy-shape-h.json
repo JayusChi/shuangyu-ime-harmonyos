@@ -1,0 +1,6082 @@
+{
+  "schema_version": "candidate-baseline/flypy-shape-h/1",
+  "scheme_id": "xiaohe-yinxing",
+  "raw_input": "h",
+  "query_strategy": "ProgressiveXiaoheYinxing",
+  "candidate_limit": 512,
+  "page_size": 9,
+  "candidate_page": 0,
+  "has_previous_page": false,
+  "has_next_page": true,
+  "total_candidate_count": 512,
+  "unique_text_count": 512,
+  "exact_one_key_count": 2,
+  "first_prefix_candidate_index": 2,
+  "exact_prefix_boundary": {
+    "last_exact_candidate": {
+      "text": "忽略",
+      "complete_code": "h",
+      "category": "one-key-secondary",
+      "source_order": 12,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:12"
+    },
+    "first_longer_prefix_candidate": {
+      "text": "化",
+      "complete_code": "hxr",
+      "category": "core",
+      "source_order": 15939,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15939"
+    }
+  },
+  "first_9": [
+    {
+      "text": "和",
+      "complete_code": "h",
+      "category": "core",
+      "source_order": 15938,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+    },
+    {
+      "text": "忽略",
+      "complete_code": "h",
+      "category": "one-key-secondary",
+      "source_order": 12,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:12"
+    },
+    {
+      "text": "化",
+      "complete_code": "hxr",
+      "category": "core",
+      "source_order": 15939,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15939"
+    },
+    {
+      "text": "会",
+      "complete_code": "hv",
+      "category": "core",
+      "source_order": 15940,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15940"
+    },
+    {
+      "text": "行",
+      "complete_code": "hh",
+      "category": "core",
+      "source_order": 15941,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15941"
+    },
+    {
+      "text": "合",
+      "complete_code": "her",
+      "category": "core",
+      "source_order": 15942,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15942"
+    },
+    {
+      "text": "后",
+      "complete_code": "hz",
+      "category": "core",
+      "source_order": 15943,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15943"
+    },
+    {
+      "text": "好",
+      "complete_code": "hc",
+      "category": "core",
+      "source_order": 15944,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15944"
+    },
+    {
+      "text": "海",
+      "complete_code": "hdd",
+      "category": "core",
+      "source_order": 15945,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15945"
+    }
+  ],
+  "first_50": [
+    {
+      "text": "和",
+      "complete_code": "h",
+      "category": "core",
+      "source_order": 15938,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+    },
+    {
+      "text": "忽略",
+      "complete_code": "h",
+      "category": "one-key-secondary",
+      "source_order": 12,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:12"
+    },
+    {
+      "text": "化",
+      "complete_code": "hxr",
+      "category": "core",
+      "source_order": 15939,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15939"
+    },
+    {
+      "text": "会",
+      "complete_code": "hv",
+      "category": "core",
+      "source_order": 15940,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15940"
+    },
+    {
+      "text": "行",
+      "complete_code": "hh",
+      "category": "core",
+      "source_order": 15941,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15941"
+    },
+    {
+      "text": "合",
+      "complete_code": "her",
+      "category": "core",
+      "source_order": 15942,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15942"
+    },
+    {
+      "text": "后",
+      "complete_code": "hz",
+      "category": "core",
+      "source_order": 15943,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15943"
+    },
+    {
+      "text": "好",
+      "complete_code": "hc",
+      "category": "core",
+      "source_order": 15944,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15944"
+    },
+    {
+      "text": "海",
+      "complete_code": "hdd",
+      "category": "core",
+      "source_order": 15945,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15945"
+    },
+    {
+      "text": "还",
+      "complete_code": "hd",
+      "category": "core",
+      "source_order": 15946,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15946"
+    },
+    {
+      "text": "华",
+      "complete_code": "hxru",
+      "category": "core",
+      "source_order": 15947,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15947"
+    },
+    {
+      "text": "活",
+      "complete_code": "hod",
+      "category": "core",
+      "source_order": 15948,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15948"
+    },
+    {
+      "text": "很",
+      "complete_code": "hf",
+      "category": "core",
+      "source_order": 15950,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15950"
+    },
+    {
+      "text": "划",
+      "complete_code": "hxg",
+      "category": "core",
+      "source_order": 15951,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15951"
+    },
+    {
+      "text": "或",
+      "complete_code": "ho",
+      "category": "core",
+      "source_order": 15952,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15952"
+    },
+    {
+      "text": "回",
+      "complete_code": "hvk",
+      "category": "core",
+      "source_order": 15953,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15953"
+    },
+    {
+      "text": "环",
+      "complete_code": "hrw",
+      "category": "core",
+      "source_order": 15954,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15954"
+    },
+    {
+      "text": "话",
+      "complete_code": "hx",
+      "category": "core",
+      "source_order": 15955,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15955"
+    },
+    {
+      "text": "壶",
+      "complete_code": "huuy",
+      "category": "core",
+      "source_order": 15957,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15957"
+    },
+    {
+      "text": "护",
+      "complete_code": "huf",
+      "category": "core",
+      "source_order": 15958,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15958"
+    },
+    {
+      "text": "户",
+      "complete_code": "hu",
+      "category": "core",
+      "source_order": 15959,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15959"
+    },
+    {
+      "text": "河",
+      "complete_code": "hed",
+      "category": "core",
+      "source_order": 15960,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15960"
+    },
+    {
+      "text": "花",
+      "complete_code": "hxc",
+      "category": "core",
+      "source_order": 15961,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15961"
+    },
+    {
+      "text": "何",
+      "complete_code": "he",
+      "category": "core",
+      "source_order": 15962,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15962"
+    },
+    {
+      "text": "货",
+      "complete_code": "hor",
+      "category": "core",
+      "source_order": 15963,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15963"
+    },
+    {
+      "text": "获",
+      "complete_code": "hoc",
+      "category": "core",
+      "source_order": 15964,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15964"
+    },
+    {
+      "text": "黄",
+      "complete_code": "hl",
+      "category": "core",
+      "source_order": 15965,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15965"
+    },
+    {
+      "text": "号",
+      "complete_code": "hck",
+      "category": "core",
+      "source_order": 15966,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15966"
+    },
+    {
+      "text": "红",
+      "complete_code": "hs",
+      "category": "core",
+      "source_order": 15967,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15967"
+    },
+    {
+      "text": "火",
+      "complete_code": "hodr",
+      "category": "core",
+      "source_order": 15968,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15968"
+    },
+    {
+      "text": "挥",
+      "complete_code": "hvf",
+      "category": "core",
+      "source_order": 15969,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15969"
+    },
+    {
+      "text": "汇",
+      "complete_code": "hvd",
+      "category": "core",
+      "source_order": 15970,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15970"
+    },
+    {
+      "text": "核",
+      "complete_code": "hem",
+      "category": "core",
+      "source_order": 15971,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15971"
+    },
+    {
+      "text": "湖",
+      "complete_code": "hudo",
+      "category": "core",
+      "source_order": 15972,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15972"
+    },
+    {
+      "text": "换",
+      "complete_code": "hr",
+      "category": "core",
+      "source_order": 15973,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15973"
+    },
+    {
+      "text": "画",
+      "complete_code": "hxa",
+      "category": "core",
+      "source_order": 15974,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15974"
+    },
+    {
+      "text": "航",
+      "complete_code": "hhv",
+      "category": "core",
+      "source_order": 15975,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15975"
+    },
+    {
+      "text": "黑",
+      "complete_code": "hw",
+      "category": "core",
+      "source_order": 15976,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15976"
+    },
+    {
+      "text": "害",
+      "complete_code": "hdb",
+      "category": "core",
+      "source_order": 15977,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15977"
+    },
+    {
+      "text": "欢",
+      "complete_code": "hry",
+      "category": "core",
+      "source_order": 15978,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15978"
+    },
+    {
+      "text": "互",
+      "complete_code": "hua",
+      "category": "core",
+      "source_order": 15979,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15979"
+    },
+    {
+      "text": "汉",
+      "complete_code": "hjd",
+      "category": "core",
+      "source_order": 15980,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15980"
+    },
+    {
+      "text": "宏",
+      "complete_code": "hsb",
+      "category": "core",
+      "source_order": 15981,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15981"
+    },
+    {
+      "text": "孩",
+      "complete_code": "hdz",
+      "category": "core",
+      "source_order": 15982,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15982"
+    },
+    {
+      "text": "候",
+      "complete_code": "hzr",
+      "category": "core",
+      "source_order": 15983,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15983"
+    },
+    {
+      "text": "洪",
+      "complete_code": "hsd",
+      "category": "core",
+      "source_order": 15984,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15984"
+    },
+    {
+      "text": "乎",
+      "complete_code": "hup",
+      "category": "core",
+      "source_order": 15985,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15985"
+    },
+    {
+      "text": "呼",
+      "complete_code": "huk",
+      "category": "core",
+      "source_order": 15986,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15986"
+    },
+    {
+      "text": "哈",
+      "complete_code": "ha",
+      "category": "core",
+      "source_order": 15987,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15987"
+    },
+    {
+      "text": "韩",
+      "complete_code": "hju",
+      "category": "core",
+      "source_order": 15989,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15989"
+    }
+  ],
+  "first_100": [
+    {
+      "text": "和",
+      "complete_code": "h",
+      "category": "core",
+      "source_order": 15938,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+    },
+    {
+      "text": "忽略",
+      "complete_code": "h",
+      "category": "one-key-secondary",
+      "source_order": 12,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:12"
+    },
+    {
+      "text": "化",
+      "complete_code": "hxr",
+      "category": "core",
+      "source_order": 15939,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15939"
+    },
+    {
+      "text": "会",
+      "complete_code": "hv",
+      "category": "core",
+      "source_order": 15940,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15940"
+    },
+    {
+      "text": "行",
+      "complete_code": "hh",
+      "category": "core",
+      "source_order": 15941,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15941"
+    },
+    {
+      "text": "合",
+      "complete_code": "her",
+      "category": "core",
+      "source_order": 15942,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15942"
+    },
+    {
+      "text": "后",
+      "complete_code": "hz",
+      "category": "core",
+      "source_order": 15943,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15943"
+    },
+    {
+      "text": "好",
+      "complete_code": "hc",
+      "category": "core",
+      "source_order": 15944,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15944"
+    },
+    {
+      "text": "海",
+      "complete_code": "hdd",
+      "category": "core",
+      "source_order": 15945,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15945"
+    },
+    {
+      "text": "还",
+      "complete_code": "hd",
+      "category": "core",
+      "source_order": 15946,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15946"
+    },
+    {
+      "text": "华",
+      "complete_code": "hxru",
+      "category": "core",
+      "source_order": 15947,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15947"
+    },
+    {
+      "text": "活",
+      "complete_code": "hod",
+      "category": "core",
+      "source_order": 15948,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15948"
+    },
+    {
+      "text": "很",
+      "complete_code": "hf",
+      "category": "core",
+      "source_order": 15950,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15950"
+    },
+    {
+      "text": "划",
+      "complete_code": "hxg",
+      "category": "core",
+      "source_order": 15951,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15951"
+    },
+    {
+      "text": "或",
+      "complete_code": "ho",
+      "category": "core",
+      "source_order": 15952,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15952"
+    },
+    {
+      "text": "回",
+      "complete_code": "hvk",
+      "category": "core",
+      "source_order": 15953,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15953"
+    },
+    {
+      "text": "环",
+      "complete_code": "hrw",
+      "category": "core",
+      "source_order": 15954,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15954"
+    },
+    {
+      "text": "话",
+      "complete_code": "hx",
+      "category": "core",
+      "source_order": 15955,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15955"
+    },
+    {
+      "text": "壶",
+      "complete_code": "huuy",
+      "category": "core",
+      "source_order": 15957,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15957"
+    },
+    {
+      "text": "护",
+      "complete_code": "huf",
+      "category": "core",
+      "source_order": 15958,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15958"
+    },
+    {
+      "text": "户",
+      "complete_code": "hu",
+      "category": "core",
+      "source_order": 15959,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15959"
+    },
+    {
+      "text": "河",
+      "complete_code": "hed",
+      "category": "core",
+      "source_order": 15960,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15960"
+    },
+    {
+      "text": "花",
+      "complete_code": "hxc",
+      "category": "core",
+      "source_order": 15961,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15961"
+    },
+    {
+      "text": "何",
+      "complete_code": "he",
+      "category": "core",
+      "source_order": 15962,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15962"
+    },
+    {
+      "text": "货",
+      "complete_code": "hor",
+      "category": "core",
+      "source_order": 15963,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15963"
+    },
+    {
+      "text": "获",
+      "complete_code": "hoc",
+      "category": "core",
+      "source_order": 15964,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15964"
+    },
+    {
+      "text": "黄",
+      "complete_code": "hl",
+      "category": "core",
+      "source_order": 15965,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15965"
+    },
+    {
+      "text": "号",
+      "complete_code": "hck",
+      "category": "core",
+      "source_order": 15966,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15966"
+    },
+    {
+      "text": "红",
+      "complete_code": "hs",
+      "category": "core",
+      "source_order": 15967,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15967"
+    },
+    {
+      "text": "火",
+      "complete_code": "hodr",
+      "category": "core",
+      "source_order": 15968,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15968"
+    },
+    {
+      "text": "挥",
+      "complete_code": "hvf",
+      "category": "core",
+      "source_order": 15969,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15969"
+    },
+    {
+      "text": "汇",
+      "complete_code": "hvd",
+      "category": "core",
+      "source_order": 15970,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15970"
+    },
+    {
+      "text": "核",
+      "complete_code": "hem",
+      "category": "core",
+      "source_order": 15971,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15971"
+    },
+    {
+      "text": "湖",
+      "complete_code": "hudo",
+      "category": "core",
+      "source_order": 15972,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15972"
+    },
+    {
+      "text": "换",
+      "complete_code": "hr",
+      "category": "core",
+      "source_order": 15973,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15973"
+    },
+    {
+      "text": "画",
+      "complete_code": "hxa",
+      "category": "core",
+      "source_order": 15974,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15974"
+    },
+    {
+      "text": "航",
+      "complete_code": "hhv",
+      "category": "core",
+      "source_order": 15975,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15975"
+    },
+    {
+      "text": "黑",
+      "complete_code": "hw",
+      "category": "core",
+      "source_order": 15976,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15976"
+    },
+    {
+      "text": "害",
+      "complete_code": "hdb",
+      "category": "core",
+      "source_order": 15977,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15977"
+    },
+    {
+      "text": "欢",
+      "complete_code": "hry",
+      "category": "core",
+      "source_order": 15978,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15978"
+    },
+    {
+      "text": "互",
+      "complete_code": "hua",
+      "category": "core",
+      "source_order": 15979,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15979"
+    },
+    {
+      "text": "汉",
+      "complete_code": "hjd",
+      "category": "core",
+      "source_order": 15980,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15980"
+    },
+    {
+      "text": "宏",
+      "complete_code": "hsb",
+      "category": "core",
+      "source_order": 15981,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15981"
+    },
+    {
+      "text": "孩",
+      "complete_code": "hdz",
+      "category": "core",
+      "source_order": 15982,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15982"
+    },
+    {
+      "text": "候",
+      "complete_code": "hzr",
+      "category": "core",
+      "source_order": 15983,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15983"
+    },
+    {
+      "text": "洪",
+      "complete_code": "hsd",
+      "category": "core",
+      "source_order": 15984,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15984"
+    },
+    {
+      "text": "乎",
+      "complete_code": "hup",
+      "category": "core",
+      "source_order": 15985,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15985"
+    },
+    {
+      "text": "呼",
+      "complete_code": "huk",
+      "category": "core",
+      "source_order": 15986,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15986"
+    },
+    {
+      "text": "哈",
+      "complete_code": "ha",
+      "category": "core",
+      "source_order": 15987,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15987"
+    },
+    {
+      "text": "韩",
+      "complete_code": "hju",
+      "category": "core",
+      "source_order": 15989,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15989"
+    },
+    {
+      "text": "惠",
+      "complete_code": "hva",
+      "category": "core",
+      "source_order": 15990,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15990"
+    },
+    {
+      "text": "怀",
+      "complete_code": "hkx",
+      "category": "core",
+      "source_order": 15991,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15991"
+    },
+    {
+      "text": "胡",
+      "complete_code": "huu",
+      "category": "core",
+      "source_order": 15992,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15992"
+    },
+    {
+      "text": "含",
+      "complete_code": "hj",
+      "category": "core",
+      "source_order": 15993,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15993"
+    },
+    {
+      "text": "辉",
+      "complete_code": "hvxi",
+      "category": "core",
+      "source_order": 15994,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15994"
+    },
+    {
+      "text": "厚",
+      "complete_code": "hzi",
+      "category": "core",
+      "source_order": 15995,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15995"
+    },
+    {
+      "text": "患",
+      "complete_code": "hri",
+      "category": "core",
+      "source_order": 15996,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15996"
+    },
+    {
+      "text": "衡",
+      "complete_code": "hgi",
+      "category": "core",
+      "source_order": 15997,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15997"
+    },
+    {
+      "text": "坏",
+      "complete_code": "hk",
+      "category": "core",
+      "source_order": 15998,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15998"
+    },
+    {
+      "text": "荒",
+      "complete_code": "hlc",
+      "category": "core",
+      "source_order": 15999,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15999"
+    },
+    {
+      "text": "缓",
+      "complete_code": "hrs",
+      "category": "core",
+      "source_order": 16000,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16000"
+    },
+    {
+      "text": "伙",
+      "complete_code": "horh",
+      "category": "core",
+      "source_order": 16001,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16001"
+    },
+    {
+      "text": "恢",
+      "complete_code": "hvxh",
+      "category": "core",
+      "source_order": 16002,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16002"
+    },
+    {
+      "text": "婚",
+      "complete_code": "hyn",
+      "category": "core",
+      "source_order": 16003,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16003"
+    },
+    {
+      "text": "混",
+      "complete_code": "hy",
+      "category": "core",
+      "source_order": 16004,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16004"
+    },
+    {
+      "text": "贺",
+      "complete_code": "hel",
+      "category": "core",
+      "source_order": 16005,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16005"
+    },
+    {
+      "text": "煌",
+      "complete_code": "hlh",
+      "category": "core",
+      "source_order": 16006,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16006"
+    },
+    {
+      "text": "横",
+      "complete_code": "hg",
+      "category": "core",
+      "source_order": 16007,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16007"
+    },
+    {
+      "text": "毫",
+      "complete_code": "hcwm",
+      "category": "core",
+      "source_order": 16008,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16008"
+    },
+    {
+      "text": "豪",
+      "complete_code": "hcw",
+      "category": "core",
+      "source_order": 16009,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16009"
+    },
+    {
+      "text": "徽",
+      "complete_code": "hvi",
+      "category": "core",
+      "source_order": 16010,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16010"
+    },
+    {
+      "text": "皇",
+      "complete_code": "hlb",
+      "category": "core",
+      "source_order": 16011,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16011"
+    },
+    {
+      "text": "杭",
+      "complete_code": "hhm",
+      "category": "core",
+      "source_order": 16012,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16012"
+    },
+    {
+      "text": "忽",
+      "complete_code": "huw",
+      "category": "core",
+      "source_order": 16013,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16013"
+    },
+    {
+      "text": "耗",
+      "complete_code": "hcl",
+      "category": "core",
+      "source_order": 16014,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16014"
+    },
+    {
+      "text": "绘",
+      "complete_code": "hvs",
+      "category": "core",
+      "source_order": 16015,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16015"
+    },
+    {
+      "text": "虎",
+      "complete_code": "huh",
+      "category": "core",
+      "source_order": 16016,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16016"
+    },
+    {
+      "text": "滑",
+      "complete_code": "hxd",
+      "category": "core",
+      "source_order": 16017,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16017"
+    },
+    {
+      "text": "旱",
+      "complete_code": "hjo",
+      "category": "core",
+      "source_order": 16018,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16018"
+    },
+    {
+      "text": "寒",
+      "complete_code": "hjb",
+      "category": "core",
+      "source_order": 16019,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16019"
+    },
+    {
+      "text": "浩",
+      "complete_code": "hcd",
+      "category": "core",
+      "source_order": 16020,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16020"
+    },
+    {
+      "text": "毁",
+      "complete_code": "hvj",
+      "category": "core",
+      "source_order": 16021,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16021"
+    },
+    {
+      "text": "汗",
+      "complete_code": "hjdg",
+      "category": "core",
+      "source_order": 16022,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16022"
+    },
+    {
+      "text": "喝",
+      "complete_code": "hek",
+      "category": "core",
+      "source_order": 16023,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16023"
+    },
+    {
+      "text": "赫",
+      "complete_code": "het",
+      "category": "core",
+      "source_order": 16024,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16024"
+    },
+    {
+      "text": "慧",
+      "complete_code": "hvfx",
+      "category": "core",
+      "source_order": 16025,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16025"
+    },
+    {
+      "text": "淮",
+      "complete_code": "hkd",
+      "category": "core",
+      "source_order": 16026,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16026"
+    },
+    {
+      "text": "荷",
+      "complete_code": "hec",
+      "category": "core",
+      "source_order": 16027,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16027"
+    },
+    {
+      "text": "灰",
+      "complete_code": "hvu",
+      "category": "core",
+      "source_order": 16028,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16028"
+    },
+    {
+      "text": "狠",
+      "complete_code": "hfq",
+      "category": "core",
+      "source_order": 16029,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16029"
+    },
+    {
+      "text": "涵",
+      "complete_code": "hjdk",
+      "category": "core",
+      "source_order": 16030,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16030"
+    },
+    {
+      "text": "贿",
+      "complete_code": "hvko",
+      "category": "core",
+      "source_order": 16031,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16031"
+    },
+    {
+      "text": "侯",
+      "complete_code": "hzru",
+      "category": "core",
+      "source_order": 16032,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16032"
+    },
+    {
+      "text": "恒",
+      "complete_code": "hgx",
+      "category": "core",
+      "source_order": 16033,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16033"
+    },
+    {
+      "text": "唤",
+      "complete_code": "hrk",
+      "category": "core",
+      "source_order": 16034,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16034"
+    },
+    {
+      "text": "函",
+      "complete_code": "hjl",
+      "category": "core",
+      "source_order": 16035,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16035"
+    },
+    {
+      "text": "惑",
+      "complete_code": "hog",
+      "category": "core",
+      "source_order": 16036,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16036"
+    },
+    {
+      "text": "轰",
+      "complete_code": "hsi",
+      "category": "core",
+      "source_order": 16037,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16037"
+    },
+    {
+      "text": "鸿",
+      "complete_code": "hsdn",
+      "category": "core",
+      "source_order": 16038,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16038"
+    },
+    {
+      "text": "弘",
+      "complete_code": "hsg",
+      "category": "core",
+      "source_order": 16039,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16039"
+    }
+  ],
+  "all_candidates_after_user_rules_before_paging": [
+    {
+      "text": "和",
+      "complete_code": "h",
+      "category": "core",
+      "source_order": 15938,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+    },
+    {
+      "text": "忽略",
+      "complete_code": "h",
+      "category": "one-key-secondary",
+      "source_order": 12,
+      "match_type": "exact",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:one-key-secondary:12"
+    },
+    {
+      "text": "化",
+      "complete_code": "hxr",
+      "category": "core",
+      "source_order": 15939,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15939"
+    },
+    {
+      "text": "会",
+      "complete_code": "hv",
+      "category": "core",
+      "source_order": 15940,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15940"
+    },
+    {
+      "text": "行",
+      "complete_code": "hh",
+      "category": "core",
+      "source_order": 15941,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15941"
+    },
+    {
+      "text": "合",
+      "complete_code": "her",
+      "category": "core",
+      "source_order": 15942,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15942"
+    },
+    {
+      "text": "后",
+      "complete_code": "hz",
+      "category": "core",
+      "source_order": 15943,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15943"
+    },
+    {
+      "text": "好",
+      "complete_code": "hc",
+      "category": "core",
+      "source_order": 15944,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15944"
+    },
+    {
+      "text": "海",
+      "complete_code": "hdd",
+      "category": "core",
+      "source_order": 15945,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15945"
+    },
+    {
+      "text": "还",
+      "complete_code": "hd",
+      "category": "core",
+      "source_order": 15946,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15946"
+    },
+    {
+      "text": "华",
+      "complete_code": "hxru",
+      "category": "core",
+      "source_order": 15947,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15947"
+    },
+    {
+      "text": "活",
+      "complete_code": "hod",
+      "category": "core",
+      "source_order": 15948,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15948"
+    },
+    {
+      "text": "很",
+      "complete_code": "hf",
+      "category": "core",
+      "source_order": 15950,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15950"
+    },
+    {
+      "text": "划",
+      "complete_code": "hxg",
+      "category": "core",
+      "source_order": 15951,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15951"
+    },
+    {
+      "text": "或",
+      "complete_code": "ho",
+      "category": "core",
+      "source_order": 15952,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15952"
+    },
+    {
+      "text": "回",
+      "complete_code": "hvk",
+      "category": "core",
+      "source_order": 15953,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15953"
+    },
+    {
+      "text": "环",
+      "complete_code": "hrw",
+      "category": "core",
+      "source_order": 15954,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15954"
+    },
+    {
+      "text": "话",
+      "complete_code": "hx",
+      "category": "core",
+      "source_order": 15955,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15955"
+    },
+    {
+      "text": "壶",
+      "complete_code": "huuy",
+      "category": "core",
+      "source_order": 15957,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15957"
+    },
+    {
+      "text": "护",
+      "complete_code": "huf",
+      "category": "core",
+      "source_order": 15958,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15958"
+    },
+    {
+      "text": "户",
+      "complete_code": "hu",
+      "category": "core",
+      "source_order": 15959,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15959"
+    },
+    {
+      "text": "河",
+      "complete_code": "hed",
+      "category": "core",
+      "source_order": 15960,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15960"
+    },
+    {
+      "text": "花",
+      "complete_code": "hxc",
+      "category": "core",
+      "source_order": 15961,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15961"
+    },
+    {
+      "text": "何",
+      "complete_code": "he",
+      "category": "core",
+      "source_order": 15962,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15962"
+    },
+    {
+      "text": "货",
+      "complete_code": "hor",
+      "category": "core",
+      "source_order": 15963,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15963"
+    },
+    {
+      "text": "获",
+      "complete_code": "hoc",
+      "category": "core",
+      "source_order": 15964,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15964"
+    },
+    {
+      "text": "黄",
+      "complete_code": "hl",
+      "category": "core",
+      "source_order": 15965,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15965"
+    },
+    {
+      "text": "号",
+      "complete_code": "hck",
+      "category": "core",
+      "source_order": 15966,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15966"
+    },
+    {
+      "text": "红",
+      "complete_code": "hs",
+      "category": "core",
+      "source_order": 15967,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15967"
+    },
+    {
+      "text": "火",
+      "complete_code": "hodr",
+      "category": "core",
+      "source_order": 15968,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15968"
+    },
+    {
+      "text": "挥",
+      "complete_code": "hvf",
+      "category": "core",
+      "source_order": 15969,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15969"
+    },
+    {
+      "text": "汇",
+      "complete_code": "hvd",
+      "category": "core",
+      "source_order": 15970,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15970"
+    },
+    {
+      "text": "核",
+      "complete_code": "hem",
+      "category": "core",
+      "source_order": 15971,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15971"
+    },
+    {
+      "text": "湖",
+      "complete_code": "hudo",
+      "category": "core",
+      "source_order": 15972,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15972"
+    },
+    {
+      "text": "换",
+      "complete_code": "hr",
+      "category": "core",
+      "source_order": 15973,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15973"
+    },
+    {
+      "text": "画",
+      "complete_code": "hxa",
+      "category": "core",
+      "source_order": 15974,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15974"
+    },
+    {
+      "text": "航",
+      "complete_code": "hhv",
+      "category": "core",
+      "source_order": 15975,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15975"
+    },
+    {
+      "text": "黑",
+      "complete_code": "hw",
+      "category": "core",
+      "source_order": 15976,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15976"
+    },
+    {
+      "text": "害",
+      "complete_code": "hdb",
+      "category": "core",
+      "source_order": 15977,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15977"
+    },
+    {
+      "text": "欢",
+      "complete_code": "hry",
+      "category": "core",
+      "source_order": 15978,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15978"
+    },
+    {
+      "text": "互",
+      "complete_code": "hua",
+      "category": "core",
+      "source_order": 15979,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15979"
+    },
+    {
+      "text": "汉",
+      "complete_code": "hjd",
+      "category": "core",
+      "source_order": 15980,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15980"
+    },
+    {
+      "text": "宏",
+      "complete_code": "hsb",
+      "category": "core",
+      "source_order": 15981,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15981"
+    },
+    {
+      "text": "孩",
+      "complete_code": "hdz",
+      "category": "core",
+      "source_order": 15982,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15982"
+    },
+    {
+      "text": "候",
+      "complete_code": "hzr",
+      "category": "core",
+      "source_order": 15983,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15983"
+    },
+    {
+      "text": "洪",
+      "complete_code": "hsd",
+      "category": "core",
+      "source_order": 15984,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15984"
+    },
+    {
+      "text": "乎",
+      "complete_code": "hup",
+      "category": "core",
+      "source_order": 15985,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15985"
+    },
+    {
+      "text": "呼",
+      "complete_code": "huk",
+      "category": "core",
+      "source_order": 15986,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15986"
+    },
+    {
+      "text": "哈",
+      "complete_code": "ha",
+      "category": "core",
+      "source_order": 15987,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15987"
+    },
+    {
+      "text": "韩",
+      "complete_code": "hju",
+      "category": "core",
+      "source_order": 15989,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15989"
+    },
+    {
+      "text": "惠",
+      "complete_code": "hva",
+      "category": "core",
+      "source_order": 15990,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15990"
+    },
+    {
+      "text": "怀",
+      "complete_code": "hkx",
+      "category": "core",
+      "source_order": 15991,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15991"
+    },
+    {
+      "text": "胡",
+      "complete_code": "huu",
+      "category": "core",
+      "source_order": 15992,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15992"
+    },
+    {
+      "text": "含",
+      "complete_code": "hj",
+      "category": "core",
+      "source_order": 15993,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15993"
+    },
+    {
+      "text": "辉",
+      "complete_code": "hvxi",
+      "category": "core",
+      "source_order": 15994,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15994"
+    },
+    {
+      "text": "厚",
+      "complete_code": "hzi",
+      "category": "core",
+      "source_order": 15995,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15995"
+    },
+    {
+      "text": "患",
+      "complete_code": "hri",
+      "category": "core",
+      "source_order": 15996,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15996"
+    },
+    {
+      "text": "衡",
+      "complete_code": "hgi",
+      "category": "core",
+      "source_order": 15997,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15997"
+    },
+    {
+      "text": "坏",
+      "complete_code": "hk",
+      "category": "core",
+      "source_order": 15998,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15998"
+    },
+    {
+      "text": "荒",
+      "complete_code": "hlc",
+      "category": "core",
+      "source_order": 15999,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:15999"
+    },
+    {
+      "text": "缓",
+      "complete_code": "hrs",
+      "category": "core",
+      "source_order": 16000,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16000"
+    },
+    {
+      "text": "伙",
+      "complete_code": "horh",
+      "category": "core",
+      "source_order": 16001,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16001"
+    },
+    {
+      "text": "恢",
+      "complete_code": "hvxh",
+      "category": "core",
+      "source_order": 16002,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16002"
+    },
+    {
+      "text": "婚",
+      "complete_code": "hyn",
+      "category": "core",
+      "source_order": 16003,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16003"
+    },
+    {
+      "text": "混",
+      "complete_code": "hy",
+      "category": "core",
+      "source_order": 16004,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16004"
+    },
+    {
+      "text": "贺",
+      "complete_code": "hel",
+      "category": "core",
+      "source_order": 16005,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16005"
+    },
+    {
+      "text": "煌",
+      "complete_code": "hlh",
+      "category": "core",
+      "source_order": 16006,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16006"
+    },
+    {
+      "text": "横",
+      "complete_code": "hg",
+      "category": "core",
+      "source_order": 16007,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16007"
+    },
+    {
+      "text": "毫",
+      "complete_code": "hcwm",
+      "category": "core",
+      "source_order": 16008,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16008"
+    },
+    {
+      "text": "豪",
+      "complete_code": "hcw",
+      "category": "core",
+      "source_order": 16009,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16009"
+    },
+    {
+      "text": "徽",
+      "complete_code": "hvi",
+      "category": "core",
+      "source_order": 16010,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16010"
+    },
+    {
+      "text": "皇",
+      "complete_code": "hlb",
+      "category": "core",
+      "source_order": 16011,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16011"
+    },
+    {
+      "text": "杭",
+      "complete_code": "hhm",
+      "category": "core",
+      "source_order": 16012,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16012"
+    },
+    {
+      "text": "忽",
+      "complete_code": "huw",
+      "category": "core",
+      "source_order": 16013,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16013"
+    },
+    {
+      "text": "耗",
+      "complete_code": "hcl",
+      "category": "core",
+      "source_order": 16014,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16014"
+    },
+    {
+      "text": "绘",
+      "complete_code": "hvs",
+      "category": "core",
+      "source_order": 16015,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16015"
+    },
+    {
+      "text": "虎",
+      "complete_code": "huh",
+      "category": "core",
+      "source_order": 16016,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16016"
+    },
+    {
+      "text": "滑",
+      "complete_code": "hxd",
+      "category": "core",
+      "source_order": 16017,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16017"
+    },
+    {
+      "text": "旱",
+      "complete_code": "hjo",
+      "category": "core",
+      "source_order": 16018,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16018"
+    },
+    {
+      "text": "寒",
+      "complete_code": "hjb",
+      "category": "core",
+      "source_order": 16019,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16019"
+    },
+    {
+      "text": "浩",
+      "complete_code": "hcd",
+      "category": "core",
+      "source_order": 16020,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16020"
+    },
+    {
+      "text": "毁",
+      "complete_code": "hvj",
+      "category": "core",
+      "source_order": 16021,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16021"
+    },
+    {
+      "text": "汗",
+      "complete_code": "hjdg",
+      "category": "core",
+      "source_order": 16022,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16022"
+    },
+    {
+      "text": "喝",
+      "complete_code": "hek",
+      "category": "core",
+      "source_order": 16023,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16023"
+    },
+    {
+      "text": "赫",
+      "complete_code": "het",
+      "category": "core",
+      "source_order": 16024,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16024"
+    },
+    {
+      "text": "慧",
+      "complete_code": "hvfx",
+      "category": "core",
+      "source_order": 16025,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16025"
+    },
+    {
+      "text": "淮",
+      "complete_code": "hkd",
+      "category": "core",
+      "source_order": 16026,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16026"
+    },
+    {
+      "text": "荷",
+      "complete_code": "hec",
+      "category": "core",
+      "source_order": 16027,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16027"
+    },
+    {
+      "text": "灰",
+      "complete_code": "hvu",
+      "category": "core",
+      "source_order": 16028,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16028"
+    },
+    {
+      "text": "狠",
+      "complete_code": "hfq",
+      "category": "core",
+      "source_order": 16029,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16029"
+    },
+    {
+      "text": "涵",
+      "complete_code": "hjdk",
+      "category": "core",
+      "source_order": 16030,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16030"
+    },
+    {
+      "text": "贿",
+      "complete_code": "hvko",
+      "category": "core",
+      "source_order": 16031,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16031"
+    },
+    {
+      "text": "侯",
+      "complete_code": "hzru",
+      "category": "core",
+      "source_order": 16032,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16032"
+    },
+    {
+      "text": "恒",
+      "complete_code": "hgx",
+      "category": "core",
+      "source_order": 16033,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16033"
+    },
+    {
+      "text": "唤",
+      "complete_code": "hrk",
+      "category": "core",
+      "source_order": 16034,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16034"
+    },
+    {
+      "text": "函",
+      "complete_code": "hjl",
+      "category": "core",
+      "source_order": 16035,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16035"
+    },
+    {
+      "text": "惑",
+      "complete_code": "hog",
+      "category": "core",
+      "source_order": 16036,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16036"
+    },
+    {
+      "text": "轰",
+      "complete_code": "hsi",
+      "category": "core",
+      "source_order": 16037,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16037"
+    },
+    {
+      "text": "鸿",
+      "complete_code": "hsdn",
+      "category": "core",
+      "source_order": 16038,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16038"
+    },
+    {
+      "text": "弘",
+      "complete_code": "hsg",
+      "category": "core",
+      "source_order": 16039,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16039"
+    },
+    {
+      "text": "喊",
+      "complete_code": "hjk",
+      "category": "core",
+      "source_order": 16040,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16040"
+    },
+    {
+      "text": "焕",
+      "complete_code": "hrh",
+      "category": "core",
+      "source_order": 16041,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16041"
+    },
+    {
+      "text": "沪",
+      "complete_code": "hud",
+      "category": "core",
+      "source_order": 16042,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16042"
+    },
+    {
+      "text": "魂",
+      "complete_code": "hye",
+      "category": "core",
+      "source_order": 16043,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16043"
+    },
+    {
+      "text": "霍",
+      "complete_code": "hoy",
+      "category": "core",
+      "source_order": 16044,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16044"
+    },
+    {
+      "text": "盒",
+      "complete_code": "herm",
+      "category": "core",
+      "source_order": 16045,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16045"
+    },
+    {
+      "text": "糊",
+      "complete_code": "hum",
+      "category": "core",
+      "source_order": 16046,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16046"
+    },
+    {
+      "text": "悍",
+      "complete_code": "hjx",
+      "category": "core",
+      "source_order": 16047,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16047"
+    },
+    {
+      "text": "巷",
+      "complete_code": "hhc",
+      "category": "core",
+      "source_order": 16048,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16048"
+    },
+    {
+      "text": "罕",
+      "complete_code": "hjbg",
+      "category": "core",
+      "source_order": 16049,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16049"
+    },
+    {
+      "text": "幻",
+      "complete_code": "hryv",
+      "category": "core",
+      "source_order": 16050,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16050"
+    },
+    {
+      "text": "焊",
+      "complete_code": "hjh",
+      "category": "core",
+      "source_order": 16051,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16051"
+    },
+    {
+      "text": "鹤",
+      "complete_code": "hedn",
+      "category": "core",
+      "source_order": 16052,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16052"
+    },
+    {
+      "text": "卉",
+      "complete_code": "hvuc",
+      "category": "core",
+      "source_order": 16053,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16053"
+    },
+    {
+      "text": "浑",
+      "complete_code": "hyd",
+      "category": "core",
+      "source_order": 16054,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16054"
+    },
+    {
+      "text": "昏",
+      "complete_code": "hyu",
+      "category": "core",
+      "source_order": 16055,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16055"
+    },
+    {
+      "text": "翰",
+      "complete_code": "hjux",
+      "category": "core",
+      "source_order": 16056,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16056"
+    },
+    {
+      "text": "祸",
+      "complete_code": "hop",
+      "category": "core",
+      "source_order": 16057,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16057"
+    },
+    {
+      "text": "哄",
+      "complete_code": "hsk",
+      "category": "core",
+      "source_order": 16058,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16058"
+    },
+    {
+      "text": "恨",
+      "complete_code": "hfx",
+      "category": "core",
+      "source_order": 16059,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16059"
+    },
+    {
+      "text": "凰",
+      "complete_code": "hlj",
+      "category": "core",
+      "source_order": 16060,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16060"
+    },
+    {
+      "text": "悔",
+      "complete_code": "hvx",
+      "category": "core",
+      "source_order": 16061,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16061"
+    },
+    {
+      "text": "郝",
+      "complete_code": "hct",
+      "category": "core",
+      "source_order": 16062,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16062"
+    },
+    {
+      "text": "痕",
+      "complete_code": "hfb",
+      "category": "core",
+      "source_order": 16063,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16063"
+    },
+    {
+      "text": "吓",
+      "complete_code": "hekx",
+      "category": "core",
+      "source_order": 16064,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16064"
+    },
+    {
+      "text": "徊",
+      "complete_code": "hki",
+      "category": "core",
+      "source_order": 16065,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16065"
+    },
+    {
+      "text": "猴",
+      "complete_code": "hzq",
+      "category": "core",
+      "source_order": 16066,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16066"
+    },
+    {
+      "text": "邯",
+      "complete_code": "hjg",
+      "category": "core",
+      "source_order": 16067,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16067"
+    },
+    {
+      "text": "呵",
+      "complete_code": "hekk",
+      "category": "core",
+      "source_order": 16068,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16068"
+    },
+    {
+      "text": "亨",
+      "complete_code": "hgw",
+      "category": "core",
+      "source_order": 16069,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16069"
+    },
+    {
+      "text": "喉",
+      "complete_code": "hzku",
+      "category": "core",
+      "source_order": 16070,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16070"
+    },
+    {
+      "text": "慌",
+      "complete_code": "hlx",
+      "category": "core",
+      "source_order": 16071,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16071"
+    },
+    {
+      "text": "秽",
+      "complete_code": "hvh",
+      "category": "core",
+      "source_order": 16072,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16072"
+    },
+    {
+      "text": "晃",
+      "complete_code": "hlo",
+      "category": "core",
+      "source_order": 16073,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16073"
+    },
+    {
+      "text": "撼",
+      "complete_code": "hjfx",
+      "category": "core",
+      "source_order": 16074,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16074"
+    },
+    {
+      "text": "荟",
+      "complete_code": "hvc",
+      "category": "core",
+      "source_order": 16075,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16075"
+    },
+    {
+      "text": "晖",
+      "complete_code": "hvo",
+      "category": "core",
+      "source_order": 16076,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16076"
+    },
+    {
+      "text": "彗",
+      "complete_code": "hvfe",
+      "category": "core",
+      "source_order": 16077,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16077"
+    },
+    {
+      "text": "诲",
+      "complete_code": "hvy",
+      "category": "core",
+      "source_order": 16078,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16078"
+    },
+    {
+      "text": "槐",
+      "complete_code": "hkm",
+      "category": "core",
+      "source_order": 16079,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16079"
+    },
+    {
+      "text": "潢",
+      "complete_code": "hldb",
+      "category": "core",
+      "source_order": 16080,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16080"
+    },
+    {
+      "text": "哗",
+      "complete_code": "hxk",
+      "category": "core",
+      "source_order": 16081,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16081"
+    },
+    {
+      "text": "宦",
+      "complete_code": "hrb",
+      "category": "core",
+      "source_order": 16082,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16082"
+    },
+    {
+      "text": "烘",
+      "complete_code": "hsh",
+      "category": "core",
+      "source_order": 16083,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16083"
+    },
+    {
+      "text": "豁",
+      "complete_code": "hob",
+      "category": "core",
+      "source_order": 16084,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16084"
+    },
+    {
+      "text": "葫",
+      "complete_code": "huc",
+      "category": "core",
+      "source_order": 16085,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16085"
+    },
+    {
+      "text": "狐",
+      "complete_code": "huq",
+      "category": "core",
+      "source_order": 16086,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16086"
+    },
+    {
+      "text": "瀚",
+      "complete_code": "hjdx",
+      "category": "core",
+      "source_order": 16087,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16087"
+    },
+    {
+      "text": "蝴",
+      "complete_code": "hui",
+      "category": "core",
+      "source_order": 16088,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16088"
+    },
+    {
+      "text": "禾",
+      "complete_code": "heq",
+      "category": "core",
+      "source_order": 16089,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16089"
+    },
+    {
+      "text": "桦",
+      "complete_code": "hxm",
+      "category": "core",
+      "source_order": 16091,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16091"
+    },
+    {
+      "text": "谎",
+      "complete_code": "hly",
+      "category": "core",
+      "source_order": 16092,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16092"
+    },
+    {
+      "text": "惶",
+      "complete_code": "hlxw",
+      "category": "core",
+      "source_order": 16093,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16093"
+    },
+    {
+      "text": "憨",
+      "complete_code": "hjv",
+      "category": "core",
+      "source_order": 16094,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16094"
+    },
+    {
+      "text": "弧",
+      "complete_code": "hug",
+      "category": "core",
+      "source_order": 16095,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16095"
+    },
+    {
+      "text": "皓",
+      "complete_code": "hcb",
+      "category": "core",
+      "source_order": 16096,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16096"
+    },
+    {
+      "text": "菏",
+      "complete_code": "heck",
+      "category": "core",
+      "source_order": 16098,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16098"
+    },
+    {
+      "text": "捍",
+      "complete_code": "hjf",
+      "category": "core",
+      "source_order": 16099,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16099"
+    },
+    {
+      "text": "桓",
+      "complete_code": "hrm",
+      "category": "core",
+      "source_order": 16100,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16100"
+    },
+    {
+      "text": "簧",
+      "complete_code": "hlv",
+      "category": "core",
+      "source_order": 16101,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16101"
+    },
+    {
+      "text": "璜",
+      "complete_code": "hlwb",
+      "category": "core",
+      "source_order": 16102,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16102"
+    },
+    {
+      "text": "壑",
+      "complete_code": "helt",
+      "category": "core",
+      "source_order": 16104,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16104"
+    },
+    {
+      "text": "亥",
+      "complete_code": "hdw",
+      "category": "core",
+      "source_order": 16105,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16105"
+    },
+    {
+      "text": "寰",
+      "complete_code": "hrby",
+      "category": "core",
+      "source_order": 16106,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16106"
+    },
+    {
+      "text": "珲",
+      "complete_code": "hvw",
+      "category": "core",
+      "source_order": 16107,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16107"
+    },
+    {
+      "text": "昊",
+      "complete_code": "hco",
+      "category": "core",
+      "source_order": 16109,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16109"
+    },
+    {
+      "text": "涣",
+      "complete_code": "hrd",
+      "category": "core",
+      "source_order": 16110,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16110"
+    },
+    {
+      "text": "褐",
+      "complete_code": "hep",
+      "category": "core",
+      "source_order": 16111,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16111"
+    },
+    {
+      "text": "隳",
+      "complete_code": "hve",
+      "category": "core",
+      "source_order": 16112,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16112"
+    },
+    {
+      "text": "吼",
+      "complete_code": "hzk",
+      "category": "core",
+      "source_order": 16113,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16113"
+    },
+    {
+      "text": "咳",
+      "complete_code": "hdkr",
+      "category": "core",
+      "source_order": 16114,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16114"
+    },
+    {
+      "text": "镐",
+      "complete_code": "hcj",
+      "category": "core",
+      "source_order": 16115,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16115"
+    },
+    {
+      "text": "夯",
+      "complete_code": "hhd",
+      "category": "core",
+      "source_order": 16116,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16116"
+    },
+    {
+      "text": "酣",
+      "complete_code": "hjy",
+      "category": "core",
+      "source_order": 16117,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16117"
+    },
+    {
+      "text": "瑚",
+      "complete_code": "huwo",
+      "category": "core",
+      "source_order": 16119,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16119"
+    },
+    {
+      "text": "骸",
+      "complete_code": "hdg",
+      "category": "core",
+      "source_order": 16120,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16120"
+    },
+    {
+      "text": "幌",
+      "complete_code": "hljw",
+      "category": "core",
+      "source_order": 16121,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16121"
+    },
+    {
+      "text": "湟",
+      "complete_code": "hld",
+      "category": "core",
+      "source_order": 16122,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16122"
+    },
+    {
+      "text": "蝗",
+      "complete_code": "hli",
+      "category": "core",
+      "source_order": 16123,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16123"
+    },
+    {
+      "text": "哼",
+      "complete_code": "hgk",
+      "category": "core",
+      "source_order": 16124,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16124"
+    },
+    {
+      "text": "蒿",
+      "complete_code": "hcck",
+      "category": "core",
+      "source_order": 16125,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16125"
+    },
+    {
+      "text": "吭",
+      "complete_code": "hhk",
+      "category": "core",
+      "source_order": 16126,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16126"
+    },
+    {
+      "text": "浒",
+      "complete_code": "hudw",
+      "category": "core",
+      "source_order": 16127,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16127"
+    },
+    {
+      "text": "嘿",
+      "complete_code": "hwk",
+      "category": "core",
+      "source_order": 16128,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16128"
+    },
+    {
+      "text": "骇",
+      "complete_code": "hdm",
+      "category": "core",
+      "source_order": 16129,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16129"
+    },
+    {
+      "text": "珩",
+      "complete_code": "hgwi",
+      "category": "core",
+      "source_order": 16130,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16130"
+    },
+    {
+      "text": "鹄",
+      "complete_code": "hun",
+      "category": "core",
+      "source_order": 16131,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16131"
+    },
+    {
+      "text": "壕",
+      "complete_code": "hctu",
+      "category": "core",
+      "source_order": 16132,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16132"
+    },
+    {
+      "text": "荤",
+      "complete_code": "hyc",
+      "category": "core",
+      "source_order": 16133,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16133"
+    },
+    {
+      "text": "蕙",
+      "complete_code": "hvcx",
+      "category": "core",
+      "source_order": 16134,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16134"
+    },
+    {
+      "text": "琥",
+      "complete_code": "huwj",
+      "category": "core",
+      "source_order": 16135,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16135"
+    },
+    {
+      "text": "蛤",
+      "complete_code": "hai",
+      "category": "core",
+      "source_order": 16136,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16136"
+    },
+    {
+      "text": "虾",
+      "complete_code": "haix",
+      "category": "core",
+      "source_order": 16137,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16137"
+    },
+    {
+      "text": "隍",
+      "complete_code": "hle",
+      "category": "core",
+      "source_order": 16138,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16138"
+    },
+    {
+      "text": "徨",
+      "complete_code": "hliw",
+      "category": "core",
+      "source_order": 16139,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16139"
+    },
+    {
+      "text": "晦",
+      "complete_code": "hvom",
+      "category": "core",
+      "source_order": 16140,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16140"
+    },
+    {
+      "text": "扈",
+      "complete_code": "huhb",
+      "category": "core",
+      "source_order": 16141,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16141"
+    },
+    {
+      "text": "灏",
+      "complete_code": "hcdr",
+      "category": "core",
+      "source_order": 16142,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16142"
+    },
+    {
+      "text": "猾",
+      "complete_code": "hxq",
+      "category": "core",
+      "source_order": 16143,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16143"
+    },
+    {
+      "text": "唬",
+      "complete_code": "hukj",
+      "category": "core",
+      "source_order": 16144,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16144"
+    },
+    {
+      "text": "麾",
+      "complete_code": "hvg",
+      "category": "core",
+      "source_order": 16145,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16145"
+    },
+    {
+      "text": "阂",
+      "complete_code": "hemr",
+      "category": "core",
+      "source_order": 16146,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16146"
+    },
+    {
+      "text": "滹",
+      "complete_code": "hudh",
+      "category": "core",
+      "source_order": 16147,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16147"
+    },
+    {
+      "text": "阖",
+      "complete_code": "hemm",
+      "category": "core",
+      "source_order": 16148,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16148"
+    },
+    {
+      "text": "氦",
+      "complete_code": "hdq",
+      "category": "core",
+      "source_order": 16149,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16149"
+    },
+    {
+      "text": "嚎",
+      "complete_code": "hcku",
+      "category": "core",
+      "source_order": 16150,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16150"
+    },
+    {
+      "text": "劾",
+      "complete_code": "hew",
+      "category": "core",
+      "source_order": 16151,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16151"
+    },
+    {
+      "text": "铧",
+      "complete_code": "hxj",
+      "category": "core",
+      "source_order": 16152,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16152"
+    },
+    {
+      "text": "惚",
+      "complete_code": "huxx",
+      "category": "core",
+      "source_order": 16153,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16153"
+    },
+    {
+      "text": "馄",
+      "complete_code": "hyub",
+      "category": "core",
+      "source_order": 16154,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16154"
+    },
+    {
+      "text": "诃",
+      "complete_code": "hey",
+      "category": "core",
+      "source_order": 16155,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16155"
+    },
+    {
+      "text": "阚",
+      "complete_code": "hjm",
+      "category": "core",
+      "source_order": 16156,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16156"
+    },
+    {
+      "text": "嗨",
+      "complete_code": "hdk",
+      "category": "core",
+      "source_order": 16157,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16157"
+    },
+    {
+      "text": "鼾",
+      "complete_code": "hjz",
+      "category": "core",
+      "source_order": 16158,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16158"
+    },
+    {
+      "text": "颌",
+      "complete_code": "herr",
+      "category": "core",
+      "source_order": 16159,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16159"
+    },
+    {
+      "text": "訇",
+      "complete_code": "hsbk",
+      "category": "core",
+      "source_order": 16160,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16160"
+    },
+    {
+      "text": "邗",
+      "complete_code": "hjge",
+      "category": "core",
+      "source_order": 16161,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16161"
+    },
+    {
+      "text": "蚝",
+      "complete_code": "hci",
+      "category": "core",
+      "source_order": 16162,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16162"
+    },
+    {
+      "text": "踝",
+      "complete_code": "hkz",
+      "category": "core",
+      "source_order": 16163,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16163"
+    },
+    {
+      "text": "颔",
+      "complete_code": "hjr",
+      "category": "core",
+      "source_order": 16164,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16164"
+    },
+    {
+      "text": "祜",
+      "complete_code": "hupk",
+      "category": "core",
+      "source_order": 16165,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16165"
+    },
+    {
+      "text": "桁",
+      "complete_code": "hgm",
+      "category": "core",
+      "source_order": 16166,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16166"
+    },
+    {
+      "text": "蚶",
+      "complete_code": "hji",
+      "category": "core",
+      "source_order": 16167,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16167"
+    },
+    {
+      "text": "茴",
+      "complete_code": "hvck",
+      "category": "core",
+      "source_order": 16168,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16168"
+    },
+    {
+      "text": "晗",
+      "complete_code": "hjok",
+      "category": "core",
+      "source_order": 16169,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16169"
+    },
+    {
+      "text": "喙",
+      "complete_code": "hvku",
+      "category": "core",
+      "source_order": 16170,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16170"
+    },
+    {
+      "text": "齁",
+      "complete_code": "hzz",
+      "category": "core",
+      "source_order": 16171,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16171"
+    },
+    {
+      "text": "洹",
+      "complete_code": "hrda",
+      "category": "core",
+      "source_order": 16172,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16172"
+    },
+    {
+      "text": "浣",
+      "complete_code": "hrde",
+      "category": "core",
+      "source_order": 16173,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16173"
+    },
+    {
+      "text": "豢",
+      "complete_code": "hrj",
+      "category": "core",
+      "source_order": 16174,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16174"
+    },
+    {
+      "text": "桧",
+      "complete_code": "hvm",
+      "category": "core",
+      "source_order": 16175,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16175"
+    },
+    {
+      "text": "貉",
+      "complete_code": "hcv",
+      "category": "core",
+      "source_order": 16176,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16176"
+    },
+    {
+      "text": "沆",
+      "complete_code": "hhdj",
+      "category": "core",
+      "source_order": 16178,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16178"
+    },
+    {
+      "text": "颢",
+      "complete_code": "hcor",
+      "category": "core",
+      "source_order": 16179,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16179"
+    },
+    {
+      "text": "蘅",
+      "complete_code": "hgc",
+      "category": "core",
+      "source_order": 16180,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16180"
+    },
+    {
+      "text": "蕻",
+      "complete_code": "hsc",
+      "category": "core",
+      "source_order": 16181,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16181"
+    },
+    {
+      "text": "肓",
+      "complete_code": "hlwo",
+      "category": "core",
+      "source_order": 16182,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16182"
+    },
+    {
+      "text": "蛔",
+      "complete_code": "hvik",
+      "category": "core",
+      "source_order": 16183,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16183"
+    },
+    {
+      "text": "郇",
+      "complete_code": "hrbe",
+      "category": "core",
+      "source_order": 16184,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16184"
+    },
+    {
+      "text": "闳",
+      "complete_code": "hsm",
+      "category": "core",
+      "source_order": 16185,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16185"
+    },
+    {
+      "text": "菡",
+      "complete_code": "hjc",
+      "category": "core",
+      "source_order": 16186,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16186"
+    },
+    {
+      "text": "篁",
+      "complete_code": "hlvw",
+      "category": "core",
+      "source_order": 16187,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16187"
+    },
+    {
+      "text": "圜",
+      "complete_code": "hrky",
+      "category": "core",
+      "source_order": 16188,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16188"
+    },
+    {
+      "text": "鹘",
+      "complete_code": "hugn",
+      "category": "core",
+      "source_order": 16189,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16189"
+    },
+    {
+      "text": "鳇",
+      "complete_code": "hla",
+      "category": "core",
+      "source_order": 16190,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16190"
+    },
+    {
+      "text": "讧",
+      "complete_code": "hsy",
+      "category": "core",
+      "source_order": 16191,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16191"
+    },
+    {
+      "text": "笏",
+      "complete_code": "huv",
+      "category": "core",
+      "source_order": 16192,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16192"
+    },
+    {
+      "text": "蟥",
+      "complete_code": "hlib",
+      "category": "core",
+      "source_order": 16193,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16193"
+    },
+    {
+      "text": "洄",
+      "complete_code": "hvdk",
+      "category": "core",
+      "source_order": 16194,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16194"
+    },
+    {
+      "text": "诨",
+      "complete_code": "hyy",
+      "category": "core",
+      "source_order": 16195,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16195"
+    },
+    {
+      "text": "绗",
+      "complete_code": "hhs",
+      "category": "core",
+      "source_order": 16196,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16196"
+    },
+    {
+      "text": "嚯",
+      "complete_code": "hok",
+      "category": "core",
+      "source_order": 16197,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16197"
+    },
+    {
+      "text": "藿",
+      "complete_code": "hocf",
+      "category": "core",
+      "source_order": 16198,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16198"
+    },
+    {
+      "text": "曷",
+      "complete_code": "heo",
+      "category": "core",
+      "source_order": 16199,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16199"
+    },
+    {
+      "text": "铪",
+      "complete_code": "haj",
+      "category": "core",
+      "source_order": 16200,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16200"
+    },
+    {
+      "text": "醐",
+      "complete_code": "huy",
+      "category": "core",
+      "source_order": 16201,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16201"
+    },
+    {
+      "text": "獾",
+      "complete_code": "hrq",
+      "category": "core",
+      "source_order": 16202,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16202"
+    },
+    {
+      "text": "鬟",
+      "complete_code": "hra",
+      "category": "core",
+      "source_order": 16203,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16203"
+    },
+    {
+      "text": "虺",
+      "complete_code": "hvwi",
+      "category": "core",
+      "source_order": 16204,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16204"
+    },
+    {
+      "text": "顸",
+      "complete_code": "hjgr",
+      "category": "core",
+      "source_order": 16205,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16205"
+    },
+    {
+      "text": "薅",
+      "complete_code": "hcc",
+      "category": "core",
+      "source_order": 16206,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16206"
+    },
+    {
+      "text": "翮",
+      "complete_code": "hea",
+      "category": "core",
+      "source_order": 16207,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16207"
+    },
+    {
+      "text": "猢",
+      "complete_code": "huqo",
+      "category": "core",
+      "source_order": 16208,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16208"
+    },
+    {
+      "text": "怙",
+      "complete_code": "hux",
+      "category": "core",
+      "source_order": 16209,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16209"
+    },
+    {
+      "text": "唿",
+      "complete_code": "hukx",
+      "category": "core",
+      "source_order": 16210,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16210"
+    },
+    {
+      "text": "戽",
+      "complete_code": "huhu",
+      "category": "core",
+      "source_order": 16211,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16211"
+    },
+    {
+      "text": "颃",
+      "complete_code": "hhw",
+      "category": "core",
+      "source_order": 16213,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16213"
+    },
+    {
+      "text": "篌",
+      "complete_code": "hzv",
+      "category": "core",
+      "source_order": 16214,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16214"
+    },
+    {
+      "text": "蠖",
+      "complete_code": "hoi",
+      "category": "core",
+      "source_order": 16215,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16215"
+    },
+    {
+      "text": "纥",
+      "complete_code": "hes",
+      "category": "core",
+      "source_order": 16216,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16216"
+    },
+    {
+      "text": "槲",
+      "complete_code": "humu",
+      "category": "core",
+      "source_order": 16217,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16217"
+    },
+    {
+      "text": "萑",
+      "complete_code": "hrc",
+      "category": "core",
+      "source_order": 16218,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16218"
+    },
+    {
+      "text": "癀",
+      "complete_code": "hlbb",
+      "category": "core",
+      "source_order": 16219,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16219"
+    },
+    {
+      "text": "蟪",
+      "complete_code": "hvix",
+      "category": "core",
+      "source_order": 16220,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16220"
+    },
+    {
+      "text": "钬",
+      "complete_code": "hojh",
+      "category": "core",
+      "source_order": 16221,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16221"
+    },
+    {
+      "text": "犴",
+      "complete_code": "hjq",
+      "category": "core",
+      "source_order": 16222,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16222"
+    },
+    {
+      "text": "盍",
+      "complete_code": "hetm",
+      "category": "core",
+      "source_order": 16223,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16223"
+    },
+    {
+      "text": "荭",
+      "complete_code": "hscg",
+      "category": "core",
+      "source_order": 16224,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16224"
+    },
+    {
+      "text": "黉",
+      "complete_code": "hsx",
+      "category": "core",
+      "source_order": 16225,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16225"
+    },
+    {
+      "text": "糇",
+      "complete_code": "hzm",
+      "category": "core",
+      "source_order": 16226,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16226"
+    },
+    {
+      "text": "骺",
+      "complete_code": "hzg",
+      "category": "core",
+      "source_order": 16227,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16227"
+    },
+    {
+      "text": "鲎",
+      "complete_code": "hzx",
+      "category": "core",
+      "source_order": 16228,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16228"
+    },
+    {
+      "text": "煳",
+      "complete_code": "huho",
+      "category": "core",
+      "source_order": 16229,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16229"
+    },
+    {
+      "text": "鹕",
+      "complete_code": "huun",
+      "category": "core",
+      "source_order": 16230,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16230"
+    },
+    {
+      "text": "瓠",
+      "complete_code": "hudg",
+      "category": "core",
+      "source_order": 16231,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16231"
+    },
+    {
+      "text": "逭",
+      "complete_code": "hrzk",
+      "category": "core",
+      "source_order": 16232,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16232"
+    },
+    {
+      "text": "漶",
+      "complete_code": "hrdx",
+      "category": "core",
+      "source_order": 16233,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16233"
+    },
+    {
+      "text": "耠",
+      "complete_code": "hol",
+      "category": "core",
+      "source_order": 16234,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16234"
+    },
+    {
+      "text": "镬",
+      "complete_code": "hoj",
+      "category": "core",
+      "source_order": 16235,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16235"
+    },
+    {
+      "text": "焓",
+      "complete_code": "hjhk",
+      "category": "core",
+      "source_order": 16236,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16236"
+    },
+    {
+      "text": "瘊",
+      "complete_code": "hzb",
+      "category": "core",
+      "source_order": 16237,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16237"
+    },
+    {
+      "text": "岵",
+      "complete_code": "hue",
+      "category": "core",
+      "source_order": 16238,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16238"
+    },
+    {
+      "text": "鹱",
+      "complete_code": "huny",
+      "category": "core",
+      "source_order": 16239,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16239"
+    },
+    {
+      "text": "咴",
+      "complete_code": "hvkh",
+      "category": "core",
+      "source_order": 16240,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16240"
+    },
+    {
+      "text": "翙",
+      "complete_code": "hvex",
+      "category": "core",
+      "source_order": 16241,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16241"
+    },
+    {
+      "text": "溷",
+      "complete_code": "hydu",
+      "category": "core",
+      "source_order": 16242,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16242"
+    },
+    {
+      "text": "夥",
+      "complete_code": "hogx",
+      "category": "core",
+      "source_order": 16243,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16243"
+    },
+    {
+      "text": "胲",
+      "complete_code": "hdo",
+      "category": "core",
+      "source_order": 16244,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16244"
+    },
+    {
+      "text": "醢",
+      "complete_code": "hdy",
+      "category": "core",
+      "source_order": 16245,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16245"
+    },
+    {
+      "text": "撖",
+      "complete_code": "hjfw",
+      "category": "core",
+      "source_order": 16246,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16246"
+    },
+    {
+      "text": "薨",
+      "complete_code": "hscb",
+      "category": "core",
+      "source_order": 16247,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16247"
+    },
+    {
+      "text": "堠",
+      "complete_code": "hztu",
+      "category": "core",
+      "source_order": 16248,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16248"
+    },
+    {
+      "text": "轷",
+      "complete_code": "huih",
+      "category": "core",
+      "source_order": 16249,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16249"
+    },
+    {
+      "text": "锾",
+      "complete_code": "hrjy",
+      "category": "core",
+      "source_order": 16250,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16250"
+    },
+    {
+      "text": "缳",
+      "complete_code": "hrsy",
+      "category": "core",
+      "source_order": 16251,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16251"
+    },
+    {
+      "text": "擐",
+      "complete_code": "hrf",
+      "category": "core",
+      "source_order": 16252,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16252"
+    },
+    {
+      "text": "哕",
+      "complete_code": "hvkx",
+      "category": "core",
+      "source_order": 16253,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16253"
+    },
+    {
+      "text": "阍",
+      "complete_code": "hym",
+      "category": "core",
+      "source_order": 16254,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16254"
+    },
+    {
+      "text": "劐",
+      "complete_code": "hocd",
+      "category": "core",
+      "source_order": 16255,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16255"
+    },
+    {
+      "text": "攉",
+      "complete_code": "hof",
+      "category": "core",
+      "source_order": 16256,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16256"
+    },
+    {
+      "text": "砉",
+      "complete_code": "hxfu",
+      "category": "core",
+      "source_order": 16257,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16257"
+    },
+    {
+      "text": "翯",
+      "complete_code": "hex",
+      "category": "core",
+      "source_order": 16258,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16258"
+    },
+    {
+      "text": "姮",
+      "complete_code": "hgn",
+      "category": "core",
+      "source_order": 16259,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16259"
+    },
+    {
+      "text": "硊",
+      "complete_code": "hvuv",
+      "category": "core",
+      "source_order": 16260,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16260"
+    },
+    {
+      "text": "垕",
+      "complete_code": "hzp",
+      "category": "core",
+      "source_order": 16261,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16261"
+    },
+    {
+      "text": "虷",
+      "complete_code": "hjig",
+      "category": "core",
+      "source_order": 16262,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16262"
+    },
+    {
+      "text": "嵅",
+      "complete_code": "hjek",
+      "category": "core",
+      "source_order": 16263,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16263"
+    },
+    {
+      "text": "滉",
+      "complete_code": "hldw",
+      "category": "core",
+      "source_order": 16264,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16264"
+    },
+    {
+      "text": "嬛",
+      "complete_code": "hrn",
+      "category": "core",
+      "source_order": 16265,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16265"
+    },
+    {
+      "text": "逅",
+      "complete_code": "hzzk",
+      "category": "core",
+      "source_order": 16266,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16266"
+    },
+    {
+      "text": "淏",
+      "complete_code": "hcdt",
+      "category": "core",
+      "source_order": 16267,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16267"
+    },
+    {
+      "text": "鄗",
+      "complete_code": "hcwe",
+      "category": "core",
+      "source_order": 16268,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16268"
+    },
+    {
+      "text": "嗐",
+      "complete_code": "hdkk",
+      "category": "core",
+      "source_order": 16269,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16269"
+    },
+    {
+      "text": "盉",
+      "complete_code": "hehm",
+      "category": "core",
+      "source_order": 16270,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16270"
+    },
+    {
+      "text": "鞨",
+      "complete_code": "heg",
+      "category": "core",
+      "source_order": 16271,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16271"
+    },
+    {
+      "text": "饸",
+      "complete_code": "heuk",
+      "category": "core",
+      "source_order": 16272,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16272"
+    },
+    {
+      "text": "龁",
+      "complete_code": "hevq",
+      "category": "core",
+      "source_order": 16273,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16273"
+    },
+    {
+      "text": "郃",
+      "complete_code": "here",
+      "category": "core",
+      "source_order": 16274,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16274"
+    },
+    {
+      "text": "垎",
+      "complete_code": "hetk",
+      "category": "core",
+      "source_order": 16275,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16275"
+    },
+    {
+      "text": "隺",
+      "complete_code": "hedf",
+      "category": "core",
+      "source_order": 16276,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16276"
+    },
+    {
+      "text": "鹖",
+      "complete_code": "heon",
+      "category": "core",
+      "source_order": 16277,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16277"
+    },
+    {
+      "text": "熇",
+      "complete_code": "heh",
+      "category": "core",
+      "source_order": 16278,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16278"
+    },
+    {
+      "text": "龢",
+      "complete_code": "herh",
+      "category": "core",
+      "source_order": 16279,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16279"
+    },
+    {
+      "text": "鸻",
+      "complete_code": "hgin",
+      "category": "core",
+      "source_order": 16280,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16280"
+    },
+    {
+      "text": "崡",
+      "complete_code": "hje",
+      "category": "core",
+      "source_order": 16281,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16281"
+    },
+    {
+      "text": "蔊",
+      "complete_code": "hjcg",
+      "category": "core",
+      "source_order": 16282,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16282"
+    },
+    {
+      "text": "暵",
+      "complete_code": "hjon",
+      "category": "core",
+      "source_order": 16283,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16283"
+    },
+    {
+      "text": "㘎",
+      "complete_code": "hjkw",
+      "category": "core",
+      "source_order": 16284,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16284"
+    },
+    {
+      "text": "喤",
+      "complete_code": "hlkw",
+      "category": "core",
+      "source_order": 16285,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16285"
+    },
+    {
+      "text": "媓",
+      "complete_code": "hln",
+      "category": "core",
+      "source_order": 16286,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16286"
+    },
+    {
+      "text": "嚄",
+      "complete_code": "hoky",
+      "category": "core",
+      "source_order": 16287,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16287"
+    },
+    {
+      "text": "佸",
+      "complete_code": "hork",
+      "category": "core",
+      "source_order": 16288,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16288"
+    },
+    {
+      "text": "濩",
+      "complete_code": "hody",
+      "category": "core",
+      "source_order": 16289,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16289"
+    },
+    {
+      "text": "彟",
+      "complete_code": "hoe",
+      "category": "core",
+      "source_order": 16290,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16290"
+    },
+    {
+      "text": "㸌",
+      "complete_code": "hohf",
+      "category": "core",
+      "source_order": 16291,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16291"
+    },
+    {
+      "text": "鹮",
+      "complete_code": "hrsn",
+      "category": "core",
+      "source_order": 16292,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16292"
+    },
+    {
+      "text": "荁",
+      "complete_code": "hrca",
+      "category": "core",
+      "source_order": 16293,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16293"
+    },
+    {
+      "text": "峘",
+      "complete_code": "hre",
+      "category": "core",
+      "source_order": 16294,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16294"
+    },
+    {
+      "text": "㬊",
+      "complete_code": "hro",
+      "category": "core",
+      "source_order": 16295,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16295"
+    },
+    {
+      "text": "澴",
+      "complete_code": "hrdy",
+      "category": "core",
+      "source_order": 16296,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16296"
+    },
+    {
+      "text": "貆",
+      "complete_code": "hrv",
+      "category": "core",
+      "source_order": 16297,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16297"
+    },
+    {
+      "text": "𤩽",
+      "complete_code": "hrwq",
+      "category": "core",
+      "source_order": 16298,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16298"
+    },
+    {
+      "text": "吽",
+      "complete_code": "hskn",
+      "category": "core",
+      "source_order": 16299,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16299"
+    },
+    {
+      "text": "竑",
+      "complete_code": "hsl",
+      "category": "core",
+      "source_order": 16300,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16300"
+    },
+    {
+      "text": "纮",
+      "complete_code": "hsss",
+      "category": "core",
+      "source_order": 16301,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16301"
+    },
+    {
+      "text": "翃",
+      "complete_code": "hsu",
+      "category": "core",
+      "source_order": 16302,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16302"
+    },
+    {
+      "text": "𬭎",
+      "complete_code": "hsj",
+      "category": "core",
+      "source_order": 16303,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16303"
+    },
+    {
+      "text": "𫟹",
+      "complete_code": "hsjb",
+      "category": "core",
+      "source_order": 16304,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16304"
+    },
+    {
+      "text": "谼",
+      "complete_code": "hsbb",
+      "category": "core",
+      "source_order": 16305,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16305"
+    },
+    {
+      "text": "昒",
+      "complete_code": "huo",
+      "category": "core",
+      "source_order": 16306,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16306"
+    },
+    {
+      "text": "昈",
+      "complete_code": "huoh",
+      "category": "core",
+      "source_order": 16307,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16307"
+    },
+    {
+      "text": "淴",
+      "complete_code": "hudx",
+      "category": "core",
+      "source_order": 16308,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16308"
+    },
+    {
+      "text": "鄠",
+      "complete_code": "huye",
+      "category": "core",
+      "source_order": 16309,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16309"
+    },
+    {
+      "text": "嫭",
+      "complete_code": "hunh",
+      "category": "core",
+      "source_order": 16310,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16310"
+    },
+    {
+      "text": "鳠",
+      "complete_code": "huay",
+      "category": "core",
+      "source_order": 16311,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16311"
+    },
+    {
+      "text": "橞",
+      "complete_code": "hvmx",
+      "category": "core",
+      "source_order": 16312,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16312"
+    },
+    {
+      "text": "婳",
+      "complete_code": "hxn",
+      "category": "core",
+      "source_order": 16313,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16313"
+    },
+    {
+      "text": "觟",
+      "complete_code": "hxdt",
+      "category": "core",
+      "source_order": 16314,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16314"
+    },
+    {
+      "text": "郈",
+      "complete_code": "hzpe",
+      "category": "core",
+      "source_order": 16315,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16315"
+    },
+    {
+      "text": "鲘",
+      "complete_code": "hza",
+      "category": "core",
+      "source_order": 16317,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16317"
+    },
+    {
+      "text": "𬣳",
+      "complete_code": "hfyg",
+      "category": "core",
+      "source_order": 16318,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16318"
+    },
+    {
+      "text": "𬴃",
+      "complete_code": "homu",
+      "category": "core",
+      "source_order": 16319,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16319"
+    },
+    {
+      "text": "𬘫",
+      "complete_code": "hrse",
+      "category": "core",
+      "source_order": 16320,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16320"
+    },
+    {
+      "text": "𬭤",
+      "complete_code": "hzju",
+      "category": "core",
+      "source_order": 16322,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16322"
+    },
+    {
+      "text": "虹",
+      "complete_code": "hsig",
+      "category": "core",
+      "source_order": 16375,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16375"
+    },
+    {
+      "text": "憾",
+      "complete_code": "hjxx",
+      "category": "core",
+      "source_order": 16381,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16381"
+    },
+    {
+      "text": "讳",
+      "complete_code": "hvyw",
+      "category": "core",
+      "source_order": 16396,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16396"
+    },
+    {
+      "text": "痪",
+      "complete_code": "hrbd",
+      "category": "core",
+      "source_order": 16399,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16399"
+    },
+    {
+      "text": "堕",
+      "complete_code": "hvet",
+      "category": "core",
+      "source_order": 16412,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16412"
+    },
+    {
+      "text": "遑",
+      "complete_code": "hlzw",
+      "category": "core",
+      "source_order": 16431,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16431"
+    },
+    {
+      "text": "鲩",
+      "complete_code": "hrae",
+      "category": "core",
+      "source_order": 16448,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16448"
+    },
+    {
+      "text": "湖南",
+      "complete_code": "hn",
+      "category": "core",
+      "source_order": 16478,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16478"
+    },
+    {
+      "text": "好处",
+      "complete_code": "hi",
+      "category": "core",
+      "source_order": 16479,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16479"
+    },
+    {
+      "text": "后面",
+      "complete_code": "hm",
+      "category": "core",
+      "source_order": 16480,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16480"
+    },
+    {
+      "text": "回去",
+      "complete_code": "hq",
+      "category": "core",
+      "source_order": 16481,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16481"
+    },
+    {
+      "text": "害怕",
+      "complete_code": "hp",
+      "category": "core",
+      "source_order": 16482,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16482"
+    },
+    {
+      "text": "何必",
+      "complete_code": "hb",
+      "category": "core",
+      "source_order": 16483,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16483"
+    },
+    {
+      "text": "后天",
+      "complete_code": "ht",
+      "category": "core",
+      "source_order": 16484,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16484"
+    },
+    {
+      "text": "哈达",
+      "complete_code": "hada",
+      "category": "core",
+      "source_order": 16485,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16485"
+    },
+    {
+      "text": "哈佛",
+      "complete_code": "hafo",
+      "category": "core",
+      "source_order": 16486,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16486"
+    },
+    {
+      "text": "哈哈",
+      "complete_code": "haha",
+      "category": "core",
+      "source_order": 16487,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16487"
+    },
+    {
+      "text": "和蔼可亲",
+      "complete_code": "hakq",
+      "category": "core",
+      "source_order": 16488,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16488"
+    },
+    {
+      "text": "哈喽",
+      "complete_code": "halz",
+      "category": "core",
+      "source_order": 16489,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16489"
+    },
+    {
+      "text": "哈罗",
+      "complete_code": "halo",
+      "category": "core",
+      "source_order": 16490,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16490"
+    },
+    {
+      "text": "哈喇",
+      "complete_code": "hala",
+      "category": "core",
+      "source_order": 16491,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16491"
+    },
+    {
+      "text": "蛤蟆",
+      "complete_code": "hama",
+      "category": "core",
+      "source_order": 16492,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16492"
+    },
+    {
+      "text": "哈密",
+      "complete_code": "hami",
+      "category": "core",
+      "source_order": 16493,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16493"
+    },
+    {
+      "text": "哈欠",
+      "complete_code": "haqm",
+      "category": "core",
+      "source_order": 16494,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16494"
+    },
+    {
+      "text": "哈气",
+      "complete_code": "haqi",
+      "category": "core",
+      "source_order": 16495,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16495"
+    },
+    {
+      "text": "海岸线",
+      "complete_code": "haxm",
+      "category": "core",
+      "source_order": 16496,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16496"
+    },
+    {
+      "text": "汉堡包",
+      "complete_code": "hbbc",
+      "category": "core",
+      "source_order": 16497,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16497"
+    },
+    {
+      "text": "后半部分",
+      "complete_code": "hbbf",
+      "category": "core",
+      "source_order": 16498,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16498"
+    },
+    {
+      "text": "后半辈子",
+      "complete_code": "hbbz",
+      "category": "core",
+      "source_order": 16499,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16499"
+    },
+    {
+      "text": "还不错",
+      "complete_code": "hbco",
+      "category": "core",
+      "source_order": 16500,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16500"
+    },
+    {
+      "text": "恨不得",
+      "complete_code": "hbde",
+      "category": "core",
+      "source_order": 16501,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16501"
+    },
+    {
+      "text": "还不到",
+      "complete_code": "hbdc",
+      "category": "core",
+      "source_order": 16502,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16502"
+    },
+    {
+      "text": "货不对板",
+      "complete_code": "hbdb",
+      "category": "core",
+      "source_order": 16503,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16503"
+    },
+    {
+      "text": "黑白颠倒",
+      "complete_code": "hbdd",
+      "category": "core",
+      "source_order": 16504,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16504"
+    },
+    {
+      "text": "毫不动摇",
+      "complete_code": "hbdy",
+      "category": "core",
+      "source_order": 16505,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16505"
+    },
+    {
+      "text": "荷包蛋",
+      "complete_code": "hbdj",
+      "category": "core",
+      "source_order": 16506,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16506"
+    },
+    {
+      "text": "含苞待放",
+      "complete_code": "hbdf",
+      "category": "core",
+      "source_order": 16507,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16507"
+    },
+    {
+      "text": "悔不当初",
+      "complete_code": "hbdi",
+      "category": "core",
+      "source_order": 16508,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16508"
+    },
+    {
+      "text": "祸不单行",
+      "complete_code": "hbdx",
+      "category": "core",
+      "source_order": 16509,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16509"
+    },
+    {
+      "text": "话不多说",
+      "complete_code": "hbdu",
+      "category": "core",
+      "source_order": 16510,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16510"
+    },
+    {
+      "text": "恨不得有条地缝钻进去",
+      "complete_code": "hbdq",
+      "category": "core",
+      "source_order": 16511,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16511"
+    },
+    {
+      "text": "好办法",
+      "complete_code": "hbfa",
+      "category": "core",
+      "source_order": 16512,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16512"
+    },
+    {
+      "text": "黑白分明",
+      "complete_code": "hbfm",
+      "category": "core",
+      "source_order": 16513,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16513"
+    },
+    {
+      "text": "魂不附体",
+      "complete_code": "hbft",
+      "category": "core",
+      "source_order": 16514,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16514"
+    },
+    {
+      "text": "还本付息",
+      "complete_code": "hbfx",
+      "category": "core",
+      "source_order": 16515,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16515"
+    },
+    {
+      "text": "毫不费劲",
+      "complete_code": "hbfj",
+      "category": "core",
+      "source_order": 16516,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16516"
+    },
+    {
+      "text": "毫不费力",
+      "complete_code": "hbfl",
+      "category": "core",
+      "source_order": 16517,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16517"
+    },
+    {
+      "text": "还不够",
+      "complete_code": "hbgz",
+      "category": "core",
+      "source_order": 16518,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16518"
+    },
+    {
+      "text": "悔不该",
+      "complete_code": "hbgd",
+      "category": "core",
+      "source_order": 16519,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16519"
+    },
+    {
+      "text": "互不干扰",
+      "complete_code": "hbgr",
+      "category": "core",
+      "source_order": 16520,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16520"
+    },
+    {
+      "text": "回不过神来",
+      "complete_code": "hbgl",
+      "category": "core",
+      "source_order": 16521,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16521"
+    },
+    {
+      "text": "会不会",
+      "complete_code": "hbhv",
+      "category": "core",
+      "source_order": 16522,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16522"
+    },
+    {
+      "text": "好不好",
+      "complete_code": "hbhc",
+      "category": "core",
+      "source_order": 16523,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16523"
+    },
+    {
+      "text": "会不会是",
+      "complete_code": "hbhu",
+      "category": "core",
+      "source_order": 16524,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16524"
+    },
+    {
+      "text": "好吧好吧",
+      "complete_code": "hbhb",
+      "category": "core",
+      "source_order": 16525,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16525"
+    },
+    {
+      "text": "毫不讳言",
+      "complete_code": "hbhy",
+      "category": "core",
+      "source_order": 16526,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16526"
+    },
+    {
+      "text": "毫不含糊",
+      "complete_code": "hbhh",
+      "category": "core",
+      "source_order": 16527,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16527"
+    },
+    {
+      "text": "画饼充饥",
+      "complete_code": "hbij",
+      "category": "core",
+      "source_order": 16528,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16528"
+    },
+    {
+      "text": "毫不迟疑",
+      "complete_code": "hbiy",
+      "category": "core",
+      "source_order": 16529,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16529"
+    },
+    {
+      "text": "花不出去",
+      "complete_code": "hbiq",
+      "category": "core",
+      "source_order": 16530,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16530"
+    },
+    {
+      "text": "虎豹豺狼",
+      "complete_code": "hbil",
+      "category": "core",
+      "source_order": 16531,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16531"
+    },
+    {
+      "text": "环保局",
+      "complete_code": "hbju",
+      "category": "core",
+      "source_order": 16532,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16532"
+    },
+    {
+      "text": "毫不介意",
+      "complete_code": "hbjy",
+      "category": "core",
+      "source_order": 16533,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16533"
+    },
+    {
+      "text": "祸不及家人",
+      "complete_code": "hbjr",
+      "category": "core",
+      "source_order": 16534,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16534"
+    },
+    {
+      "text": "缓不济急",
+      "complete_code": "hbjj",
+      "category": "core",
+      "source_order": 16535,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16535"
+    },
+    {
+      "text": "还不快",
+      "complete_code": "hbkk",
+      "category": "core",
+      "source_order": 16536,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16536"
+    },
+    {
+      "text": "毫不夸张",
+      "complete_code": "hbkv",
+      "category": "core",
+      "source_order": 16537,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16537"
+    },
+    {
+      "text": "很不客气",
+      "complete_code": "hbkq",
+      "category": "core",
+      "source_order": 16538,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16538"
+    },
+    {
+      "text": "花不了",
+      "complete_code": "hbl",
+      "category": "core",
+      "source_order": 16539,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16539"
+    },
+    {
+      "text": "回不来",
+      "complete_code": "hbld",
+      "category": "core",
+      "source_order": 16540,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16540"
+    },
+    {
+      "text": "合不拢",
+      "complete_code": "hbls",
+      "category": "core",
+      "source_order": 16541,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16541"
+    },
+    {
+      "text": "毫不利己",
+      "complete_code": "hblj",
+      "category": "core",
+      "source_order": 16542,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16542"
+    },
+    {
+      "text": "毫不理会",
+      "complete_code": "hblh",
+      "category": "core",
+      "source_order": 16543,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16543"
+    },
+    {
+      "text": "黑不溜秋",
+      "complete_code": "hblq",
+      "category": "core",
+      "source_order": 16544,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16544"
+    },
+    {
+      "text": "活蹦乱跳",
+      "complete_code": "hblt",
+      "category": "core",
+      "source_order": 16545,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16545"
+    },
+    {
+      "text": "互不理睬",
+      "complete_code": "hblc",
+      "category": "core",
+      "source_order": 16546,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16546"
+    },
+    {
+      "text": "胡编乱造",
+      "complete_code": "hblz",
+      "category": "core",
+      "source_order": 16547,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16547"
+    },
+    {
+      "text": "回报率",
+      "complete_code": "hblv",
+      "category": "core",
+      "source_order": 16548,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16548"
+    },
+    {
+      "text": "哈博罗内",
+      "complete_code": "hbln",
+      "category": "core",
+      "source_order": 16549,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16549"
+    },
+    {
+      "text": "还不能",
+      "complete_code": "hbng",
+      "category": "core",
+      "source_order": 16550,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16550"
+    },
+    {
+      "text": "回不去",
+      "complete_code": "hbqu",
+      "category": "core",
+      "source_order": 16551,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16551"
+    },
+    {
+      "text": "回不去了",
+      "complete_code": "hbql",
+      "category": "core",
+      "source_order": 16552,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16552"
+    },
+    {
+      "text": "毫不起眼",
+      "complete_code": "hbqy",
+      "category": "core",
+      "source_order": 16553,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16553"
+    },
+    {
+      "text": "怀璧其罪",
+      "complete_code": "hbqz",
+      "category": "core",
+      "source_order": 16554,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16554"
+    },
+    {
+      "text": "互不侵犯",
+      "complete_code": "hbqf",
+      "category": "core",
+      "source_order": 16555,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16555"
+    },
+    {
+      "text": "还不清楚",
+      "complete_code": "hbqi",
+      "category": "core",
+      "source_order": 16556,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16556"
+    },
+    {
+      "text": "还不如",
+      "complete_code": "hbru",
+      "category": "core",
+      "source_order": 16557,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16557"
+    },
+    {
+      "text": "好不容易",
+      "complete_code": "hbry",
+      "category": "core",
+      "source_order": 16558,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16558"
+    },
+    {
+      "text": "货比三家",
+      "complete_code": "hbsj",
+      "category": "core",
+      "source_order": 16559,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16559"
+    },
+    {
+      "text": "好半天",
+      "complete_code": "hbtm",
+      "category": "core",
+      "source_order": 16560,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16560"
+    },
+    {
+      "text": "话不投机",
+      "complete_code": "hbtj",
+      "category": "core",
+      "source_order": 16561,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16561"
+    },
+    {
+      "text": "化悲痛为力量",
+      "complete_code": "hbtl",
+      "category": "core",
+      "source_order": 16562,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16562"
+    },
+    {
+      "text": "话不投机半句多",
+      "complete_code": "hbtd",
+      "category": "core",
+      "source_order": 16563,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16563"
+    },
+    {
+      "text": "还不是",
+      "complete_code": "hbui",
+      "category": "core",
+      "source_order": 16564,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16564"
+    },
+    {
+      "text": "湖北省",
+      "complete_code": "hbug",
+      "category": "core",
+      "source_order": 16565,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16565"
+    },
+    {
+      "text": "还不少",
+      "complete_code": "hbuc",
+      "category": "core",
+      "source_order": 16566,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16566"
+    },
+    {
+      "text": "虎不食儿",
+      "complete_code": "hbue",
+      "category": "core",
+      "source_order": 16567,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16567"
+    },
+    {
+      "text": "魂不守舍",
+      "complete_code": "hbuu",
+      "category": "core",
+      "source_order": 16568,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16568"
+    },
+    {
+      "text": "何不食肉糜",
+      "complete_code": "hbum",
+      "category": "core",
+      "source_order": 16569,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16569"
+    },
+    {
+      "text": "毫不示弱",
+      "complete_code": "hbur",
+      "category": "core",
+      "source_order": 16570,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16570"
+    },
+    {
+      "text": "还不止",
+      "complete_code": "hbvi",
+      "category": "core",
+      "source_order": 16571,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16571"
+    },
+    {
+      "text": "还不知道",
+      "complete_code": "hbvd",
+      "category": "core",
+      "source_order": 16572,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16572"
+    },
+    {
+      "text": "还不至于",
+      "complete_code": "hbvy",
+      "category": "core",
+      "source_order": 16573,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16573"
+    },
+    {
+      "text": "缓兵之计",
+      "complete_code": "hbvj",
+      "category": "core",
+      "source_order": 16574,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16574"
+    },
+    {
+      "text": "虎贲之师",
+      "complete_code": "hbvu",
+      "category": "core",
+      "source_order": 16575,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16575"
+    },
+    {
+      "text": "花不完",
+      "complete_code": "hbwj",
+      "category": "core",
+      "source_order": 16576,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16576"
+    },
+    {
+      "text": "悍不畏死",
+      "complete_code": "hbws",
+      "category": "core",
+      "source_order": 16577,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16577"
+    },
+    {
+      "text": "还不行",
+      "complete_code": "hbxk",
+      "category": "core",
+      "source_order": 16578,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16578"
+    },
+    {
+      "text": "后备箱",
+      "complete_code": "hbxl",
+      "category": "core",
+      "source_order": 16579,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16579"
+    },
+    {
+      "text": "互不相容",
+      "complete_code": "hbxr",
+      "category": "core",
+      "source_order": 16580,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16580"
+    },
+    {
+      "text": "黑白相间",
+      "complete_code": "hbxj",
+      "category": "core",
+      "source_order": 16581,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16581"
+    },
+    {
+      "text": "虎背熊腰",
+      "complete_code": "hbxy",
+      "category": "core",
+      "source_order": 16582,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16582"
+    },
+    {
+      "text": "互不相欠",
+      "complete_code": "hbxq",
+      "category": "core",
+      "source_order": 16583,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16583"
+    },
+    {
+      "text": "毫不相干",
+      "complete_code": "hbxg",
+      "category": "core",
+      "source_order": 16584,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16584"
+    },
+    {
+      "text": "毫不逊色",
+      "complete_code": "hbxs",
+      "category": "core",
+      "source_order": 16585,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16585"
+    },
+    {
+      "text": "红白喜事",
+      "complete_code": "hbxu",
+      "category": "core",
+      "source_order": 16586,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16586"
+    },
+    {
+      "text": "花边新闻",
+      "complete_code": "hbxw",
+      "category": "core",
+      "source_order": 16587,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16587"
+    },
+    {
+      "text": "狠不下心",
+      "complete_code": "hbxx",
+      "category": "core",
+      "source_order": 16588,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16588"
+    },
+    {
+      "text": "后半夜",
+      "complete_code": "hbye",
+      "category": "core",
+      "source_order": 16589,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16589"
+    },
+    {
+      "text": "还不一定",
+      "complete_code": "hbyd",
+      "category": "core",
+      "source_order": 16590,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16590"
+    },
+    {
+      "text": "互不影响",
+      "complete_code": "hbyx",
+      "category": "core",
+      "source_order": 16591,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16591"
+    },
+    {
+      "text": "含苞欲放",
+      "complete_code": "hbyf",
+      "category": "core",
+      "source_order": 16592,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16592"
+    },
+    {
+      "text": "毫不犹豫",
+      "complete_code": "hbyy",
+      "category": "core",
+      "source_order": 16593,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16593"
+    },
+    {
+      "text": "毫不掩饰",
+      "complete_code": "hbyu",
+      "category": "core",
+      "source_order": 16594,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16594"
+    },
+    {
+      "text": "海不扬波",
+      "complete_code": "hbyb",
+      "category": "core",
+      "source_order": 16595,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16595"
+    },
+    {
+      "text": "还不足以",
+      "complete_code": "hbzy",
+      "category": "core",
+      "source_order": 16596,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16596"
+    },
+    {
+      "text": "慌不择路",
+      "complete_code": "hbzl",
+      "category": "core",
+      "source_order": 16597,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16597"
+    },
+    {
+      "text": "好啊",
+      "complete_code": "hcaa",
+      "category": "core",
+      "source_order": 16598,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16598"
+    },
+    {
+      "text": "毫安",
+      "complete_code": "hcan",
+      "category": "core",
+      "source_order": 16599,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16599"
+    },
+    {
+      "text": "好吧",
+      "complete_code": "hcba",
+      "category": "core",
+      "source_order": 16600,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16600"
+    },
+    {
+      "text": "厚此薄彼",
+      "complete_code": "hcbb",
+      "category": "core",
+      "source_order": 16601,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16601"
+    },
+    {
+      "text": "好报",
+      "complete_code": "hcbc",
+      "category": "core",
+      "source_order": 16602,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16602"
+    },
+    {
+      "text": "好棒",
+      "complete_code": "hcbh",
+      "category": "core",
+      "source_order": 16603,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16603"
+    },
+    {
+      "text": "好比",
+      "complete_code": "hcbi",
+      "category": "core",
+      "source_order": 16604,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16604"
+    },
+    {
+      "text": "好办",
+      "complete_code": "hcbj",
+      "category": "core",
+      "source_order": 16605,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16605"
+    },
+    {
+      "text": "毫不",
+      "complete_code": "hcbu",
+      "category": "core",
+      "source_order": 16606,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16606"
+    },
+    {
+      "text": "好兵",
+      "complete_code": "hcbk",
+      "category": "core",
+      "source_order": 16607,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16607"
+    },
+    {
+      "text": "好白",
+      "complete_code": "hcbd",
+      "category": "core",
+      "source_order": 16608,
+      "match_type": "prefix",
+      "is_user_rule": false,
+      "stable_id": "ct:xiaohe-yinxing-production:core:16608"
+    }
+  ]
+}

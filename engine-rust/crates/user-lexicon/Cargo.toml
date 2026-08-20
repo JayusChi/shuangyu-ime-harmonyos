@@ -1,0 +1,13 @@
+[package]
+name = "user-lexicon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "user_lexicon"
+path = "src/lib.rs"
+
+[dependencies]
+lexicon-core = { path = "../lexicon-core" }
+

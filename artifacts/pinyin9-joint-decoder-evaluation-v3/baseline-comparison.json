@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "pinyin9-joint-decoder-comparison/1",
+  "measurementKind": "frozen-public-and-dev-before-after",
+  "blindReused": false,
+  "publicRegression": {
+    "baseline": {
+      "top1Rate": 0.14888888888888888,
+      "top3Rate": 0.17444444444444446,
+      "top5Rate": 0.18444444444444444,
+      "mrr": 0.17371688402549743,
+      "targetUnrecalledRate": 0.41333333333333333,
+      "canonicalPinyinEnteredInternalSearchRate": null,
+      "canonicalPinyinJointBeamPrunedRate": null,
+      "canonicalPinyinEnteredPublic32Rate": null,
+      "canonicalPinyinNotIn32PathsRate": 0.32555555555555554,
+      "canonicalPathPresentButTargetUnrecalledRate": 0.08777777777777777,
+      "candidateRecalledButWrongTop1Rate": 0.43777777777777777,
+      "keyLatencyMicros": {
+        "max": 1138370,
+        "mean": 111712.74098549981,
+        "p50": 35805,
+        "p95": 541164,
+        "p99": 738442,
+        "samples": 15586
+      },
+      "sampleTotalLatencyMicros": {
+        "max": 22156879,
+        "mean": 1934866.9666666666,
+        "p50": 284016,
+        "p95": 13676887,
+        "p99": 18929119,
+        "samples": 900
+      },
+      "safety": {
+        "asciiLeakCount": 0,
+        "engineErrorCount": 0,
+        "nonExplicitAutomaticCommitCount": 0,
+        "stateLossCount": 0
+      },
+      "jointDecoder": null,
+      "failureAttribution": {
+        "candidateRecalledRankingErrorCount": 394,
+        "candidateRecalledRankingErrorRate": 0.43777777777777777,
+        "pathPresentCandidateMissingCount": 79,
+        "pathPresentCandidateMissingRate": 0.08777777777777777,
+        "pathPrunedCount": 293,
+        "pathPrunedRate": 0.32555555555555554
+      }
+    },
+    "jointDecoder": {
+      "top1Rate": 0.14666666666666667,
+      "top3Rate": 0.17555555555555555,
+      "top5Rate": 0.18555555555555556,
+      "mrr": 0.1731721042136425,
+      "targetUnrecalledRate": 0.3988888888888889,
+      "canonicalPinyinEnteredInternalSearchRate": 0.7233333333333334,
+      "canonicalPinyinJointBeamPrunedRate": 0.0044444444444444444,
+      "canonicalPinyinEnteredPublic32Rate": 0.6744444444444444,
+      "canonicalPinyinNotIn32PathsRate": 0.32555555555555554,
+      "canonicalPathPresentButTargetUnrecalledRate": 0.07444444444444444,
+      "candidateRecalledButWrongTop1Rate": 0.45444444444444443,
+      "keyLatencyMicros": {
+        "max": 556393,
+        "mean": 66325.80533812396,
+        "p50": 41759,
+        "p95": 237583,
+        "p99": 345435,
+        "samples": 15586
+      },
+      "sampleTotalLatencyMicros": {
+        "max": 6847283,
+        "mean": 1149177.6644444445,
+        "p50": 437441,
+        "p95": 5611943,
+        "p99": 6462408,
+        "samples": 900
+      },
+      "safety": {
+        "asciiLeakCount": 0,
+        "engineErrorCount": 0,
+        "inputLimitHitCount": 0,
+        "nonExplicitAutomaticCommitCount": 0,
+        "stateLossCount": 0
+      },
+      "jointDecoder": {
+        "beamCapacityPrunes": 8434962,
+        "candidateOutputLimitPrunes": 706,
+        "inputLimitHitCount": 0,
+        "jointScorePrunes": 8782,
+        "lexiconPrefixUnreachablePrunes": 1475918,
+        "maxBeamStates": 16,
+        "meanExploredPinyinHypothesesPerSample": 8143.002222222222,
+        "meanGraphEdgesPerSample": 690.5633333333334,
+        "peakEstimatedBytes": 24160,
+        "pinyinInvalidPrunes": 40717
+      },
+      "failureAttribution": {
+        "candidateRecalledRankingErrorCount": 409,
+        "candidateRecalledRankingErrorRate": 0.45444444444444443,
+        "jointBeamPrunedCount": 4,
+        "lexiconPrefixUnreachableCount": 35,
+        "parserNotGeneratedCount": 249,
+        "pathPresentCandidateMissingCount": 67,
+        "pathPresentCandidateMissingRate": 0.07444444444444444,
+        "pathPrunedCount": 293,
+        "pathPrunedRate": 0.32555555555555554,
+        "publicPathLimitOnlyCount": 5
+      }
+    }
+  },
+  "dev": {
+    "baseline": {
+      "top1Rate": 0.09032258064516129,
+      "top3Rate": 0.0967741935483871,
+      "top5Rate": 0.1032258064516129,
+      "mrr": 0.09693648558849753,
+      "targetUnrecalledRate": 0.8129032258064516,
+      "canonicalPinyinEnteredInternalSearchRate": null,
+      "canonicalPinyinJointBeamPrunedRate": null,
+      "canonicalPinyinEnteredPublic32Rate": null,
+      "canonicalPinyinNotIn32PathsRate": 0.6838709677419355,
+      "canonicalPathPresentButTargetUnrecalledRate": 0.12903225806451613,
+      "candidateRecalledButWrongTop1Rate": 0.0967741935483871,
+      "keyLatencyMicros": {
+        "max": 975456,
+        "mean": 116232.24716006884,
+        "p50": 32949,
+        "p95": 629015,
+        "p99": 828166,
+        "samples": 2905
+      },
+      "sampleTotalLatencyMicros": {
+        "max": 21727331,
+        "mean": 2178677.5677419356,
+        "p50": 335359,
+        "p95": 17820469,
+        "p99": 20544611,
+        "samples": 155
+      },
+      "safety": {
+        "asciiLeakCount": 0,
+        "engineErrorCount": 0,
+        "nonExplicitAutomaticCommitCount": 0,
+        "stateLossCount": 1
+      },
+      "jointDecoder": null,
+      "failureAttribution": {
+        "candidateRecalledRankingErrorCount": 15,
+        "candidateRecalledRankingErrorRate": 0.0967741935483871,
+        "pathPresentCandidateMissingCount": 20,
+        "pathPresentCandidateMissingRate": 0.12903225806451613,
+        "pathPrunedCount": 84,
+        "pathPrunedRate": 0.5419354838709678
+      }
+    },
+    "jointDecoder": {
+      "top1Rate": 0.09032258064516129,
+      "top3Rate": 0.0967741935483871,
+      "top5Rate": 0.1032258064516129,
+      "mrr": 0.09689735431886372,
+      "targetUnrecalledRate": 0.8129032258064516,
+      "canonicalPinyinEnteredInternalSearchRate": 0.3741935483870968,
+      "canonicalPinyinJointBeamPrunedRate": 0,
+      "canonicalPinyinEnteredPublic32Rate": 0.3161290322580645,
+      "canonicalPinyinNotIn32PathsRate": 0.6838709677419355,
+      "canonicalPathPresentButTargetUnrecalledRate": 0.12903225806451613,
+      "candidateRecalledButWrongTop1Rate": 0.0967741935483871,
+      "keyLatencyMicros": {
+        "max": 476757,
+        "mean": 67105.27641996558,
+        "p50": 41360,
+        "p95": 247365,
+        "p99": 364638,
+        "samples": 2905
+      },
+      "sampleTotalLatencyMicros": {
+        "max": 7391389,
+        "mean": 1258391.0967741935,
+        "p50": 534726,
+        "p95": 6244869,
+        "p99": 7174246,
+        "samples": 155
+      },
+      "safety": {
+        "asciiLeakCount": 0,
+        "engineErrorCount": 0,
+        "inputLimitHitCount": 1,
+        "nonExplicitAutomaticCommitCount": 0,
+        "stateLossCount": 0
+      },
+      "jointDecoder": {
+        "beamCapacityPrunes": 1557591,
+        "candidateOutputLimitPrunes": 94,
+        "inputLimitHitCount": 1,
+        "jointScorePrunes": 6768,
+        "lexiconPrefixUnreachablePrunes": 269575,
+        "maxBeamStates": 16,
+        "meanExploredPinyinHypothesesPerSample": 8680.05806451613,
+        "meanGraphEdgesPerSample": 718.0387096774193,
+        "peakEstimatedBytes": 25056,
+        "pinyinInvalidPrunes": 7354
+      },
+      "failureAttribution": {
+        "candidateRecalledRankingErrorCount": 15,
+        "candidateRecalledRankingErrorRate": 0.0967741935483871,
+        "jointBeamPrunedCount": 0,
+        "lexiconPrefixUnreachableCount": 9,
+        "parserNotGeneratedCount": 96,
+        "pathPresentCandidateMissingCount": 20,
+        "pathPresentCandidateMissingRate": 0.12903225806451613,
+        "pathPrunedCount": 84,
+        "pathPrunedRate": 0.5419354838709678,
+        "publicPathLimitOnlyCount": 0
+      }
+    }
+  }
+}

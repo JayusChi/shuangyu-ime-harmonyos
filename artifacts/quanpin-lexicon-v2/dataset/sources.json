@@ -1,0 +1,17 @@
+{
+    "schemaVersion":  "quanpin-evaluation-sources/2",
+    "sources":  [
+                    {
+                        "id":  "project-authored:quanpin-coverage-v2-evaluation",
+                        "name":  "HarmonyOS_Input independently authored V2 recall evaluation prompts",
+                        "version":  "2.0.0",
+                        "authoredAt":  "2026-08-14",
+                        "license":  "PROJECT-INTERNAL-AUTHORED-DATA",
+                        "externalData":  false,
+                        "productionSourceCopied":  false,
+                        "engineGeneratedExpectedText":  false,
+                        "candidateOutputViewedBeforeFreeze":  false,
+                        "method":  "Independently authored fixed prompts covering ordinary usage, named entities, six domains, and current terminology; not generated from the production V2 source."
+                    }
+                ]
+}

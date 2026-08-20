@@ -1,0 +1,113 @@
+case_id	scheme	category	input	expected_encoding_or_pinyin	word	max_expected_rank	contract	notes
+yx-code1-001	xiaohe-yinxing	yinxing_code_1	h	h	和	1	SUPPORTED	一码精确简码
+yx-code1-002	xiaohe-yinxing	yinxing_code_1	n	n	你	1	SUPPORTED	一码精确简码
+yx-code1-003	xiaohe-yinxing	yinxing_code_1	w	w	我	10	SUPPORTED	一码精确简码
+yx-code1-004	xiaohe-yinxing	common_single	d	d	的	10	SUPPORTED	一码精确简码与常用单字
+yx-code1-005	xiaohe-yinxing	yinxing_code_1	u	u	是	10	SUPPORTED	一码精确简码
+yx-code1-006	xiaohe-yinxing	yinxing_code_1	l	l	了	10	SUPPORTED	一码精确简码
+yx-code1-007	xiaohe-yinxing	yinxing_code_1	z	z	在	10	SUPPORTED	一码精确简码
+yx-code1-008	xiaohe-yinxing	yinxing_code_1	r	r	人	10	SUPPORTED	一码精确简码
+yx-code2-001	xiaohe-yinxing	yinxing_code_2	hc	hc	好	8	SUPPORTED	二码常用单字
+yx-code2-002	xiaohe-yinxing	polyphonic	xk	xk	行	8	SUPPORTED	多音字 xing
+yx-code2-003	xiaohe-yinxing	polyphonic	hh	hh	行	8	SUPPORTED	多音字 hang
+yx-code2-004	xiaohe-yinxing	polyphonic	ih	ih	长	8	SUPPORTED	多音字 chang
+yx-code2-005	xiaohe-yinxing	polyphonic	vh	vh	长	8	SUPPORTED	多音字 zhang
+yx-code2-006	xiaohe-yinxing	polyphonic	is	is	重	12	SUPPORTED	多音字 chong 前缀
+yx-code2-007	xiaohe-yinxing	yinxing_code_2	vs	vs	中	12	SUPPORTED	二码常用单字
+yx-code2-008	xiaohe-yinxing	yinxing_code_2	le	le	乐	12	SUPPORTED	多音字 le
+yx-code3-001	xiaohe-yinxing	yinxing_code_3	ano	ano	暗	10	SUPPORTED	三码常用单字
+yx-code3-002	xiaohe-yinxing	yinxing_code_3	gok	gok	国	10	SUPPORTED	三码常用单字
+yx-code3-003	xiaohe-yinxing	yinxing_code_3	uij	uij	时间	10	SUPPORTED	三码常用双字词
+yx-code3-004	xiaohe-yinxing	yinxing_code_3	mwt	mwt	没问题	10	SUPPORTED	三码日常口语
+yx-code3-005	xiaohe-yinxing	yinxing_code_3	aq	aq	安全	10	SUPPORTED	二码常用双字词补充
+yx-code3-006	xiaohe-yinxing	yinxing_code_3	oy	oy	欧阳	10	SUPPORTED	常见复姓
+yx-code3-007	xiaohe-yinxing	yinxing_code_3	tnu	tnu	调试	20	SUPPORTED	三码专业词前缀
+yx-code3-008	xiaohe-yinxing	yinxing_code_3	thl	thl	太好了	20	SUPPORTED	三码日常口语前缀
+yx-code4-001	xiaohe-yinxing	yinxing_code_4	aakk	aakk	啊	10	SUPPORTED	四码常用单字
+yx-code4-002	xiaohe-yinxing	yinxing_code_4	nirx	nirx	你	10	SUPPORTED	四码常用单字
+yx-code4-003	xiaohe-yinxing	yinxing_code_4	goky	goky	国	10	SUPPORTED	四码常用单字
+yx-code4-004	xiaohe-yinxing	common_double	hsmg	hsmg	鸿蒙	10	SUPPORTED	项目相关专业词
+yx-code4-005	xiaohe-yinxing	common_multi	urfa	urfa	输入法	10	SUPPORTED	项目相关专业词
+yx-code4-006	xiaohe-yinxing	common_multi	rgvn	rgvn	人工智能	10	SUPPORTED	项目相关专业词
+yx-code4-007	xiaohe-yinxing	idiom	yffu	yffu	一帆风顺	10	SUPPORTED	常用成语
+yx-code4-008	xiaohe-yinxing	idiom	uqum	uqum	十全十美	10	SUPPORTED	常用成语
+yx-category-001	xiaohe-yinxing	place	bwjk	bwjk	北京	20	SUPPORTED	常见地名
+yx-category-002	xiaohe-yinxing	place	uhhd	uhhd	上海	20	SUPPORTED	常见地名
+yx-category-003	xiaohe-yinxing	place	ufvf	ufvf	深圳	20	SUPPORTED	常见地名
+yx-category-004	xiaohe-yinxing	place	isqk	isqk	重庆	20	SUPPORTED	常见地名
+yx-category-005	xiaohe-yinxing	professional	hzxr	hzxr	候选	20	SUPPORTED	项目相关专业词
+yx-category-006	xiaohe-yinxing	professional	ciku	ciku	词库	20	SUPPORTED	项目相关专业词
+yx-category-007	xiaohe-yinxing	professional	wlaq	wlaq	网络安全	20	SUPPORTED	预期组合编码审计
+yx-category-008	xiaohe-yinxing	professional	kfv	kfv	开发者	20	SUPPORTED	预期三码专业词审计
+yx-category-009	xiaohe-yinxing	internet	nwjr	nwjr	内卷	20	SUPPORTED	网络常用表达审计
+yx-category-010	xiaohe-yinxing	rare_extended	aa	aa	𠀀	20	UNSUPPORTED	当前正式数据合同仅支持 BMP 常用 CJK
+yx-invalid-001	xiaohe-yinxing	invalid_encoding	h1	h1	和	20	SUPPORTED	非法音形编码必须分类而非补词
+sp-code1-001	xiaohe	shuangpin_code_1	h	he	和	10	SUPPORTED	单键拼音前缀
+sp-code1-002	xiaohe	shuangpin_code_1	n	ni	你	10	SUPPORTED	单键拼音前缀
+sp-code1-003	xiaohe	common_single	w	wo	我	10	SUPPORTED	单键拼音前缀与常用单字
+sp-code1-004	xiaohe	shuangpin_code_1	s	shi	是	20	SUPPORTED	单键拼音前缀
+sp-code2-001	xiaohe	shuangpin_code_2	hc	hao	好	10	SUPPORTED	完整双拼音节
+sp-code2-002	xiaohe	shuangpin_code_2	ni	ni	你	10	SUPPORTED	完整双拼音节
+sp-code2-003	xiaohe	polyphonic	xk	xing	行	20	SUPPORTED	多音字 xing
+sp-code2-004	xiaohe	polyphonic	hh	hang	行	20	SUPPORTED	多音字 hang
+sp-code2-005	xiaohe	polyphonic	ih	chang	长	20	SUPPORTED	多音字 chang
+sp-code2-006	xiaohe	polyphonic	vh	zhang	长	20	SUPPORTED	多音字 zhang
+sp-code2-007	xiaohe	polyphonic	is	chong	重	20	SUPPORTED	多音字 chong
+sp-code2-008	xiaohe	polyphonic	vs	zhong	重	20	SUPPORTED	多音字 zhong
+sp-code2-009	xiaohe	polyphonic	le	le	乐	20	SUPPORTED	多音字 le
+sp-code2-010	xiaohe	polyphonic	yt	yue	乐	20	SUPPORTED	多音字 yue
+sp-code3-001	xiaohe	shuangpin_code_3	nih	ni hao	你好	20	SUPPORTED	完整音节加下一音节前缀
+sp-code3-002	xiaohe	shuangpin_code_3	uij	shi jian	时间	20	SUPPORTED	完整音节加下一音节前缀
+sp-code3-003	xiaohe	shuangpin_code_3	jbt	jin tian	今天	20	SUPPORTED	完整音节加下一音节前缀
+sp-code3-004	xiaohe	shuangpin_code_3	mkt	ming tian	明天	20	SUPPORTED	完整音节加下一音节前缀
+sp-code4-001	xiaohe	shuangpin_code_4	nihc	ni hao	你好	10	SUPPORTED	双音节完整编码
+sp-code4-002	xiaohe	shuangpin_code_4	xpxp	xie xie	谢谢	10	SUPPORTED	双音节完整编码
+sp-code4-003	xiaohe	common_double	vsgo	zhong guo	中国	10	SUPPORTED	常用双字词
+sp-code4-004	xiaohe	common_double	uijm	shi jian	时间	10	SUPPORTED	常用双字词
+sp-code4-005	xiaohe	common_double	uiqk	shi qing	事情	10	SUPPORTED	常用双字词
+sp-code4-006	xiaohe	common_double	gszo	gong zuo	工作	10	SUPPORTED	常用双字词
+sp-code4-007	xiaohe	common_double	jbtm	jin tian	今天	10	SUPPORTED	常用双字词
+sp-code4-008	xiaohe	common_double	mktm	ming tian	明天	10	SUPPORTED	常用双字词
+sp-code4-009	xiaohe	common_double	kdxb	kai xin	开心	10	SUPPORTED	日常口语
+sp-code4-010	xiaohe	common_double	whlo	wang luo	网络	10	SUPPORTED	专业词基础
+sp-category-001	xiaohe	colloquial	byyskeqi	bu yong ke qi	不用客气	10	SUPPORTED	日常口语
+sp-category-002	xiaohe	colloquial	mwwfti	mei wen ti	没问题	10	SUPPORTED	日常口语
+sp-category-003	xiaohe	colloquial	tdhcle	tai hao le	太好了	10	SUPPORTED	日常口语
+sp-category-004	xiaohe	internet	hhhhhh	ha ha ha	哈哈哈	20	SUPPORTED	网络常用表达
+sp-category-005	xiaohe	internet	nrjr	nei juan	内卷	20	SUPPORTED	网络常用表达
+sp-category-006	xiaohe	internet	thpk	tang ping	躺平	20	SUPPORTED	网络常用表达
+sp-category-007	xiaohe	internet	bdl	bai lan	摆烂	20	SUPPORTED	网络常用表达
+sp-category-008	xiaohe	place	bwjk	bei jing	北京	10	SUPPORTED	常见地名
+sp-category-009	xiaohe	place	uhhd	shang hai	上海	10	SUPPORTED	常见地名
+sp-category-010	xiaohe	place	ufvf	shen zhen	深圳	10	SUPPORTED	常见地名
+sp-category-011	xiaohe	place	glvz	guang zhou	广州	10	SUPPORTED	常见地名
+sp-category-012	xiaohe	place	isqk	chong qing	重庆	10	SUPPORTED	常见地名
+sp-category-013	xiaohe	place	xxmf	xia men	厦门	10	SUPPORTED	常见地名
+sp-category-014	xiaohe	place	hhvz	hang zhou	杭州	10	SUPPORTED	常见地名
+sp-category-015	xiaohe	place	njjk	nan jing	南京	10	SUPPORTED	常见地名
+sp-category-016	xiaohe	place	wuhj	wu han	武汉	10	SUPPORTED	常见地名
+sp-category-017	xiaohe	place	xian	xi an	西安	10	SUPPORTED	常见地名
+sp-category-018	xiaohe	place	igdu	cheng du	成都	10	SUPPORTED	常见地名
+sp-category-019	xiaohe	name	vhww	zhang wei	张伟	20	SUPPORTED	常见姓名
+sp-category-020	xiaohe	name	whfh	wang fang	王芳	20	SUPPORTED	常见姓名
+sp-category-021	xiaohe	name	limk	li ming	李明	20	SUPPORTED	常见姓名
+sp-category-022	xiaohe	name	lqyh	liu yang	刘洋	20	SUPPORTED	常见姓名
+sp-category-023	xiaohe	name	ifif	chen chen	陈晨	20	SUPPORTED	常见姓名
+sp-category-024	xiaohe	name	vugell	zhu ge liang	诸葛亮	20	SUPPORTED	常见历史人名
+sp-category-025	xiaohe	idiom	yixbyiyi	yi xin yi yi	一心一意	10	SUPPORTED	常用成语
+sp-category-026	xiaohe	idiom	bukesiyi	bu ke si yi	不可思议	10	SUPPORTED	常用成语
+sp-category-027	xiaohe	idiom	yuuijujb	yu shi ju jin	与时俱进	10	SUPPORTED	常用成语
+sp-category-028	xiaohe	idiom	uirqmui	shi quan shi mei	十全十美	10	SUPPORTED	常用成语
+sp-category-029	xiaohe	professional	whloanqr	wang luo an quan	网络安全	20	SUPPORTED	专业词
+sp-category-030	xiaohe	professional	rfgsvlng	ren gong zhi neng	人工智能	20	SUPPORTED	专业词
+sp-category-031	xiaohe	professional	kdfave	kai fa zhe	开发者	20	SUPPORTED	专业词
+sp-category-032	xiaohe	professional	tnui	tiao shi	调试	20	SUPPORTED	专业词
+sp-category-033	xiaohe	professional	uurufa	shu ru fa	输入法	20	SUPPORTED	项目专业词
+sp-category-034	xiaohe	professional	hsmg	hong meng	鸿蒙	20	SUPPORTED	项目专业词
+sp-category-035	xiaohe	professional	hzxrci	hou xuan ci	候选词	20	SUPPORTED	项目专业词
+sp-category-036	xiaohe	professional	ulpb	shuang pin	双拼	20	SUPPORTED	项目专业词
+sp-category-037	xiaohe	rare_extended	da	da	龘	30	SUPPORTED	生僻字
+sp-category-038	xiaohe	rare_extended	nh	nang	齉	30	SUPPORTED	生僻字
+sp-category-039	xiaohe	rare_extended	js	jiong	囧	30	SUPPORTED	网络与生僻字交叉
+sp-category-040	xiaohe	rare_extended	aa	a	𠀀	30	UNSUPPORTED	当前正式词库构建合同拒绝非 BMP 字符
+sp-invalid-001	xiaohe	invalid_encoding	n1	ni	你	20	SUPPORTED	非法双拼编码必须分类而非补词

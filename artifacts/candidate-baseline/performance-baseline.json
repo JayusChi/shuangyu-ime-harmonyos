@@ -1,0 +1,69 @@
+{
+  "schema_version": "candidate-baseline/performance-host-release/1",
+  "profile": "release",
+  "warmup_count": 10,
+  "sample_count": 100,
+  "filesystem_cache": "not controlled; explicit warmup performed",
+  "metrics": [
+    {
+      "id": "double_pinyin_h_cold_query",
+      "unit": "ns",
+      "p50": 92900,
+      "p95": 142200,
+      "max": 204900
+    },
+    {
+      "id": "double_pinyin_h_hot_query",
+      "unit": "ns",
+      "p50": 9300,
+      "p95": 26500,
+      "max": 43900
+    },
+    {
+      "id": "flypy_shape_h_cold_state_query",
+      "unit": "ns",
+      "p50": 1376600,
+      "p95": 2003000,
+      "max": 2511500
+    },
+    {
+      "id": "flypy_shape_h_hot_state_query",
+      "unit": "ns",
+      "p50": 1154100,
+      "p95": 1843400,
+      "max": 2380500
+    }
+  ],
+  "candidate_counts": {
+    "double_pinyin_h": 64,
+    "flypy_shape_h": 512
+  },
+  "cross_language_current_page_json_bytes": {
+    "double_pinyin_h": 1176,
+    "flypy_shape_h": 1186
+  },
+  "memory": {
+    "process_start_working_set_bytes": 4096000,
+    "after_resource_load_working_set_bytes": 72794112,
+    "after_candidate_snapshots_working_set_bytes": 81104896,
+    "candidate_snapshot_working_set_delta_bytes": 8310784,
+    "peak_working_set_bytes": 149012480
+  },
+  "not_run": [
+    {
+      "metric": "Phone UI-visible latency and memory",
+      "status": "NOT_RUN",
+      "reason": "requires Phone simulator or device"
+    },
+    {
+      "metric": "Pad UI-visible latency and memory",
+      "status": "NOT_RUN",
+      "reason": "requires Pad simulator or device"
+    },
+    {
+      "metric": "ARM64 physical-device performance",
+      "status": "NOT_RUN",
+      "reason": "requires an attached ARM64 device"
+    }
+  ]
+}

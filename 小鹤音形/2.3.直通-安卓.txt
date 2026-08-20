@@ -1,0 +1,321 @@
+----syntax=cn, code
+--
+$cmd(querycode,[复制反查])	ofi
+$cmd(ignore,[无])	ofii
+$cmd(run(),[空])	ohh
+-- 上滑回删
+$cmd(deletelast,[撤销上屏])	ohhs
+-- 上滑回车
+$cmd({last_0},[重复])	ohhc
+
+-- 备用切分
+$cmd(cutpush,a|b)	ohqf
+---
+$cmd({time}:yyyy年M月d日,{time}:yyyy年M月d日)	orq
+$cmd({time}:yyyy-MM-dd,{time}:yyyy-MM-dd)	orq
+$cmd({time+1}:yyyy年M月d日,{time+1}:yyyy年M月d日)	omt
+$cmd({time+2}:yyyy年M月d日,{time+2}:yyyy年M月d日)	oht
+$cmd({time+1}:yyyy-MM-dd,{time+1}:yyyy-MM-dd)	omt
+$cmd({time+2}:yyyy-MM-dd,{time+2}:yyyy-MM-dd)	oht
+$cmd({cttg}:yMdHm,{cttg}:yMdHm)	onl
+$cmd({time}:HH:mm ddd,{time}:HH:mm ddd)	ouj
+$cmd({time}:H点m分,{time}:H点m分)	ouj
+$cmd({ctjq},{ctjq})	ojq
+--
+$cmd(run(https://flypy.cc),「小鹤官网」)	xhgw
+https://flypy.cc	xhg
+$cmd(run(http://flypy.ysepan.com),「小鹤网盘」)	xhwp
+$cmd(run(https://flypy.cc/help),「入门」)	xhrm
+$cmd(run(https://flypy.cc/help/#/sj),「入门」)	orm
+
+$cmd(show(设置),「设置菜单」)	ocd
+$cmd(set(reload),[重载])	oiz
+$cmd(set(reload),[重载])	ouz
+$cmd(show(皮肤目录),「目录」)	opf
+$cmd(show(键盘选择),[键盘])	opf
+$cmd(show(配色选择),[皮肤])	opf
+$cmd(keyboard(<164>),[静音])	ojy
+--
+$cmd(show(配置目录),「安装目录」)	oav
+$cmd(show(方案目录),「词库目录」)	ock
+$cmd(openf($userpath$/),「外目录」)	ock
+$cmd(show(ime),「高级设置」)	ogj
+
+$cmd(set(ime-hans2hant=?), [简繁切换])	ojf
+$cmd(set(ime-cnuseensymbol=?), [中英标点切换])	ovy
+$cmd(set(ime-quanjiao=?), [全半角切换])	oqb
+--
+$cmd(set(ime-showorder=1),[显示序号])	oxhc
+$cmd(set(ime-showorder=0),[不显])	oxhc
+
+$cmd(set(assoc-dual=1),[启用暗词库])	oak
+$cmd(set(assoc-dual=0),[停用])	oak
+$cmd(set(assoc-enable=1;assoc-historycomplete=0),[联想])	olx
+$cmd(set(assoc-enable=1;assoc-historycomplete=1),[+补全])	olx
+$cmd(set(assoc-enable=0),[关闭])	olx
+---
+$cmd(deleteall,[全删])	oqu
+$cmd(recoverdelete,[恢复])	oqu
+$cmd(deleteline,[删行])	oui$!
+$cmd(deleteline,[删行])	oiu$!
+
+$cmd(set(assoc-assocpos=0),[联想首选])	olxl
+$cmd(set(assoc-assocpos=1),[次选])	olxl
+$cmd(set(ime-move=0),[固定排序])	opx
+$cmd(set(ime-move=1),[手动])	opx
+$cmd(delfd(sys-reset.txt), [删记录])	opx
+$cmd(set(kb-keycandiusecandicolor=0),[键候选统一配色])	ohxs
+$cmd(set(kb-keycandiusecandicolor=1),[跟随暗词])	ohxs
+$cmd(set(kb-floatwebview=1;kb-webviewwidthscale=1;kb-webviewheightscale=0.6;kb-webviewx=0;kb-webviewy=0),[浮动浏览器])	oll
+$cmd(set(kb-floatwebview=0),[关])	oll
+--
+$cmd(open(小鹤音形/暗首选.txt),「暗首选.txt」)	oax
+$cmd(open(小鹤音形/暗纠错.txt),「暗纠错.txt」)	oax
+$cmd(open(小鹤音形/暗诗词.txt),「暗诗词.txt」)	oau
+$cmd(open(小鹤音形/暗符号.txt),「暗符号.txt」)	oaf
+$cmd(open(小鹤音形/2.3.直通-安卓.txt),「直通.txt」)	ovt
+$cmd(open(小鹤音形/1.1.快通-安卓.txt),「快通.txt」)	okf
+$cmd(open(小鹤音形/1.2.快符-外接.txt),「外接.txt」)	okf
+$cmd(open(小鹤音形/2.6.符号.txt),「符号.txt」)	ofh
+$cmd(open(小鹤音形/2.6.符号-安卓.txt),「符号-安卓.txt」)	ofh
+$cmd(run(mqqwpa://im/chat?chat_type=group&uin=182883808), 「小鹤Q群」)	xhqq
+---
+$cmd(set(ime-embedmode=1),[嵌入编码])	oqr
+$cmd(set(ime-embedmode=2),[首选])	oqr
+$cmd(set(ime-embedmode=0),[关闭])	oqr
+--
+$cmd(newguid,[随机GUID])	ogid
+$cmd(randompwd,[随机密码])	osjm
+$cmd(md5($line$$clip$),[md5])	omdw
+--
+$cmd(openai_send($box$$clip$),[openAI回复])	oai
+$cmd(showstatistics,[字数统计])	ozs
+$cmd(timestamp($line$),[时间戳])	ouji
+
+$cmd(show(user),「打开词库」)	ojc
+$cmd(addword,[加])	ojc
+$cmd(deleteword,[删])	ojc
+
+$cmd(open(小鹤音形/2.3.用户词库.txt),「打开内词库」)	oyh
+$cmd(open($userpath$/小鹤用户词库.txt),「打开外词库」)	oyh
+$cmd(set(ime-sysuserpath=2.3.用户词库.txt),[启用内加词])	ojci
+$cmd(set(ime-sysuserpath=$userpath$/小鹤用户词库.txt),[启用外加词])	ojci
+--
+$cmd(set(ime-adjustsymboldelay=600),[智能标点])	ovn
+$cmd(set(ime-adjustsymboldelay=0),[关闭])	ovn
+$cmd(set(ime-numsymbol=.),[数字标点])	osz
+$cmd(set(ime-numsymbol=0),[关闭])	osz
+
+$cmd(syncconfig,[立刻同步])	otbu
+$cmd(uploadconfig,[上传])	otbu
+$cmd(downloadconfig,[下载])	otbu
+---
+$cmd(set(ime-numto16=0;ime-enableunicode=1),[unicode码])	ohs
+$cmd(set(ime-numto16=1;ime-enableunicode=0),[换算16进制])	ohs
+$cmd(set(ime-numto16=1;ime-enableunicode=1),[1+2])	ohs
+--
+$cmd(autosearch,「浏览器」)	oss
+$cmd(autosearch(https://www.baidu.com/s?wd={word},large),「百度」)	oss
+$cmd(run(https://www.zdic.net/hans/{cursorbefore}{clip}),「汉典」)	ozd
+$cmd(run(https://zi.tools/zi/{cursorbefore}{clip}),「字统」)	ozd
+---
+$cmd(xffy_send(cn,en,$box$$clip$),[讯飞：中英])	olyv
+$cmd(xffy_send(en,cn,$box$$clip$),[英中])	olyv
+--
+$cmd(set(ime-imemode=0;assoc-enable=1;ime-empty=3;ime-emptypushtype=0;ime-pushwhengemax=3;ime-emptyautopush=1;ime-emptymaxlen=13;ime-maxcleancount=4;ime-emptydinglen=4;ime-engwordcount=0;kb-floatcodetype=0;kb-floatcandifollow=1),[传统])	oit
+$cmd(set(ime-imemode=0;assoc-enable=1;ime-empty=2;ime-emptypushtype=0;ime-pushwhengemax=3;ime-emptyautopush=1;ime-emptymaxlen=4;ime-maxcleancount=12;ime-emptydinglen=4;ime-engwordcount=0;kb-floatcodetype=0;kb-floatcandifollow=1),[切分])	oit
+$cmd(set(ime-maxcleancount=4),[清码4])	oqma
+$cmd(set(ime-maxcleancount=12),[12])	oqma
+$cmd(set(ime-imemode=0;ime-push=0;ime-emptypushtype=0;ime-pushwhengemax=3;ime-emptyautopush=1;ime-emptydinglen=4;ime-engwordcount=0),[四码后顶])	odp
+$cmd(set(ime-imemode=0;ime-push=1;ime-emptypushtype=0;ime-pushwhengemax=3;ime-emptyautopush=1;ime-emptydinglen=4;ime-engwordcount=0),[自动上屏])	odp
+
+$cmd(set(ime-imemode=0;assoc-enable=1;ime-empty=2;ime-emptypushtype=0;ime-pushwhengemax=0;ime-emptyautopush=0;ime-emptymaxlen=40;ime-maxcleancount=40;ime-emptydinglen=8;ime-engwordcount=1;kb-floatcodetype=0;kb-floatcandifollow=1),[语句])	ovj
+$cmd(set(ime-imemode=1;assoc-enable=0;ime-empty=2;ime-emptypushtype=1;ime-pushwhengemax=0;ime-emptyautopush=0;ime-emptymaxlen=40;ime-maxcleancount=40;ime-emptydinglen=8;ime-engwordcount=0;kb-floatcodetype=1;kb-floatcandifollow=0),[整句])	ovj
+
+$cmd(set(ime-inputmode=1;ime-usedassisttype=-5;kb-spacetext=-小鹤),[熟手])	ojj
+$cmd(set(ime-inputmode=1;ime-usedassisttype=+5;kb-spacetext=  小鹤),[常规])	ojj
+$cmd(set(ime-inputmode=2;ime-usedassisttype1=+5;kb-spacetext=+小鹤),[初学])	ojj
+--
+$cmd(set(ime-usedassisttype=+2;ime-usedassisttype1=+2),启用<二简次选>)	oej
+$cmd(set(ime-usedassisttype=-2;ime-usedassisttype1=-2),[关闭])	oej
+--
+$cmd(set(ime-inputmode=2;kb-spacetext=+小鹤),显示<全码字>)	oqm
+$cmd(set(ime-inputmode=1;kb-spacetext=  小鹤),[隐藏])	oqm
+--
+$cmd(set(assist_3_mb-file5=2.3.二简词提示.txt),[二简词提示])	oejc
+$cmd(set(assist_3_mb-file5=0),[关闭])	oejc
+
+$cmd(set(ime-blockkeys=-1;main_mb-file3=1.2.快符-外接.txt),[引导])	oyd
+$cmd(set(ime-blockkeys=\),[关⤴])	oyd
+$cmd(set(main_mb-file3=0),[关 ;])	oyd
+$cmd(set(ime-cutpushrule=12|22),[12|22])	oqff
+$cmd(set(ime-cutpushrule=12|112),[12|112])	oqff
+$cmd(set(ime-cutpushrule=111|112),[111|112])	oqff
+$cmd(set(ime-looppushrule=11@$origin$@$clean$|12@$origin$@$clean$|22@$origin$@$clean$),[12|22])	oqf
+$cmd(set(ime-looppushrule=11@$origin$@$clean$|12@$origin$@$clean$|112@$origin$@$clean$),[12|112])	oqf
+$cmd(set(ime-looppushrule=11@$origin$@$clean$|111@$origin$@$clean$|112@$origin$@$clean$),[111|112])	oqf
+#           候选栏        状态栏        键候选             序号后        嵌入           外接浮动          浮动候选        浮动窗外接要开    键候选类型       悬浮候选类型
+$cmd(set(ime-candiwin=1;ime-statuswin=1;kb-keyshowcandi=0;ime-orderspilt=_;ime-embedmode=1;kb-hardwarefloat=0;kb-floatcandi=0;ime-floatcandiwin=1;ime-showtype=1;kb-keyshowcanditype=1),[固定])	ohx
+$cmd(set(ime-candiwin=0;ime-statuswin=0;kb-keyshowcandi=0;ime-orderspilt=.;ime-embedmode=0;kb-hardwarefloat=1;kb-floatcandi=1;ime-floatcandiwin=1;ime-showtype=1;kb-keyshowcanditype=1;kb-floatcandifollow=1),[浮动])	ohx
+$cmd(set(ime-candiwin=0;ime-statuswin=0;kb-keyshowcandi=1;ime-orderspilt=_;ime-embedmode=1;kb-hardwarefloat=0;kb-floatcandi=0;ime-floatcandiwin=1;ime-showtype=4+5;kb-keyshowcanditype=2+3+4+5+6+8),[盲打_键显])	omd
+$cmd(set(ime-candiwin=0;ime-statuswin=0;kb-keyshowcandi=0;ime-orderspilt=.;ime-embedmode=1;kb-hardwarefloat=1;kb-floatcandi=1;ime-floatcandiwin=1;ime-showtype=4+5;kb-floatcandifollow=1),[浮显])	omd
+--
+$cmd(set(kb-preview=?),[气泡提示开关])	oqp
+
+$cmd(set(kb-autonightmode=1),[日夜跟随系统])	ory
+--
+$cmd(set(kb-landscapefloat=1;kb-landscapefloatfollow=0;kb-landscapeheightscale=1.9;kb-landscapewidth=45%),[悬浮小])	ohp
+$cmd(set(kb-landscapefloat=1;kb-landscapefloatfollow=1;kb-landscapeheightscale=1.9;kb-landscapewidth=90%),[大])	ohp
+$cmd(set(kb-landscapefloat=0),[全屏])	ohp
+--
+$cmd(set(kb-vibrator=1),[震动_开])	ovd
+$cmd(set(kb-vibrator=0),[关])	ovd
+$cmd(set(kb-vibratorstrength=10),[震强10])	ovds
+$cmd(set(kb-vibratorstrength=$+10),[+10])	ovds
+$cmd(set(kb-vibratorstrength=$-5),[-5])	ovds
+
+$cmd(set(kb-followringermode=1),[音震跟随系统])	oyv
+$cmd(set(kb-followringermode=0),[不跟])	oyv
+$cmd(set(kb-keymusic=1),[音效_开])	oyx
+$cmd(set(kb-keymusic=0),[关])	oyx
+$cmd(set(kb-musicfilefolder=0),[默认])	oyxn
+$cmd(set(kb-musicfilefolder=键盘——展翅),[音效_②])	oyxn
+
+--
+$cmd(set(kb-label=0;kb-smalllabel=0),[全有])	owk
+$cmd(set(kb-label=1;kb-smalllabel=1),[无刻])	owk
+$cmd(set(kb-label=0;kb-smalllabel=1),[无标])	owke
+$cmd(set(kb-label=1;kb-smalllabel=0),[中空])	owke
+$cmd(set(kb-label=2;kb-smalllabel=2),[全无])	owk
+
+$cmd(deletelastclip,[删剪贴])	oujt
+$cmd(clipboard,[剪贴板])	ojt
+$cmd(set(ime-clipkeepdays=0),[一天])	ojt
+$cmd(set(ime-clipkeepdays=6),[七天])	ojt
+$cmd(set(ime-clipmaxcount=30),[30条])	ojtb
+$cmd(set(ime-clipmaxcount=60),[60条])	ojtb
+$cmd(set(ime-clipmaxcount=100),[100条])	ojtb
+--
+$cmd(show(输入法选择),[选择输入法])	ourf
+
+$cmd(set(kb-autochangekeyboardtype=1),[识别密码键盘])	omm
+$cmd(set(kb-autochangekeyboardtype=0),[关闭])	omm
+
+$cmd(set(kb-padleft=3;kb-padright=3;kb-keyboardheightscale=1.0),[恢复])	ozy
+$cmd(set(kb-padleft=3;kb-padright=53;kb-keyboardheightscale=0.9),[左手])	ozy
+$cmd(set(kb-padleft=53;kb-padright=3;kb-keyboardheightscale=0.9),[右手])	ozy
+--
+$cmd(togglekeyboard(1), [英文键盘])	ojyw
+$cmd(togglekeyboard(2), [功能键盘])	ojgn
+$cmd(togglekeyboard(3), [编辑键盘])	ojbj
+$cmd(togglekeyboard(4), [数字键盘])	ojuz
+$cmd(togglekeyboard(5), [中符键盘])	ojvf
+$cmd(togglekeyboard(6), [英符键盘])	ojyf
+$cmd(togglekeyboard(7), [表情键盘])	ojbq
+$cmd(togglekeyboard(8), [特符键盘])	ojtf
+--
+$cmd(set(ime-fallback=ziti.ttf;kb-candifont=ziti.ttf;kb-labelfont=ziti.ttf;kb-smallfont=ziti.ttf;kb-candiblodfont=ziti.ttf;kb-labelblodfont=ziti.ttf;kb-smallblodfont=ziti.ttf),[自定字体])	ozt
+$cmd(set(ime-fallback=0;kb-candifont=0;kb-labelfont=0;kb-smallfont=0;kb-candiblodfont=0;kb-labelblodfont=0;kb-smallblodfont=0),[系统])	ozt
+$cmd(set(kb-blob=?;kb-fakebold=?),[粗细])	ozt
+--
+$cmd(set(kb-candisize=15;kb-ordersize=14;kb-codesize=14),[候字15号])	ohz
+$cmd(set(kb-candisize=$+2;kb-ordersize=$+2;kb-codesize=$+2),[+2])	ohz
+$cmd(set(kb-candisize=$-1;kb-ordersize=$-1;kb-codesize=$-1),[-1])	ohz
+$cmd(set(kb-floatcandisize=17;kb-floatcandiordersize=15;kb-floatcandicodesize=17;kb-floatcodesize=15),[浮字17号])	ofz
+$cmd(set(kb-floatcandisize=$+2;kb-floatcandiordersize=$+2;kb-floatcandicodesize=$+2;kb-floatcodesize=$+2),[+2])	ofz
+$cmd(set(kb-floatcandisize=$-1;kb-floatcandiordersize=$-1;kb-floatcandicodesize=$-1;kb-floatcodesize=$-1),[-1])	ofz
+$cmd(set(kb-hardwarefloatcandisize=17;kb-hardwarefloatcandiordersize=15;kb-hardwarefloatcandicodesize=17;kb-hardwarefloatcodesize=15),[外接浮17号])	ofzi
+$cmd(set(kb-hardwarefloatcandisize=$+2;kb-hardwarefloatcandiordersize=$+2;kb-hardwarefloatcandicodesize=$+2;kb-hardwarefloatcodesize=$+2),[+2])	ofzi
+$cmd(set(kb-hardwarefloatcandisize=$-1;kb-hardwarefloatcandiordersize=$-1;kb-hardwarefloatcandicodesize=$-1;kb-hardwarefloatcodesize=$-1),[-1])	ofzi
+--
+$cmd(set(kb-size=12;kb-longsize=10;kb-keycandisize=12;kb-smallsize=8),[键字12])	ojz
+$cmd(set(kb-size=$+2;kb-longsize=$+1;kb-keycandisize=$+1;kb-smallsize=$+1),[+2])	ojz
+$cmd(set(kb-size=$-1;kb-longsize=$-0.5;kb-keycandisize=$-0.5;kb-smallsize=$-0.5),[-1])	ojz
+$cmd(set(kb-size=$+1;kb-longsize=$+1),[字母+1])	ojzi
+$cmd(set(kb-size=$-1;kb-longsize=$-1),[-1])	ojzi
+--
+$cmd(set(kb-keyboardheightscale=1.0),[键高1.0])	ojg
+$cmd(set(kb-keyboardheightscale=$+0.05),[+0.05])	ojg
+$cmd(set(kb-keyboardheightscale=$-0.05),[-0.05])	ojg
+--
+$cmd(set(kb-padbottom=0),[垫高0])	odg
+$cmd(set(kb-padbottom=$+16),[+16])	odg
+$cmd(set(kb-padbottom=$-32),[-32])	odg
+$cmd(set(kb-floatyoffset=-30),[浮高])	ofg
+$cmd(set(kb-floatyoffset=$-30),[+30])	ofg
+$cmd(set(kb-floatyoffset=$+15),[-15])	ofg
+
+$cmd(set(kb-landscapealpha=0.9),[透明度0.9])	otmd
+$cmd(set(kb-landscapealpha=0.6),[0.6])	otmd
+$cmd(set(kb-landscapealpha=1.0),[1.0])	otmd
+--
+$cmd(set(ime-candiwin=0;ime-statuswin=0;kb-keyshowcandi=0;ime-orderspilt=.;kb-hardwarefloat=1;kb-floatcandi=1;ime-floatcandiwin=1;kb-showtype=1;kb-floatcandifollow=1),[浮动_跟随])	ogs
+$cmd(set(ime-candiwin=0;ime-statuswin=0;kb-keyshowcandi=0;ime-orderspilt=.;kb-hardwarefloat=1;kb-floatcandi=1;ime-floatcandiwin=1;kb-showtype=1;kb-floatcandifollow=0),[_固定])	ogs
+--
+$cmd(quan2ban($line$$clip$),[转半角])	ovqb
+$cmd(ban2quan($line$$clip$),[转全角])	ovqb
+--
+$cmd(clip(2),剪贴2)	ofv
+$cmd(clip(3),剪贴3)	ofv
+$cmd(filterclipurl,[剪贴板链接])	olj
+
+$cmd(set(kb-langpresstime=180;kb-langpresspushtime=200),[长按180])	oauj
+$cmd(set(kb-langpresstime=$+20;kb-langpresspushtime=$+20),[+20])	oauj
+$cmd(set(kb-langpresstime=$-20;kb-langpresspushtime=$-20),[-20])	oauj
+--
+$cmd(set(kb-swiperange=25),[滑25])	ohid
+$cmd(set(kb-swiperange=$+10),[+10])	ohid
+$cmd(set(kb-swiperange=15),[15])	ohid
+
+$cmd(set(ime-ftpport=52525),[写FTP端口])	oftp
+$cmd(set(ime-ftpport=-1),[关闭])	oftp
+$cmd(ftpstatus,[FTP状态])	oftp
+$cmd(restartftp,[重启])	oftp
+--
+$cmd(set(kb-floatcodetype=0),[悬浮编码_横排])	ohu
+$cmd(set(kb-floatcodetype=1),[竖排])	ohu
+$cmd(set(kb-floatcandidirection=0;kb-floatmaxwidth=105%),[悬浮候选_横排])	ohuu
+$cmd(set(kb-floatcandidirection=1;kb-floatmaxwidth=1%),[竖排])	ohuu
+--
+$cmd(loadhtml(file:///android_asset/show-status.html,140,0,0.3,0.088),[击键速度])	osd
+
+$cmd(set(kb-showparticle=1),[动画_开])	odh
+$cmd(set(kb-showparticle=0),[关])	odh
+$cmd(set(kb-showbacklight=1),[键光_开])	odhg
+$cmd(set(kb-showbacklight=0),[关])	odhg
+
+$cmd(debug,[查看调试信息])	odeb
+---
+$cmd(setbase(color-android=皮肤——小鹤.xp),[小鹤])	opxh
+$cmd(setbase(color-android=皮肤——出彩.xp),[出彩])	opic
+$cmd(setbase(color-android=皮肤——苹果.xp),[苹果])	oppg
+$cmd(setbase(color-android=皮肤——淡然.xp),[淡然])	opdr
+$cmd(setbase(color-android=皮肤——简绿.xp),[简绿])	opjh
+---
+$cmd(set(base-skin-android=键盘——小鹤.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[小鹤①])	ojxh
+$cmd(set(base-skin-android=键盘——小鹤-②.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[小鹤②])	ojxh
+$cmd(set(base-skin-android=键盘——展翅.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[展翅①])	ojvi
+$cmd(set(base-skin-android=键盘——展翅-②.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[展翅②])	ojvi
+$cmd(set(base-skin-android=键盘——高飞.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[高飞①])	ojgf
+$cmd(set(base-skin-android=键盘——高飞-②.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[高飞②])	ojgf
+$cmd(set(base-skin-android=键盘——v下滑.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[下滑])	ovxh
+$cmd(set(base-skin-android=键盘——v快通.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[快通])	ovkt
+$cmd(set(base-skin-android=键盘——v部件.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[部件])	ovbj
+$cmd(set(base-skin-android=键盘——v双拼.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[双拼])	ovup
+$cmd(set(base-skin-android=键盘——L奇葩.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[奇葩])	ojqp
+$cmd(set(base-skin-android=键盘——Q弹.xpa;scheme-kb-label=0;scheme-kb-smalllabel=0),[Q弹])	ojqt
+--
+$cmd(newkey(ohh$1),[鹤形])	ohhx
+$cmd(run(https://flypy.cc/ix/?q={cursorbefore}{clip},large),「查」：{cursorbefore}{clip})	oix
+$cmd(run(https://flypy.cc/if),「拆分练习」)	oif
+$cmd(run(https://flypy.cc/android_record.html),「更新日志」)	ogx
+
+$cmd(set(base-skin-android=键盘——高飞.xpa;base-color-android=皮肤——小鹤.xp;ime-imemode=0;ime-quanjiao=0;ime-cnuseensymbol=0;ime-hint=0;ime-push=1;ime-ding=1;ime-pushcodelength=4;ime-pushwhengemax=3;ime-dingcodelength=4;ime-emptymaxlen=13;ime-maxcleancount=4;ime-embedmode=1;ime-showphrase=1;ime-inputmode=2;ime-usedassisttype=-2;ime-usedassisttype1=-2;ime-blockkeys=-1;ime-empty=3;ime-candiwin=1;ime-statuswin=1;kb-spacetext=+小鹤;kb-keyshowcandi=0;kb-floatwebview=1;assoc-enable=1;assoc-dual=1),→[默认态])	omr
+
+$cmd(openf(/storage/emulated/0/Android/data/com.tencent.mobileqq/Tencent/QQfile_recv/),「QQ文件夹」)	qqwj
+$cmd(openf(/storage/emulated/0/Android/data/com.tencent.tim/Tencent/TIMfile_recv/),「TIM文件夹」)	qqwj
+
+$cmd(　　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n,『静夜思』)	jysi
+$cmd(　　　　蜀道难·李白\r\n\r\n噫吁嚱，危乎高哉！蜀道之难难于上青天！\r\n蚕丛及鱼凫，开国何茫然！\r\n尔来四万八千岁，不与秦塞通人烟。\r\n西当太白有鸟道，可以横绝峨眉巅。\r\n地崩山摧壮士死，然后天梯石栈相钩连。\r\n上有六龙回日之高标，下有冲波逆折之回川。\r\n黄鹤之飞尚不得过，猿猱欲度愁攀援。\r\n青泥何盘盘，百步九折萦岩峦。\r\n扪参历井仰胁息，以手抚膺坐长叹。\r\n问君西游何时还？畏途巉岩不可攀。\r\n但见悲鸟号古木，雄飞雌从绕林间。\r\n又闻子规啼夜月，愁空山。\r\n蜀道之难难于上青天，使人听此凋朱颜！\r\n连峰去天不盈尺，枯松倒挂倚绝壁。\r\n飞湍瀑流争喧豗，砯崖转石万壑雷。\r\n其险也如此，嗟尔远道之人，胡为乎来哉！\r\n剑阁峥嵘而崔嵬，一夫当关，万夫莫开。\r\n所守或匪亲，化为狼与豺，\r\n朝避猛虎，夕避长蛇，磨牙吮血，杀人如麻。\r\n锦城虽云乐，不如早还家。\r\n蜀道之难，难于上青天，侧身西望长咨嗟！\r\n,『蜀道难·李白』)	udnj
+
+$cmd(file(files/前500字.txt),《前500字》)	owb

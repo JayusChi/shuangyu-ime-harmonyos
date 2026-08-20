@@ -1,0 +1,23 @@
+{
+  "candidateOutputSha256ByRun": [
+    "3d78a1003e9169c368bf11cf5edf830cd0c98e27f818320ffb80beb9d705153f",
+    "3d78a1003e9169c368bf11cf5edf830cd0c98e27f818320ffb80beb9d705153f",
+    "3d78a1003e9169c368bf11cf5edf830cd0c98e27f818320ffb80beb9d705153f"
+  ],
+  "datasetManifestSha256": "a9158b860f6f75a4ee60c799ad313818e668302364eb01431de4536147a1ad23",
+  "deterministic": true,
+  "failuresSha256": "810aac9bbe863818ce054e5f2683650e62579360d7843735f383ac4e53f79c45",
+  "implementationManifestSha256": "41d778e15db525cfe70a9589b0d84ad21542db17fae47c46f61ecd4d01368cd1",
+  "mutationPolicy": "This receipt is single-use evidence. It must never be overwritten or regenerated for this frozen baseline.",
+  "productionLexiconSha256": "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+  "resultsSha256": "b52d045ef14c9357de2da6ce076203da877c1a0b219da4cbb952bfd1544b1fbc",
+  "runCount": 3,
+  "safetyContract": {
+    "asciiLeakCount": 0,
+    "engineErrorCount": 0,
+    "nonExplicitAutomaticCommitCount": 0,
+    "stateLossCount": 45
+  },
+  "schemaVersion": "pinyin9-blind-run-receipt/1",
+  "split": "blind"
+}

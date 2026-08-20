@@ -1,0 +1,125 @@
+# AI/机器学习专用词库
+# 适合AI研究员、数据科学家、机器学习工程师
+
+# ===== 核心概念 =====
+人工智能	ren gong zhi neng	#固
+机器学习	ji qi xue xi	#固
+深度学习	shen du xue xi	#固
+神经网络	shen jing wang luo	#固
+强化学习	qiang hua xue xi
+监督学习	jian du xue xi
+无监督学习	wu jian du xue xi
+半监督学习	ban jian du xue xi
+迁移学习	qian yi xue xi
+联邦学习	lian bang xue xi
+
+# ===== 神经网络架构 =====
+卷积神经网络	juan ji shen jing wang luo	#固
+循环神经网络	xun huan shen jing wang luo
+长短期记忆网络	chang duan qi ji yi wang luo
+门控循环单元	men kong xun huan dan yuan
+生成对抗网络	sheng cheng dui kang wang luo
+变分自编码器	bian fen zi bian ma qi
+注意力机制	zhu yi li ji zhi
+Transformer	Transformer	#固
+
+# ===== 深度学习框架 =====
+TensorFlow	TensorFlow	#固
+PyTorch	PyTorch	#固
+Keras	Keras
+JAX	JAX
+MXNet	MXNet
+Caffe	Caffe
+PaddlePaddle	PaddlePaddle
+
+# ===== 大语言模型 =====
+GPT	GPT	#固
+BERT	BERT	#固
+Claude	Claude	#固
+LLaMA	LLaMA
+ChatGPT	ChatGPT
+提示工程	ti shi gong cheng
+上下文学习	shang xia wen xue xi
+思维链	si wei lian
+检索增强生成	jian suo zeng qiang sheng cheng
+
+# ===== 计算机视觉 =====
+目标检测	mu biao jian ce	#固
+图像分割	tu xiang fen ge
+人脸识别	ren lian shi bie
+姿态估计	zi tai gu ji
+光学字符识别	guang xue zi fu shi bie
+YOLO	YOLO
+Mask R-CNN	Mask R-CNN
+ResNet	ResNet
+VGG	VGG
+
+# ===== 自然语言处理 =====
+词嵌入	ci qian ru	#固
+分词	fen ci
+命名实体识别	ming ming shi ti shi bie
+情感分析	qing gan fen xi
+机器翻译	ji qi fan yi
+问答系统	wen da xi tong
+文本生成	wen ben sheng cheng
+语义理解	yu yi li jie
+
+# ===== 训练技术 =====
+反向传播	fan xiang chuan bo	#固
+梯度下降	ti du xia jiang
+随机梯度下降	sui ji ti du xia jiang
+批归一化	pi gui yi hua
+Dropout	Dropout
+正则化	zheng ze hua
+数据增强	shu ju zeng qiang
+预训练	yu xun lian
+微调	wei tiao
+
+# ===== 评估指标 =====
+准确率	zhun que lv	#固
+召回率	zhao hui lv
+F1分数	F1 fen shu
+精确率	jing que lv
+AUC	AUC
+混淆矩阵	hun xiao ju zhen
+交叉验证	jiao cha yan zheng
+过拟合	guo ni he
+欠拟合	qian ni he
+
+# ===== 优化算法 =====
+Adam	Adam	#固
+SGD	SGD
+AdaGrad	AdaGrad
+RMSprop	RMSprop
+学习率	xue xi lv
+超参数	chao can shu
+学习率衰减	xue xi lv shuai jian
+
+# ===== 数据相关 =====
+数据集	shu ju ji	#固
+训练集	xun lian ji
+验证集	yan zheng ji
+测试集	ce shi ji
+特征工程	te zheng gong cheng
+标注	biao zhu
+数据清洗	shu ju qing xi
+样本不平衡	yang ben bu ping heng
+
+# ===== GPU/计算 =====
+CUDA	CUDA	#固
+GPU	GPU	#固
+TPU	TPU
+分布式训练	fen bu shi xun lian
+混合精度	hun he jing du
+模型并行	mo xing bing xing
+数据并行	shu ju bing xing
+
+# ===== 模型部署 =====
+模型压缩	mo xing ya suo	#固
+量化	liang hua
+剪枝	jian zhi
+知识蒸馏	zhi shi zheng liu
+ONNX	ONNX
+TensorRT	TensorRT
+模型推理	mo xing tui li
+边缘计算	bian yuan ji suan

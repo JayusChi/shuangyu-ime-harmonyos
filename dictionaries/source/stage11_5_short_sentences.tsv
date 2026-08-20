@@ -1,0 +1,81 @@
+# Project-authored common short sentences for stage 11.5.
+# Licensed under Apache-2.0; see dictionaries/LICENSES/rime-pinyin-simp-Apache-2.0.txt.
+# Format: word<TAB>pinyin<TAB>frequency<TAB>source
+今天天气不错	jin tian tian qi bu cuo	1800	project_stage11_5
+我们明天见	wo men ming tian jian	1700	project_stage11_5
+我正在使用输入法	wo zheng zai shi yong shu ru fa	1600	project_stage11_5
+这个功能已经完成	zhe ge gong neng yi jing wan cheng	1500	project_stage11_5
+请帮我看一下	qing bang wo kan yi xia	1400	project_stage11_5
+稍后回复你	shao hou hui fu ni	1300	project_stage11_5
+周末一起吃饭	zhou mo yi qi chi fan	1200	project_stage11_5
+今天星期一	jin tian xing qi yi	30000	project_common_sentence
+今天星期二	jin tian xing qi er	30000	project_common_sentence
+今天星期三	jin tian xing qi san	30000	project_common_sentence
+今天星期四	jin tian xing qi si	30000	project_common_sentence
+今天星期五	jin tian xing qi wu	30000	project_common_sentence
+今天星期六	jin tian xing qi liu	30000	project_common_sentence
+今天星期日	jin tian xing qi ri	30000	project_common_sentence
+今天是星期一	jin tian shi xing qi yi	28000	project_common_sentence
+今天是星期二	jin tian shi xing qi er	28000	project_common_sentence
+今天是星期三	jin tian shi xing qi san	28000	project_common_sentence
+今天是星期四	jin tian shi xing qi si	28000	project_common_sentence
+今天是星期五	jin tian shi xing qi wu	28000	project_common_sentence
+今天是星期六	jin tian shi xing qi liu	28000	project_common_sentence
+今天是星期日	jin tian shi xing qi ri	28000	project_common_sentence
+你为什么这样说	ni wei shen me zhe yang shuo	27000	project_common_sentence
+你为什么这么说	ni wei shen me zhe me shuo	27000	project_common_sentence
+我不知道为什么	wo bu zhi dao wei shen me	27000	project_common_sentence
+这个是什么意思	zhe ge shi shen me yi si	27000	project_common_sentence
+这是什么意思	zhe shi shen me yi si	27000	project_common_sentence
+你是什么意思	ni shi shen me yi si	27000	project_common_sentence
+我没有这个意思	wo mei you zhe ge yi si	25000	project_common_sentence
+我明白你的意思	wo ming bai ni de yi si	25000	project_common_sentence
+我不明白你的意思	wo bu ming bai ni de yi si	25000	project_common_sentence
+你现在在哪里	ni xian zai zai na li	26000	project_common_sentence
+我现在在家里	wo xian zai zai jia li	25000	project_common_sentence
+我马上就回来了	wo ma shang jiu hui lai le	25000	project_common_sentence
+我已经到家了	wo yi jing dao jia le	25000	project_common_sentence
+你什么时候回来	ni shen me shi hou hui lai	26000	project_common_sentence
+我们什么时候出发	wo men shen me shi hou chu fa	25000	project_common_sentence
+明天什么时候出发	ming tian shen me shi hou chu fa	25000	project_common_sentence
+今天晚上吃什么	jin tian wan shang chi shen me	26000	project_common_sentence
+明天早上吃什么	ming tian zao shang chi shen me	25000	project_common_sentence
+今天中午吃什么	jin tian zhong wu chi shen me	25000	project_common_sentence
+你今天有时间吗	ni jin tian you shi jian ma	26000	project_common_sentence
+你明天有时间吗	ni ming tian you shi jian ma	26000	project_common_sentence
+我们明天再联系	wo men ming tian zai lian xi	25000	project_common_sentence
+我们晚点再联系	wo men wan dian zai lian xi	25000	project_common_sentence
+有问题随时联系	you wen ti sui shi lian xi	24000	project_common_sentence
+收到以后请回复	shou dao yi hou qing hui fu	24000	project_common_sentence
+看到消息请回复	kan dao xiao xi qing hui fu	24000	project_common_sentence
+谢谢你的帮助	xie xie ni de bang zhu	26000	project_common_sentence
+不用谢没关系	bu yong xie mei guan xi	24000	project_common_sentence
+没问题可以的	mei wen ti ke yi de	25000	project_common_sentence
+好的我知道了	hao de wo zhi dao le	26000	project_common_sentence
+好的没有问题	hao de mei you wen ti	26000	project_common_sentence
+请稍等一下	qing shao deng yi xia	26000	project_common_sentence
+请再说一遍	qing zai shuo yi bian	25000	project_common_sentence
+麻烦你再确认一下	ma fan ni zai que ren yi xia	25000	project_common_sentence
+请把文件发给我	qing ba wen jian fa gei wo	25000	project_common_sentence
+我已经发给你了	wo yi jing fa gei ni le	25000	project_common_sentence
+文件已经收到了	wen jian yi jing shou dao le	25000	project_common_sentence
+这个功能很好用	zhe ge gong neng hen hao yong	24000	project_common_sentence
+这个功能有问题	zhe ge gong neng you wen ti	24000	project_common_sentence
+这个问题怎么解决	zhe ge wen ti zen me jie jue	25000	project_common_sentence
+这个问题已经解决	zhe ge wen ti yi jing jie jue	25000	project_common_sentence
+输入法反应很慢	shu ru fa fan ying hen man	24000	project_common_sentence
+输入法候选不准确	shu ru fa hou xuan bu zhun que	24000	project_common_sentence
+输入法不要自动上屏	shu ru fa bu yao zi dong shang ping	24000	project_common_sentence
+今天的天气不错	jin tian de tian qi bu cuo	26000	project_common_sentence
+明天的天气怎么样	ming tian de tian qi zen me yang	26000	project_common_sentence
+周末一起吃饭吧	zhou mo yi qi chi fan ba	25000	project_common_sentence
+晚上早点休息	wan shang zao dian xiu xi	25000	project_common_sentence
+路上注意安全	lu shang zhu yi an quan	25000	project_common_sentence
+到家以后告诉我	dao jia yi hou gao su wo	25000	project_common_sentence
+有空给我打电话	you kong gei wo da dian hua	25000	project_common_sentence
+我们下次再聊	wo men xia ci zai liao	24000	project_common_sentence
+很高兴认识你	hen gao xing ren shi ni	25000	project_common_sentence
+祝你工作顺利	zhu ni gong zuo shun li	24000	project_common_sentence
+祝你生活愉快	zhu ni sheng huo yu kuai	24000	project_common_sentence
+第一个人	di yi ge ren	24000	project_common_phrase
+苹果手机	ping guo shou ji	24000	project_common_phrase

@@ -1,0 +1,1176 @@
+{
+  "schema_version": "xiaohe-yinxing-stage0-candidates/1",
+  "scheme_id": "xiaohe-yinxing",
+  "page_size": 9,
+  "enabled_category_ids": ["core", "category-secondary", "one-key-secondary", "two-key-secondary", "out-of-table-character", "full-code-word", "rare-character", "full-code-character"],
+  "required_queries": [
+    {
+      "raw_code": "aa",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 1,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "阿",
+      "all_candidates_before_paging": [
+        {
+          "text": "阿",
+          "complete_code": "aa",
+          "source_category": "core",
+          "source_order": 5,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:5"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "阿",
+          "complete_code": "aa",
+          "source_category": "core",
+          "source_order": 5,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:5"
+        }
+      ]
+    },
+    {
+      "raw_code": "ai",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 1,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "爱",
+      "all_candidates_before_paging": [
+        {
+          "text": "爱",
+          "complete_code": "ai",
+          "source_category": "core",
+          "source_order": 4,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:4"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "爱",
+          "complete_code": "ai",
+          "source_category": "core",
+          "source_order": 4,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:4"
+        }
+      ]
+    },
+    {
+      "raw_code": "an",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 3,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "按时",
+      "all_candidates_before_paging": [
+        {
+          "text": "按时",
+          "complete_code": "anui",
+          "source_category": "user-lexicon",
+          "source_order": 9,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-0e678f52bf07c8b8"
+        },
+        {
+          "text": "按到",
+          "complete_code": "andc",
+          "source_category": "user-lexicon",
+          "source_order": 32,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-e8eb21db1b7e774d"
+        },
+        {
+          "text": "安",
+          "complete_code": "an",
+          "source_category": "core",
+          "source_order": 2,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:2"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "按时",
+          "complete_code": "anui",
+          "source_category": "user-lexicon",
+          "source_order": 9,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-0e678f52bf07c8b8"
+        },
+        {
+          "text": "按到",
+          "complete_code": "andc",
+          "source_category": "user-lexicon",
+          "source_order": 32,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-e8eb21db1b7e774d"
+        },
+        {
+          "text": "安",
+          "complete_code": "an",
+          "source_category": "core",
+          "source_order": 2,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:2"
+        }
+      ]
+    },
+    {
+      "raw_code": "ni",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 1,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "你",
+      "all_candidates_before_paging": [
+        {
+          "text": "你",
+          "complete_code": "ni",
+          "source_category": "core",
+          "source_order": 34865,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:34865"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "你",
+          "complete_code": "ni",
+          "source_category": "core",
+          "source_order": 34865,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:34865"
+        }
+      ]
+    },
+    {
+      "raw_code": "hc",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 1,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "好",
+      "all_candidates_before_paging": [
+        {
+          "text": "好",
+          "complete_code": "hc",
+          "source_category": "core",
+          "source_order": 15944,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:15944"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "好",
+          "complete_code": "hc",
+          "source_category": "core",
+          "source_order": 15944,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:15944"
+        }
+      ]
+    },
+    {
+      "raw_code": "ui",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 4,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "时间",
+      "all_candidates_before_paging": [
+        {
+          "text": "时间",
+          "complete_code": "uijm",
+          "source_category": "user-lexicon",
+          "source_order": 15,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-82fb3de0a4e7340b"
+        },
+        {
+          "text": "试试",
+          "complete_code": "uiui",
+          "source_category": "user-lexicon",
+          "source_order": 17,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-8e108f684f027787"
+        },
+        {
+          "text": "事",
+          "complete_code": "ui",
+          "source_category": "core",
+          "source_order": 48045,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:48045"
+        },
+        {
+          "text": "室",
+          "complete_code": "ui",
+          "source_category": "two-key-secondary",
+          "source_order": 43,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:two-key-secondary:43"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "时间",
+          "complete_code": "uijm",
+          "source_category": "user-lexicon",
+          "source_order": 15,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-82fb3de0a4e7340b"
+        },
+        {
+          "text": "试试",
+          "complete_code": "uiui",
+          "source_category": "user-lexicon",
+          "source_order": 17,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-8e108f684f027787"
+        },
+        {
+          "text": "事",
+          "complete_code": "ui",
+          "source_category": "core",
+          "source_order": 48045,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:48045"
+        },
+        {
+          "text": "室",
+          "complete_code": "ui",
+          "source_category": "two-key-secondary",
+          "source_order": 43,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:two-key-secondary:43"
+        }
+      ]
+    },
+    {
+      "raw_code": "vi",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 6,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "知道",
+      "all_candidates_before_paging": [
+        {
+          "text": "知道",
+          "complete_code": "vidc",
+          "source_category": "user-lexicon",
+          "source_order": 2,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-e61a289af9b75d6f"
+        },
+        {
+          "text": "只能",
+          "complete_code": "ving",
+          "source_category": "user-lexicon",
+          "source_order": 3,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-ea6ff1d051418793"
+        },
+        {
+          "text": "只是",
+          "complete_code": "viui",
+          "source_category": "user-lexicon",
+          "source_order": 8,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-da195c3ad7218efb"
+        },
+        {
+          "text": "只会",
+          "complete_code": "vihv",
+          "source_category": "user-lexicon",
+          "source_order": 28,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-49b58bbe2cc171be"
+        },
+        {
+          "text": "只",
+          "complete_code": "vi",
+          "source_category": "core",
+          "source_order": 51772,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:51772"
+        },
+        {
+          "text": "支持",
+          "complete_code": "vi",
+          "source_category": "category-secondary",
+          "source_order": 292,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:category-secondary:292"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "知道",
+          "complete_code": "vidc",
+          "source_category": "user-lexicon",
+          "source_order": 2,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-e61a289af9b75d6f"
+        },
+        {
+          "text": "只能",
+          "complete_code": "ving",
+          "source_category": "user-lexicon",
+          "source_order": 3,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-ea6ff1d051418793"
+        },
+        {
+          "text": "只是",
+          "complete_code": "viui",
+          "source_category": "user-lexicon",
+          "source_order": 8,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-da195c3ad7218efb"
+        },
+        {
+          "text": "只会",
+          "complete_code": "vihv",
+          "source_category": "user-lexicon",
+          "source_order": 28,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-49b58bbe2cc171be"
+        },
+        {
+          "text": "只",
+          "complete_code": "vi",
+          "source_category": "core",
+          "source_order": 51772,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:51772"
+        },
+        {
+          "text": "支持",
+          "complete_code": "vi",
+          "source_category": "category-secondary",
+          "source_order": 292,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:category-secondary:292"
+        }
+      ]
+    },
+    {
+      "raw_code": "wo",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 1,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "我",
+      "all_candidates_before_paging": [
+        {
+          "text": "我",
+          "complete_code": "wo",
+          "source_category": "core",
+          "source_order": 55266,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:55266"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "我",
+          "complete_code": "wo",
+          "source_category": "core",
+          "source_order": 55266,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:55266"
+        }
+      ]
+    },
+    {
+      "raw_code": "xm",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 3,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "现金",
+      "all_candidates_before_paging": [
+        {
+          "text": "现金",
+          "complete_code": "xmjb",
+          "source_category": "user-lexicon",
+          "source_order": 24,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-b54819968e7f1570"
+        },
+        {
+          "text": "先",
+          "complete_code": "xm",
+          "source_category": "core",
+          "source_order": 57459,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:57459"
+        },
+        {
+          "text": "下面",
+          "complete_code": "xm",
+          "source_category": "category-secondary",
+          "source_order": 306,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:category-secondary:306"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "现金",
+          "complete_code": "xmjb",
+          "source_category": "user-lexicon",
+          "source_order": 24,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-b54819968e7f1570"
+        },
+        {
+          "text": "先",
+          "complete_code": "xm",
+          "source_category": "core",
+          "source_order": 57459,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:57459"
+        },
+        {
+          "text": "下面",
+          "complete_code": "xm",
+          "source_category": "category-secondary",
+          "source_order": 306,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:category-secondary:306"
+        }
+      ]
+    },
+    {
+      "raw_code": "xq",
+      "scheme_id": "xiaohe-yinxing",
+      "exact_exists": true,
+      "match_type": "Exact",
+      "total_candidate_count": 2,
+      "page_size": 9,
+      "total_pages": 1,
+      "has_valid_continuation": true,
+      "would_auto_commit": false,
+      "first_choice": "修正",
+      "all_candidates_before_paging": [
+        {
+          "text": "修正",
+          "complete_code": "xqvg",
+          "source_category": "user-lexicon",
+          "source_order": 0,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-5731f97642e9301a"
+        },
+        {
+          "text": "修",
+          "complete_code": "xq",
+          "source_category": "core",
+          "source_order": 57487,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:57487"
+        }
+      ],
+      "first_page": [
+        {
+          "text": "修正",
+          "complete_code": "xqvg",
+          "source_category": "user-lexicon",
+          "source_order": 0,
+          "is_exact": false,
+          "is_user_rule": true,
+          "stable_id": "user-lexicon-5731f97642e9301a"
+        },
+        {
+          "text": "修",
+          "complete_code": "xq",
+          "source_category": "core",
+          "source_order": 57487,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:57487"
+        }
+      ]
+    }
+  ],
+  "four_code_cases": {
+    "unique": [
+      {
+        "raw_code": "aaba",
+        "unique_exact": true,
+        "auto_commit_trigger_count": 1,
+        "committed_text": "阿爸",
+        "composition_cleared": true,
+        "candidates": [
+          {
+            "text": "阿爸",
+            "complete_code": "aaba",
+            "source_category": "core",
+            "source_order": 152,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:152"
+          }
+        ]
+      },
+      {
+        "raw_code": "aabo",
+        "unique_exact": true,
+        "auto_commit_trigger_count": 1,
+        "committed_text": "阿伯",
+        "composition_cleared": true,
+        "candidates": [
+          {
+            "text": "阿伯",
+            "complete_code": "aabo",
+            "source_category": "core",
+            "source_order": 153,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:153"
+          }
+        ]
+      },
+      {
+        "raw_code": "aabq",
+        "unique_exact": true,
+        "auto_commit_trigger_count": 1,
+        "committed_text": "傲岸不群",
+        "composition_cleared": true,
+        "candidates": [
+          {
+            "text": "傲岸不群",
+            "complete_code": "aabq",
+            "source_category": "core",
+            "source_order": 154,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:154"
+          }
+        ]
+      }
+    ],
+    "multiple": [
+      {
+        "raw_code": "ahqi",
+        "unique_exact": false,
+        "auto_commit_trigger_count": 0,
+        "remains_composing": true,
+        "paging_before_selection": false,
+        "selection_commit_text": "昂起",
+        "candidates": [
+          {
+            "text": "昂起",
+            "complete_code": "ahqi",
+            "source_category": "core",
+            "source_order": 258,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:258"
+          },
+          {
+            "text": "爱恨情仇",
+            "complete_code": "ahqi",
+            "source_category": "category-secondary",
+            "source_order": 401,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:category-secondary:401"
+          }
+        ]
+      },
+      {
+        "raw_code": "aifu",
+        "unique_exact": false,
+        "auto_commit_trigger_count": 0,
+        "remains_composing": true,
+        "paging_before_selection": false,
+        "selection_commit_text": "爱抚",
+        "candidates": [
+          {
+            "text": "爱抚",
+            "complete_code": "aifu",
+            "source_category": "core",
+            "source_order": 281,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:281"
+          },
+          {
+            "text": "挨",
+            "complete_code": "aifu",
+            "source_category": "full-code-character",
+            "source_order": 1,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:full-code-character:1"
+          }
+        ]
+      },
+      {
+        "raw_code": "aiku",
+        "unique_exact": false,
+        "auto_commit_trigger_count": 0,
+        "remains_composing": true,
+        "paging_before_selection": false,
+        "selection_commit_text": "爱哭",
+        "candidates": [
+          {
+            "text": "爱哭",
+            "complete_code": "aiku",
+            "source_category": "core",
+            "source_order": 303,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:303"
+          },
+          {
+            "text": "唉",
+            "complete_code": "aiku",
+            "source_category": "full-code-character",
+            "source_order": 2,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:full-code-character:2"
+          }
+        ]
+      }
+    ]
+  }
+,
+  "no_result_cases": [
+    {
+      "case_id": "illegal_one_key",
+      "input": "!",
+      "error_code": "invalid_key",
+      "candidate_count": 0,
+      "composition_code": "",
+      "composition_cleared": true,
+      "commits": [],
+      "stale_candidate_committed": false
+    },
+    {
+      "case_id": "two_key_no_result",
+      "input": "oa",
+      "error_code": null,
+      "candidate_count": 0,
+      "composition_code": "oa",
+      "composition_cleared": false,
+      "commits": [],
+      "stale_candidate_committed": false
+    },
+    {
+      "case_id": "three_key_no_result",
+      "input": "aaa",
+      "error_code": null,
+      "candidate_count": 0,
+      "composition_code": "aaa",
+      "composition_cleared": false,
+      "commits": [],
+      "stale_candidate_committed": false
+    },
+    {
+      "case_id": "four_key_no_result",
+      "input": "aaaa",
+      "error_code": null,
+      "candidate_count": 1,
+      "composition_code": "aa",
+      "composition_cleared": false,
+      "commits": ["阿"],
+      "stale_candidate_committed": false
+    },
+    {
+      "case_id": "illegal_character",
+      "input": "a1",
+      "error_code": "invalid_key",
+      "candidate_count": 4,
+      "composition_code": "a",
+      "composition_cleared": false,
+      "commits": [],
+      "stale_candidate_committed": false
+    },
+    {
+      "case_id": "over_normal_length",
+      "input": "aaaaa",
+      "error_code": null,
+      "candidate_count": 0,
+      "composition_code": "aaa",
+      "composition_cleared": false,
+      "commits": ["阿"],
+      "stale_candidate_committed": false
+    }
+  ]
+,
+  "user_rule_cases": [
+    {
+      "case_id": "delete",
+      "fixture": "驹\tjumk#删\n",
+      "reload_identical": true,
+      "applied_before_paging": true,
+      "stable_deduplication": true,
+      "before": [
+        {
+          "text": "驹",
+          "complete_code": "jumk",
+          "source_category": "core",
+          "source_order": 22589,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:22589"
+        },
+        {
+          "text": "枸",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 139,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:139"
+        },
+        {
+          "text": "椐",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 140,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:140"
+        },
+        {
+          "text": "桔",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 601,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:601"
+        },
+        {
+          "text": "橘",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 602,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:602"
+        }
+      ],
+      "after": [
+        {
+          "text": "枸",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 139,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:139"
+        },
+        {
+          "text": "椐",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 140,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:140"
+        },
+        {
+          "text": "桔",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 601,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:601"
+        },
+        {
+          "text": "橘",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 602,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:602"
+        }
+      ]
+    },
+    {
+      "case_id": "fixed",
+      "fixture": "橘\tjumk#固\n桔\tjumk#固\n",
+      "reload_identical": true,
+      "applied_before_paging": true,
+      "stable_deduplication": true,
+      "before": [
+        {
+          "text": "驹",
+          "complete_code": "jumk",
+          "source_category": "core",
+          "source_order": 22589,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:22589"
+        },
+        {
+          "text": "枸",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 139,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:139"
+        },
+        {
+          "text": "椐",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 140,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:140"
+        },
+        {
+          "text": "桔",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 601,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:601"
+        },
+        {
+          "text": "橘",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 602,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:602"
+        }
+      ],
+      "after": [
+        {
+          "text": "橘",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 602,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:602"
+        },
+        {
+          "text": "桔",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 601,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:601"
+        },
+        {
+          "text": "驹",
+          "complete_code": "jumk",
+          "source_category": "core",
+          "source_order": 22589,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:22589"
+        },
+        {
+          "text": "枸",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 139,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:139"
+        },
+        {
+          "text": "椐",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 140,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:140"
+        }
+      ]
+    },
+    {
+      "case_id": "position",
+      "fixture": "橘\tjumk#1\n椐\tjumk#2\n枸\tjumk#2\n驹\tjumk#99\n",
+      "reload_identical": true,
+      "applied_before_paging": true,
+      "stable_deduplication": true,
+      "before": [
+        {
+          "text": "驹",
+          "complete_code": "jumk",
+          "source_category": "core",
+          "source_order": 22589,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:22589"
+        },
+        {
+          "text": "枸",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 139,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:139"
+        },
+        {
+          "text": "椐",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 140,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:140"
+        },
+        {
+          "text": "桔",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 601,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:601"
+        },
+        {
+          "text": "橘",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 602,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:602"
+        }
+      ],
+      "after": [
+        {
+          "text": "橘",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 602,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:602"
+        },
+        {
+          "text": "椐",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 140,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:140"
+        },
+        {
+          "text": "枸",
+          "complete_code": "jumk",
+          "source_category": "rare-character",
+          "source_order": 139,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:rare-character:139"
+        },
+        {
+          "text": "桔",
+          "complete_code": "jumk",
+          "source_category": "full-code-character",
+          "source_order": 601,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:full-code-character:601"
+        },
+        {
+          "text": "驹",
+          "complete_code": "jumk",
+          "source_category": "core",
+          "source_order": 22589,
+          "is_exact": true,
+          "is_user_rule": false,
+          "stable_id": "ct:xiaohe-yinxing-production:core:22589"
+        }
+      ]
+    }
+  ]
+,
+  "category_filter_cases": {
+    "raw_code": "ahqi",
+    "core_remains_required_after_empty_request": true,
+    "states": [
+      {
+        "case_id": "all_default",
+        "enabled_category_ids": ["core", "category-secondary", "one-key-secondary", "two-key-secondary", "out-of-table-character", "full-code-word", "rare-character", "full-code-character"],
+        "candidate_count": 2,
+        "unique_exact": false,
+        "would_auto_commit_at_four_keys": false,
+        "candidates": [
+          {
+            "text": "昂起",
+            "complete_code": "ahqi",
+            "source_category": "core",
+            "source_order": 258,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:258"
+          },
+          {
+            "text": "爱恨情仇",
+            "complete_code": "ahqi",
+            "source_category": "category-secondary",
+            "source_order": 401,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:category-secondary:401"
+          }
+        ]
+      },
+      {
+        "case_id": "one_optional_disabled",
+        "enabled_category_ids": ["core", "one-key-secondary", "two-key-secondary", "out-of-table-character", "full-code-word", "rare-character", "full-code-character"],
+        "candidate_count": 1,
+        "unique_exact": true,
+        "would_auto_commit_at_four_keys": true,
+        "candidates": [
+          {
+            "text": "昂起",
+            "complete_code": "ahqi",
+            "source_category": "core",
+            "source_order": 258,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:258"
+          }
+        ]
+      },
+      {
+        "case_id": "multiple_optional_disabled",
+        "enabled_category_ids": ["core"],
+        "candidate_count": 1,
+        "unique_exact": true,
+        "would_auto_commit_at_four_keys": true,
+        "candidates": [
+          {
+            "text": "昂起",
+            "complete_code": "ahqi",
+            "source_category": "core",
+            "source_order": 258,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:258"
+          }
+        ]
+      },
+      {
+        "case_id": "attempt_core_disabled",
+        "enabled_category_ids": ["core"],
+        "candidate_count": 1,
+        "unique_exact": true,
+        "would_auto_commit_at_four_keys": true,
+        "candidates": [
+          {
+            "text": "昂起",
+            "complete_code": "ahqi",
+            "source_category": "core",
+            "source_order": 258,
+            "is_exact": true,
+            "is_user_rule": false,
+            "stable_id": "ct:xiaohe-yinxing-production:core:258"
+          }
+        ]
+      }
+    ],
+    "filter_changes_candidate_count": true
+  }
+
+}

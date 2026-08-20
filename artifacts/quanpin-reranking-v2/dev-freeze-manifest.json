@@ -1,0 +1,17 @@
+{
+  "bytes": 8435,
+  "categoryDistribution": {
+    "ambiguous": 8,
+    "clean": 8,
+    "long_sentence": 8,
+    "modern_colloquial": 8,
+    "proper_name": 8
+  },
+  "datasetId": "quanpin-context-reranking-v2-dev-2026-08-17",
+  "frozenAt": "2026-08-17",
+  "mutationPolicy": "Any byte change requires a new dataset id and manifest path.",
+  "path": "dev.jsonl",
+  "sampleCount": 40,
+  "schemaVersion": "quanpin-context-reranking-dataset-freeze/1",
+  "sha256": "cdacc655bdbeb4cc326c0f65f66cc8c7394ad5fff520c8297a3a8ff5eaf1555c"
+}

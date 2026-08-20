@@ -1,0 +1,6 @@
+# raw_code	parsed_syllables	query_type	expected_first_page	must_contain	forbidden	expected_top	has_next	commit_text
+n		prefix	你|你好	你|你好	输入法	你	false	你
+ni	ni	exact	你	你	你好	你	false	你
+nihc	ni,hao	exact	你好	你好	你	你好	false	你好
+uurufa	shu,ru,fa	exact	输入法	输入法	输入	输入法	false	输入法
+qijm	qi,jian	exact	期间|其间	期间|其间	你好	期间	false	期间

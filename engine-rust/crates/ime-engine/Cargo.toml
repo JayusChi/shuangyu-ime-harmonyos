@@ -1,0 +1,26 @@
+[package]
+name = "ime-engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "ime_engine"
+path = "src/lib.rs"
+
+[dependencies]
+code-table-runtime = { path = "../code-table-runtime" }
+candidate-query = { path = "../candidate-query" }
+candidate-ranking = { path = "../candidate-ranking" }
+context-reranker = { path = "../context-reranker" }
+engine-protocol = { path = "../engine-protocol" }
+lexicon-core = { path = "../lexicon-core" }
+pinyin-syllable = { path = "../pinyin-syllable" }
+sentence-decoder = { path = "../sentence-decoder" }
+shuangpin-parser = { path = "../shuangpin-parser" }
+shuangpin-schema = { path = "../shuangpin-schema" }
+user-model = { path = "../user-model" }
+user-lexicon = { path = "../user-lexicon" }
+
+[dev-dependencies]
+code-table-fixture-generator = { path = "../../tools/code-table-fixture-generator" }

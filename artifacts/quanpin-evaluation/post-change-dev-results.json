@@ -1,0 +1,313 @@
+{
+  "aggregateKeyLatencyMicros": {
+    "max": 426519,
+    "mean": 41652.18510638298,
+    "p50": 16631,
+    "p95": 162414,
+    "p99": 295771,
+    "samples": 14100
+  },
+  "datasetManifestSha256": "df9e2944b4bacf5c2323f3360ae477f1cb305a4b0e7ace424561c9bb2a9efedc",
+  "deterministicCandidateOutputs": true,
+  "engineVersion": "0.0.1-quanpin-features",
+  "environment": {
+    "arch": "x86_64",
+    "cargoProfile": "release",
+    "os": "windows",
+    "processorIdentifier": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "featureExpansion": {
+    "candidateExpansionsMax": 73,
+    "candidateExpansionsMean": 34.77,
+    "correctionQueryPathsMax": 32,
+    "correctionQueryPathsMean": 21.44333333333333,
+    "fuzzyQueryPathsMax": 6,
+    "fuzzyQueryPathsMean": 0.11333333333333333,
+    "inputTooLongSampleCount": 30,
+    "sentenceDecoderPathsMax": 22,
+    "sentenceDecoderPathsMean": 10.846666666666666,
+    "spellingVariantsGeneratedMax": 512,
+    "spellingVariantsGeneratedMean": 324.4633333333333,
+    "truncatedSampleCount": 253
+  },
+  "fuzzyOptionExecution": "FORMAL_IME_ENGINE_PER_CASE: only enabledFuzzyOptions declared by each frozen fuzzy sample are enabled; all other options remain disabled.",
+  "fuzzyOptionsEnabled": true,
+  "groups": {
+    "byCategory": {
+      "abbrev_mixed_incomplete": {
+        "averageFirstRankWhenRecalled": null,
+        "count": 20,
+        "mrr": 0,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 1,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0
+      },
+      "common_character_word": {
+        "averageFirstRankWhenRecalled": 2.0238095238095237,
+        "count": 45,
+        "mrr": 0.8838888888888888,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.06666666666666667,
+        "top1Rate": 0.8666666666666667,
+        "top3Rate": 0.8888888888888888,
+        "top5Rate": 0.9111111111111111
+      },
+      "common_phrase_2_4": {
+        "averageFirstRankWhenRecalled": 3.5306122448979593,
+        "count": 60,
+        "mrr": 0.7755333674688514,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.18333333333333332,
+        "top1Rate": 0.7666666666666667,
+        "top3Rate": 0.7833333333333333,
+        "top5Rate": 0.7833333333333333
+      },
+      "fuzzy": {
+        "averageFirstRankWhenRecalled": 3.8333333333333335,
+        "count": 12,
+        "mrr": 0.3244047619047619,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 0.08333333333333333,
+        "top3Rate": 0.16666666666666666,
+        "top5Rate": 0.9166666666666666
+      },
+      "long_ambiguous": {
+        "averageFirstRankWhenRecalled": 1,
+        "count": 30,
+        "mrr": 0.6,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.4,
+        "top1Rate": 0.6,
+        "top3Rate": 0.6,
+        "top5Rate": 0.6
+      },
+      "modern_chat": {
+        "averageFirstRankWhenRecalled": 1.2926829268292683,
+        "count": 60,
+        "mrr": 0.6138888888888889,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.31666666666666665,
+        "top1Rate": 0.5666666666666667,
+        "top3Rate": 0.65,
+        "top5Rate": 0.6833333333333333
+      },
+      "polyphone_homophone": {
+        "averageFirstRankWhenRecalled": 4.086956521739131,
+        "count": 25,
+        "mrr": 0.8219393939393939,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.08,
+        "top1Rate": 0.8,
+        "top3Rate": 0.84,
+        "top5Rate": 0.88
+      },
+      "proper_name_domain": {
+        "averageFirstRankWhenRecalled": 7.9,
+        "count": 30,
+        "mrr": 0.9501610305958131,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 0.9333333333333333,
+        "top3Rate": 0.9666666666666667,
+        "top5Rate": 0.9666666666666667
+      },
+      "typo": {
+        "averageFirstRankWhenRecalled": 5.230769230769231,
+        "count": 18,
+        "mrr": 0.15042087542087543,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.2777777777777778,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0.4444444444444444
+      }
+    },
+    "byInputKind": {
+      "clean": {
+        "averageFirstRankWhenRecalled": 3.251231527093596,
+        "count": 270,
+        "mrr": 0.7044209301771246,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.24814814814814815,
+        "top1Rate": 0.6851851851851852,
+        "top3Rate": 0.7185185185185186,
+        "top5Rate": 0.7333333333333333
+      },
+      "fuzzy": {
+        "averageFirstRankWhenRecalled": 3.8333333333333335,
+        "count": 12,
+        "mrr": 0.3244047619047619,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 0.08333333333333333,
+        "top3Rate": 0.16666666666666666,
+        "top5Rate": 0.9166666666666666
+      },
+      "typo": {
+        "averageFirstRankWhenRecalled": 5.230769230769231,
+        "count": 18,
+        "mrr": 0.15042087542087543,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.2777777777777778,
+        "top1Rate": 0,
+        "top3Rate": 0,
+        "top5Rate": 0.4444444444444444
+      }
+    },
+    "byRawInputLength": {
+      "01-04": {
+        "averageFirstRankWhenRecalled": 27.625,
+        "count": 8,
+        "mrr": 0.6256038647342995,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0,
+        "top1Rate": 0.5,
+        "top3Rate": 0.625,
+        "top5Rate": 0.875
+      },
+      "05-08": {
+        "averageFirstRankWhenRecalled": 1.8555555555555556,
+        "count": 102,
+        "mrr": 0.7813842203548085,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.11764705882352941,
+        "top1Rate": 0.7450980392156863,
+        "top3Rate": 0.7745098039215687,
+        "top5Rate": 0.8627450980392157
+      },
+      "09-12": {
+        "averageFirstRankWhenRecalled": 4.757575757575758,
+        "count": 48,
+        "mrr": 0.6360833760027308,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.3125,
+        "top1Rate": 0.625,
+        "top3Rate": 0.6458333333333334,
+        "top5Rate": 0.6458333333333334
+      },
+      "13-20": {
+        "averageFirstRankWhenRecalled": 2.6575342465753424,
+        "count": 99,
+        "mrr": 0.6049433731251913,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.26262626262626265,
+        "top1Rate": 0.5555555555555556,
+        "top3Rate": 0.6060606060606061,
+        "top5Rate": 0.6868686868686869
+      },
+      "21+": {
+        "averageFirstRankWhenRecalled": 1.4583333333333333,
+        "count": 43,
+        "mrr": 0.5038759689922481,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.4418604651162791,
+        "top1Rate": 0.4883720930232558,
+        "top3Rate": 0.4883720930232558,
+        "top5Rate": 0.5348837209302325
+      }
+    }
+  },
+  "interpretation": {
+    "deviceDataIncluded": false,
+    "hostDataOnly": true,
+    "lowScoresCauseProcessFailure": false
+  },
+  "measurementKind": "host-release-ImeEngine-per-key",
+  "metrics": {
+    "averageFirstRankWhenRecalled": 3.3947368421052633,
+    "count": 300,
+    "mrr": 0.655980280160855,
+    "noCandidateRate": 0,
+    "targetUnrecalledRate": 0.24,
+    "top1Rate": 0.62,
+    "top3Rate": 0.6533333333333333,
+    "top5Rate": 0.7233333333333334
+  },
+  "productionLexiconBytes": 3741328,
+  "productionLexiconSha256": "6a5f0567ca52c3e0ae539c9753109652c3c98218a0bfba1ad492d4ec494d6ff4",
+  "releaseModeRequired": true,
+  "runCount": 3,
+  "runs": [
+    {
+      "candidateOutputSha256": "2506340e89054d7379d45a4e3b8b1c4e5c9a44d541a476a776afa2ac96836395",
+      "keyLatencyMicros": {
+        "max": 403385,
+        "mean": 41718.65531914894,
+        "p50": 16480,
+        "p95": 162447,
+        "p99": 291244,
+        "samples": 4700
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 3.3947368421052633,
+        "count": 300,
+        "mrr": 0.655980280160855,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.24,
+        "top1Rate": 0.62,
+        "top3Rate": 0.6533333333333333,
+        "top5Rate": 0.7233333333333334
+      },
+      "run": 1
+    },
+    {
+      "candidateOutputSha256": "2506340e89054d7379d45a4e3b8b1c4e5c9a44d541a476a776afa2ac96836395",
+      "keyLatencyMicros": {
+        "max": 407496,
+        "mean": 41701.60319148936,
+        "p50": 16640,
+        "p95": 161875,
+        "p99": 296851,
+        "samples": 4700
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 3.3947368421052633,
+        "count": 300,
+        "mrr": 0.655980280160855,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.24,
+        "top1Rate": 0.62,
+        "top3Rate": 0.6533333333333333,
+        "top5Rate": 0.7233333333333334
+      },
+      "run": 2
+    },
+    {
+      "candidateOutputSha256": "2506340e89054d7379d45a4e3b8b1c4e5c9a44d541a476a776afa2ac96836395",
+      "keyLatencyMicros": {
+        "max": 426519,
+        "mean": 41536.29680851064,
+        "p50": 16708,
+        "p95": 162792,
+        "p99": 295971,
+        "samples": 4700
+      },
+      "metrics": {
+        "averageFirstRankWhenRecalled": 3.3947368421052633,
+        "count": 300,
+        "mrr": 0.655980280160855,
+        "noCandidateRate": 0,
+        "targetUnrecalledRate": 0.24,
+        "top1Rate": 0.62,
+        "top3Rate": 0.6533333333333333,
+        "top5Rate": 0.7233333333333334
+      },
+      "run": 3
+    }
+  ],
+  "safetyContract": {
+    "asciiLeakCount": 0,
+    "engineErrorCount": 0,
+    "nonExplicitAutomaticCommitCount": 0,
+    "stateLossCount": 0
+  },
+  "sampleCount": 300,
+  "schemaVersion": "quanpin-quality-baseline-results/1",
+  "schemeId": "quanpin",
+  "spellingCorrectionEnabled": true,
+  "split": "dev"
+}

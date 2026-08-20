@@ -1,0 +1,9 @@
+[package]
+name = "code-table-runtime"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+lexicon-core = { path = "../lexicon-core" }
+user-lexicon = { path = "../user-lexicon" }

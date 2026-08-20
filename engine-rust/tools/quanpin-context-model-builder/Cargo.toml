@@ -1,0 +1,13 @@
+[package]
+name = "quanpin-context-model-builder"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "quanpin-context-model-builder"
+path = "src/main.rs"
+
+[dependencies]
+context-reranker = { path = "../../crates/context-reranker" }
+lexicon-core = { path = "../../crates/lexicon-core" }

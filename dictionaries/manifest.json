@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "rime-pinyin-simp",
+      "name": "Rime 袖珍简化字拼音",
+      "sourceUrl": "https://github.com/rime/rime-pinyin-simp",
+      "sourceVersion": "0c6861ef7420ee780270ca6d993d18d4101049d0",
+      "retrievedAt": "2026-07-13",
+      "license": "Apache-2.0",
+      "licenseFile": "LICENSES/rime-pinyin-simp-Apache-2.0.txt",
+      "authorsFile": "LICENSES/rime-pinyin-simp-AUTHORS.txt",
+      "redistributionAllowed": true,
+      "modifications": "Rime YAML rows converted to normalized TSV; lue/nue normalized to lve/nve; unsupported non-standard syllables and non-common-CJK rows rejected with a report; weights clamped to 1..1000000.",
+      "sourceChecksum": "E341598343A0F0F2035BB1AAFC34A7F3BB7887DEEECB3F60796262AAA2983E6B",
+      "entryCount": 65125
+    },
+    {
+      "sourceId": "project-stage11-5-short-sentences",
+      "name": "Stage 11.5 project-authored common short sentences",
+      "sourceUrl": "dictionaries/source/stage11_5_short_sentences.tsv",
+      "sourceVersion": "4",
+      "retrievedAt": "2026-08-11",
+      "license": "Apache-2.0",
+      "licenseFile": "LICENSES/rime-pinyin-simp-Apache-2.0.txt",
+      "redistributionAllowed": true,
+      "modifications": "Project-authored source expanded with common weekday, conversation, messaging, file-sharing, people-count, device and input-method sentences; normalized and validated by the standard deterministic builder without runtime text parsing.",
+      "sourceChecksum": "FB32C346DD26DE894A6ECEF568E6692754ED533AA769EF994909512C2955C61A",
+      "entryCount": 78
+    }
+  ]
+}

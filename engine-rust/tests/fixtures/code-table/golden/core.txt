@@ -1,0 +1,6 @@
+共享词	a
+首序甲	abcd
+首序乙	abcd
+前缀链	abc
+符号★	abcde
+边界测试000006	abcdef

@@ -1,0 +1,1196 @@
+{
+  "schema_version": "candidate-baseline/flypy-double-pinyin-h/1",
+  "scheme_id": "xiaohe",
+  "raw_input": "h",
+  "normalized_reading": "h",
+  "query_mode": "Prefix",
+  "production_h_prefix_index_count": 2035,
+  "production_h_record_count": 3237,
+  "production_h_unique_text_count": 3221,
+  "production_h_unique_text_reading_count": 3237,
+  "all_h_first_syllable_branch_counts": {
+    "ha": 34,
+    "hai": 211,
+    "han": 166,
+    "hang": 61,
+    "hao": 273,
+    "he": 308,
+    "hei": 68,
+    "hen": 142,
+    "heng": 48,
+    "hong": 171,
+    "hou": 130,
+    "hu": 264,
+    "hua": 266,
+    "huai": 53,
+    "huan": 217,
+    "huang": 168,
+    "hui": 351,
+    "hun": 92,
+    "huo": 214
+  },
+  "max_prefix_index_records": 128,
+  "max_candidates": 64,
+  "requested_page_size": 50,
+  "effective_page_size": 9,
+  "early_stop_confirmed": true,
+  "scanned_index_count_before_stop": 37,
+  "scanned_pinyin_range": {
+    "first": "ha",
+    "last": "hai bian"
+  },
+  "scanned_pinyin_indexes": [
+    "ha",
+    "ha da",
+    "ha er",
+    "ha er bin",
+    "ha er bin shi",
+    "ha fei",
+    "ha fo",
+    "ha fo da xue",
+    "ha gen da si",
+    "ha gong da",
+    "ha ha",
+    "ha ha da xiao",
+    "ha ha ha",
+    "ha ha ha ha",
+    "ha han",
+    "ha ka",
+    "ha li",
+    "ha li bo te",
+    "ha lou",
+    "ha luo",
+    "ha ma",
+    "ha ma si",
+    "ha mi",
+    "ha mi gua",
+    "ha ni",
+    "ha po",
+    "ha qian",
+    "ha shi",
+    "ha shi qi",
+    "ha te",
+    "hai",
+    "hai an",
+    "hai an xian",
+    "hai ba",
+    "hai bao",
+    "hai bei",
+    "hai bian"
+  ],
+  "pre_rank_recall_count": 64,
+  "pre_rank_branch_counts": {
+    "ha": 34,
+    "hai": 30
+  },
+  "ha_count": 34,
+  "hai_count": 30,
+  "ha_hai_count": 64,
+  "ha_hai_ratio_basis_points": 10000,
+  "ha_hai_ratio_percent": "100.0000",
+  "pre_rank_recall": [
+    {
+      "text": "哈",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 53643,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-哈"
+    },
+    {
+      "text": "虾",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 69,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-虾"
+    },
+    {
+      "text": "蛤",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 248,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-蛤"
+    },
+    {
+      "text": "铪",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 21,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-铪"
+    },
+    {
+      "text": "哈达",
+      "reading": "ha da",
+      "source": "rime_pinyin_simp",
+      "frequency": 124,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_da-哈达"
+    },
+    {
+      "text": "哈尔",
+      "reading": "ha er",
+      "source": "rime_pinyin_simp",
+      "frequency": 172,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_er-哈尔"
+    },
+    {
+      "text": "哈尔滨",
+      "reading": "ha er bin",
+      "source": "rime_pinyin_simp",
+      "frequency": 2330,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_er_bin-哈尔滨"
+    },
+    {
+      "text": "哈尔滨市",
+      "reading": "ha er bin shi",
+      "source": "rime_pinyin_simp",
+      "frequency": 438,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_er_bin_shi-哈尔滨市"
+    },
+    {
+      "text": "哈飞",
+      "reading": "ha fei",
+      "source": "rime_pinyin_simp",
+      "frequency": 120,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_fei-哈飞"
+    },
+    {
+      "text": "哈佛",
+      "reading": "ha fo",
+      "source": "rime_pinyin_simp",
+      "frequency": 535,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_fo-哈佛"
+    },
+    {
+      "text": "哈佛大学",
+      "reading": "ha fo da xue",
+      "source": "rime_pinyin_simp",
+      "frequency": 244,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_fo_da_xue-哈佛大学"
+    },
+    {
+      "text": "哈根达斯",
+      "reading": "ha gen da si",
+      "source": "rime_pinyin_simp",
+      "frequency": 256,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_gen_da_si-哈根达斯"
+    },
+    {
+      "text": "哈工大",
+      "reading": "ha gong da",
+      "source": "rime_pinyin_simp",
+      "frequency": 150,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_gong_da-哈工大"
+    },
+    {
+      "text": "哈哈",
+      "reading": "ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 121641,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha-哈哈"
+    },
+    {
+      "text": "哈哈大笑",
+      "reading": "ha ha da xiao",
+      "source": "rime_pinyin_simp",
+      "frequency": 371,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_da_xiao-哈哈大笑"
+    },
+    {
+      "text": "哈哈哈",
+      "reading": "ha ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 12530,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_ha-哈哈哈"
+    },
+    {
+      "text": "哈哈哈哈",
+      "reading": "ha ha ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 4410,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_ha_ha-哈哈哈哈"
+    },
+    {
+      "text": "哈韩",
+      "reading": "ha han",
+      "source": "rime_pinyin_simp",
+      "frequency": 135,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_han-哈韩"
+    },
+    {
+      "text": "哈卡",
+      "reading": "ha ka",
+      "source": "rime_pinyin_simp",
+      "frequency": 179,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ka-哈卡"
+    },
+    {
+      "text": "哈利",
+      "reading": "ha li",
+      "source": "rime_pinyin_simp",
+      "frequency": 456,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_li-哈利"
+    },
+    {
+      "text": "哈里",
+      "reading": "ha li",
+      "source": "rime_pinyin_simp",
+      "frequency": 189,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_li-哈里"
+    },
+    {
+      "text": "哈利波特",
+      "reading": "ha li bo te",
+      "source": "rime_pinyin_simp",
+      "frequency": 629,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_li_bo_te-哈利波特"
+    },
+    {
+      "text": "哈喽",
+      "reading": "ha lou",
+      "source": "rime_pinyin_simp",
+      "frequency": 177,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_lou-哈喽"
+    },
+    {
+      "text": "哈罗",
+      "reading": "ha luo",
+      "source": "rime_pinyin_simp",
+      "frequency": 155,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_luo-哈罗"
+    },
+    {
+      "text": "蛤蟆",
+      "reading": "ha ma",
+      "source": "rime_pinyin_simp",
+      "frequency": 408,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ma-蛤蟆"
+    },
+    {
+      "text": "哈马斯",
+      "reading": "ha ma si",
+      "source": "rime_pinyin_simp",
+      "frequency": 222,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ma_si-哈马斯"
+    },
+    {
+      "text": "哈密",
+      "reading": "ha mi",
+      "source": "rime_pinyin_simp",
+      "frequency": 115,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_mi-哈密"
+    },
+    {
+      "text": "哈密瓜",
+      "reading": "ha mi gua",
+      "source": "rime_pinyin_simp",
+      "frequency": 112,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_mi_gua-哈密瓜"
+    },
+    {
+      "text": "哈尼",
+      "reading": "ha ni",
+      "source": "rime_pinyin_simp",
+      "frequency": 177,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ni-哈尼"
+    },
+    {
+      "text": "哈珀",
+      "reading": "ha po",
+      "source": "rime_pinyin_simp",
+      "frequency": 205,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_po-哈珀"
+    },
+    {
+      "text": "哈欠",
+      "reading": "ha qian",
+      "source": "rime_pinyin_simp",
+      "frequency": 198,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_qian-哈欠"
+    },
+    {
+      "text": "哈市",
+      "reading": "ha shi",
+      "source": "rime_pinyin_simp",
+      "frequency": 291,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_shi-哈市"
+    },
+    {
+      "text": "哈士奇",
+      "reading": "ha shi qi",
+      "source": "rime_pinyin_simp",
+      "frequency": 123,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_shi_qi-哈士奇"
+    },
+    {
+      "text": "哈特",
+      "reading": "ha te",
+      "source": "rime_pinyin_simp",
+      "frequency": 114,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_te-哈特"
+    },
+    {
+      "text": "亥",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 166,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-亥"
+    },
+    {
+      "text": "侅",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 6,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-侅"
+    },
+    {
+      "text": "咳",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 1177,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-咳"
+    },
+    {
+      "text": "嗐",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 11,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-嗐"
+    },
+    {
+      "text": "嗨",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 1334,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-嗨"
+    },
+    {
+      "text": "嘿",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 92,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-嘿"
+    },
+    {
+      "text": "塰",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 3,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-塰"
+    },
+    {
+      "text": "孩",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 864,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-孩"
+    },
+    {
+      "text": "害",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 2855,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-害"
+    },
+    {
+      "text": "氦",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 76,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-氦"
+    },
+    {
+      "text": "海",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 12452,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-海"
+    },
+    {
+      "text": "烸",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 4,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-烸"
+    },
+    {
+      "text": "絯",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 4,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-絯"
+    },
+    {
+      "text": "胲",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 5,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-胲"
+    },
+    {
+      "text": "还",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 279643,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-还"
+    },
+    {
+      "text": "還",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 344,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-還"
+    },
+    {
+      "text": "醢",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 12,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-醢"
+    },
+    {
+      "text": "餀",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 1,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-餀"
+    },
+    {
+      "text": "駭",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 8,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-駭"
+    },
+    {
+      "text": "駴",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 2,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-駴"
+    },
+    {
+      "text": "骇",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 123,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-骇"
+    },
+    {
+      "text": "骸",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 63,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-骸"
+    },
+    {
+      "text": "海岸",
+      "reading": "hai an",
+      "source": "rime_pinyin_simp",
+      "frequency": 584,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_an-海岸"
+    },
+    {
+      "text": "海岸线",
+      "reading": "hai an xian",
+      "source": "rime_pinyin_simp",
+      "frequency": 212,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_an_xian-海岸线"
+    },
+    {
+      "text": "海拔",
+      "reading": "hai ba",
+      "source": "rime_pinyin_simp",
+      "frequency": 632,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_ba-海拔"
+    },
+    {
+      "text": "还把",
+      "reading": "hai ba",
+      "source": "rime_pinyin_simp",
+      "frequency": 527,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_ba-还把"
+    },
+    {
+      "text": "海报",
+      "reading": "hai bao",
+      "source": "rime_pinyin_simp",
+      "frequency": 1386,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bao-海报"
+    },
+    {
+      "text": "海豹",
+      "reading": "hai bao",
+      "source": "rime_pinyin_simp",
+      "frequency": 141,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bao-海豹"
+    },
+    {
+      "text": "还被",
+      "reading": "hai bei",
+      "source": "rime_pinyin_simp",
+      "frequency": 553,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bei-还被"
+    },
+    {
+      "text": "海边",
+      "reading": "hai bian",
+      "source": "rime_pinyin_simp",
+      "frequency": 1510,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bian-海边"
+    }
+  ],
+  "ranked_first_9": [
+    {
+      "text": "还",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 279643,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-还"
+    },
+    {
+      "text": "哈哈",
+      "reading": "ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 121641,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha-哈哈"
+    },
+    {
+      "text": "哈",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 53643,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-哈"
+    },
+    {
+      "text": "哈哈哈",
+      "reading": "ha ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 12530,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_ha-哈哈哈"
+    },
+    {
+      "text": "海",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 12452,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-海"
+    },
+    {
+      "text": "哈哈哈哈",
+      "reading": "ha ha ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 4410,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_ha_ha-哈哈哈哈"
+    },
+    {
+      "text": "害",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 2855,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-害"
+    },
+    {
+      "text": "哈尔滨",
+      "reading": "ha er bin",
+      "source": "rime_pinyin_simp",
+      "frequency": 2330,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_er_bin-哈尔滨"
+    },
+    {
+      "text": "海边",
+      "reading": "hai bian",
+      "source": "rime_pinyin_simp",
+      "frequency": 1510,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bian-海边"
+    }
+  ],
+  "ranked_all_64": [
+    {
+      "text": "还",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 279643,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-还"
+    },
+    {
+      "text": "哈哈",
+      "reading": "ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 121641,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha-哈哈"
+    },
+    {
+      "text": "哈",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 53643,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-哈"
+    },
+    {
+      "text": "哈哈哈",
+      "reading": "ha ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 12530,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_ha-哈哈哈"
+    },
+    {
+      "text": "海",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 12452,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-海"
+    },
+    {
+      "text": "哈哈哈哈",
+      "reading": "ha ha ha ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 4410,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_ha_ha-哈哈哈哈"
+    },
+    {
+      "text": "害",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 2855,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-害"
+    },
+    {
+      "text": "哈尔滨",
+      "reading": "ha er bin",
+      "source": "rime_pinyin_simp",
+      "frequency": 2330,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_er_bin-哈尔滨"
+    },
+    {
+      "text": "海边",
+      "reading": "hai bian",
+      "source": "rime_pinyin_simp",
+      "frequency": 1510,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bian-海边"
+    },
+    {
+      "text": "海报",
+      "reading": "hai bao",
+      "source": "rime_pinyin_simp",
+      "frequency": 1386,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bao-海报"
+    },
+    {
+      "text": "嗨",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 1334,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-嗨"
+    },
+    {
+      "text": "咳",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 1177,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-咳"
+    },
+    {
+      "text": "孩",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 864,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-孩"
+    },
+    {
+      "text": "海拔",
+      "reading": "hai ba",
+      "source": "rime_pinyin_simp",
+      "frequency": 632,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_ba-海拔"
+    },
+    {
+      "text": "哈利波特",
+      "reading": "ha li bo te",
+      "source": "rime_pinyin_simp",
+      "frequency": 629,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_li_bo_te-哈利波特"
+    },
+    {
+      "text": "海岸",
+      "reading": "hai an",
+      "source": "rime_pinyin_simp",
+      "frequency": 584,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_an-海岸"
+    },
+    {
+      "text": "还被",
+      "reading": "hai bei",
+      "source": "rime_pinyin_simp",
+      "frequency": 553,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bei-还被"
+    },
+    {
+      "text": "哈佛",
+      "reading": "ha fo",
+      "source": "rime_pinyin_simp",
+      "frequency": 535,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_fo-哈佛"
+    },
+    {
+      "text": "还把",
+      "reading": "hai ba",
+      "source": "rime_pinyin_simp",
+      "frequency": 527,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_ba-还把"
+    },
+    {
+      "text": "哈利",
+      "reading": "ha li",
+      "source": "rime_pinyin_simp",
+      "frequency": 456,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_li-哈利"
+    },
+    {
+      "text": "哈尔滨市",
+      "reading": "ha er bin shi",
+      "source": "rime_pinyin_simp",
+      "frequency": 438,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_er_bin_shi-哈尔滨市"
+    },
+    {
+      "text": "蛤蟆",
+      "reading": "ha ma",
+      "source": "rime_pinyin_simp",
+      "frequency": 408,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ma-蛤蟆"
+    },
+    {
+      "text": "哈哈大笑",
+      "reading": "ha ha da xiao",
+      "source": "rime_pinyin_simp",
+      "frequency": 371,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ha_da_xiao-哈哈大笑"
+    },
+    {
+      "text": "還",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 344,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-還"
+    },
+    {
+      "text": "哈市",
+      "reading": "ha shi",
+      "source": "rime_pinyin_simp",
+      "frequency": 291,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_shi-哈市"
+    },
+    {
+      "text": "哈根达斯",
+      "reading": "ha gen da si",
+      "source": "rime_pinyin_simp",
+      "frequency": 256,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_gen_da_si-哈根达斯"
+    },
+    {
+      "text": "蛤",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 248,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-蛤"
+    },
+    {
+      "text": "哈佛大学",
+      "reading": "ha fo da xue",
+      "source": "rime_pinyin_simp",
+      "frequency": 244,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_fo_da_xue-哈佛大学"
+    },
+    {
+      "text": "哈马斯",
+      "reading": "ha ma si",
+      "source": "rime_pinyin_simp",
+      "frequency": 222,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ma_si-哈马斯"
+    },
+    {
+      "text": "海岸线",
+      "reading": "hai an xian",
+      "source": "rime_pinyin_simp",
+      "frequency": 212,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_an_xian-海岸线"
+    },
+    {
+      "text": "哈珀",
+      "reading": "ha po",
+      "source": "rime_pinyin_simp",
+      "frequency": 205,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_po-哈珀"
+    },
+    {
+      "text": "哈欠",
+      "reading": "ha qian",
+      "source": "rime_pinyin_simp",
+      "frequency": 198,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_qian-哈欠"
+    },
+    {
+      "text": "哈里",
+      "reading": "ha li",
+      "source": "rime_pinyin_simp",
+      "frequency": 189,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_li-哈里"
+    },
+    {
+      "text": "哈卡",
+      "reading": "ha ka",
+      "source": "rime_pinyin_simp",
+      "frequency": 179,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ka-哈卡"
+    },
+    {
+      "text": "哈喽",
+      "reading": "ha lou",
+      "source": "rime_pinyin_simp",
+      "frequency": 177,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_lou-哈喽"
+    },
+    {
+      "text": "哈尼",
+      "reading": "ha ni",
+      "source": "rime_pinyin_simp",
+      "frequency": 177,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_ni-哈尼"
+    },
+    {
+      "text": "哈尔",
+      "reading": "ha er",
+      "source": "rime_pinyin_simp",
+      "frequency": 172,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_er-哈尔"
+    },
+    {
+      "text": "亥",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 166,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-亥"
+    },
+    {
+      "text": "哈罗",
+      "reading": "ha luo",
+      "source": "rime_pinyin_simp",
+      "frequency": 155,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_luo-哈罗"
+    },
+    {
+      "text": "哈工大",
+      "reading": "ha gong da",
+      "source": "rime_pinyin_simp",
+      "frequency": 150,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_gong_da-哈工大"
+    },
+    {
+      "text": "海豹",
+      "reading": "hai bao",
+      "source": "rime_pinyin_simp",
+      "frequency": 141,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai_bao-海豹"
+    },
+    {
+      "text": "哈韩",
+      "reading": "ha han",
+      "source": "rime_pinyin_simp",
+      "frequency": 135,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_han-哈韩"
+    },
+    {
+      "text": "哈达",
+      "reading": "ha da",
+      "source": "rime_pinyin_simp",
+      "frequency": 124,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_da-哈达"
+    },
+    {
+      "text": "哈士奇",
+      "reading": "ha shi qi",
+      "source": "rime_pinyin_simp",
+      "frequency": 123,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_shi_qi-哈士奇"
+    },
+    {
+      "text": "骇",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 123,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-骇"
+    },
+    {
+      "text": "哈飞",
+      "reading": "ha fei",
+      "source": "rime_pinyin_simp",
+      "frequency": 120,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_fei-哈飞"
+    },
+    {
+      "text": "哈密",
+      "reading": "ha mi",
+      "source": "rime_pinyin_simp",
+      "frequency": 115,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_mi-哈密"
+    },
+    {
+      "text": "哈特",
+      "reading": "ha te",
+      "source": "rime_pinyin_simp",
+      "frequency": 114,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_te-哈特"
+    },
+    {
+      "text": "哈密瓜",
+      "reading": "ha mi gua",
+      "source": "rime_pinyin_simp",
+      "frequency": 112,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha_mi_gua-哈密瓜"
+    },
+    {
+      "text": "嘿",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 92,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-嘿"
+    },
+    {
+      "text": "氦",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 76,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-氦"
+    },
+    {
+      "text": "虾",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 69,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-虾"
+    },
+    {
+      "text": "骸",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 63,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-骸"
+    },
+    {
+      "text": "铪",
+      "reading": "ha",
+      "source": "rime_pinyin_simp",
+      "frequency": 21,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-ha-铪"
+    },
+    {
+      "text": "醢",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 12,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-醢"
+    },
+    {
+      "text": "嗐",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 11,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-嗐"
+    },
+    {
+      "text": "駭",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 8,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-駭"
+    },
+    {
+      "text": "侅",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 6,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-侅"
+    },
+    {
+      "text": "胲",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 5,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-胲"
+    },
+    {
+      "text": "烸",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 4,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-烸"
+    },
+    {
+      "text": "絯",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 4,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-絯"
+    },
+    {
+      "text": "塰",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 3,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-塰"
+    },
+    {
+      "text": "駴",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 2,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-駴"
+    },
+    {
+      "text": "餀",
+      "reading": "hai",
+      "source": "rime_pinyin_simp",
+      "frequency": 1,
+      "match_type": "prefix",
+      "stable_id": "lex-v115-hai-餀"
+    }
+  ],
+  "candidate_page": 0,
+  "has_previous_page": false,
+  "has_next_page": true
+}

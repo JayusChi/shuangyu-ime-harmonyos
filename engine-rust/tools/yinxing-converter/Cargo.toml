@@ -1,0 +1,17 @@
+[package]
+name = "yinxing-converter"
+edition = "2021"
+version = "0.0.1"
+license = "UNLICENSED"
+
+[dependencies]
+code-table-runtime = { path = "../../crates/code-table-runtime" }
+lexicon-core = { path = "../../crates/lexicon-core" }
+user-lexicon = { path = "../../crates/user-lexicon" }
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "yinxing-converter"
+path = "src/main.rs"

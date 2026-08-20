@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "pinyin9-joint-decoder-determinism/1",
+  "runCount": 3,
+  "publicRegression": {
+    "deterministic": true,
+    "candidateOutputSha256ByRun": [
+      "16fe8b0ba475936b80e35b34d4541d20d829bdc72856418516be9a7bd8c7c803",
+      "16fe8b0ba475936b80e35b34d4541d20d829bdc72856418516be9a7bd8c7c803",
+      "16fe8b0ba475936b80e35b34d4541d20d829bdc72856418516be9a7bd8c7c803"
+    ],
+    "resultFileSha256": "11328b309de2064d7788f6e0cd0e560e3c4424f66fd1de16f7092d69ac5106da"
+  },
+  "dev": {
+    "deterministic": true,
+    "candidateOutputSha256ByRun": [
+      "81bc125592a7d7503c3699969f6d0bf502943ea15d7092c01ec0f7664691a1ae",
+      "81bc125592a7d7503c3699969f6d0bf502943ea15d7092c01ec0f7664691a1ae",
+      "81bc125592a7d7503c3699969f6d0bf502943ea15d7092c01ec0f7664691a1ae"
+    ],
+    "resultFileSha256": "c8a35e14457bb1573a1c1c30f3249ab3959e27ba65cca6d9d6f9b51a9d9b2f5d"
+  }
+}

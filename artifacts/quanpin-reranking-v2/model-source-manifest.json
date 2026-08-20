@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "quanpin-context-reranking-v2-source-manifest/1",
+  "asOfDate": "2026-08-17",
+  "scope": "word-level bigram/trigram counts deterministically derived from the frozen production lexicon only",
+  "source": {
+    "path": "entry/src/main/resources/rawfile/production.lex",
+    "bytes": 3746486,
+    "sha256": "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201",
+    "lexiconVersion": 200,
+    "license": "Apache-2.0",
+    "upstreamSourceManifest": {
+      "path": "artifacts/quanpin-lexicon-v2/source-manifest.json",
+      "sha256": "2e4ff523df467cd88c08382646a036feb9ecfd27aa9ef640c7f0e31a462bc5a0"
+    },
+    "upstreamBuildManifest": {
+      "path": "artifacts/quanpin-lexicon-v2/build-manifest.json",
+      "sha256": "91019fdfd1ae60f5f4ffeee24d72570f59edea57bdb5fa3b0800a88f5090558a"
+    }
+  },
+  "statisticsMethod": {
+    "version": "production-lexicon-exact-text-and-pinyin-segmentation/1",
+    "minimumSourceSyllables": 4,
+    "derivedTokenSyllables": {
+      "minimum": 2,
+      "maximum": 3
+    },
+    "requirements": [
+      "token pinyin span exactly matches the source entry span",
+      "token Han text exactly matches the source entry substring",
+      "whole-source self edge is excluded",
+      "fewest-token segmentation wins; lexical order is the deterministic tie-breaker"
+    ],
+    "weight": "source lexicon frequency clamped to [1,100000]",
+    "aggregateCountMaximum": 1000000,
+    "selection": "count descending, then lexical tuple ascending",
+    "bigramLimit": 2048,
+    "trigramLimit": 1024
+  },
+  "privacyAndEvaluationExclusions": {
+    "realUserInputExported": false,
+    "runtimeTraining": false,
+    "editorTextUsed": false,
+    "newBlindSamplesUsed": false,
+    "historicalDevOrBlindSamplesUsed": false,
+    "sampleSpecificRulesUsed": false
+  }
+}
+

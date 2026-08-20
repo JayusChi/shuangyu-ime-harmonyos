@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "pinyin9-joint-decoder-performance/1",
+  "platform": "Windows x86_64 host release; not HarmonyOS device data",
+  "publicRegression": {
+    "baselineKeyLatencyMicros": {
+      "max": 1138370,
+      "mean": 111712.74098549981,
+      "p50": 35805,
+      "p95": 541164,
+      "p99": 738442,
+      "samples": 15586
+    },
+    "jointDecoderKeyLatencyMicros": {
+      "max": 556393,
+      "mean": 66325.80533812396,
+      "p50": 41759,
+      "p95": 237583,
+      "p99": 345435,
+      "samples": 15586
+    },
+    "baselineEngineLoadLatencyMicros": {
+      "max": 205738,
+      "mean": 201661.66666666666,
+      "p50": 203321,
+      "p95": 205738,
+      "p99": 205738,
+      "samples": 3
+    },
+    "jointDecoderEngineLoadLatencyMicros": {
+      "max": 288378,
+      "mean": 265346.3333333333,
+      "p50": 275278,
+      "p95": 288378,
+      "p99": 288378,
+      "samples": 3
+    },
+    "jointDecoderSearch": {
+      "beamCapacityPrunes": 8434962,
+      "candidateOutputLimitPrunes": 706,
+      "inputLimitHitCount": 0,
+      "jointScorePrunes": 8782,
+      "lexiconPrefixUnreachablePrunes": 1475918,
+      "maxBeamStates": 16,
+      "meanExploredPinyinHypothesesPerSample": 8143.002222222222,
+      "meanGraphEdgesPerSample": 690.5633333333334,
+      "peakEstimatedBytes": 24160,
+      "pinyinInvalidPrunes": 40717
+    }
+  },
+  "dev": {
+    "baselineKeyLatencyMicros": {
+      "max": 975456,
+      "mean": 116232.24716006884,
+      "p50": 32949,
+      "p95": 629015,
+      "p99": 828166,
+      "samples": 2905
+    },
+    "jointDecoderKeyLatencyMicros": {
+      "max": 476757,
+      "mean": 67105.27641996558,
+      "p50": 41360,
+      "p95": 247365,
+      "p99": 364638,
+      "samples": 2905
+    },
+    "baselineEngineLoadLatencyMicros": {
+      "max": 191269,
+      "mean": 186532.33333333334,
+      "p50": 185117,
+      "p95": 191269,
+      "p99": 191269,
+      "samples": 3
+    },
+    "jointDecoderEngineLoadLatencyMicros": {
+      "max": 285275,
+      "mean": 272319.6666666667,
+      "p50": 278618,
+      "p95": 285275,
+      "p99": 285275,
+      "samples": 3
+    },
+    "jointDecoderSearch": {
+      "beamCapacityPrunes": 1557591,
+      "candidateOutputLimitPrunes": 94,
+      "inputLimitHitCount": 1,
+      "jointScorePrunes": 6768,
+      "lexiconPrefixUnreachablePrunes": 269575,
+      "maxBeamStates": 16,
+      "meanExploredPinyinHypothesesPerSample": 8680.05806451613,
+      "meanGraphEdgesPerSample": 718.0387096774193,
+      "peakEstimatedBytes": 25056,
+      "pinyinInvalidPrunes": 7354
+    }
+  }
+}

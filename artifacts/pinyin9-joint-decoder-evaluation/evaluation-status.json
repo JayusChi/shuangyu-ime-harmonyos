@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "pinyin9-joint-decoder-evaluation-status/1",
+  "schemeId": "pinyin-9",
+  "status": "user_stopped_incomplete",
+  "stoppedAt": "2026-08-18T16:14:25+08:00",
+  "reason": "The user explicitly asked to end the long-running evaluation if no implementation problem remained.",
+  "implementationManifest": {
+    "path": "implementation-manifest.json",
+    "sha256": "c21ddafb622443b992bbf416722d5fd4bf4a8a68db3069882d49be201a8934e3"
+  },
+  "formalResultsPublished": false,
+  "completedBeforeStop": [
+    "Implementation manifest was written without modifying the stage-one evaluation directory.",
+    "Rust formatting, lint, unit, integration, scheme-regression, and evaluator tests completed successfully.",
+    "The third evaluation attempt completed public-regression round one in process memory, but no result file was published because the required three rounds did not finish."
+  ],
+  "notCompleted": [
+    "public-regression rounds two and three",
+    "dev rounds one through three",
+    "formal three-run candidate-structure SHA-256 receipt",
+    "formal stage-one versus stage-two accuracy comparison",
+    "formal stage-one versus stage-two performance and memory comparison"
+  ],
+  "intentionallyMissingFiles": [
+    "public-regression-results.json",
+    "public-regression-failures.jsonl",
+    "dev-results.json",
+    "dev-failures.jsonl",
+    "baseline-comparison.json",
+    "determinism-receipt.json",
+    "performance-comparison.json"
+  ],
+  "abortedAttemptManifests": [
+    "../pinyin9-joint-decoder-evaluation-v1-aborted/implementation-manifest.json",
+    "../pinyin9-joint-decoder-evaluation-v2-aborted/implementation-manifest.json"
+  ],
+  "reportingPolicy": "Exploratory or partial-run values are not formal results and must not be used as the stage-two comparison. Resume with a new versioned artifact directory and a newly frozen implementation manifest if formal evaluation is requested later."
+}
