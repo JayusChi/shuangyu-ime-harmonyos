@@ -61,21 +61,21 @@
 本次执行新创建的文档和示例文件：
 
 #### 文档文件（3个）
-✅ **USER_LEXICON_IMPLEMENTATION.md** (约400行)
+✅ **docs/features/user-lexicon/IMPLEMENTATION.md** (约400行)
 - 完整的技术实现文档
 - 架构设计说明
 - API文档
 - 使用示例
 - 故障排查指南
 
-✅ **USER_LEXICON_QUICKSTART.md** (约500行)
+✅ **docs/features/user-lexicon/QUICKSTART.md** (约500行)
 - 用户快速入门指南
 - 词库格式详解
 - 操作类型说明
 - 最佳实践
 - FAQ常见问题
 
-✅ **USER_LEXICON_DELIVERY.md** (约600行)
+✅ **docs/operations/release/USER_LEXICON_DELIVERY.md** (约600行)
 - 项目交付总结
 - 功能完成度统计
 - 验收标准对照
@@ -229,9 +229,9 @@ test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured
 - ✅ 测试文件（内联 + 集成）
 
 ### 新增文档（4个）
-- ✅ USER_LEXICON_IMPLEMENTATION.md
-- ✅ USER_LEXICON_QUICKSTART.md
-- ✅ USER_LEXICON_DELIVERY.md
+- ✅ docs/features/user-lexicon/IMPLEMENTATION.md
+- ✅ docs/features/user-lexicon/QUICKSTART.md
+- ✅ docs/operations/release/USER_LEXICON_DELIVERY.md
 - ✅ USER_LEXICON_README.md
 
 ### 新增示例（6个）
@@ -294,14 +294,14 @@ test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured
 
 ### 快速开始
 
-1. **查看文档**: 阅读 `USER_LEXICON_QUICKSTART.md`
+1. **查看文档**: 阅读 `docs/features/user-lexicon/QUICKSTART.md`
 2. **选择模板**: 从 `examples/user-lexicon-templates/` 选择合适的模板
 3. **导入词库**: 通过UI界面导入
 4. **开始使用**: 输入拼音测试效果
 
 ### 开发指南
 
-1. **技术文档**: 阅读 `USER_LEXICON_IMPLEMENTATION.md`
+1. **技术文档**: 阅读 `docs/features/user-lexicon/IMPLEMENTATION.md`
 2. **API使用**: 参考文档中的代码示例
 3. **运行测试**: `cargo test` 验证功能
 4. **UI集成**: 参考 `UserLexiconManagerPage.ets`

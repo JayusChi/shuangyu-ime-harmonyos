@@ -213,7 +213,7 @@ scheme：`pinyin-9`
 - `engine-rust/crates/ime-engine/tests/t9_stage3.rs`
 - `engine-rust/tools/candidate-baseline/src/pinyin9_evaluation.rs`
 - `scripts/evaluate-pinyin9-joint-decoder.ps1`
-- `docs/PINYIN9_JOINT_DECODER.md`
+- `docs/features/pinyin/PINYIN9_JOINT_DECODER.md`
 - `artifacts/pinyin9-joint-decoder-evaluation/implementation-manifest.json`
 - `artifacts/pinyin9-joint-decoder-evaluation/evaluation-status.json`
 

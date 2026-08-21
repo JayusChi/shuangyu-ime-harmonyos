@@ -143,7 +143,7 @@ try {
                 retrieved_at = 'unknown'
                 source_url_or_delivery_record = 'dictionaries/audit/xiaohe-yinxing/source_manifest.json'
                 license = 'Project-specific approval'
-                license_file = 'docs/data-audit/XIAOHE_YINXING_APPROVAL_STATUS.md'
+                license_file = 'docs/audits/data/XIAOHE_YINXING_APPROVAL_STATUS.md'
                 commercial_use_allowed = 'APPROVED_WITHIN_PROJECT_SCOPE'
                 modification_allowed = $true
                 hap_redistribution_allowed = $true

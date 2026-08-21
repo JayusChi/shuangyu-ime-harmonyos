@@ -42,4 +42,4 @@
 默认 `AUTO` 路线不受影响。真实 USB/蓝牙键盘、ARM64 物理真机、第三方浏览器和 Pad
 分屏未执行，不计入本阶段路线 C 的模拟器验收结论。
 
-完整能力分析见 `docs/STAGE_3_8_FLOATING_CANDIDATE_CAPABILITY.md`。
+完整能力分析见 `docs/features/input-method/STAGE_3_8_FLOATING_CANDIDATE_CAPABILITY.md`。

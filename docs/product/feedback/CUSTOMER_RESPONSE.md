@@ -48,8 +48,8 @@ HarmonyOS的输入法API相对基础，限制如下：
 ### 如果需要实现更多功能：
 
 我已经准备了详细的技术文档和实现提示词：
-- **功能分析报告**：`docs/direct_encoding_analysis.md`
-- **实现提示词模板**：`docs/implementation_prompts.md`
+- **功能分析报告**：`docs/features/direct-control/DIRECT_ENCODING_ANALYSIS.md`
+- **实现提示词模板**：`docs/development/ai/IMPLEMENTATION_PROMPTS.md`
 
 建议优先级：
 1. 🟢 **重复上屏** - 可行性高，用户需求大
@@ -348,12 +348,12 @@ ENTER_KEY_TYPE_SEND      // 发送
 
 我已经为您准备了详细的技术文档：
 
-1. **`docs/direct_encoding_analysis.md`**
+1. **`docs/features/direct-control/DIRECT_ENCODING_ANALYSIS.md`**
    - 完整的功能支持分析
    - 技术限制详解
    - 实现难度评估
 
-2. **`docs/implementation_prompts.md`**
+2. **`docs/development/ai/IMPLEMENTATION_PROMPTS.md`**
    - 详细的实现提示词模板
    - 每个功能的完整实现方案
    - 代码文件位置和修改点
@@ -374,7 +374,7 @@ ENTER_KEY_TYPE_SEND      // 发送
 | 哪些功能已实现？ | ✅ 成对符号居中、分类词库、用户词库导入 |
 | 哪些功能可以实现？ | 🟢 重复上屏（推荐）、🟡 撤销上屏（有限制）|
 | 哪些功能无法实现？ | ❌ 模拟End/方向键等功能键 |
-| 如何实现更多功能？ | 📄 参考 `docs/implementation_prompts.md` |
+| 如何实现更多功能？ | 📄 参考 `docs/development/ai/IMPLEMENTATION_PROMPTS.md` |
 
 **我的建议：**
 - 优先实现"重复上屏"功能（性价比最高）

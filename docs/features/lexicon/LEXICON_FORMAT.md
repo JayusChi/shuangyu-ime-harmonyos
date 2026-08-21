@@ -72,7 +72,7 @@ system-table word policy does not change the CJK-only user-lexicon policy.
 The runtime user overlay is intentionally a different text format and never
 enters this builder or `production.lex`. Its `#删/#固/#N` grammar, last-rule
 wins semantics, hard ordering, atomic save, and recovery behavior are defined
-in [USER_LEXICON_FORMAT.md](USER_LEXICON_FORMAT.md). Both importers reuse the
+in [USER_LEXICON_FORMAT.md](../user-lexicon/USER_LEXICON_FORMAT.md). Both importers reuse the
 same `lexicon-core::validation` code/word policy, while `FlypyTableImporter`
 continues to reject every user marker.
 
@@ -277,8 +277,8 @@ fail the build.
 The bundle records the exact manifest, category order, per-category metadata,
 overall build-input SHA-256, content SHA-256, and nested binary bytes. It is not
 installed in `entry/src/main/resources`, and no runtime reader is wired into
-`ime-engine`. See [CODE_TABLE_BUNDLE_FORMAT.md](CODE_TABLE_BUNDLE_FORMAT.md)
-and [CODE_TABLE_FIXTURE_GENERATION.md](CODE_TABLE_FIXTURE_GENERATION.md).
+`ime-engine`. See [CODE_TABLE_BUNDLE_FORMAT.md](../code-table/CODE_TABLE_BUNDLE_FORMAT.md)
+and [CODE_TABLE_FIXTURE_GENERATION.md](../code-table/CODE_TABLE_FIXTURE_GENERATION.md).
 
 ## Commands
 
@@ -321,7 +321,7 @@ User `#删`, `#固`, and `#N` records are not encoded as system entries. They ar
 written to a separate strict user-lexicon payload and parsed through the
 existing `user-lexicon` implementation. Unsupported commands and deferred
 features are metadata only and cannot become candidates. See
-`docs/XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md` for the container layout,
+`docs/features/code-table/XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md` for the container layout,
 hashes, trace contract, and Release boundary.
 
 ## Error Example

@@ -97,7 +97,7 @@ ShuangpinBackend   CodeTableBackend
   -> limit / 分页
 ```
 
-空字符串返回空候选，不枚举码表。“空码”只表示非空编码既无最终精确候选、也不存在有效更长编码。完整状态表、引导状态和 reset 矩阵见 `docs/CODE_TABLE_BEHAVIOR_SPEC.md`。
+空字符串返回空候选，不枚举码表。“空码”只表示非空编码既无最终精确候选、也不存在有效更长编码。完整状态表、引导状态和 reset 矩阵见 `docs/features/code-table/CODE_TABLE_BEHAVIOR_SPEC.md`。
 
 码表后端的顶层状态图冻结为：
 
