@@ -4,6 +4,9 @@
  */
 
 export interface KeyboardColorPalette {
+  // “淡然”素材按日间/夜间分别提供位图图标；颜色模式同时决定图标版本。
+  useDarkMedia: boolean;
+
   // 背景色
   panelBackground: string;
   candidateBackground: string;
@@ -47,86 +50,90 @@ export interface KeyboardColorPalette {
  * 浅色模式调色板
  */
 export const LIGHT_PALETTE: KeyboardColorPalette = {
+  useDarkMedia: false,
+
   // 背景色
-  panelBackground: '#F8FAFC',
-  candidateBackground: '#FFFFFF',
+  panelBackground: '#DCE0EB',
+  candidateBackground: '#ECEFF8',
 
   // 按键背景色
-  letterKeyBackground: '#FFFFFF',
-  functionKeyBackground: '#E5E7EB',
-  spaceKeyBackground: '#F1F5F9',
-  primaryFunctionBackground: '#3B82F6',
-  modeKeyBackgroundEnglish: '#E8F3FF',
-  modeKeyBackgroundChinese: '#FFF4E5',
+  letterKeyBackground: '#F8F8F8',
+  functionKeyBackground: '#E8E8E8',
+  spaceKeyBackground: '#F8F8F8',
+  primaryFunctionBackground: '#D8D8D8',
+  modeKeyBackgroundEnglish: '#F8F8F8',
+  modeKeyBackgroundChinese: '#E8E8E8',
 
   // 按下状态
-  letterKeyPressedBackground: '#E5E7EB',
-  functionKeyPressedBackground: '#D1D5DB',
-  primaryFunctionPressedBackground: '#2563EB',
+  letterKeyPressedBackground: '#C8CFDF',
+  functionKeyPressedBackground: '#F8F8F8',
+  primaryFunctionPressedBackground: '#F8F8F8',
 
   // 文字颜色
-  letterKeyText: '#111827',
-  functionKeyText: '#111827',
-  primaryFunctionText: '#FFFFFF',
-  modeKeyTextEnglish: '#0A59F7',
-  modeKeyTextChinese: '#B45309',
-  errorText: '#B91C1C',
+  letterKeyText: '#1B2927',
+  functionKeyText: '#1B2927',
+  primaryFunctionText: '#1B2927',
+  modeKeyTextEnglish: '#505657',
+  modeKeyTextChinese: '#D75642',
+  errorText: '#D75642',
 
   // 预览气泡
-  previewBackground: '#FFFFFF',
-  previewText: '#111827',
-  previewShadow: 'rgba(0, 0, 0, 0.15)',
+  previewBackground: '#F8F8F8',
+  previewText: '#1B2927',
+  previewShadow: '#00000000',
 
   // 候选栏
-  candidateText: '#111827',
-  candidateReading: '#6B7280',
-  candidateDivider: '#E5E7EB',
+  candidateText: '#666666',
+  candidateReading: '#AAAAAA',
+  candidateDivider: '#DDDDDD',
 
   // 边框
-  keyBorder: '#E5E7EB'
+  keyBorder: '#DDDDDD'
 };
 
 /**
  * 深色模式调色板
  */
 export const DARK_PALETTE: KeyboardColorPalette = {
+  useDarkMedia: true,
+
   // 背景色
-  panelBackground: '#1F2937',
-  candidateBackground: '#374151',
+  panelBackground: '#1C202B',
+  candidateBackground: '#0C101B',
 
   // 按键背景色
-  letterKeyBackground: '#374151',
-  functionKeyBackground: '#4B5563',
-  spaceKeyBackground: '#374151',
-  primaryFunctionBackground: '#3B82F6',
-  modeKeyBackgroundEnglish: '#1E3A5F',
-  modeKeyBackgroundChinese: '#4A3419',
+  letterKeyBackground: '#444444',
+  functionKeyBackground: '#343434',
+  spaceKeyBackground: '#444444',
+  primaryFunctionBackground: '#282828',
+  modeKeyBackgroundEnglish: '#444444',
+  modeKeyBackgroundChinese: '#343434',
 
   // 按下状态
-  letterKeyPressedBackground: '#4B5563',
-  functionKeyPressedBackground: '#6B7280',
-  primaryFunctionPressedBackground: '#2563EB',
+  letterKeyPressedBackground: '#5E5E5E',
+  functionKeyPressedBackground: '#444444',
+  primaryFunctionPressedBackground: '#444444',
 
   // 文字颜色
-  letterKeyText: '#F9FAFB',
-  functionKeyText: '#F9FAFB',
-  primaryFunctionText: '#FFFFFF',
-  modeKeyTextEnglish: '#60A5FA',
-  modeKeyTextChinese: '#FCD34D',
-  errorText: '#F87171',
+  letterKeyText: '#FAFAFA',
+  functionKeyText: '#FCFAFD',
+  primaryFunctionText: '#FCFAFD',
+  modeKeyTextEnglish: '#FFFDFF',
+  modeKeyTextChinese: '#FFB5B0',
+  errorText: '#FFB5B0',
 
   // 预览气泡
-  previewBackground: '#374151',
-  previewText: '#F9FAFB',
-  previewShadow: 'rgba(0, 0, 0, 0.5)',
+  previewBackground: '#444444',
+  previewText: '#FAFAFA',
+  previewShadow: '#00000000',
 
   // 候选栏
-  candidateText: '#F9FAFB',
-  candidateReading: '#9CA3AF',
-  candidateDivider: '#4B5563',
+  candidateText: '#AAAAAA',
+  candidateReading: '#888888',
+  candidateDivider: '#2C3032',
 
   // 边框
-  keyBorder: '#4B5563'
+  keyBorder: '#2C3032'
 };
 
 /**

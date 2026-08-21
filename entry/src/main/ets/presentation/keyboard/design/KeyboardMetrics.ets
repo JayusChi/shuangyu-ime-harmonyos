@@ -91,7 +91,7 @@ export const PORTRAIT_METRICS: OrientationMetrics = {
   secondRowInset: 17,
   topPadding: 6,
   bottomPadding: KEYBOARD_BOTTOM_PADDING,
-  keyBorderRadius: 6,
+  keyBorderRadius: 9,
   letterFontSize: 14,
   functionFontSize: 11,
   previewFontSize: 22
@@ -113,7 +113,7 @@ export const LANDSCAPE_METRICS: OrientationMetrics = {
   secondRowInset: 20,
   topPadding: 6,
   bottomPadding: KEYBOARD_BOTTOM_PADDING,
-  keyBorderRadius: 5,
+  keyBorderRadius: 8,
   letterFontSize: 13,
   functionFontSize: 10,
   previewFontSize: 20
@@ -253,7 +253,8 @@ export function calculateDynamicMetrics(
   const functionFontSize = clamp(Math.round(letterKeyHeight * 0.24), 9, 14);
   const previewFontSize = clamp(Math.round(letterFontSize * 1.5), 18, 27);
 
-  const keyBorderRadius = isLandscape ? 5 : 6;
+  // “淡然”键帽使用明显的柔和圆角；按实际键高等比例缩放并限制极端屏幕。
+  const keyBorderRadius = clamp(Math.round(letterKeyHeight * 0.2), 7, 12);
 
   return {
     layoutForm,

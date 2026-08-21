@@ -53,6 +53,7 @@ export struct InputMethodSwitchKey {
     .backgroundColor(this.isPressed
       ? this.palette.functionKeyPressedBackground
       : this.palette.functionKeyBackground)
+    .border({ width: 1, color: this.palette.keyBorder })
     .borderRadius(this.metrics.keyBorderRadius)
     .accessibilityText(this.longPressEnabled
       ? $r('app.string.switch_input_method_long_press')

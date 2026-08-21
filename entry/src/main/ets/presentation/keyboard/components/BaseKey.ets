@@ -107,8 +107,9 @@ export struct BaseKey {
           ? this.palette.modeKeyBackgroundChinese
           : this.palette.functionKeyBackground;
       case KeyboardKeyKind.DELETE:
-      case KeyboardKeyKind.ENTER:
         return this.palette.functionKeyBackground;
+      case KeyboardKeyKind.ENTER:
+        return this.palette.primaryFunctionBackground;
       default:
         return this.palette.functionKeyBackground;
     }
@@ -123,11 +124,12 @@ export struct BaseKey {
       case KeyboardKeyKind.T9_DIGIT:
         return this.palette.letterKeyPressedBackground;
       case KeyboardKeyKind.DELETE:
-      case KeyboardKeyKind.ENTER:
       case KeyboardKeyKind.SPACE:
       case KeyboardKeyKind.MODE_SWITCH:
       case KeyboardKeyKind.SHIFT:
         return this.palette.functionKeyPressedBackground;
+      case KeyboardKeyKind.ENTER:
+        return this.palette.primaryFunctionPressedBackground;
       default:
         return this.palette.functionKeyPressedBackground;
     }
@@ -141,6 +143,10 @@ export struct BaseKey {
       return this.keyboardMode === KeyboardMode.ENGLISH
         ? this.palette.modeKeyTextEnglish
         : this.palette.modeKeyTextChinese;
+    }
+
+    if (this.spec.kind === KeyboardKeyKind.ENTER) {
+      return this.palette.primaryFunctionText;
     }
 
     return this.spec.kind === KeyboardKeyKind.LETTER || this.spec.kind === KeyboardKeyKind.T9_DIGIT
@@ -166,6 +172,10 @@ export struct BaseKey {
       : FontWeight.Regular;
   }
 
+  private isShiftLocked(): boolean {
+    return this.spec.active === true || this.shiftState === ShiftState.CAPS_LOCK;
+  }
+
   /**
    * 获取按键标签（模式切换键需要动态显示）
    */
@@ -180,10 +190,23 @@ export struct BaseKey {
   build() {
     Row() {
       if (this.spec.kind === KeyboardKeyKind.DELETE) {
-        Image($r('app.media.keyboard_delete'))
-          .width(22)
-          .height(22)
-          .fillColor(this.getTextColor())
+        Image(this.palette.useDarkMedia
+          ? $r('app.media.danran_delete_dark')
+          : $r('app.media.danran_delete'))
+          .width(24)
+          .height(24)
+          .objectFit(ImageFit.Contain)
+          .accessibilityText(this.spec.accessibilityLabel)
+      } else if (this.spec.kind === KeyboardKeyKind.SHIFT) {
+        Image(this.palette.useDarkMedia
+          ? (this.isShiftLocked()
+            ? $r('app.media.danran_caps_lock_dark')
+            : $r('app.media.danran_shift_dark'))
+          : (this.isShiftLocked()
+            ? $r('app.media.danran_caps_lock')
+            : $r('app.media.danran_shift')))
+          .width(24)
+          .height(24)
           .objectFit(ImageFit.Contain)
           .accessibilityText(this.spec.accessibilityLabel)
       } else if (this.spec.upperLabel) {
@@ -230,6 +253,7 @@ export struct BaseKey {
     .justifyContent(FlexAlign.Center)
     .alignItems(VerticalAlign.Center)
     .backgroundColor(this.getBackgroundColor())
+    .border({ width: 1, color: this.palette.keyBorder })
     .borderRadius(this.metrics.keyBorderRadius)
     .accessibilityText(this.spec.accessibilityLabel)
     .onTouch((event: TouchEvent) => {

@@ -854,6 +854,23 @@ export default function stage11Test() {
       expect(resolver.resolve(store.getEffectiveTheme()).panelBackground).assertEqual(DARK_PALETTE.panelBackground);
     });
 
+    it('embedded Danran skin keeps its authoritative day and night tokens paired', 0, () => {
+      expect(LIGHT_PALETTE.useDarkMedia).assertFalse();
+      expect(LIGHT_PALETTE.candidateBackground).assertEqual('#ECEFF8');
+      expect(LIGHT_PALETTE.panelBackground).assertEqual('#DCE0EB');
+      expect(LIGHT_PALETTE.letterKeyBackground).assertEqual('#F8F8F8');
+      expect(LIGHT_PALETTE.letterKeyPressedBackground).assertEqual('#C8CFDF');
+      expect(LIGHT_PALETTE.modeKeyTextEnglish).assertEqual('#505657');
+      expect(LIGHT_PALETTE.modeKeyTextChinese).assertEqual('#D75642');
+      expect(DARK_PALETTE.useDarkMedia).assertTrue();
+      expect(DARK_PALETTE.candidateBackground).assertEqual('#0C101B');
+      expect(DARK_PALETTE.panelBackground).assertEqual('#1C202B');
+      expect(DARK_PALETTE.letterKeyBackground).assertEqual('#444444');
+      expect(DARK_PALETTE.letterKeyPressedBackground).assertEqual('#5E5E5E');
+      expect(DARK_PALETTE.modeKeyTextEnglish).assertEqual('#FFFDFF');
+      expect(DARK_PALETTE.modeKeyTextChinese).assertEqual('#FFB5B0');
+    });
+
     it('settings window style reuses page tokens and readable icon contrast', 0, () => {
       const light = resolveSettingsWindowStyle(false);
       const dark = resolveSettingsWindowStyle(true);

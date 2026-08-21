@@ -40,6 +40,7 @@ export struct SegmentedKey {
     .backgroundColor(this.pressed
       ? this.palette.letterKeyPressedBackground
       : this.palette.letterKeyBackground)
+    .border({ width: 1, color: this.palette.keyBorder })
     .borderRadius(this.metrics.keyBorderRadius)
     .accessibilityText(this.spec.accessibilityLabel)
     .onTouch((event: TouchEvent): void => {
