@@ -93,7 +93,13 @@ impl ImeEngine {
                 let bundle = code_table_bundle
                     .as_ref()
                     .ok_or(EngineCreateError::CodeTableNotFound)?;
-                let rules = code_table_rules(bundle, &config.scheme_id, &user_lexicon);
+                let default_categories = bundle.default_enabled_category_ids();
+                let rules = code_table_rules(
+                    bundle,
+                    &config.scheme_id,
+                    &user_lexicon,
+                    &default_categories,
+                );
                 let state = CodeTableStateMachine::new_with_query_strategy(
                     Arc::clone(bundle),
                     query_config.default_page_size,
@@ -254,6 +260,7 @@ impl ImeEngine {
                     bundle,
                     &self.scheme_id,
                     &external,
+                    &self.code_table_category_ids,
                 ));
                 Ok(code_table_result(machine))
             }
@@ -281,6 +288,13 @@ impl ImeEngine {
         &mut self,
         category_ids: Vec<String>,
     ) -> Result<CompositionResult, EngineOperationError> {
+        let bundle = self
+            .code_table_bundle
+            .as_ref()
+            .cloned()
+            .ok_or(EngineOperationError::UnsupportedOperation)?;
+        let external = Arc::clone(&self.user_lexicon);
+        let scheme_id = self.scheme_id.clone();
         let EngineBackend::CodeTable(machine) = &mut self.backend else {
             return Err(EngineOperationError::UnsupportedOperation);
         };
@@ -295,6 +309,12 @@ impl ImeEngine {
             .category_selection_snapshot()
             .enabled_category_ids()
             .to_vec();
+        machine.set_user_lexicon_snapshot(code_table_rules(
+            &bundle,
+            &scheme_id,
+            &external,
+            &self.code_table_category_ids,
+        ));
         Ok(code_table_result(machine))
     }
 
@@ -322,7 +342,12 @@ impl ImeEngine {
                         },
                     ));
                 }
-                let rules = code_table_rules(bundle, scheme_id, &self.user_lexicon);
+                let rules = code_table_rules(
+                    bundle,
+                    scheme_id,
+                    &self.user_lexicon,
+                    &self.code_table_category_ids,
+                );
                 let mut state = CodeTableStateMachine::new_with_query_strategy(
                     Arc::clone(bundle),
                     self.query_config.default_page_size,
@@ -1569,8 +1594,17 @@ fn code_table_rules(
     bundle: &CodeTableBundle,
     scheme_id: &str,
     external: &Arc<UserLexiconSnapshot>,
+    enabled_category_ids: &[String],
 ) -> Arc<UserLexiconSnapshot> {
-    if scheme_id == PRODUCTION_SCHEME_ID {
+    // The frozen production bundle's embedded rules originate from the
+    // full-code-word source. Keep those fixed/direct records owned by that
+    // category so disabling the category cannot leak them as global user
+    // entries. External user rules remain independent of system categories.
+    if scheme_id == PRODUCTION_SCHEME_ID
+        && enabled_category_ids
+            .iter()
+            .any(|category| category == "full-code-word")
+    {
         let embedded = bundle
             .user_rules
             .as_ref()

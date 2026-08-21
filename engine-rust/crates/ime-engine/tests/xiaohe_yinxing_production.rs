@@ -197,7 +197,7 @@ fn production_quick_symbols_and_symbols_follow_category_switches() {
 }
 
 #[test]
-fn formal_engine_applies_embedded_rules_and_external_same_key_override() {
+fn formal_engine_scopes_embedded_rules_to_full_code_word_and_allows_external_override() {
     let bundle = CodeTableBundle::load_frozen_production_file(formal_bundle())
         .expect("load frozen formal bundle");
     let embedded = bundle.user_rules.as_ref().expect("embedded rules");
@@ -206,8 +206,18 @@ fn formal_engine_applies_embedded_rules_and_external_same_key_override() {
     let mut built_in_only =
         ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 3))
             .expect("formal engine with embedded rules");
+    let default_texts = texts_for_code(&mut built_in_only, &rule.code);
+    assert!(
+        !default_texts.contains(&rule.text),
+        "full-code-word is disabled by default, so its fixed rows must not leak"
+    );
+    enable_all_categories(&mut built_in_only);
     let built_in_texts = texts_for_code(&mut built_in_only, &rule.code);
     assert_eq!(built_in_texts.first(), Some(&rule.text));
+    built_in_only
+        .set_code_table_categories(bundle.default_enabled_category_ids())
+        .expect("restore default categories");
+    assert!(!texts_for_code(&mut built_in_only, &rule.code).contains(&rule.text));
 
     let external_path = std::env::temp_dir().join(format!(
         "stage11-6-4-formal-external-delete-{}.txt",
@@ -222,6 +232,7 @@ fn formal_engine_applies_embedded_rules_and_external_same_key_override() {
         3,
     ))
     .expect("formal engine with external override");
+    enable_all_categories(&mut with_external);
     let external_texts = texts_for_code(&mut with_external, &rule.code);
     assert!(!external_texts.contains(&rule.text));
 }
@@ -590,6 +601,7 @@ fn external_recovery_failure_never_removes_embedded_layer() {
             3,
         ))
         .expect("formal engine without effective external layer");
+        enable_all_categories(&mut engine);
         assert_eq!(
             texts_for_code(&mut engine, &rule.code).first(),
             Some(&rule.text)
@@ -612,6 +624,7 @@ fn external_recovery_failure_never_removes_embedded_layer() {
         3,
     ))
     .expect("formal engine recovers external backup");
+    enable_all_categories(&mut recovered);
     assert_eq!(
         &texts_for_code(&mut recovered, &rule.code)[..2],
         [rule.text.as_str(), "外部恢复固顶"]
@@ -632,6 +645,7 @@ fn external_recovery_failure_never_removes_embedded_layer() {
         3,
     ))
     .expect("formal engine degrades to embedded rules");
+    enable_all_categories(&mut degraded);
     let degraded_texts = texts_for_code(&mut degraded, &rule.code);
     assert_eq!(degraded_texts.first(), Some(&rule.text));
     assert!(!degraded_texts.iter().any(|text| text == "外部恢复固顶"));

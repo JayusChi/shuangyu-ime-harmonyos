@@ -11,9 +11,9 @@
 | action | target | 效果 |
 | --- | --- | --- |
 | `scheme.set` | `xiaohe` / `xiaohe-yinxing` | 切换方案 |
-| `category.enable` | 八类之一 | 启用分类 |
-| `category.disable` | 八类之一 | 禁用分类；`core` 拒绝 |
-| `category.toggle` | 八类之一 | 切换分类；`core` 拒绝 |
+| `category.enable` | 11 类之一 | 启用分类 |
+| `category.disable` | 11 类之一 | 禁用分类；`core` 拒绝 |
+| `category.toggle` | 11 类之一 | 切换分类；`core` 拒绝 |
 | `category.all` | 空 | 启用全部分类 |
 | `category.core` | 空 | 仅保留核心分类 |
 | `status.get` | 空 | 返回当前方案和分类 |

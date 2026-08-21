@@ -96,6 +96,18 @@ fn universal_key_queries_unknown_shape_and_sound_positions() {
     assert_eq!(candidate_texts(&unknown_sound), ["核心后续早码"]);
 }
 
+#[test]
+fn direct_user_layer_is_exactly_queryable_but_hidden_from_universal_key() {
+    let mut exact = state_with_rules(8, 64, "直通词\tunan\n");
+    input(&mut exact, "unan");
+    assert!(candidate_texts(&exact).contains(&"直通词"));
+
+    let mut wildcard = state_with_rules(8, 64, "直通词\tunan\n");
+    input(&mut wildcard, "un");
+    wildcard.process_key('`').unwrap();
+    assert!(!candidate_texts(&wildcard).contains(&"直通词"));
+}
+
 fn paging_specs() -> Vec<TableSpec> {
     let mut entries = Vec::new();
     for index in 0..25 {
