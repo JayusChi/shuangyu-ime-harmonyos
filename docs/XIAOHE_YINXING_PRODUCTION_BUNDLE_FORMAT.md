@@ -1,10 +1,23 @@
 # Xiaohe Yinxing Production Bundle Format
 
+## Full-code fixed and direct records
+
+The production profile remains exactly 11 categories; fixed and direct records do not create a twelfth category. The authoritative `full-code-word` source accepts these suffixes:
+
+```text
+置顶词条<TAB>编码#固
+直通词条<TAB>编码#直
+```
+
+`#固` establishes protected top ordering while `full-code-word` is enabled. `#直` remains available to ordinary code input but is stored outside the system-category rows scanned by the backtick universal key. Both records disappear when `full-code-word` is disabled and return atomically when it is enabled; the external user lexicon remains independent. The converter rejects `#直` in every other category. Quick symbols remain isolated behind the semicolon guide.
+
+`#直` controls candidate visibility only; it never grants execution authority. `$cmd/$ddcmd`, network access, external programs, arbitrary file operations, and platform commands remain quarantined by the action policy.
+
 ## Scope
 
 Stage 11.6.2C introduces `HSPYXP01` version 1.0 for the formal Xiaohe Yinxing data bundle. It extends the existing code-table runtime boundary without changing the test-only `HSPCTF01` fixture format or the nested `HSPLEX01` 1.1 category format.
 
-The new container is necessary because production must bind eight categories, source traceability, user rules, action dispositions, machine statistics, converter identity, and whole-bundle integrity. `code-table-runtime` dispatches by magic and preserves the complete legacy fixture loader and tests.
+The container binds 11 categories, source traceability, user rules, action dispositions, machine statistics, converter identity, and whole-bundle integrity. `code-table-runtime` dispatches by magic and preserves the complete legacy fixture loader and tests.
 
 | Field | Value |
 | --- | --- |

@@ -317,18 +317,16 @@ pub(crate) fn wildcard_system_candidates(
 fn wildcard_code_matches(pattern: &str, code: &str) -> bool {
     let pattern_bytes = pattern.as_bytes();
     let code_bytes = code.as_bytes();
-    let mut code_index = 0usize;
     for (pattern_index, byte) in pattern_bytes.iter().copied().enumerate() {
         if byte == b'`' && pattern_index + 1 == pattern_bytes.len() {
-            return code_index < code_bytes.len();
+            return pattern_index < code_bytes.len();
         }
-        if code_index >= code_bytes.len() {
+        if pattern_index >= code_bytes.len() {
             return false;
         }
-        if byte != b'`' && byte != code_bytes[code_index] {
+        if byte != b'`' && byte != code_bytes[pattern_index] {
             return false;
         }
-        code_index += 1;
     }
     // A non-trailing pattern remains prefix-searchable while the user enters
     // later known shape positions (for example ``k before ``kp).

@@ -4,7 +4,7 @@
 
 `HSPCTF01` 1.0 是阶段 11.6.2A～11.6.3 的测试专用容器。它组合显式 manifest、五个 `HSPLEX01` 1.1 分类二进制和一个隔离的 guide 二进制。生产 `production.lex` 的 1.0/1.1 兼容性不变；该容器已接入内部 `code-table-fixture` Rust 运行时和 Debug-only 临时资源安装器，但不会进入 Release HAP，也不是正式码表分发格式承诺。
 
-阶段 11.6.2C 在同一 `code-table-runtime` 加载边界新增正式容器 `HSPYXP01` 1.0。它保留 `HSPCTF01` 的全部 fixture 语义与测试，并用八个 `HSPLEX01` 1.1 分类表、用户规则、动作分流、追溯索引和统计报告承载正式数据。详细规范、冻结哈希和 Release 边界见 [XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md](XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md)。
+阶段 11.6.2C 在同一 `code-table-runtime` 加载边界新增正式容器 `HSPYXP01` 1.0。它保留 `HSPCTF01` 的全部 fixture 语义与测试；当前正式容器用 11 个 `HSPLEX01` 1.1 分类表、用户规则、动作分流、追溯索引和统计报告承载正式数据。详细规范、冻结哈希和 Release 边界见 [XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md](XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md)。
 
 ## 布局
 

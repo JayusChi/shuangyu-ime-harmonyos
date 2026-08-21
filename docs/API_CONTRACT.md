@@ -372,7 +372,7 @@ candidatePageSize?: number
 ```
 
 - `code-table-fixture` 仅供 Rust/FFI 测试与 Debug-only 设备验收，创建时必须提供有效的 `codeTableBundlePath`；缺失或损坏返回明确的创建错误。
-- `xiaohe-yinxing` 只接受冻结生产身份、版本、归档拓扑、八类画像、规则画像和哈希完全一致的 `HSPYXP01`。11.6.4 起，包内 36 条固定规则为内置基础层，可选 `userLexiconPath` 为外部覆盖层；同完整编码＋词条由外部规则覆盖，两层合并后再由既有候选算法统一执行。
+- `xiaohe-yinxing` 只接受冻结生产身份、版本、归档拓扑、11 类画像、规则画像和哈希完全一致的 `HSPYXP01`。包内 `#固/#直` 规则归属 `full-code-word`，只在该分类启用时组成内置基础层；可选 `userLexiconPath` 为不受系统分类开关影响的外部覆盖层。同完整编码＋词条由外部规则覆盖，两层合并后再由既有候选算法统一执行。
 - `xiaohe` 继续只使用 `lexiconPath`，忽略无关的 `codeTableBundlePath`；同时提供两种资源不会混合两种候选语义。
 - Node-API 的可选配置属性兼容缺失、`undefined` 和 `null`；其他类型仍返回 `INVALID_ARGUMENT`。
 - 候选 ID 使用确定的 `ct:{bundleId}:{categoryId}:{source_order}` 命名空间；`reading` 为原始码，`source` 为分类 ID。

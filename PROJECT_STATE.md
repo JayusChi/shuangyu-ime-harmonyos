@@ -1,10 +1,12 @@
 # Project State
 
-更新时间：2026-08-20
+更新时间：2026-08-21
 
 ## 当前阶段
 
-**小鹤音形四类默认关闭 IMPLEMENTED / HOST_BUILD_VALIDATED / ARKTS_RUNNER_BLOCKED / DEVICE_NOT_RUN（2026-08-20）** — 因完整直通语法尚未支持，二简次选、全码词、生僻字、全码字现在默认关闭，需要时可从设置页手动开启。新装、重置、旧版全开快照迁移和 Rust bundle manifest 已统一；非全开自定义分类组合不会被升级覆盖。正式 bundle 为 26,039,684 bytes、SHA-256 `cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94`。正式包重建/校验、基线生成、Rust runtime/engine/FFI/converter、双 ABI OHOS Release Native 和 default debug HAP 均通过；ArkTS 单测编译通过，但 Windows Hypium 宿主执行器连续两次在启动用例后无报告挂起，未记作全量 PASS；设备验收未运行。
+**小鹤音形分类置顶/直通语义 IMPLEMENTED / HOST_RELEASE_VALIDATED / PRODUCTION_DIRECT_DATA_PENDING / DEVICE_NOT_RUN（2026-08-21）** — 正式分类仍为 11 个，快符继续只走分号引导。全码词 `#固` 包内规则已改为随 `full-code-word` 开关启用/隐藏，外部用户词库保持独立；转换器新增全码词专用 `#直`，使词条可按编码输入但不进入反引号万能键反查，其他分类使用该标记会被拒绝。客户现有权威全码词源尚无 `#直` 标记，未猜测具体条目；直通动作源中的 `$cmd/$ddcmd`、网络和平台动作继续隔离。转换器 23、码表运行时 95、输入引擎 158，共 276 项 Rust 测试、严格 Clippy 及 ArkTS 466/466 通过；正式 bundle 重建/校验仍为 11 分类、26,039,684 bytes、SHA-256 `cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94`。x86_64/arm64-v8a Native Release、default Release HAP 和内容门禁 PASS；unsigned HAP 为 40,671,548 bytes、SHA-256 `d1cb5173a27b90fb9c4b03ad9b0d916755ada0947321fa4ccff9a6ba403d4111`。设备验收未运行。
+
+**小鹤音形四类默认关闭 IMPLEMENTED / HOST_BUILD_VALIDATED / DEVICE_NOT_RUN（2026-08-21 复验）** — 因完整直通语法尚未支持，二简次选、全码词、生僻字、全码字现在默认关闭，需要时可从设置页手动开启。新装、重置、旧版全开快照迁移和 Rust bundle manifest 已统一；非全开自定义分类组合不会被升级覆盖。正式 bundle 为 26,039,684 bytes、SHA-256 `cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94`。正式包重建/校验、基线生成、Rust runtime/engine/FFI/converter、双 ABI OHOS Release Native 和 default Release HAP 均通过；此前 Windows Hypium 宿主执行器挂起本次未复现，ArkTS 466/466 PASS；设备验收未运行。
 
 **智能句号 IMPLEMENTED / HOST_VALIDATED / DEVICE_NOT_RUN（2026-08-20）** — 中文句号在 300/500/800/1000 毫秒可配置时间窗内连续输入时，安全替换为单个 ASCII `.`；超时保留两个中文句号，也可关闭。虚拟键盘和实体键盘均接入，替换前核对光标前文本，按键时间以入队到达时刻为准。设置 schema 为 8，ArkTS 全量单测与工程编译通过；真实 USB/蓝牙键盘及多宿主编辑器设备验收未运行。
 

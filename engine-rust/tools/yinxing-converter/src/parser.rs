@@ -209,6 +209,18 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
                 continue;
             }
         };
+        if code_field.ends_with("#直") && input.spec.category_id != "full-code-word" {
+            reject(
+                &mut stats,
+                &mut rejected,
+                &input.spec.source_file_id,
+                physical_line,
+                "REJECT_DIRECT_OUTSIDE_FULL_CODE_WORD",
+                "direct marker is allowed only in the full-code-word category",
+                &digest,
+            );
+            continue;
+        }
         let symbol_group_code;
         let code_to_normalize = if input.spec.category_id == "symbol-group" {
             symbol_group_code = format!("o{base_code}");
@@ -373,6 +385,12 @@ fn parse_code_and_action(
         return Err("REJECT_USER_RULE_INVALID");
     }
     let action = match marker {
+        // `#直` is a source-table-only spelling for an exact-input entry that
+        // must stay out of universal-key lookup.  The production bundle stores
+        // it in the isolated user-rule layer as an Add record; ordinary exact
+        // queries merge that layer, while wildcard queries intentionally read
+        // system categories only.
+        "直" => UserAction::Add,
         "删" => UserAction::Delete,
         "固" => UserAction::Fixed,
         digits if digits.bytes().all(|byte| byte.is_ascii_digit()) => {
@@ -499,6 +517,13 @@ mod tests {
         source
     }
 
+    fn full_code_word_input(bytes: &[u8]) -> SourceInput {
+        let mut source = input(bytes);
+        source.spec.category_id = "full-code-word".into();
+        source.spec.role = "full_code_word".into();
+        source
+    }
+
     fn contract() -> ValidatedContract {
         ValidatedContract {
             categories: Vec::new(),
@@ -512,6 +537,10 @@ mod tests {
     #[test]
     fn parses_all_user_rule_forms_and_rejects_mixed_or_invalid_positions() {
         assert_eq!(parse_code_and_action("AbCd").unwrap(), ("AbCd", None));
+        assert_eq!(
+            parse_code_and_action("abc#直").unwrap().1,
+            Some(UserAction::Add)
+        );
         assert_eq!(
             parse_code_and_action("abc#删").unwrap().1,
             Some(UserAction::Delete)
@@ -531,6 +560,33 @@ mod tests {
         for value in ["abc#0", "abc#65536", "abc#删#固", "abc#unknown", "#固"] {
             assert!(parse_code_and_action(value).is_err(), "{value}");
         }
+    }
+
+    #[test]
+    fn direct_marker_moves_a_full_code_row_to_the_wildcard_hidden_rule_layer() {
+        let result = parse_category(
+            &full_code_word_input("普通词\tabcd\n直通词\tefgh#直\n".as_bytes()),
+            &contract(),
+        )
+        .unwrap();
+        assert_eq!(result.system_records.len(), 1);
+        assert_eq!(result.system_records[0].text, "普通词");
+        assert_eq!(result.user_rules.len(), 1);
+        assert_eq!(result.user_rules[0].text, "直通词");
+        assert_eq!(result.user_rules[0].action, UserAction::Add);
+        assert_eq!(result.stats.user_add, 1);
+
+        let rejected = parse_category(
+            &input("普通词\tabcd\n越界直通词\tefgh#直\n".as_bytes()),
+            &contract(),
+        )
+        .unwrap();
+        assert!(rejected.user_rules.is_empty());
+        assert_eq!(rejected.stats.rejected, 1);
+        assert_eq!(
+            rejected.rejected[0].reason_code,
+            "REJECT_DIRECT_OUTSIDE_FULL_CODE_WORD"
+        );
     }
 
     #[test]
