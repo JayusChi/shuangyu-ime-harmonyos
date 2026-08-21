@@ -488,7 +488,7 @@ Pad 键盘空格行考虑加入切换输入法键，长按弹出选项；手机�
 
 #### 涉及模块
 
-- `docs/USER_LEXICON_FORMAT.md`
+- `docs/features/user-lexicon/USER_LEXICON_FORMAT.md`
 - Rust `user-lexicon`、`ime-engine` 和运行时重载接口
 - `entry/src/main/ets/presentation/settings/SettingsPage.ets`
 - `entry/src/main/ets/application/SettingsController.ets`

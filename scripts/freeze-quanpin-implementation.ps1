@@ -65,8 +65,8 @@ $relevantFiles = @(
     'entry\src\test\Stage2Controller.test.ets',
     'entry\src\test\Stage11.test.ets',
     'docs\API_CONTRACT.md',
-    'docs\ACTION_PROTOCOL.md',
-    'docs\DIRECT_ENCODING_SIX_REQUIREMENTS.md',
+    'docs\features\direct-control\ACTION_PROTOCOL.md',
+    'docs\features\direct-control\DIRECT_ENCODING_SIX_REQUIREMENTS.md',
     'scripts\evaluate-quanpin-quality.ps1',
     'scripts\freeze-quanpin-implementation.ps1'
 )

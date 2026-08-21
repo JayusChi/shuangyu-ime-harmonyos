@@ -68,7 +68,7 @@ The sandboxed device shell cannot read `/data/app/el1/bundle/public/com.corrosio
 - Native identity bridge: `entry/src/main/cpp/CMakeLists.txt`, `napi/engine_napi.h`, `napi/engine_napi.cpp`, `napi/module_init.cpp`, `entry/src/main/types/libime_bridge/index.d.ts`.
 - ArkTS protocol protection: `NativeEngineTypes.ets`, `NativeEngineGateway.ets`, `EngineCoordinator.ets`, `InputSessionController.ets`, `entry/src/test/Stage2Controller.test.ets`.
 - Product/data: `AppScope/app.json5`, `dictionaries/source/stage11_5_short_sentences.tsv`, `dictionaries/manifest.json`, generated and packaged `production.lex`.
-- Contract/evidence: `docs/API_CONTRACT.md`, `docs/PINYIN_STAGE2_QUANPIN_26.md`, and this evidence directory.
+- Contract/evidence: `docs/API_CONTRACT.md`, `docs/features/pinyin/PINYIN_STAGE2_QUANPIN_26.md`, and this evidence directory.
 
 ## Device scenarios on final HAP
 

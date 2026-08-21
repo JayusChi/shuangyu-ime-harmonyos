@@ -4,7 +4,7 @@
 
 ## 📁 可用模板
 
-### 1. [通用优化词库](./01-general.txt)
+### 1. [通用优化词库](01-general.txt)
 **适用人群**：所有用户  
 **内容**：
 - 删除常见干扰词
@@ -16,7 +16,7 @@
 
 ---
 
-### 2. [开发者词库](./02-developer.txt)
+### 2. [开发者词库](02-developer.txt)
 **适用人群**：程序员、软件工程师  
 **内容**：
 - 编程语言（JavaScript, Python, Java等）
@@ -31,7 +31,7 @@
 
 ---
 
-### 3. [AI/机器学习词库](./03-ai-ml.txt)
+### 3. [AI/机器学习词库](03-ai-ml.txt)
 **适用人群**：AI研究员、数据科学家、ML工程师  
 **内容**：
 - 核心AI概念（人工智能、机器学习、深度学习）
@@ -46,7 +46,7 @@
 
 ---
 
-### 4. [学生学习词库](./04-student.txt)
+### 4. [学生学习词库](04-student.txt)
 **适用人群**：中学生、大学生  
 **内容**：
 - 常用学科（数学、物理、化学等）
@@ -61,7 +61,7 @@
 
 ---
 
-### 5. [商务办公词库](./05-business.txt)
+### 5. [商务办公词库](05-business.txt)
 **适用人群**：职场人士、商务人员  
 **内容**：
 - 商务问候语
@@ -203,8 +203,8 @@ Nuxt.js	Nuxt.js	#固
 
 ## 📚 相关文档
 
-- [用户词库快速开始](../../USER_LEXICON_QUICKSTART.md)
-- [完整技术文档](../../USER_LEXICON_IMPLEMENTATION.md)
+- [用户词库快速开始](../../docs/features/user-lexicon/QUICKSTART.md)
+- [完整技术文档](../../docs/features/user-lexicon/IMPLEMENTATION.md)
 - [项目主页](../../README.md)
 
 ---

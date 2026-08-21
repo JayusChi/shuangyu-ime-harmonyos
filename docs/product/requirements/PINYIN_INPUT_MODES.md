@@ -159,7 +159,7 @@ ArkTS 和 C++ 不切分拼音、不展开 9 键字母组合、不排序拼音路
 > 已完成统一 `KeyboardProfile`、旧 17/26 键及音形配置迁移、Rust `PhoneticParser` 与小鹤适配、
 > 解析器负责的展示分段，以及 ABI/interface 6 的 `currentPinyin` / `pinyinCombinations` 协议。
 > 阶段一交付时 `quanpin-26` 与 `pinyin-9` 仅登记且保持禁用；当前状态以后续阶段记录为准。实现与验收记录见
-> [`docs/PINYIN_STAGE1_KEYBOARD_PROFILE_AND_PROTOCOL.md`](docs/PINYIN_STAGE1_KEYBOARD_PROFILE_AND_PROTOCOL.md)。
+> [`docs/features/pinyin/PINYIN_STAGE1_KEYBOARD_PROFILE_AND_PROTOCOL.md`](../../features/pinyin/PINYIN_STAGE1_KEYBOARD_PROFILE_AND_PROTOCOL.md)。
 
 ### 阶段目标
 
@@ -200,7 +200,7 @@ ArkTS 和 C++ 不切分拼音、不展开 9 键字母组合、不排序拼音路
 > 后续实体键盘性能修订已将完整引擎平均延迟由 `82.359 ms/键` 降至 `2.027 ms/键`，
 > 2026-08-11 质量修订已取消 24 字母自动收口；全拼只允许明确用户动作上屏，并加入 `n` 完整音节/前缀混合召回、词库上下文排序和真实句质量基线。
 > 实现、性能基线和验收记录见
-> [`docs/PINYIN_STAGE2_QUANPIN_26.md`](docs/PINYIN_STAGE2_QUANPIN_26.md)。
+> [`docs/features/pinyin/PINYIN_STAGE2_QUANPIN_26.md`](../../features/pinyin/PINYIN_STAGE2_QUANPIN_26.md)。
 
 ### 阶段目标
 
@@ -237,7 +237,7 @@ ArkTS 和 C++ 不切分拼音、不展开 9 键字母组合、不排序拼音路
 
 ## 阶段三：9 键拼音引擎与消歧
 
-> 2026-08-12 状态：`IMPLEMENTED / HOST_VALIDATION_PARTIAL`。Rust 引擎、消歧、候选复用和 ABI 7 已实现；`64` 与 `64426` 专项、ArkTS、双 ABI Native、Release HAP 和内容门禁通过。由于既有小鹤冻结候选基线与当前生产词库仍有 1 项排序不一致，本阶段不标记 `COMPLETED`。九宫格 UI 未提前实现，`pinyin-9` 档案保持禁用。详见 `docs/PINYIN_STAGE3_T9_ENGINE.md` 与 ADR 0025。
+> 2026-08-12 状态：`IMPLEMENTED / HOST_VALIDATION_PARTIAL`。Rust 引擎、消歧、候选复用和 ABI 7 已实现；`64` 与 `64426` 专项、ArkTS、双 ABI Native、Release HAP 和内容门禁通过。由于既有小鹤冻结候选基线与当前生产词库仍有 1 项排序不一致，本阶段不标记 `COMPLETED`。九宫格 UI 未提前实现，`pinyin-9` 档案保持禁用。详见 `docs/features/pinyin/PINYIN_STAGE3_T9_ENGINE.md` 与 ADR 0025。
 
 ### 阶段目标
 

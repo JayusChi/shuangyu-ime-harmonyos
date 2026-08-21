@@ -22,7 +22,7 @@ Rust 是分类合同和业务校验的唯一权威。`CodeTableBundle` 生成版
 - `xiaohe` 调用分类 API返回 unsupported，不改变双拼状态。
 - 正式分类 UI 和 bundle 仍只在 internalDebug；Release 产品入口不变。
 
-详细字段和值见 `docs/CODE_TABLE_CATEGORY_CONTRACT.md`。
+详细字段和值见 `docs/features/code-table/CODE_TABLE_CATEGORY_CONTRACT.md`。
 
 ## 2026-08-20 修订
 

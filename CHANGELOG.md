@@ -85,7 +85,7 @@
 - 更新两项已过期的标点测试基线，使其验证已冻结的虚拟逗号独立动作和实体标点单次提交合同；未修改产品标点实现。
 - Rust workspace `505/505`、candidate baseline `4/4`、T9 `6/6`、FFI `31/31`、ArkTS `440/440`、fmt、Clippy、双 ABI Native、Release HAP 和实际包内容门禁 PASS。
 - x86_64 Phone 竖屏与 Pad 横屏 signed Release 的独立第三方包完成全拼 `nihao`、T9 `64426`、双拼回归、档案切换和部分生命周期/编辑器策略验收。ARM64 真机、真实浏览器/聊天应用、旋转/分屏、设备性能/RSS/soak 为 `NOT_RUN`。
-- 阶段状态为 `IMPLEMENTED / HOST_VALIDATION_COMPLETED / DEVICE_VALIDATION_PARTIAL`。全拼主机完整引擎性能相对历史质量修订前基线回退，且空 `.git` 目录使既有候选基线刷新来源无法审计，均保留为阻塞；详见 `docs/PINYIN_STAGE5_FINAL_ACCEPTANCE.md`。
+- 阶段状态为 `IMPLEMENTED / HOST_VALIDATION_COMPLETED / DEVICE_VALIDATION_PARTIAL`。全拼主机完整引擎性能相对历史质量修订前基线回退，且空 `.git` 目录使既有候选基线刷新来源无法审计，均保留为阻塞；详见 `docs/features/pinyin/PINYIN_STAGE5_FINAL_ACCEPTANCE.md`。
 
 ## 2026-08-12（9 键拼音阶段 4：传统九宫格界面与交互）
 
@@ -96,7 +96,7 @@
 - 九键键帽接入现有主题、按压态、震动、音效、数字＋字母组预览和无障碍文案；面板高度复用动态 `KeyboardMetrics`，覆盖 Phone/Pad 横竖屏的有界主机计算。
 - 新增布局、动作、组合顺序、当前拼音、数字模式隔离、持久化恢复、完整输入/选择/分音/删除/空格和隐藏/显示清理回归。ArkTS `434/434`，T9/parser/engine/FFI 定向回归 PASS，Release HAP 与内容门禁 PASS。
 - unsigned Release HAP 为 `38,739,216` bytes、SHA-256 `AB4B9B6B9BB5DB573A9F1FA3D80F29F95D9EAF75D849AE55F0976DEF3C529863`。interface/ABI 保持 `7`，本阶段未修改 C++/Rust/Node-API/C ABI。
-- 全 Rust workspace 仍被既有小鹤冻结候选基线不一致阻塞；模拟器、真机、旋转/分屏、三方应用和长时压力均为 `NOT_RUN`，因此阶段状态为 `IMPLEMENTED / HOST_VALIDATION_PARTIAL`。详见 `docs/PINYIN_STAGE4_KEYBOARD_UI.md`。
+- 全 Rust workspace 仍被既有小鹤冻结候选基线不一致阻塞；模拟器、真机、旋转/分屏、三方应用和长时压力均为 `NOT_RUN`，因此阶段状态为 `IMPLEMENTED / HOST_VALIDATION_PARTIAL`。详见 `docs/features/pinyin/PINYIN_STAGE4_KEYBOARD_UI.md`。
 
 ## 2026-08-12（9 键拼音阶段 3：数字引擎与消歧）
 
@@ -164,7 +164,7 @@
 - 全拼解析器、`ime-engine` 阶段 2 集成测试、Rust workspace 全量测试（含 `ime-engine 42/42`、`ime-ffi 29/29`）、fmt/Clippy、ArkTS 全量测试、双 ABI Native Release、unsigned Release HAP 与内容门禁均 PASS。
 - Release 性能基线为 160,000 次解析/13,858 ms，平均 `86.616 µs/parse`。
 - unsigned Release HAP 为 `38,256,044 bytes`，SHA-256 `CD9D5003E91C5426FA56FF11E53F5C9917C7AB499A7CC5946CCE56C1E37AEAD0`；设备专项为 `NOT_RUN`。
-- 阶段说明见 `docs/PINYIN_STAGE2_QUANPIN_26.md`。
+- 阶段说明见 `docs/features/pinyin/PINYIN_STAGE2_QUANPIN_26.md`。
 
 ## 2026-08-10（26 键全拼和 9 键计划阶段 1：键盘档案与通用协议）
 
@@ -185,7 +185,7 @@
 - 键盘档案/迁移、解析适配、组合、删除、候选提交、分页、方案切换和跨层字段回归 PASS；候选文字、顺序和行为基线不变。
 - ArkTS 全量单元测试、Rust workspace/fmt/Clippy/确定性门禁、x86_64 与 arm64-v8a Native Release、unsigned Release HAP 构建均 PASS。
 - unsigned Release HAP 为 `38,040,556 bytes`，SHA-256 `69E14BD027E8B700753104E7E0522B784555A9D33ABAAB2A1ACCE2B2A4501E68`。模拟器与真机专项为 `NOT_RUN`。
-- 阶段说明见 `docs/PINYIN_STAGE1_KEYBOARD_PROFILE_AND_PROTOCOL.md`。
+- 阶段说明见 `docs/features/pinyin/PINYIN_STAGE1_KEYBOARD_PROFILE_AND_PROTOCOL.md`。
 
 ## 2026-08-10（0.3.0 客户测试版）
 
@@ -214,7 +214,7 @@
 
 - user-lexicon `23/23`、ime-engine lib `42/42`、ime-ffi `29/29`、ArkTS `395/395`、Rust workspace/fmt/Clippy、双 ABI Native Release 和内容门禁均 PASS；最终 unsigned Release 为 `37,984,852 bytes`、SHA-256 `42c92678ddeffde84ec2ea72f5a04203c95db2a474435ac87e5d38103daa36d9`，signed Release 为 `38,123,521 bytes`、SHA-256 `f2302e707882e6ebc3e30841382b80dde11db7c790b802f4ab25a3cb00f78c40`。
 - HarmonyOS 6.1 / API 24 / x86_64 Phone `1320×2856`、2in1 `3120×2080`、Tablet `2880×1920` 三设备完成真实 `aa` 命令、物理 `Ctrl+Alt+数字`、强停持久化及用户词库 UI/热重载/冷启动闭环。三台输入 `ni` 均验证固顶为第 1、普通词为第 2、指定词为第 3，删除规则使系统词“你”不可见。证据见 `docs/evidence/2026-08-10-stage12-three-device/README.md`。
-- 设计决策见 `docs/adr/0024-direct-control-and-user-lexicon-management.md`，阶段说明见 `docs/STAGE12_DIRECT_CONTROL_USER_LEXICON.md`。
+- 设计决策见 `docs/adr/0024-direct-control-and-user-lexicon-management.md`，阶段说明见 `docs/features/direct-control/STAGE12_DIRECT_CONTROL_USER_LEXICON.md`。
 
 ## 2026-08-06（UI与交互优化阶段）
 
@@ -753,7 +753,7 @@
 - 核心主表、一简次选、生僻字的权威来源已由唯一/编号交付结构确认；分类/次选、二简次选、表外字、全码词、全码字均固定“小鹤音形编号文件为权威、码表导出为补充”的建议顺序，但补充合并和冲突处理仍需人工确认，合同将这些分类标为阻断。
 - 对同用途来源建立 9 组字节/规范文本/记录集合/记录顺序/语义角色差异比较；解析 38 条配置引用，其中 23 条缺失，未读取目录外文件。普通记录、`#删/#固/#N`、复合规则、`$cmd/$ddcmd`、配置、拼字、简繁、符号、直通和平台参考均按文件与物理行分流。
 - 安全报告只保留类型、位置、稳定原因码和摘要哈希。静态扫描发现 URL、WebDAV、外部程序、平台路径、账号和凭据型字段；其中 4 条为已赋值凭据字段，触发 `BLOCK_EMBEDDED_CREDENTIAL`。网络、外部程序、平台命令和原始 Android 配置全部拒绝或隔离，不进入转换合同候选或 HAP。
-- 新增 `docs/data-audit/XIAOHE_YINXING_SOURCE_AUDIT.md`、安全、冲突和审批状态报告；机器交付另含分类映射、命令策略、缺失引用、判定和比较 JSON。两次正式运行的 9 个机器文件逐字节一致，原始 28/28 文件两次不可变检查通过。
+- 新增 `docs/audits/data/XIAOHE_YINXING_SOURCE_AUDIT.md`、安全、冲突和审批状态报告；机器交付另含分类映射、命令策略、缺失引用、判定和比较 JSON。两次正式运行的 9 个机器文件逐字节一致，原始 28/28 文件两次不可变检查通过。
 - Release 门禁补充拒绝任意原始 `.txt/.ini`、凭据命名文件和审计报告；正向控制与新增负例全部 PASS。Rust workspace `fmt --check`、全 target/feature Clippy 和 295 项测试通过，其中审计工具 18 项。
 - 因正式来源仍含 4 个阻断型凭据字段、5 类补充合并关系待确认，且来源所有者、修改许可、分发范围和 HAP 分发许可仍为 `unknown`，阶段结论严格保持 `11.6.2B BLOCKED，11.6.2C NOT READY`。未实现正式转换器、生产 bundle、运行时查询、UI/设置入口或 C ABI/Node-API 扩展。
 
@@ -810,7 +810,7 @@
 
 ### 完成客户修改阶段 3.8 浮动候选窗能力验证与实验性设置
 
-- 完成 HarmonyOS SDK 能力盘点：`inputMethodEngine.on('cursorContextChange', (x, y, height))` since API 8 提供物理屏幕绝对坐标；`PanelFlag.FLAG_CANDIDATE` since API 15 提供由输入法自行 show/hide/moveTo 的候选窗；`Panel.moveTo(x, y)` since API 10 对非 FIXED 面板可用。工程 `compatibleSdkVersion=6.1.1(24)` 已满足。证据集中在 `docs/STAGE_3_8_FLOATING_CANDIDATE_CAPABILITY.md`，逐条引用 `@ohos.inputMethodEngine.d.ts` 与 `@ohos.inputMethod.d.ts` 行号。
+- 完成 HarmonyOS SDK 能力盘点：`inputMethodEngine.on('cursorContextChange', (x, y, height))` since API 8 提供物理屏幕绝对坐标；`PanelFlag.FLAG_CANDIDATE` since API 15 提供由输入法自行 show/hide/moveTo 的候选窗；`Panel.moveTo(x, y)` since API 10 对非 FIXED 面板可用。工程 `compatibleSdkVersion=6.1.1(24)` 已满足。证据集中在 `docs/features/input-method/STAGE_3_8_FLOATING_CANDIDATE_CAPABILITY.md`，逐条引用 `@ohos.inputMethodEngine.d.ts` 与 `@ohos.inputMethod.d.ts` 行号。
 - 选择实施路线 B（部分支持，实验功能）。宿主 `updateCursor` 触发行为、跨应用焦点抢占、Pad 分屏和外接物理键盘在本会话仅有模拟器可用，不允许写成真机已完成；本阶段严格不创建 `FLAG_CANDIDATE` 面板，也不移动窗口，以免在未验证前引入"伪浮动窗"。
 - 新增域层纯函数：`domain/candidate/FloatingCandidatePolicy.ets` 集中决策规则；`resolveEffectivePresentationMode` 覆盖手机→BAR、Pad 无外接键盘→BAR、SDK 不支持→BAR、无锚点→BAR、Pad+外接键盘+已收到锚点→FLOATING、显式 FLOATING 无锚点→BAR。`domain/candidate/FloatingCandidatePosition.ets` 覆盖下方优先/上方回退、左右夹紧、上下都不足时限制高度、无效光标 rect 校验。
 - 新增设置项 `候选窗位置`（自动 / 键盘顶部 / 跟随光标（实验））。默认 `AUTO`；`SettingsValidator`/`copyImeSettings`/`imeSettingsEqual`/`settingsToRaw` 一致扩展，无效值安全回退 `AUTO`。SDK 能力不足时 UI 层禁用"跟随光标"选项并显示"当前系统或设备不支持候选跟随光标"说明。
@@ -818,7 +818,7 @@
 - 候选状态仍由 `InputSessionStore` 单一来源；提交路径仍走 `KeyboardController.commitCandidate(index)`，未复制候选、未引入第二套查询，未修改现有中文输入、候选点击、翻页、删除、空格确认或用户学习。
 - 新增 `Stage38.test.ets` 定向单测：覆盖决策规则所有分支、位置算法上下左右夹紧与高度收缩、`isCursorRectUsable` 校验、设置项 copy/equal/toRaw/validator。已注册到 `List.test.ets`。
 - ArkTS `assembleHap default + ohosTest` 构建通过，只保留原有非本阶段的 deprecated/异常告警；未修改 Rust、Native、词库、Release 资源门禁。
-- 未执行：`cursorContextChange` 实际触发频率、跨应用行为、Pad 分屏、外接键盘、真机能力矩阵——由 `docs/STAGE_3_8_FLOATING_CANDIDATE_CAPABILITY.md` 第七节记录，需真机补测。
+- 未执行：`cursorContextChange` 实际触发频率、跨应用行为、Pad 分屏、外接键盘、真机能力矩阵——由 `docs/features/input-method/STAGE_3_8_FLOATING_CANDIDATE_CAPABILITY.md` 第七节记录，需真机补测。
 
 ### 完成客户修改阶段 3.5 输入法切换与手机底部辅助区
 

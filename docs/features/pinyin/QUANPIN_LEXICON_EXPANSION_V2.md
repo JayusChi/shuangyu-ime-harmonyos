@@ -149,7 +149,7 @@ Release HAP 从 39,514,683 B 到 39,864,517 B，增加 349,834 B（0.885%）；�
 - `dictionaries/source/quanpin-v2/{base.tsv,domains.tsv,hotwords-2026-08.tsv,filter-policy.txt,source-catalog.json}`
 - `dictionaries/generated/quanpin-v2/{default,all_domains,education,finance,legal,medical,software,technology}.lex`
 - `scripts/{build-quanpin-lexicon-v2,create-quanpin-v2-dataset,create-quanpin-v2-dataset-utf8,evaluate-quanpin-lexicon-v2,freeze-quanpin-lexicon-v2,test-quanpin-lexicon-v2}.ps1`
-- `docs/QUANPIN_LEXICON_EXPANSION_V2.md`
+- `docs/features/pinyin/QUANPIN_LEXICON_EXPANSION_V2.md`
 
 新增审计产物：
 

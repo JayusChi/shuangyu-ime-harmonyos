@@ -43,10 +43,23 @@ engine-rust/tests/fixtures/            parser、候选、短句、学习和用�
 dictionaries/generated/production.lex V2 构建的冻结基础词库输入；当前正式随包产物为 entry/src/main/resources/rawfile/production.lex
 dictionaries/generated/quanpin-v2/    全拼 V2 各 profile 的确定性构建产物
 dictionaries/source/test-fixtures/     码表顺序测试数据，不进入 Release HAP
+码表/                                  客户交付码表导出；当前仅按冻结合同参与审计
+小鹤音形/                              小鹤音形编号正式上游；路径属于来源合同
+artifacts/                             可复现评测数据、清单和最终结果
+examples/                              用户词库和匿名分布格式示例
 scripts/                               PowerShell 构建、测试、Release 包门禁和设备验收入口点
-docs/                                  架构、构建、测试、隐私、ADR 和证据文档
+tools/                                 独立验收客户端和 workspace 外入口说明
+docs/architecture/                     项目结构、隐私和横切设计
+docs/adr/                              架构决策记录
+docs/product/                          规划、需求和客户反馈
+docs/features/                         各产品能力的设计、实现和验收说明
+docs/development/                      编码规则、工具链和开发辅助材料
+docs/operations/                       发布与交付说明
+docs/audits/                           数据来源、安全和冲突审计
+docs/evidence/                         验收摘要及本地原始证据目录
+docs/archive/                          非当前事实来源的历史报告
 ```
 
 根目录的 `PROJECT_STATE.md` 是唯一当前状态入口。历史决策保存在 `docs/adr/`，历史验证日志、截图和布局树保存在 `docs/evidence/`，不再复制回当前状态文件。
 
-Release 使用 `default` target，只消费 `entry/src/main`；内部验收使用 `internalDebug` target/source set。当前已实现独立 fixture 码表后端和原始编码查询，但仍没有合法、完整、可随 HAP 分发的正式分类码表或“小鹤音形”生产资源。
+Release 使用 `default` target，只消费 `entry/src/main`；内部验收使用 `internalDebug` target/source set。正式小鹤音形来源由根目录上游、`dictionaries/audit/xiaohe-yinxing/` 冻结合同和 `dictionaries/generated/xiaohe-yinxing-production/` 确定性产物共同约束，随包资源位于 `entry/src/main/resources/rawfile/`。

@@ -56,7 +56,7 @@
 **状态**：✅ 功能已在 `ProtocolActionExecutor.ets` 中完整实现
 
 **实现内容**：
-- ✅ 创建使用文档 `docs/PAIR_INSERTION_GUIDE.md`
+- ✅ 创建使用文档 `docs/features/direct-control/PAIR_INSERTION_GUIDE.md`
 
 **说明**：
 该功能已经完整实现，当引擎返回 `INSERT_PAIR` 协议动作时自动处理。无需修改代码。
@@ -68,7 +68,7 @@
 **状态**：❌ 技术上无法实现
 
 **实现内容**：
-- ✅ 创建技术限制说明文档 `docs/KEY_SIMULATION_LIMITATION.md`
+- ✅ 创建技术限制说明文档 `docs/features/direct-control/KEY_SIMULATION_LIMITATION.md`
 
 **说明**：
 HarmonyOS InputMethodEngine API 不支持模拟物理按键。这是操作系统 API 的固有限制。
@@ -116,8 +116,8 @@ HarmonyOS InputMethodEngine API 不支持模拟物理按键。这是操作系统
 - `entry/src/main/ets/application/KeyboardController.ets` (已修改)
 
 ### 文档
-- `docs/PAIR_INSERTION_GUIDE.md`
-- `docs/KEY_SIMULATION_LIMITATION.md`
+- `docs/features/direct-control/PAIR_INSERTION_GUIDE.md`
+- `docs/features/direct-control/KEY_SIMULATION_LIMITATION.md`
 
 ### 测试
 - `entry/src/test/CommitHistoryManager.test.ets`

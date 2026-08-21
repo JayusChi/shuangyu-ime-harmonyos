@@ -195,8 +195,8 @@ cargo test
 
 #### 5.1 技术文档
 ✅ **完成的文档**：
-- [x] 完整实现文档（`USER_LEXICON_IMPLEMENTATION.md`）
-- [x] 快速开始指南（`USER_LEXICON_QUICKSTART.md`）
+- [x] 完整实现文档（`docs/features/user-lexicon/IMPLEMENTATION.md`）
+- [x] 快速开始指南（`docs/features/user-lexicon/QUICKSTART.md`）
 - [x] 本总结文档
 
 #### 5.2 示例词库模板
@@ -300,9 +300,9 @@ cargo test
 
 ### 文档文件
 
-- ✅ `USER_LEXICON_IMPLEMENTATION.md` - 完整技术实现文档
-- ✅ `USER_LEXICON_QUICKSTART.md` - 快速开始指南
-- ✅ `USER_LEXICON_DELIVERY.md` - 本交付总结文档（当前文件）
+- ✅ `docs/features/user-lexicon/IMPLEMENTATION.md` - 完整技术实现文档
+- ✅ `docs/features/user-lexicon/QUICKSTART.md` - 快速开始指南
+- ✅ `docs/operations/release/USER_LEXICON_DELIVERY.md` - 本交付总结文档（当前文件）
 
 ### 示例文件
 

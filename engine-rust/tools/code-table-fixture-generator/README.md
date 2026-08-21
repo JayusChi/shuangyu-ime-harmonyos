@@ -11,4 +11,4 @@ cargo run -p code-table-fixture-generator -- all <output-dir>
 
 `all` writes source tables and a manifest under the selected test output directory, then writes clearly marked fixture-only nested binaries and `code-table-fixture-synthetic.bundle` under `binary/`. The output directory is never inferred from the current working directory.
 
-Do not copy any generated file to `entry/src/main/resources`. See `docs/CODE_TABLE_FIXTURE_GENERATION.md`, `docs/CODE_TABLE_BUNDLE_FORMAT.md`, and `dictionaries/LICENSES/CODE_TABLE_FIXTURE_ORIGIN.md`.
+Do not copy any generated file to `entry/src/main/resources`. See `docs/features/code-table/CODE_TABLE_FIXTURE_GENERATION.md`, `docs/features/code-table/CODE_TABLE_BUNDLE_FORMAT.md`, and `dictionaries/LICENSES/CODE_TABLE_FIXTURE_ORIGIN.md`.

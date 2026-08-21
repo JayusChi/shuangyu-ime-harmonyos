@@ -356,7 +356,7 @@ compositionFinished = false
   `rawInput/preeditText/candidates`；失败时 reset。独立 TextInput 的自动提交、第五键和
   正反向切分已在 11.6.7 A～N 两轮验证。
 
-完整证据和结论见 `docs/CODE_TABLE_BEHAVIOR_SPEC.md` 第 6 节。
+完整证据和结论见 `docs/features/code-table/CODE_TABLE_BEHAVIOR_SPEC.md` 第 6 节。
 
 ## 阶段 11.6.3～11.6.4 码表后端配置与规则分层
 

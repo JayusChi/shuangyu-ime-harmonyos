@@ -44,7 +44,7 @@ sdk/default/openharmony/ets/component/text_area.d.ts
 ```powershell
 Get-Content -LiteralPath '提示词模板\第10阶段提示词.txt' -Encoding UTF8
 Get-Content -LiteralPath PROJECT_STATE.md -Encoding UTF8
-Get-Content -LiteralPath 项目计划书.md -Encoding UTF8
+Get-Content -LiteralPath docs/product/planning/PROJECT_PLAN.md -Encoding UTF8
 Get-Content -LiteralPath README.md -Encoding UTF8
 Get-Content -LiteralPath docs\ARCHITECTURE.md -Encoding UTF8
 Get-Content -LiteralPath docs\CODING_RULES.md -Encoding UTF8

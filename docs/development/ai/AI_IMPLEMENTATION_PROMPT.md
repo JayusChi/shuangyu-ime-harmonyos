@@ -469,7 +469,7 @@ case KeyboardActionType.UNDO_LAST_COMMIT:
 
 #### 创建使用文档
 
-**文件**：`docs/PAIR_INSERTION_GUIDE.md`
+**文件**：`docs/features/direct-control/PAIR_INSERTION_GUIDE.md`
 
 ```markdown
 # 成对符号光标居中功能使用指南
@@ -561,7 +561,7 @@ interface InsertPairAction {
 
 #### 创建技术限制说明文档
 
-**文件**：`docs/KEY_SIMULATION_LIMITATION.md`
+**文件**：`docs/features/direct-control/KEY_SIMULATION_LIMITATION.md`
 
 ```markdown
 # 按键模拟功能技术限制说明

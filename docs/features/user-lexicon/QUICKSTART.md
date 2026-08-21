@@ -440,9 +440,9 @@ A: 在设置页面点击"清空词库"即可
 
 ## 十、相关资源
 
-- 完整技术文档：[USER_LEXICON_IMPLEMENTATION.md](./USER_LEXICON_IMPLEMENTATION.md)
+- 完整技术文档：[docs/features/user-lexicon/IMPLEMENTATION.md](IMPLEMENTATION.md)
 - 问题反馈：项目Issue页面
-- 示例词库：[examples/](./examples/)
+- 示例词库：[examples/](../../../examples/)
 
 ---
 
