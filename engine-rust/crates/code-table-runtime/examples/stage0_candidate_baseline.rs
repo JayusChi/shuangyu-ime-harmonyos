@@ -345,23 +345,24 @@ fn write_no_result_cases(
 ) {
     let selection = CategorySelectionSnapshot::defaults(bundle).expect("defaults");
     let missing = |length| {
-        lexical_codes(length)
-            .into_iter()
-            .find(|code| {
-                query_with_rules(bundle, &selection, rules, code)
-                    .candidates
-                    .is_empty()
-            })
-            .expect("missing code")
+        lexical_codes(length).into_iter().find(|code| {
+            query_with_rules(bundle, &selection, rules, code)
+                .candidates
+                .is_empty()
+        })
     };
-    let cases = [
-        ("illegal_one_key", "!".to_owned()),
-        ("two_key_no_result", missing(2)),
-        ("three_key_no_result", missing(3)),
-        ("four_key_no_result", missing(4)),
-        ("illegal_character", "a1".to_owned()),
-        ("over_normal_length", "aaaaa".to_owned()),
-    ];
+    let mut cases = vec![("illegal_one_key", "!".to_owned())];
+    for (case_id, length) in [
+        ("two_key_no_result", 2),
+        ("three_key_no_result", 3),
+        ("four_key_no_result", 4),
+    ] {
+        if let Some(code) = missing(length) {
+            cases.push((case_id, code));
+        }
+    }
+    cases.push(("illegal_character", "a1".to_owned()));
+    cases.push(("over_normal_length", "aaaaa".to_owned()));
     line(json, 1, "\"no_result_cases\": [");
     for (index, (id, code)) in cases.iter().enumerate() {
         let mut state = CodeTableStateMachine::new_with_user_lexicon(
@@ -422,22 +423,33 @@ fn write_user_rule_cases(
     bundle: &Arc<CodeTableBundle>,
     embedded: &Arc<UserLexiconSnapshot>,
 ) {
-    let base = query_case(bundle, embedded, "jumk");
-    assert!(base.candidates.len() >= 5);
+    let selection = CategorySelectionSnapshot::defaults(bundle).expect("defaults");
+    let code = bundle
+        .categories
+        .iter()
+        .filter(|category| selection.is_enabled(&category.id))
+        .flat_map(|category| &category.lexicon.entries)
+        .filter(|entry| entry.pinyin_key.len() == 4)
+        .map(|entry| entry.pinyin_key.clone())
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .find(|candidate_code| {
+            let query = query_with_rules(bundle, &selection, embedded, candidate_code);
+            query.candidates.len() >= 2
+                && query.candidates.iter().take(2).all(|candidate| {
+                    candidate
+                        .text
+                        .chars()
+                        .all(|ch| ('\u{4e00}'..='\u{9fff}').contains(&ch))
+                })
+        })
+        .expect("default categories need a two-candidate code");
+    let base = query_case(bundle, embedded, &code);
     let first = &base.candidates[0];
     let last = &base.candidates[base.candidates.len() - 1];
-    let delete_text = format!("{}\tjumk#删\n", first.text);
-    let fixed_text = format!(
-        "{}\tjumk#固\n{}\tjumk#固\n",
-        last.text, base.candidates[3].text
-    );
-    let position_text = format!(
-        "{}\tjumk#1\n{}\tjumk#2\n{}\tjumk#2\n{}\tjumk#99\n",
-        base.candidates[4].text,
-        base.candidates[2].text,
-        base.candidates[1].text,
-        base.candidates[0].text,
-    );
+    let delete_text = format!("{}\t{}#删\n", first.text, code);
+    let fixed_text = format!("{}\t{}#固\n{}\t{}#固\n", last.text, code, first.text, code);
+    let position_text = format!("{}\t{}#1\n{}\t{}#99\n", last.text, code, first.text, code,);
     let fixtures = [
         ("delete", delete_text),
         ("fixed", fixed_text),

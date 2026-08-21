@@ -10,12 +10,12 @@ use code_table_runtime::{
 };
 use user_lexicon::UserLexiconAction;
 
-const ARCHIVE_SHA256: &str = "6010300516e9e58da6cbbb4d136f70db0be137743122b2c29ce3175fe76fc4f5";
+const ARCHIVE_SHA256: &str = "cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94";
 const SNAPSHOT: &str = include_str!("data/xiaohe_yinxing_stage11_6_3.tsv");
 const CATEGORY_PROFILE: [(&str, usize); 11] = [
     ("core", 68_505),
     ("category-secondary", 1_690),
-    ("quick-symbol", 15),
+    ("quick-symbol", 17),
     ("one-key-secondary", 26),
     ("two-key-secondary", 66),
     ("out-of-table-character", 362),
@@ -24,6 +24,15 @@ const CATEGORY_PROFILE: [(&str, usize); 11] = [
     ("symbol-group", 743),
     ("rare-character", 498),
     ("full-code-character", 1_652),
+];
+const DEFAULT_CATEGORY_IDS: [&str; 7] = [
+    "core",
+    "category-secondary",
+    "quick-symbol",
+    "one-key-secondary",
+    "out-of-table-character",
+    "symbol",
+    "symbol-group",
 ];
 
 #[derive(Clone)]
@@ -60,7 +69,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     let path = bundle_path();
     assert_eq!(
         fs::metadata(&path).expect("bundle metadata").len(),
-        26_039_550
+        26_039_684
     );
     let bundle =
         CodeTableBundle::load_frozen_production_file(&path).expect("load frozen production bundle");
@@ -100,10 +109,13 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        74_644
+        74_646
     );
     for category in &bundle.categories {
-        assert!(category.default_enabled);
+        assert_eq!(
+            category.default_enabled,
+            DEFAULT_CATEGORY_IDS.contains(&category.id.as_str())
+        );
         let mut source_orders = category
             .lexicon
             .entries
@@ -119,7 +131,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     let category_contract = CategorySelectionSnapshot::defaults(&bundle).unwrap();
     assert_eq!(
         category_contract.enabled_category_ids(),
-        CATEGORY_PROFILE.map(|(id, _)| id)
+        DEFAULT_CATEGORY_IDS
     );
     assert_eq!(
         category_contract
@@ -153,7 +165,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 true,
                 false,
                 true,
-                15,
+                17,
             ),
             (
                 "one-key-secondary",
@@ -168,7 +180,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 "two-key-secondary",
                 CategoryKind::PrimaryEquivalent,
                 4,
-                true,
+                false,
                 false,
                 true,
                 66,
@@ -186,7 +198,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 "full-code-word",
                 CategoryKind::Extension,
                 6,
-                true,
+                false,
                 false,
                 true,
                 464,
@@ -205,7 +217,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 "rare-character",
                 CategoryKind::Extension,
                 9,
-                true,
+                false,
                 false,
                 true,
                 498,
@@ -214,7 +226,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 "full-code-character",
                 CategoryKind::Extension,
                 10,
-                true,
+                false,
                 false,
                 true,
                 1_652,
@@ -223,7 +235,10 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     );
 
     let reference = build_reference(&bundle);
-    let enabled = bundle.default_enabled_category_ids();
+    let enabled = CATEGORY_PROFILE
+        .iter()
+        .map(|(id, _)| (*id).to_owned())
+        .collect::<Vec<_>>();
     let mut case_count = 0;
     for line in SNAPSHOT.lines().filter(|line| line.starts_with("CASE\t")) {
         case_count += 1;
@@ -418,7 +433,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        74_644
+        74_646
     );
 }
 

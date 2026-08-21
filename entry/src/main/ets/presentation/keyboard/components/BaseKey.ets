@@ -3,7 +3,7 @@ import { KeyboardColorPalette } from '../design/KeyboardPalette';
 import { OrientationMetrics } from '../design/KeyboardMetrics';
 import { KeyboardAction, KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
 import { ShiftState } from '../../../domain/editor/EditorContext';
-import { ShortLongPressController } from '../../../application/ShortLongPressController';
+import { AlternateKeyGestureController } from '../../../application/AlternateKeyGestureController';
 
 /**
  * 按键状态
@@ -42,26 +42,28 @@ export struct BaseKey {
   @Prop longPressEnabled: boolean = true;
   @State private isPressed: boolean = false;
 
-  private pressController: ShortLongPressController | null = null;
+  private gestureController: AlternateKeyGestureController | null = null;
   onKeyPress?: (spec: KeyboardKeySpec) => void;
   onKeyRelease?: (spec: KeyboardKeySpec) => void;
   onKeyClick?: (spec: KeyboardKeySpec) => void;
   onLongPressAction?: (action: KeyboardAction) => void;
 
   aboutToAppear(): void {
-    this.pressController = new ShortLongPressController(
+    this.gestureController = new AlternateKeyGestureController(
       (): void => this.dispatchShortPress(),
-      (): void => this.dispatchLongPress()
+      (): void => this.dispatchLongPress(),
+      (): void => this.dispatchSwipeUp()
     );
   }
 
   aboutToDisappear(): void {
-    this.pressController?.destroy();
-    this.pressController = null;
+    this.gestureController?.destroy();
+    this.gestureController = null;
   }
 
-  private supportsLongPress(): boolean {
-    return this.longPressEnabled && this.spec.longPressAction !== undefined;
+  private supportsAlternateGesture(): boolean {
+    return this.longPressEnabled &&
+      (this.spec.longPressAction !== undefined || this.spec.swipeUpAction !== undefined);
   }
 
   private dispatchShortPress(): void {
@@ -73,6 +75,12 @@ export struct BaseKey {
   private dispatchLongPress(): void {
     if (this.spec.longPressAction && this.onLongPressAction) {
       this.onLongPressAction(this.spec.longPressAction);
+    }
+  }
+
+  private dispatchSwipeUp(): void {
+    if (this.spec.swipeUpAction && this.onLongPressAction) {
+      this.onLongPressAction(this.spec.swipeUpAction);
     }
   }
 
@@ -178,6 +186,21 @@ export struct BaseKey {
           .fillColor(this.getTextColor())
           .objectFit(ImageFit.Contain)
           .accessibilityText(this.spec.accessibilityLabel)
+      } else if (this.spec.upperLabel) {
+        Column({ space: 1 }) {
+          Text(this.spec.upperLabel)
+            .fontSize(Math.max(8, this.metrics.functionFontSize - 1))
+            .fontColor(this.palette.candidateReading)
+            .fontWeight(FontWeight.Regular)
+            .maxLines(1)
+          Text(this.getLabel())
+            .fontSize(this.getFontSize())
+            .fontColor(this.getTextColor())
+            .fontWeight(this.getFontWeight())
+            .maxLines(1)
+        }
+        .justifyContent(FlexAlign.Center)
+        .alignItems(HorizontalAlign.Center)
       } else if (this.spec.secondaryLabel) {
         Column({ space: 1 }) {
           Text(this.getLabel())
@@ -212,31 +235,35 @@ export struct BaseKey {
     .onTouch((event: TouchEvent) => {
       if (event.type === TouchType.Down) {
         this.isPressed = true;
-        if (this.supportsLongPress()) {
-          this.pressController?.start();
+        if (this.supportsAlternateGesture() && event.touches.length > 0) {
+          this.gestureController?.start(event.touches[0].x, event.touches[0].y);
         }
         if (this.onKeyPress) {
           this.onKeyPress(this.spec);
         }
+      } else if (event.type === TouchType.Move) {
+        if (this.supportsAlternateGesture() && event.touches.length > 0) {
+          this.gestureController?.move(event.touches[0].x, event.touches[0].y);
+        }
       } else if (event.type === TouchType.Up) {
         this.isPressed = false;
-        if (this.supportsLongPress()) {
-          this.pressController?.release();
+        if (this.supportsAlternateGesture()) {
+          this.gestureController?.release();
         }
         if (this.onKeyRelease) {
           this.onKeyRelease(this.spec);
         }
       } else if (event.type === TouchType.Cancel) {
         this.isPressed = false;
-        this.pressController?.cancel();
+        this.gestureController?.cancel();
         if (this.onKeyRelease) {
           this.onKeyRelease(this.spec);
         }
       }
     })
     .onClick(() => {
-      if (this.supportsLongPress()) {
-        this.pressController?.click();
+      if (this.supportsAlternateGesture()) {
+        this.gestureController?.click();
       } else {
         this.dispatchShortPress();
       }

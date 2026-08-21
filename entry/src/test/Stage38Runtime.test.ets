@@ -14,7 +14,8 @@ import { createUnknownEditorContext } from '../main/ets/domain/editor/EditorCont
 import {
   CandidatePresentationMode,
   copyImeSettings,
-  DEFAULT_IME_SETTINGS
+  DEFAULT_IME_SETTINGS,
+  XIAOHE_YINXING_SCHEME_ID
 } from '../main/ets/domain/settings/ImeSettings';
 import { FloatingCandidateSdkCapability } from '../main/ets/infrastructure/ime/FloatingCandidateCapabilityProbe';
 import {
@@ -291,6 +292,36 @@ export default function stage38RuntimeTest() {
       expect(fixture.backend.panel.lastWidth > initialWidth).assertTrue();
       expect(fixture.backend.panel.resizeCount > 1).assertTrue();
       expect(fixture.backend.panel.moveCount > 1).assertTrue();
+      fixture.controller.destroy();
+      await fixture.controller.waitForIdle();
+    });
+
+    it('includes precise continuation hints in the floating window width', 0, async () => {
+      const fixture = createFixture();
+      const preciseSettings = copyImeSettings(DEFAULT_IME_SETTINGS);
+      preciseSettings.candidatePresentationMode = CandidatePresentationMode.AUTO;
+      preciseSettings.schemeId = XIAOHE_YINXING_SCHEME_ID;
+      fixture.settings.replace(preciseSettings);
+
+      const exact = composition();
+      exact.rawInput = 'nam';
+      exact.preeditText = 'nam';
+      exact.candidates = [
+        { id: 'name', text: '那么', reading: 'nam', source: 'runtime-test' }
+      ];
+      fixture.store.updateComposition(exact);
+      await fixture.controller.waitForIdle();
+      const exactWidth = fixture.backend.panel.lastWidth;
+
+      const hint = composition();
+      hint.rawInput = 'nam';
+      hint.preeditText = 'nam';
+      hint.candidates = [
+        { id: 'name', text: '那么', reading: 'name', source: 'runtime-test' }
+      ];
+      fixture.store.updateComposition(hint);
+      await fixture.controller.waitForIdle();
+      expect(fixture.backend.panel.lastWidth > exactWidth).assertTrue();
       fixture.controller.destroy();
       await fixture.controller.waitForIdle();
     });

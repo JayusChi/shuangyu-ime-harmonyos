@@ -129,7 +129,7 @@ ArkTS 不解析用户词库格式，也不实施候选硬排序。Rust 返回结
 
 普通文本和符号仍走 `commitText`。日期时间由 ArkTS 从一次可注入时间快照生成；成对符号由 `ImeConnectionService` 插入一次，等待编辑器状态稳定后用 UTF-16 偏移定位。光标失败只返回部分失败，不重放插入。UI 不直接访问 `InputClient`，C++ 不包含格式化、引导、排序或符号业务规则。
 
-引导表、动作表、八个系统分类和用户规则保持独立；分类/用户快照更新不能污染动作层。原创动作 fixture 仅由 internalDebug 构建临时注入，Release 构建前后均清理。详见 `ACTION_PROTOCOL.md`、`GUIDE_STATE_TRANSITIONS.md` 和 ADR 0017。
+引导表、动作表、11 个正式分类和用户规则保持独立；其中快符分类保持隔离，不进入普通系统候选。分类/用户快照更新不能污染动作层。原创动作 fixture 仅由 internalDebug 构建临时注入，Release 构建前后均清理。详见 `ACTION_PROTOCOL.md`、`GUIDE_STATE_TRANSITIONS.md` 和 ADR 0017。
 
 本项目使用固定的三层架构：
 
@@ -498,7 +498,7 @@ ime-engine
 
 11.6.5 跨层增加分类配置读取和替换函数，interface/ABI 升级为 3。ArkTS 串行化设置更新，C++ 只校验数组/字符串和转发 JSON，Rust 校验 required/未知 ID/canonical 顺序并返回重算结果。详细决策见 ADR 0016。
 
-详细依赖、失败回退和协议结论见 `docs/adr/0015-code-table-dual-backend-boundary.md`；精确/前缀顺序、三码长状态表、分号引导和 reset 矩阵见 `docs/CODE_TABLE_BEHAVIOR_SPEC.md`。
+详细依赖、失败回退和协议结论见 `docs/adr/0015-code-table-dual-backend-boundary.md`；精确/前缀顺序、三码长状态表、分号引导和 reset 矩阵见 `docs/features/code-table/CODE_TABLE_BEHAVIOR_SPEC.md`。
 
 2026-07-22 重启后新增的正式供应链位于运行时之前：
 
@@ -513,9 +513,9 @@ ime-engine
 
 原始 txt/ini 不进入运行时或 Release HAP；网络、凭据、外部程序和平台私有命令在转换边界拒绝。11.6.3 正式系统数据回归与 11.6.4 正式用户规则分层均已通过；11.6.5～11.6.8 补充分类、引导、提交状态和产品入口。
 
-阶段 11.6.2B 已由独立的 `engine-rust/tools/yinxing-source-auditor` 落地。该工具只读两个正式交付根，使用稳定 UTF-8 路径顺序生成 `dictionaries/audit/xiaohe-yinxing/` 下的 manifest、分类映射、命令策略、差异、缺失引用、判定、脱敏配置参考与转换合同；人工报告写入 `docs/data-audit/`。安全命中只保存类型、1-based 物理行和摘要哈希。原始 Android 配置整文件拒绝并隔离，脱敏派生物不复制键值；小鹤音形编号文件是首版唯一权威输入，码表备选导出仅作审计证据。当前合同 `conversion_allowed=true`、阻断项为空；11.6.2C 不得绕过合同重新扫描目录或猜测来源。
+阶段 11.6.2B 已由独立的 `engine-rust/tools/yinxing-source-auditor` 落地。该工具只读两个正式交付根，使用稳定 UTF-8 路径顺序生成 `dictionaries/audit/xiaohe-yinxing/` 下的 manifest、分类映射、命令策略、差异、缺失引用、判定、脱敏配置参考与转换合同；人工报告写入 `docs/audits/data/`。安全命中只保存类型、1-based 物理行和摘要哈希。原始 Android 配置整文件拒绝并隔离，脱敏派生物不复制键值；小鹤音形编号文件是首版唯一权威输入，码表备选导出仅作审计证据。当前合同 `conversion_allowed=true`、阻断项为空；11.6.2C 不得绕过合同重新扫描目录或猜测来源。
 
-阶段 11.6.2C 由独立的 `engine-rust/tools/yinxing-converter` 落地。转换器先校验三个冻结审计哈希，再只按合同路径读取八个权威文件；所有来源在任何行解析前完成大小和 SHA-256 预检。正式输出使用 `HSPYXP01` 1.0 容器，内部复用八个 `HSPLEX01` 1.1 分类二进制和既有用户规则合同。`code-table-runtime` 的通用加载器服务转换器兼容测试，冻结生产加载器额外锁定版本、归档拓扑、分类画像、规则画像和哈希；查询算法、分类顺序、`source_order`、精确/前缀仍共用既有实现。11.6.3 已把正式生成物接入 Rust、C ABI/FFI 与 Debug-only ArkTS/C++ 验收，未接入产品 UI、设置或 Release 资源。
+阶段 11.6.2C 由独立的 `engine-rust/tools/yinxing-converter` 落地。转换器先校验冻结审计哈希，再只按合同路径读取权威文件；所有来源在任何行解析前完成大小和 SHA-256 预检。正式输出使用 `HSPYXP01` 1.0 容器；当前容器复用 11 个 `HSPLEX01` 1.1 分类二进制和既有用户规则合同。`code-table-runtime` 的通用加载器服务转换器兼容测试，冻结生产加载器额外锁定版本、归档拓扑、分类画像、规则画像和哈希；查询算法、分类顺序、`source_order`、精确/前缀仍共用既有实现。后续阶段已经把正式生成物接入 Rust、C ABI/FFI、产品设置与 Release 资源。
 
 ## 阶段 10 编辑器上下文与键盘策略
 

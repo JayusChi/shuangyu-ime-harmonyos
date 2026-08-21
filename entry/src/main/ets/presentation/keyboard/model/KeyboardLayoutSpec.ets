@@ -28,12 +28,15 @@ export enum KeyboardKeyKind {
 export interface KeyboardKeySpec {
   id: string;
   label: string;
+  /** Small upper-deck hint shown above the primary key label. */
+  upperLabel?: string;
   secondaryLabel?: string;
   previewLabel?: string;
   kind: KeyboardKeyKind;
   weight: number;
   action: KeyboardAction;
   longPressAction?: KeyboardAction;
+  swipeUpAction?: KeyboardAction;
   previewEnabled: boolean;
   accessibilityLabel: string;
   active?: boolean;
@@ -41,8 +44,8 @@ export interface KeyboardKeySpec {
 }
 
 /**
- * 一个组合键帽内可直接点选的子项。17 键的最终滑动/连击协议尚未冻结，
- * 当前先以明确的字母点击目标保证每个双拼字母都可输入。
+ * 一个组合键帽内可直接点选的子项。18 键分组布局在同一键帽内为每个
+ * 字母提供独立点击目标，保证 26 个字母均可直接输入。
  */
 export interface KeyboardKeyAlternativeSpec {
   label: string;

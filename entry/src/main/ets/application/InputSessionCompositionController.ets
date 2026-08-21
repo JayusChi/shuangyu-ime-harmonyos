@@ -55,6 +55,7 @@ import { UndoCommitManager } from './UndoCommitManager';
 import { UserLexiconDocumentEditor } from './UserLexiconController';
 
 import { InputSessionCommitController } from './InputSessionCommitController';
+import { SmartPeriodInputAction } from './SmartPeriodController';
 
 const TAG = 'InputSessionController';
 const LOGGER = new Logger(TAG);
@@ -261,6 +262,59 @@ export class InputSessionCompositionController extends InputSessionCommitControl
   }
 
   /**
+   * Inserts Xiaohe Yinxing's backtick wildcard into the native composition.
+   * It remains an IME code key rather than committed punctuation.
+   */
+  async insertUniversalKey(
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('universal key');
+    }
+    const sessionCheck = this.ensureInputSession('universal key');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+    let state = this.store.getSnapshot();
+    if (state.keyboardMode !== KeyboardMode.CHINESE || !state.editorContext.chineseModeAllowed ||
+      state.editorContext.isPassword ||
+      this.engineCoordinator.getActiveSchemeId() !== XIAOHE_YINXING_SCHEME_ID) {
+      this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, '万能键仅在小鹤音形中文模式可用');
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'universal key requires Xiaohe Yinxing');
+    }
+    this.undoCommitManager?.invalidateUndo();
+    await this.resetCompositionDetachedByEditor(state, generation);
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('universal key attachment check');
+    }
+    state = this.store.getSnapshot();
+    const result = this.engineCoordinator.processKey('`');
+    if (!result.success || result.commitText.length > 0 || result.compositionFinished ||
+      (result.action !== null && result.action !== undefined)) {
+      this.store.updateComposition(this.restoreEngineComposition(state));
+      const errorCode = result.success ? ImeErrorCode.SERIALIZATION_ERROR : result.errorCode;
+      const message = result.success ? 'universal key returned a forbidden commit or action' : result.errorMessage;
+      this.store.recordError(errorCode, message);
+      return inputOperationFailed(errorCode, message);
+    }
+    this.store.updateComposition(result);
+    const previewUpdated = await this.imeService.setPreviewText(
+      result.rawInput,
+      false,
+      generation
+    );
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('universal key completion');
+    }
+    if (!previewUpdated) {
+      this.store.updateComposition(this.restoreEngineComposition(state));
+      this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'universal key preview update failed');
+      return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'universal key preview update failed');
+    }
+    return inputOperationOk();
+  }
+
+  /**
    * Sends a Chinese 9-key digit through the formal ArkTS -> C++ -> Rust input
    * path. This method never inserts the digit into the editor as ordinary text.
    */
@@ -360,7 +414,8 @@ export class InputSessionCompositionController extends InputSessionCommitControl
 
   async insertCharacter(
     character: string | undefined,
-    generation: number = this.getInputSessionGeneration()
+    generation: number = this.getInputSessionGeneration(),
+    inputAction?: SmartPeriodInputAction
   ): Promise<InputOperationResult> {
     if (!this.isInputSessionGenerationCurrent(generation)) {
       return this.staleInputAction('character');
@@ -396,7 +451,12 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         this.engineCoordinator.reset();
         this.store.clearComposition();
       }
-      return this.insertText(input, 'punctuation after explicit composition action', generation);
+      return this.insertSmartPeriodOrText(
+        input,
+        'punctuation after explicit composition action',
+        generation,
+        inputAction
+      );
     }
     const chineseEngineReady =
       (state.keyboardMode === KeyboardMode.CHINESE ||
@@ -406,6 +466,23 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     if (input === ';' && chineseEngineReady) {
       const result = this.engineCoordinator.processKey(';');
       if (result.success) {
+        if (result.commitText.length > 0) {
+          const committed = await this.imeService.commitPreviewText(result.commitText, generation);
+          if (!this.isInputSessionGenerationCurrent(generation)) {
+            return this.staleInputAction('guide repeat commit completion');
+          }
+          if (!committed) {
+            this.store.updateComposition(this.restoreEngineComposition(state));
+            this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'guide repeat commit failed');
+            return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'guide repeat commit failed');
+          }
+          this.commitHistoryManager.addCommit(result.commitText);
+          if (this.undoCommitManager) {
+            this.undoCommitManager.recordCommit(result.commitText);
+          }
+          this.store.updateComposition(result);
+          return inputOperationOk();
+        }
         const previewUpdated = await this.imeService.setPreviewText(
           result.rawInput,
           state.editorContext.textPreviewSupported,
@@ -431,13 +508,14 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       this.engineCoordinator.reset();
       this.store.clearComposition();
     }
-    return this.insertText(input, 'direct character', generation);
+    return this.insertSmartPeriodOrText(input, 'direct character', generation, inputAction);
   }
 
   /** Appends physical-keyboard punctuation without ending the active composition. */
   async insertPhysicalPunctuation(
     character: string,
-    generation: number = this.getInputSessionGeneration()
+    generation: number = this.getInputSessionGeneration(),
+    inputAction?: SmartPeriodInputAction
   ): Promise<InputOperationResult> {
     if (character.length !== 1) {
       return inputOperationFailed(ImeErrorCode.INVALID_ARGUMENT, 'physical punctuation requires one character');
@@ -454,7 +532,57 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         return this.staleInputAction('punctuation candidate commit');
       }
     }
-    return this.insertText(character, 'physical punctuation suffix', generation);
+    return this.insertSmartPeriodOrText(character, 'physical punctuation suffix', generation, inputAction);
+  }
+
+  private async insertSmartPeriodOrText(
+    text: string,
+    reason: string,
+    generation: number,
+    inputAction?: SmartPeriodInputAction
+  ): Promise<InputOperationResult> {
+    if (text !== '。') {
+      return this.insertText(text, reason, generation);
+    }
+
+    const action = inputAction ?? this.beginInputAction();
+    const timeoutMs = this.settingsController.getSettings().smartPeriodTimeoutMs;
+    if (timeoutMs <= 0) {
+      this.smartPeriodController.clear();
+      return this.insertText('。', reason, generation);
+    }
+    if (this.smartPeriodController.shouldReplace(action, generation, timeoutMs)) {
+      let deleted = false;
+      try {
+        deleted = this.imeService.deleteBackwardIfMatches
+          ? await this.imeService.deleteBackwardIfMatches('。')
+          : false;
+      } catch (_err) {
+        deleted = false;
+      }
+      if (!this.isInputSessionGenerationCurrent(generation)) {
+        this.smartPeriodController.clear();
+        return this.staleInputAction('smart period verification');
+      }
+      if (deleted) {
+        const replaced = await this.insertText('.', 'smart period replacement', generation);
+        this.smartPeriodController.clear();
+        if (!replaced.success && this.isInputSessionGenerationCurrent(generation)) {
+          // The verified Chinese period was removed but the replacement was
+          // rejected. Best-effort restoration keeps the editor unchanged.
+          await this.imeService.insertText('。');
+        }
+        return replaced;
+      }
+    }
+
+    const inserted = await this.insertText('。', reason, generation);
+    if (inserted.success && this.isInputSessionGenerationCurrent(generation)) {
+      this.smartPeriodController.recordPeriod(action, generation);
+    } else {
+      this.smartPeriodController.clear();
+    }
+    return inserted;
   }
 
   /** Deletes an editor suffix while preserving raw input and its candidates. */

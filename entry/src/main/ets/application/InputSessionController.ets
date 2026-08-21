@@ -1,6 +1,6 @@
 import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
-import { KeyboardMode } from '../domain/keyboard/KeyboardAction';
+import { EditorExtendAction, KeyboardMode } from '../domain/keyboard/KeyboardAction';
 import {
   InputMethodSwitchCapabilities,
   InputMethodSwitchResult,
@@ -39,7 +39,11 @@ export class InputSessionController extends InputSessionCompositionController {
     generation: number = this.getInputSessionGeneration()
   ): Promise<InputOperationResult> {
     const state = this.store.getSnapshot();
-    const target = state.keyboardMode === KeyboardMode.ENGLISH
+    const currentLanguageMode = state.keyboardMode === KeyboardMode.CHINESE ||
+      state.keyboardMode === KeyboardMode.ENGLISH
+      ? state.keyboardMode
+      : state.modeBeforeTransient;
+    const target = currentLanguageMode === KeyboardMode.ENGLISH
       ? KeyboardMode.CHINESE
       : KeyboardMode.ENGLISH;
     return this.switchKeyboardMode(target, generation);
@@ -104,6 +108,39 @@ export class InputSessionController extends InputSessionCompositionController {
       return inputOperationFailed(ImeErrorCode.ENGINE_NOT_INITIALIZED, 'input method session is not visible');
     }
     return this.mapInputMethodSwitchResult(await this.inputMethodSwitcher.requestShowSystemPicker());
+  }
+
+  async performEditorExtendAction(
+    action: EditorExtendAction,
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('editor extend action');
+    }
+    const sessionCheck = this.ensureInputSession('editor extend action');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+    const preparation = await this.finishCompositionBeforeUserModeSwitch(generation);
+    if (!preparation.success || !this.isInputSessionGenerationCurrent(generation)) {
+      return preparation.success
+        ? this.staleInputAction('editor extend action preparation')
+        : preparation;
+    }
+    if (!this.imeService.sendExtendAction) {
+      this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor extend action is unavailable');
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor extend action is unavailable');
+    }
+    const sent = await this.imeService.sendExtendAction(action);
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('editor extend action completion');
+    }
+    if (!sent) {
+      this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor rejected extend action');
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor rejected extend action');
+    }
+    this.store.clearError();
+    return inputOperationOk();
   }
 
   private mapInputMethodSwitchResult(result: InputMethodSwitchResult): InputOperationResult {
@@ -177,4 +214,3 @@ export class InputSessionController extends InputSessionCompositionController {
   }
 
 }
-

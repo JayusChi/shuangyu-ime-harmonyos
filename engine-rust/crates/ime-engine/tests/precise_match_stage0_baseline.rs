@@ -86,6 +86,25 @@ fn precise_match_stage0_files_are_path_clean_and_tied_to_the_frozen_resource() {
 #[test]
 fn current_precise_behavior_preserves_the_archived_stage0_reference() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing")).expect("formal engine");
+    engine
+        .set_code_table_categories(
+            [
+                "core",
+                "category-secondary",
+                "quick-symbol",
+                "one-key-secondary",
+                "two-key-secondary",
+                "out-of-table-character",
+                "full-code-word",
+                "symbol",
+                "symbol-group",
+                "rare-character",
+                "full-code-character",
+            ]
+            .map(str::to_owned)
+            .to_vec(),
+        )
+        .expect("enable archived all-category profile");
     for code in ["aa", "ai", "an", "ni", "hc", "ui", "vi", "wo", "xm", "xq"] {
         engine.reset();
         let result = enter(&mut engine, code);

@@ -23,7 +23,7 @@ import { getSharedSettingsStore, SettingsStore } from '../state/SettingsStore';
 import { InputSessionController } from './InputSessionController';
 import { InputPresentationMode } from '../domain/display/InputPresentationMode';
 import { Candidate } from '../infrastructure/native/NativeEngineTypes';
-import { toCandidateDisplayItem } from '../domain/candidate/CandidateDisplayItem';
+import { toContextualCandidateDisplayItem } from '../domain/candidate/CandidateDisplayItem';
 import {
   resolveCandidateUiMode,
   resolveVisibleCandidates
@@ -378,12 +378,11 @@ export class FloatingCandidateWindowController {
     const visible = resolveVisibleCandidates(
       uiMode,
       state.rawInput,
-      state.candidates,
-      settings.xiaoheYinxingHintCandidateCount
+      state.candidates
     );
     const labels = visible.map((candidate: Candidate): string => {
       const sourceIndex = Math.max(0, state.candidates.indexOf(candidate));
-      const item = toCandidateDisplayItem(candidate, sourceIndex);
+      const item = toContextualCandidateDisplayItem(candidate, sourceIndex, uiMode, state.rawInput);
       return `${sourceIndex + 1}. ${item.displayText}`;
     });
     let fontSize = 14;

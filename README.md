@@ -12,18 +12,20 @@ ArkTS InputMethodExtensionAbility -> C++ Node-API -> Rust C ABI
 
 ## 当前状态
 
-- 2026-08-19 已完成 9 键候选召回、排序与延迟优化：public-regression 900 条 Top1/Top3/Top5 从 `14.667%/17.556%/18.556%` 提升到 `34.333%/42.667%/45.222%`，未召回从 `39.889%` 降到 `34.667%`，每键 P95 从 `237.583 ms` 降到 `71.588 ms`；dev 155 条 Top1 从 `9.032%` 提升到 `15.484%`，P95 从 `247.365 ms` 降到 `65.560 ms`。两组 Release 三轮候选确定，安全计数为 0；blind 与设备未重跑。详见 [9 键候选优化](docs/PINYIN9_OPTIMIZATION_20260819.md)。
-- 2026-08-18 已完成全拼候选质量提升：正式随包词库启用 V2 全领域 131 条增量，并加入 ≥5 音节正式长词精确召回保护；V2 dev Top1/Top3/Top5 为 `97.917%/97.917%/97.917%`。评测器新增三类互斥失败指标、隔离用户学习效果探针和只接受长度桶的匿名分布加权入口；真实匿名分布尚未提供，未伪造真实数据结论。详见 [全拼候选质量提升 V3](docs/QUANPIN_QUALITY_IMPROVEMENT_V3.md)。
-- 2026-08-13 已完成客户提出的六项直通编码：`;f` 重复上屏、`;i` 安全撤销、六组成对符号居中、`;n` 行末定位、分类词库原子组合开关，以及授权固定来源用户词库的合并/补充/替换导入。实现使用有限动作白名单，不执行任意 `$cmd`；Rust workspace、Clippy、ArkTS、双 ABI Native、Release HAP 与内容门禁通过，设备专项未运行。详见 [六项直通编码实现说明](docs/DIRECT_ENCODING_SIX_REQUIREMENTS.md)。
-- 2026-08-13 阶段 5 已完成四正式档案的主机联合收口：`xiaohe-17`、`xiaohe-26`、`quanpin-26`、`pinyin-9` 均从统一入口启用；Rust `505/505`、ArkTS `440/440`、双 ABI Native、Release HAP 与实包内容门禁通过。x86_64 Phone/Pad signed Release 已完成核心全拼/T9/双拼链路，但 ARM64 真机、真实第三方应用和完整旋转/性能矩阵未运行，因此状态为 `IMPLEMENTED / HOST_VALIDATION_COMPLETED / DEVICE_VALIDATION_PARTIAL`；详见 [阶段 5 验收](docs/PINYIN_STAGE5_FINAL_ACCEPTANCE.md)。
+- 2026-08-21 已按客户说明补齐全码词置顶和直通语义：`#固` 词条现在真正随全码词分类开关启用/隐藏；全码词来源可用 `#直` 标记“正常编码可输入、万能键不可查”的词条。11 分类和分号快符行为不变，现有源尚未标记具体 `#直` 条目。
+- 2026-08-20 按客户要求调整小鹤音形默认分类：在完整直通语法尚未支持期间，二简次选、全码词、生僻字、全码字默认关闭，需要时可在设置页手动开启；新装、重置、旧版全开快照迁移和正式 bundle 已保持一致，非全开自定义组合不被覆盖。
+- 2026-08-19 已完成 9 键候选召回、排序与延迟优化：public-regression 900 条 Top1/Top3/Top5 从 `14.667%/17.556%/18.556%` 提升到 `34.333%/42.667%/45.222%`，未召回从 `39.889%` 降到 `34.667%`，每键 P95 从 `237.583 ms` 降到 `71.588 ms`；dev 155 条 Top1 从 `9.032%` 提升到 `15.484%`，P95 从 `247.365 ms` 降到 `65.560 ms`。两组 Release 三轮候选确定，安全计数为 0；blind 与设备未重跑。详见 [9 键候选优化](docs/features/pinyin/PINYIN9_OPTIMIZATION_20260819.md)。
+- 2026-08-18 已完成全拼候选质量提升：正式随包词库启用 V2 全领域 131 条增量，并加入 ≥5 音节正式长词精确召回保护；V2 dev Top1/Top3/Top5 为 `97.917%/97.917%/97.917%`。评测器新增三类互斥失败指标、隔离用户学习效果探针和只接受长度桶的匿名分布加权入口；真实匿名分布尚未提供，未伪造真实数据结论。详见 [全拼候选质量提升 V3](docs/features/pinyin/QUANPIN_QUALITY_IMPROVEMENT_V3.md)。
+- 2026-08-13 已完成客户提出的六项直通编码：`;f` 重复上屏、`;i` 安全撤销、六组成对符号居中、`;n` 行末定位、分类词库原子组合开关，以及授权固定来源用户词库的合并/补充/替换导入。实现使用有限动作白名单，不执行任意 `$cmd`；Rust workspace、Clippy、ArkTS、双 ABI Native、Release HAP 与内容门禁通过，设备专项未运行。详见 [六项直通编码实现说明](docs/features/direct-control/DIRECT_ENCODING_SIX_REQUIREMENTS.md)。
+- 2026-08-13 阶段 5 已完成四正式档案的主机联合收口：`xiaohe-17`、`xiaohe-26`、`quanpin-26`、`pinyin-9` 均从统一入口启用；Rust `505/505`、ArkTS `440/440`、双 ABI Native、Release HAP 与实包内容门禁通过。x86_64 Phone/Pad signed Release 已完成核心全拼/T9/双拼链路，但 ARM64 真机、真实第三方应用和完整旋转/性能矩阵未运行，因此状态为 `IMPLEMENTED / HOST_VALIDATION_COMPLETED / DEVICE_VALIDATION_PARTIAL`；详见 [阶段 5 验收](docs/features/pinyin/PINYIN_STAGE5_FINAL_ACCEPTANCE.md)。
 - 2026-08-19 工程版本已升级为 `0.4.0`（`versionCode=4000000`），用于客户测试发布；本版纳入 26 键全拼、9 键拼音、六项直通编码、全领域词库和小鹤音形冷启动/内存优化。AGC 上传前仍需核对应用身份、完成软件包基础检测和所需设备矩阵。
 - 当前四个拼音正式档案：`xiaohe-17`、默认 `xiaohe-26`、`quanpin-26`、`pinyin-9`；小鹤音形另以 `xiaohe-yinxing-17/26` 隔离提供。
-- 阶段 12 已加入直通命令、`Ctrl+Alt+0～9` 实体键盘预设、八类音形词库正式开关，以及支持普通/隐藏/固顶/第 N 位和批量导入导出的用户词库管理页；详见 [阶段 12 文档](docs/STAGE12_DIRECT_CONTROL_USER_LEXICON.md)。
+- 阶段 12 已加入直通命令、`Ctrl+Alt+0～9` 实体键盘预设、11 类音形词库正式开关，以及支持普通/隐藏/固顶/第 N 位和批量导入导出的用户词库管理页；详见 [阶段 12 文档](docs/features/direct-control/STAGE12_DIRECT_CONTROL_USER_LEXICON.md)。
 - 中文组合输入码由 Rust 输出两码展示段，候选栏以下划线显示未上屏状态；例如 `vegewtyijkjj` 显示为 `ve'ge'wt'yi'jk'jj`。显示分隔符不参与查询、学习或上屏。
 - 当前生产词库：3,751,923 bytes，SHA-256 `E4DEAD906109136470691D0E463C2ADA34C8E5BB9B3FC62BB2DE552ED751D365`；正式随包启用全拼 V2 基础、时效热词与六类专业领域词条。
-- 当前码表基础：严格 bundle、精确/前缀查询、用户规则、八类合同、原子分类快照、引导动作运行时、四码唯一提交、第五键顶屏、空码清屏及冻结的正/反向空码切分均已实现。
-- 小鹤音形精准输入：当前编码精确命中时只显示同码候选；未命中但存在严格更长编码时，按词库源顺序显示可主动选择的精准匹配提示和未输入编码后缀。提示数量可在设置页选 1～9 项（默认 9），且不参与自动上屏、第五键顶屏或空码切分。四码过滤后唯一时仍只自动上屏一次，真实重码等待选择。Phone/Pad x86_64 模拟器上的既有 signed Release 矩阵已通过；本轮提示功能模拟器证据见阶段 6 文档，ARM64 真机仍未验收。
-- 当前开发入口：11.6.7 与 11.6.8 已完成主机和 x86_64 模拟器范围；默认方案仍为小鹤双拼，正式设置页可选择小鹤音形，正式 bundle 由 HAP 原子安装并校验。详见 [项目计划书阶段 11.6](项目计划书.md#阶段-116正式小鹤音形双链路2026-07-22-重启)。
+- 当前码表基础：严格 bundle、精确/前缀查询、11 分类合同、分类内 `#固/#直`、原子分类快照、分号引导动作运行时、四码唯一提交、第五键顶屏、空码清屏及冻结的正/反向空码切分均已实现。
+- 小鹤音形精准输入：当前编码精确命中时只显示同码候选；未命中但存在严格更长编码时，按词库源顺序固定只显示第 1 项精准匹配提示及未输入编码后缀，不提供数量选项，且提示不参与自动上屏、第五键顶屏或空码切分。四码过滤后唯一时仍只自动上屏一次，真实重码等待选择。Phone/Pad x86_64 模拟器上的既有 signed Release 矩阵已通过；本轮固定单项提示尚未执行设备验收，ARM64 真机仍未验收。
+- 当前开发入口：11.6.7 与 11.6.8 已完成主机和 x86_64 模拟器范围；默认方案仍为小鹤双拼，正式设置页可选择小鹤音形，正式 bundle 由 HAP 原子安装并校验。详见 [项目计划书阶段 11.6](docs/product/planning/PROJECT_PLAN.md#阶段-116正式小鹤音形双链路2026-07-22-重启)。
 - 当前验证：0.2.0 的主机与构建门禁均为 9/9 PASS；保留的 27 个客户源文件哈希不变，含凭据的 Android 配置已删除，15/15 双构建一致，x86_64/arm64-v8a 构建、signed/unsigned Release、负门禁和签名复核均通过。signed Release 已在独立包名验收客户端上完成 Phone 竖屏与 Pad 横屏的聊天、URL、搜索、多行、应用切换和压力场景；0.1.0→0.2.0 覆盖升级保留了方案、设置和 2 条用户学习记录。物理 ARM64、同一设备旋转、系统分屏、真实聊天/浏览器应用和小时级 soak 仍未执行，详见 `docs/evidence/2026-07-29-v0.2.0-acceptance/`。
 - 当前状态的唯一详细入口是 [PROJECT_STATE.md](PROJECT_STATE.md)；历史实现记录保存在 [CHANGELOG.md](CHANGELOG.md)、`docs/adr/` 和 `docs/evidence/`。
 - **设备支持**：支持手机（phone）和平板（tablet）设备，包括 MatePad Edge。键盘尺寸自适应屏幕分辨率，支持横屏和竖屏模式。
@@ -251,14 +253,16 @@ powershell -ExecutionPolicy Bypass -File scripts\verify-stage5.ps1 -DeviceValida
 
 ## 文档
 
+- [文档总索引](docs/README.md)
+- [项目交接指南](docs/handover/README.md)
 - [架构](docs/ARCHITECTURE.md)
-- [编码规则](docs/CODING_RULES.md)
+- [编码规则](docs/development/CODING_RULES.md)
 - [API 契约](docs/API_CONTRACT.md)
 - [构建指南](docs/BUILD_GUIDE.md)
 - [测试计划](docs/TEST_PLAN.md)
-- [隐私设计](docs/PRIVACY_DESIGN.md)
-- [项目结构](docs/PROJECT_STRUCTURE.md)
-- [词库格式](docs/LEXICON_FORMAT.md)
-- [用户词库格式](docs/USER_LEXICON_FORMAT.md)
+- [隐私设计](docs/architecture/PRIVACY_DESIGN.md)
+- [项目结构](docs/architecture/PROJECT_STRUCTURE.md)
+- [词库格式](docs/features/lexicon/LEXICON_FORMAT.md)
+- [用户词库格式](docs/features/user-lexicon/USER_LEXICON_FORMAT.md)
 - [当前状态](PROJECT_STATE.md)
 - [更新日志](CHANGELOG.md)

@@ -8,6 +8,20 @@ use engine_protocol::ProtocolAction;
 use ime_engine::{EngineConfig, ImeEngine};
 use user_lexicon::{parse_user_lexicon_bytes, save_snapshot_atomic};
 
+const ALL_CATEGORY_IDS: [&str; 11] = [
+    "core",
+    "category-secondary",
+    "quick-symbol",
+    "one-key-secondary",
+    "two-key-secondary",
+    "out-of-table-character",
+    "full-code-word",
+    "symbol",
+    "symbol-group",
+    "rare-character",
+    "full-code-character",
+];
+
 fn workspace() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
@@ -62,6 +76,12 @@ fn enter(engine: &mut ImeEngine, code: &str) -> engine_protocol::CompositionResu
         assert!(result.success, "{}", result.error_message);
     }
     result
+}
+
+fn enable_all_categories(engine: &mut ImeEngine) {
+    engine
+        .set_code_table_categories(ALL_CATEGORY_IDS.map(str::to_owned).to_vec())
+        .expect("enable all formal categories");
 }
 
 fn texts_for_code(engine: &mut ImeEngine, code: &str) -> Vec<String> {
@@ -122,6 +142,28 @@ fn production_guide_exposes_repeat_pair_undo_and_line_end_actions() {
 }
 
 #[test]
+fn production_guide_prefix_candidate_and_double_semicolon_follow_the_table() {
+    let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
+        .expect("formal engine");
+
+    let prefix = engine.process_key(';');
+    assert_eq!(prefix.raw_input, ";");
+    assert_eq!(
+        prefix
+            .candidates
+            .iter()
+            .map(|candidate| (candidate.text.as_str(), candidate.reading.as_str()))
+            .collect::<Vec<_>>(),
+        [("：", "_")]
+    );
+
+    let repeated = engine.process_key(';');
+    assert_eq!(repeated.commit_text, "；");
+    assert!(repeated.raw_input.is_empty());
+    assert!(repeated.candidates.is_empty());
+}
+
+#[test]
 fn production_quick_symbols_and_symbols_follow_category_switches() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
         .expect("formal engine");
@@ -155,7 +197,7 @@ fn production_quick_symbols_and_symbols_follow_category_switches() {
 }
 
 #[test]
-fn formal_engine_applies_embedded_rules_and_external_same_key_override() {
+fn formal_engine_scopes_embedded_rules_to_full_code_word_and_allows_external_override() {
     let bundle = CodeTableBundle::load_frozen_production_file(formal_bundle())
         .expect("load frozen formal bundle");
     let embedded = bundle.user_rules.as_ref().expect("embedded rules");
@@ -164,8 +206,18 @@ fn formal_engine_applies_embedded_rules_and_external_same_key_override() {
     let mut built_in_only =
         ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 3))
             .expect("formal engine with embedded rules");
+    let default_texts = texts_for_code(&mut built_in_only, &rule.code);
+    assert!(
+        !default_texts.contains(&rule.text),
+        "full-code-word is disabled by default, so its fixed rows must not leak"
+    );
+    enable_all_categories(&mut built_in_only);
     let built_in_texts = texts_for_code(&mut built_in_only, &rule.code);
     assert_eq!(built_in_texts.first(), Some(&rule.text));
+    built_in_only
+        .set_code_table_categories(bundle.default_enabled_category_ids())
+        .expect("restore default categories");
+    assert!(!texts_for_code(&mut built_in_only, &rule.code).contains(&rule.text));
 
     let external_path = std::env::temp_dir().join(format!(
         "stage11-6-4-formal-external-delete-{}.txt",
@@ -180,6 +232,7 @@ fn formal_engine_applies_embedded_rules_and_external_same_key_override() {
         3,
     ))
     .expect("formal engine with external override");
+    enable_all_categories(&mut with_external);
     let external_texts = texts_for_code(&mut with_external, &rule.code);
     assert!(!external_texts.contains(&rule.text));
 }
@@ -199,7 +252,7 @@ fn external_actions_layer_after_embedded_rules_with_fixed_protection() {
     let deleted = &rules_with_room[0];
     let added = &rules_with_room[1];
     let protected = &rules_with_room[2];
-    let enabled = bundle.default_enabled_category_ids();
+    let enabled = ALL_CATEGORY_IDS.map(str::to_owned).to_vec();
     let positioned = embedded
         .entries()
         .iter()
@@ -245,6 +298,7 @@ fn external_actions_layer_after_embedded_rules_with_fixed_protection() {
         2,
     ))
     .expect("formal engine with layered actions");
+    enable_all_categories(&mut engine);
 
     assert!(!texts_for_code(&mut engine, &deleted.code).contains(&deleted.text));
 
@@ -392,13 +446,13 @@ fn formal_precise_queries_return_only_exact_short_codes_stably() {
 }
 
 #[test]
-fn formal_un_returns_at_most_nine_source_ordered_prefix_hints() {
+fn formal_un_returns_only_the_first_source_ordered_prefix_hint() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 50))
         .expect("formal precise hint engine");
     let result = enter(&mut engine, "un");
 
     assert!(result.commit_text.is_empty());
-    assert_eq!(result.candidates.len(), 9);
+    assert_eq!(result.candidates.len(), 1);
     assert!(!result.has_next_page);
     assert!(result.candidates.iter().all(|candidate| {
         candidate.reading.starts_with("un") && candidate.reading.len() > "un".len()
@@ -409,17 +463,7 @@ fn formal_un_returns_at_most_nine_source_ordered_prefix_hints() {
             .iter()
             .map(|candidate| (candidate.text.as_str(), candidate.reading.as_str()))
             .collect::<Vec<_>>(),
-        [
-            ("熟能生巧", "unuq"),
-            ("伤脑筋", "unjb"),
-            ("施耐庵", "unan"),
-            ("史努比", "unbi"),
-            ("十拿九稳", "unjw"),
-            ("上年结转", "unjv"),
-            ("受虐狂", "unkl"),
-            ("少年郎", "unlh"),
-            ("十年树木", "unum"),
-        ]
+        [("熟能生巧", "unuq")]
     );
 
     engine.reset();
@@ -557,6 +601,7 @@ fn external_recovery_failure_never_removes_embedded_layer() {
             3,
         ))
         .expect("formal engine without effective external layer");
+        enable_all_categories(&mut engine);
         assert_eq!(
             texts_for_code(&mut engine, &rule.code).first(),
             Some(&rule.text)
@@ -579,6 +624,7 @@ fn external_recovery_failure_never_removes_embedded_layer() {
         3,
     ))
     .expect("formal engine recovers external backup");
+    enable_all_categories(&mut recovered);
     assert_eq!(
         &texts_for_code(&mut recovered, &rule.code)[..2],
         [rule.text.as_str(), "外部恢复固顶"]
@@ -599,6 +645,7 @@ fn external_recovery_failure_never_removes_embedded_layer() {
         3,
     ))
     .expect("formal engine degrades to embedded rules");
+    enable_all_categories(&mut degraded);
     let degraded_texts = texts_for_code(&mut degraded, &rule.code);
     assert_eq!(degraded_texts.first(), Some(&rule.text));
     assert!(!degraded_texts.iter().any(|text| text == "外部恢复固顶"));
@@ -608,6 +655,7 @@ fn external_recovery_failure_never_removes_embedded_layer() {
 fn formal_engine_queries_pages_resets_selects_and_preserves_system_behavior() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 2))
         .expect("formal engine");
+    enable_all_categories(&mut engine);
     assert_eq!(engine.scheme_id(), "xiaohe-yinxing");
     assert!(engine.has_lexicon());
 
@@ -664,6 +712,7 @@ fn formal_engine_queries_pages_resets_selects_and_preserves_system_behavior() {
 fn four_code_uniqueness_is_decided_after_user_rules_and_commits_once() {
     let mut multiple =
         ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9)).unwrap();
+    enable_all_categories(&mut multiple);
     let multiple_result = enter(&mut multiple, "bmlu");
     assert!(multiple_result.commit_text.is_empty());
     assert_eq!(
@@ -688,6 +737,7 @@ fn four_code_uniqueness_is_decided_after_user_rules_and_commits_once() {
         9,
     ))
     .unwrap();
+    enable_all_categories(&mut unique);
     let committed = enter(&mut unique, "bmlu");
     assert_eq!(committed.commit_text, "辩");
     assert!(committed.raw_input.is_empty());
@@ -752,6 +802,7 @@ fn xiaohe_ignores_irrelevant_formal_path_and_explicitly_recovers_after_formal_fa
 fn switching_between_formal_and_xiaohe_resets_backend_state() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
         .expect("formal engine");
+    enable_all_categories(&mut engine);
     enter(&mut engine, "bcbn");
     assert_eq!(engine.current_state().candidates.len(), 3);
 

@@ -57,8 +57,55 @@ fn guide_spec() -> TableSpec {
         order: u32::MAX,
         enabled: false,
         guide: true,
-        entries: vec![("引导", "g")],
+        entries: vec![("默认冒号", "_"), ("；", ";"), ("引导", "g")],
     }
+}
+
+#[test]
+fn bare_guide_shows_the_reserved_default_and_repeat_commits_itself() {
+    let mut machine = state(5, 64);
+
+    machine.process_key(';').unwrap();
+    assert_eq!(machine.input_state(), CodeTableInputState::GuidePrefix);
+    assert_eq!(candidate_texts(&machine), ["默认冒号"]);
+    assert_eq!(machine.current_candidates()[0].code, "_");
+
+    let repeated = machine.process_key(';').unwrap();
+    assert_eq!(repeated.commit_text.as_deref(), Some("；"));
+    assert_eq!(machine.input_state(), CodeTableInputState::Idle);
+    assert!(machine.current_candidates().is_empty());
+}
+
+#[test]
+fn universal_key_queries_unknown_shape_and_sound_positions() {
+    let mut unknown_shape = state(8, 64);
+    input(&mut unknown_shape, "un");
+    unknown_shape.process_key('`').unwrap();
+    assert_eq!(unknown_shape.raw_code(), "un`");
+    let shape_candidates = candidate_texts(&unknown_shape);
+    assert!(shape_candidates.contains(&"核心后续晚码"));
+    assert!(shape_candidates.contains(&"核心后续早码"));
+    assert!(shape_candidates.contains(&"短语后续"));
+    assert!(!shape_candidates.contains(&"核心精确甲"));
+
+    let mut unknown_sound = state(8, 64);
+    unknown_sound.process_key('`').unwrap();
+    unknown_sound.process_key('`').unwrap();
+    input(&mut unknown_sound, "an");
+    assert_eq!(unknown_sound.raw_code(), "``an");
+    assert_eq!(candidate_texts(&unknown_sound), ["核心后续早码"]);
+}
+
+#[test]
+fn direct_user_layer_is_exactly_queryable_but_hidden_from_universal_key() {
+    let mut exact = state_with_rules(8, 64, "直通词\tunan\n");
+    input(&mut exact, "unan");
+    assert!(candidate_texts(&exact).contains(&"直通词"));
+
+    let mut wildcard = state_with_rules(8, 64, "直通词\tunan\n");
+    input(&mut wildcard, "un");
+    wildcard.process_key('`').unwrap();
+    assert!(!candidate_texts(&wildcard).contains(&"直通词"));
 }
 
 fn paging_specs() -> Vec<TableSpec> {
@@ -491,7 +538,7 @@ fn explicit_query_strategies_preserve_fallback_and_isolate_progressive_semantics
 }
 
 #[test]
-fn deterministic_precise_hint_uses_source_order_and_is_bounded_to_nine() {
+fn deterministic_precise_hint_uses_only_the_first_source_ordered_candidate() {
     let specs = precise_hint_specs();
     let mut machine = deterministic_state(&specs, 50, "");
     input(&mut machine, "un");
@@ -500,28 +547,15 @@ fn deterministic_precise_hint_uses_source_order_and_is_bounded_to_nine() {
         machine.query_cache().unwrap().match_type,
         Some(CodeTableMatch::Prefix)
     );
-    assert_eq!(machine.all_candidates().len(), 9);
-    assert_eq!(
-        candidate_texts(&machine),
-        [
-            "伤脑筋",
-            "施耐庵",
-            "史努比",
-            "十拿九稳",
-            "上年结转",
-            "受虐狂",
-            "少年郎",
-            "十年树木",
-            "少年老成"
-        ]
-    );
+    assert_eq!(machine.all_candidates().len(), 1);
+    assert_eq!(candidate_texts(&machine), ["伤脑筋"]);
     assert_eq!(
         machine
             .all_candidates()
             .iter()
             .map(|candidate| candidate.code.as_str())
             .collect::<Vec<_>>(),
-        ["unjb", "unan", "unbi", "unjw", "unjv", "unkl", "unlh", "unum", "unli"]
+        ["unjb"]
     );
     assert!(!machine.has_next_page());
 }
@@ -542,10 +576,10 @@ fn deterministic_exact_hit_hides_longer_hints_and_hint_is_selectable() {
     let specs = precise_hint_specs();
     let mut hint = deterministic_state(&specs, 50, "");
     input(&mut hint, "un");
-    let selected = hint.select_current_page(1).unwrap();
+    let selected = hint.select_current_page(0).unwrap();
     assert_eq!(
         selected,
-        code_table_runtime::CodeTableSelection::CommitText("施耐庵".to_owned())
+        code_table_runtime::CodeTableSelection::CommitText("伤脑筋".to_owned())
     );
     assert!(hint.raw_code().is_empty());
 }
@@ -553,24 +587,11 @@ fn deterministic_exact_hit_hides_longer_hints_and_hint_is_selectable() {
 #[test]
 fn deterministic_hint_delete_refills_without_fixed_or_position_reordering() {
     let specs = precise_hint_specs();
-    let rules = "伤脑筋\tunjb#5\n施耐庵\tunan#固\n史努比\tunbi#删\n";
+    let rules = "伤脑筋\tunjb#删\n施耐庵\tunan#5\n史努比\tunbi#固\n";
     let mut machine = deterministic_state(&specs, 50, rules);
     input(&mut machine, "un");
 
-    assert_eq!(
-        candidate_texts(&machine),
-        [
-            "伤脑筋",
-            "施耐庵",
-            "十拿九稳",
-            "上年结转",
-            "受虐狂",
-            "少年郎",
-            "十年树木",
-            "少年老成",
-            "山南海北"
-        ]
-    );
+    assert_eq!(candidate_texts(&machine), ["施耐庵"]);
 }
 
 #[test]

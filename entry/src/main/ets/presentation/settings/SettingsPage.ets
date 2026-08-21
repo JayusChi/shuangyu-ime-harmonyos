@@ -8,8 +8,7 @@ import {
   HapticLevel,
   ImeSettings,
   KeyboardHeightMode,
-  MAX_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
-  MIN_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
+  SMART_PERIOD_TIMEOUT_OPTIONS_MS,
   QUANPIN_SCHEME_ID,
   QuanpinFuzzyOption,
   ThemeMode,
@@ -17,7 +16,7 @@ import {
 } from '../../domain/settings/ImeSettings';
 import { enabledKeyboardProfiles, KeyboardProfile } from '../../domain/keyboard/KeyboardProfile';
 import { SettingsStateListener } from '../../state/SettingsStore';
-import { ActionSettingRow, ChoiceSettingRow, NumberSettingRow, SwitchSettingRow } from './SettingsComponents';
+import { ActionSettingRow, ChoiceSettingRow, SwitchSettingRow } from './SettingsComponents';
 import { resolveSettingsTheme, SettingsThemeTokens } from './SettingsTheme';
 import {
   EMPTY_SETTINGS_SAFE_AREA,
@@ -195,26 +194,27 @@ export struct SettingsPage {
             onValueChange: (value: string) => this.controller.setKeyboardProfile(value).then((r) => this.finish(r))
           })
           Divider().color(this.theme.divider)
-          NumberSettingRow({
-            title: $r('app.string.yinxing_hint_candidate_count'),
-            description: $r('app.string.yinxing_hint_candidate_count_desc'),
-            value: this.settings.xiaoheYinxingHintCandidateCount,
-            minValue: MIN_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
-            maxValue: MAX_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
-            primaryTextColor: this.theme.primaryText,
-            secondaryTextColor: this.theme.secondaryText,
-            chipBackground: this.theme.chipBackground,
-            accentColor: this.theme.accent,
-            onValueChange: (value: number) => this.controller.setXiaoheYinxingHintCandidateCount(
-              value
-            ).then((r) => this.finish(r))
-          })
-          Divider().color(this.theme.divider)
           SwitchSettingRow({
             title: $r('app.string.user_learning'), description: '',
             checked: this.settings.userLearningEnabled, primaryTextColor: this.theme.primaryText,
             secondaryTextColor: this.theme.secondaryText,
             onCheckedChange: (value: boolean) => this.controller.setUserLearningEnabled(value).then((r) => this.finish(r))
+          })
+          Divider().color(this.theme.divider)
+          ChoiceSettingRow({
+            title: '智能句号',
+            description: '时间窗内连续输入两个中文句号，替换为单个英文句点；虚拟和实体键盘均生效',
+            values: SMART_PERIOD_TIMEOUT_OPTIONS_MS.map((value: number): string => `${value}`),
+            labels: ['关闭', '300 毫秒', '500 毫秒', '800 毫秒', '1 秒'],
+            currentValue: `${this.settings.smartPeriodTimeoutMs}`,
+            primaryTextColor: this.theme.primaryText,
+            secondaryTextColor: this.theme.secondaryText,
+            chipBackground: this.theme.chipBackground,
+            selectedChipBackground: this.theme.selectedChipBackground,
+            accentColor: this.theme.accent,
+            onValueChange: (value: string) => this.controller.setSmartPeriodTimeoutMs(
+              Number.parseInt(value)
+            ).then((r) => this.finish(r))
           })
         }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground)
 

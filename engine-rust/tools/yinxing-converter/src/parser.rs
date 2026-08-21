@@ -209,6 +209,18 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
                 continue;
             }
         };
+        if code_field.ends_with("#直") && input.spec.category_id != "full-code-word" {
+            reject(
+                &mut stats,
+                &mut rejected,
+                &input.spec.source_file_id,
+                physical_line,
+                "REJECT_DIRECT_OUTSIDE_FULL_CODE_WORD",
+                "direct marker is allowed only in the full-code-word category",
+                &digest,
+            );
+            continue;
+        }
         let symbol_group_code;
         let code_to_normalize = if input.spec.category_id == "symbol-group" {
             symbol_group_code = format!("o{base_code}");
@@ -216,21 +228,22 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
         } else {
             base_code
         };
-        let (code, normalized_changed) = match normalize_code(code_to_normalize) {
-            Ok(value) => value,
-            Err(reason) => {
-                reject(
-                    &mut stats,
-                    &mut rejected,
-                    &input.spec.source_file_id,
-                    physical_line,
-                    reason,
-                    "code must be one to four ASCII letters",
-                    &digest,
-                );
-                continue;
-            }
-        };
+        let (code, normalized_changed) =
+            match normalize_category_code(&input.spec.category_id, code_to_normalize) {
+                Ok(value) => value,
+                Err(reason) => {
+                    reject(
+                        &mut stats,
+                        &mut rejected,
+                        &input.spec.source_file_id,
+                        physical_line,
+                        reason,
+                        "code must be one to four ASCII letters",
+                        &digest,
+                    );
+                    continue;
+                }
+            };
         let changed = normalized_changed || input.spec.category_id == "symbol-group";
         stats.max_code_length = stats.max_code_length.max(code.len() as u64);
         stats.max_word_length = stats.max_word_length.max(text_field.chars().count() as u64);
@@ -312,6 +325,20 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
     })
 }
 
+/// The customer quick-symbol format reserves `_` for the bare guide prefix and
+/// `;` for pressing the guide key a second time.  Keep those two triggers in
+/// the isolated quick-symbol lexicon; every ordinary category continues to use
+/// the frozen one-to-four ASCII-letter grammar.
+fn normalize_category_code(
+    category_id: &str,
+    value: &str,
+) -> std::result::Result<(String, bool), &'static str> {
+    if category_id == "quick-symbol" && matches!(value, "_" | ";") {
+        return Ok((value.to_owned(), false));
+    }
+    normalize_code(value)
+}
+
 fn decode_text<'a>(bytes: &'a [u8], source_file_id: &str) -> Result<&'a str> {
     let bytes = bytes.strip_prefix(&[0xEF, 0xBB, 0xBF]).unwrap_or(bytes);
     let text = std::str::from_utf8(bytes).map_err(|error| {
@@ -358,6 +385,12 @@ fn parse_code_and_action(
         return Err("REJECT_USER_RULE_INVALID");
     }
     let action = match marker {
+        // `#直` is a source-table-only spelling for an exact-input entry that
+        // must stay out of universal-key lookup.  The production bundle stores
+        // it in the isolated user-rule layer as an Add record; ordinary exact
+        // queries merge that layer, while wildcard queries intentionally read
+        // system categories only.
+        "直" => UserAction::Add,
         "删" => UserAction::Delete,
         "固" => UserAction::Fixed,
         digits if digits.bytes().all(|byte| byte.is_ascii_digit()) => {
@@ -477,6 +510,20 @@ mod tests {
         }
     }
 
+    fn quick_symbol_input(bytes: &[u8]) -> SourceInput {
+        let mut source = input(bytes);
+        source.spec.category_id = "quick-symbol".into();
+        source.spec.role = "quick_symbol".into();
+        source
+    }
+
+    fn full_code_word_input(bytes: &[u8]) -> SourceInput {
+        let mut source = input(bytes);
+        source.spec.category_id = "full-code-word".into();
+        source.spec.role = "full_code_word".into();
+        source
+    }
+
     fn contract() -> ValidatedContract {
         ValidatedContract {
             categories: Vec::new(),
@@ -490,6 +537,10 @@ mod tests {
     #[test]
     fn parses_all_user_rule_forms_and_rejects_mixed_or_invalid_positions() {
         assert_eq!(parse_code_and_action("AbCd").unwrap(), ("AbCd", None));
+        assert_eq!(
+            parse_code_and_action("abc#直").unwrap().1,
+            Some(UserAction::Add)
+        );
         assert_eq!(
             parse_code_and_action("abc#删").unwrap().1,
             Some(UserAction::Delete)
@@ -512,11 +563,57 @@ mod tests {
     }
 
     #[test]
+    fn direct_marker_moves_a_full_code_row_to_the_wildcard_hidden_rule_layer() {
+        let result = parse_category(
+            &full_code_word_input("普通词\tabcd\n直通词\tefgh#直\n".as_bytes()),
+            &contract(),
+        )
+        .unwrap();
+        assert_eq!(result.system_records.len(), 1);
+        assert_eq!(result.system_records[0].text, "普通词");
+        assert_eq!(result.user_rules.len(), 1);
+        assert_eq!(result.user_rules[0].text, "直通词");
+        assert_eq!(result.user_rules[0].action, UserAction::Add);
+        assert_eq!(result.stats.user_add, 1);
+
+        let rejected = parse_category(
+            &input("普通词\tabcd\n越界直通词\tefgh#直\n".as_bytes()),
+            &contract(),
+        )
+        .unwrap();
+        assert!(rejected.user_rules.is_empty());
+        assert_eq!(rejected.stats.rejected, 1);
+        assert_eq!(
+            rejected.rejected[0].reason_code,
+            "REJECT_DIRECT_OUTSIDE_FULL_CODE_WORD"
+        );
+    }
+
+    #[test]
     fn configuration_comments_and_commands_are_distinct() {
         assert!(is_configuration_header("----syntax=cn, code"));
         assert!(is_configuration_header("--leadkey='"));
         assert!(is_comment("-- ordinary comment"));
         assert!(!is_comment("$cmd(x,x)\tabcd"));
+    }
+
+    #[test]
+    fn quick_symbol_prefix_and_repeat_triggers_are_preserved_but_stay_isolated() {
+        let result = parse_category(
+            &quick_symbol_input("：\t_\n；\t;\n：“\tq\n".as_bytes()),
+            &contract(),
+        )
+        .unwrap();
+        assert_eq!(
+            result
+                .system_records
+                .iter()
+                .map(|record| (record.text.as_str(), record.code.as_str()))
+                .collect::<Vec<_>>(),
+            [("：", "_"), ("；", ";"), ("：“", "q")]
+        );
+        assert!(normalize_category_code("core", "_").is_err());
+        assert!(normalize_category_code("symbol", ";").is_err());
     }
 
     #[test]

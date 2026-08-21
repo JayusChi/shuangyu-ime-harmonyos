@@ -38,7 +38,7 @@ Outputs are staged and then installed into the requested directory. Existing unm
 
 No timestamp, host name, user name, absolute path, random UUID, or temporary path enters output. Ordering is based on the contract and ordered collections. JSON has stable key ordering, text uses UTF-8/LF/no BOM, binary integers are little-endian, and the archive uses a fixed record order.
 
-For a reproducibility check, build into two new directories and run `compare`. The frozen result is documented in `docs/XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md`.
+For a reproducibility check, build into two new directories and run `compare`. The frozen result is documented in `docs/features/code-table/XIAOHE_YINXING_PRODUCTION_BUNDLE_FORMAT.md`.
 
 ## Stable converter error codes
 

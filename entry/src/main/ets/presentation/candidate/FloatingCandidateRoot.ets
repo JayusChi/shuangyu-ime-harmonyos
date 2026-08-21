@@ -1,6 +1,7 @@
 import { KeyboardController } from '../../application/KeyboardController';
-import { toCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
+import { toContextualCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
 import {
+  resolveCandidateAccessibilityText,
   resolveCandidateUiMode,
   resolveVisibleCandidates,
   resolveCandidateSourceIndex,
@@ -37,7 +38,6 @@ struct FloatingCandidateRoot {
   @State private committing: boolean = false;
   @State private candidateFontSize: number = 14;
   @State private candidateUiMode: CandidateUiMode = CandidateUiMode.BROWSABLE;
-  @State private yinxingHintCandidateCount: number = 9;
   @State private palette: KeyboardColorPalette = LIGHT_PALETTE;
 
   private readonly onSessionChanged = (): void => this.refreshSession();
@@ -69,7 +69,6 @@ struct FloatingCandidateRoot {
   private refreshSettings(): void {
     const settings = this.settingsStore.getSnapshot();
     this.candidateUiMode = resolveCandidateUiMode(settings.schemeId);
-    this.yinxingHintCandidateCount = settings.xiaoheYinxingHintCandidateCount;
     this.palette = this.themeResolver.resolve(this.settingsStore.getEffectiveTheme());
     if (settings.candidateFontSizeMode === CandidateFontSizeMode.SMALL) {
       this.candidateFontSize = 12;
@@ -100,13 +99,17 @@ struct FloatingCandidateRoot {
     return resolveVisibleCandidates(
       this.candidateUiMode,
       this.rawInput,
-      this.candidates,
-      this.yinxingHintCandidateCount
+      this.candidates
     );
   }
 
   private candidateText(candidate: Candidate, index: number): string {
-    const item = toCandidateDisplayItem(candidate, index);
+    const item = toContextualCandidateDisplayItem(
+      candidate,
+      index,
+      this.candidateUiMode,
+      this.rawInput
+    );
     return `${index + 1}. ${item.displayText}`;
   }
 
@@ -142,10 +145,13 @@ struct FloatingCandidateRoot {
                 ? this.palette.functionKeyBackground
                 : this.palette.candidateBackground)
               .enabled(!this.committing)
-              .accessibilityText(toCandidateDisplayItem(
-                candidate,
-                this.sourceIndex(candidate)
-              ).accessibilityText)
+              .accessibilityText(resolveCandidateAccessibilityText(
+                this.candidateUiMode,
+                this.rawInput,
+                this.sourceIndex(candidate),
+                candidate.text,
+                candidate.reading
+              ))
               .onClick(() => this.commitCandidate(this.sourceIndex(candidate)))
           }, (candidate: Candidate) => candidate.id)
         }

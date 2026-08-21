@@ -266,6 +266,73 @@ pub(crate) fn longer_system_candidates(
     candidates
 }
 
+/// Queries Xiaohe Yinxing codes containing the backtick universal key.
+/// An internal backtick matches one code position; a trailing backtick matches
+/// the remaining suffix so `xk` can browse every shape code beginning with xk.
+pub(crate) fn wildcard_system_candidates(
+    bundle: &CodeTableBundle,
+    selection: &CategorySelectionSnapshot,
+    pattern: &str,
+    max_candidates: usize,
+) -> Vec<CodeTableCandidate> {
+    if pattern.is_empty() || !pattern.contains('`') || max_candidates == 0 {
+        return Vec::new();
+    }
+    let mut seen_text = BTreeSet::new();
+    let mut candidates = Vec::new();
+    for category in &bundle.categories {
+        if !is_normal_query_category(category) || !selection.is_enabled(&category.id) {
+            continue;
+        }
+        let mut entries = category
+            .lexicon
+            .entries
+            .iter()
+            .filter(|entry| wildcard_code_matches(pattern, &entry.pinyin_key))
+            .collect::<Vec<_>>();
+        entries.sort_by_key(|entry| entry.source_order);
+        for entry in entries {
+            if !seen_text.insert(entry.word.as_str()) {
+                continue;
+            }
+            candidates.push(CodeTableCandidate {
+                id: format!(
+                    "ct:{}:{}:{}",
+                    bundle.bundle_id, category.id, entry.source_order
+                ),
+                text: entry.word.clone(),
+                code: entry.pinyin_key.clone(),
+                category_id: category.id.clone(),
+                source_order: entry.source_order,
+                match_type: CodeTableMatch::Prefix,
+            });
+            if candidates.len() == max_candidates {
+                return candidates;
+            }
+        }
+    }
+    candidates
+}
+
+fn wildcard_code_matches(pattern: &str, code: &str) -> bool {
+    let pattern_bytes = pattern.as_bytes();
+    let code_bytes = code.as_bytes();
+    for (pattern_index, byte) in pattern_bytes.iter().copied().enumerate() {
+        if byte == b'`' && pattern_index + 1 == pattern_bytes.len() {
+            return pattern_index < code_bytes.len();
+        }
+        if pattern_index >= code_bytes.len() {
+            return false;
+        }
+        if byte != b'`' && byte != code_bytes[pattern_index] {
+            return false;
+        }
+    }
+    // A non-trailing pattern remains prefix-searchable while the user enters
+    // later known shape positions (for example ``k before ``kp).
+    true
+}
+
 pub(crate) fn query_isolated_table(
     bundle_id: &str,
     category: &CodeTableCategory,

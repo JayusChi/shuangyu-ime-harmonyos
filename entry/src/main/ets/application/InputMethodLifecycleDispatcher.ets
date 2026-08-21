@@ -2,7 +2,7 @@ import { inputMethodEngine, InputMethodExtensionContext } from '@kit.IMEKit';
 import { Logger } from '../common/logging/Logger';
 import { InputPanelController } from './InputPanelController';
 import { InputSessionController } from './InputSessionController';
-import { ImeSettings } from '../domain/settings/ImeSettings';
+import { ImeSettings, XIAOHE_YINXING_SCHEME_ID } from '../domain/settings/ImeSettings';
 import {
   DeviceMetricsProvider,
   HarmonyDeviceMetricsProvider
@@ -14,6 +14,8 @@ import {
   PhysicalKeyCommandType,
   PhysicalKeyConsumptionTracker,
   PhysicalEditorSuffixTracker,
+  PhysicalKeySnapshot,
+  resolveUnmodifiedPhysicalLetter,
   resolvePhysicalKeyCommand
 } from '../domain/keyboard/PhysicalKeyboardRouting';
 import {
@@ -63,6 +65,7 @@ export class InputMethodLifecycleDispatcher {
   private physicalOperationGeneration: number = 0;
   private inputActive: boolean = false;
   private symbolGuideActive: boolean = false;
+  private lastPhysicalChinesePeriodTimestampMs?: number;
   private readonly onSettingsChanged = (): void => this.reconcilePresentationMode('settings');
   private readonly onPhysicalKeyboardChanged = (_present: boolean): void => {
     this.reconcilePresentationMode('physicalKeyboard');
@@ -183,17 +186,47 @@ export class InputMethodLifecycleDispatcher {
   }
 
   handlePhysicalKeyEvent(event: KeyEvent): boolean {
-    if (event.action !== Action.DOWN) {
-      return this.physicalKeyConsumption.consumeRelease(event.key.code);
+    return this.handlePhysicalKeySnapshot({
+      isDown: event.action === Action.DOWN,
+      unicodeChar: event.unicodeChar,
+      keyCode: event.key.code,
+      ctrlKey: event.ctrlKey,
+      altKey: event.altKey,
+      logoKey: event.logoKey,
+      shiftKey: event.shiftKey
+    });
+  }
+
+  handleDeferredPhysicalKeyEvent(key: PhysicalKeySnapshot): void {
+    const handled = this.handlePhysicalKeySnapshot(key);
+    if (handled || !key.isDown) {
+      return;
+    }
+    // The letter was synchronously consumed while the runtime was cold. If the
+    // bound editor later resolves to English/password passthrough, explicitly
+    // restore that literal once instead of losing it.
+    const character = resolveUnmodifiedPhysicalLetter(key);
+    if (character !== undefined) {
+      this.observePhysicalOperation(
+        this.physicalKeyboardController.insertDeferredPhysicalCharacter(character)
+      );
+    }
+  }
+
+  private handlePhysicalKeySnapshot(key: PhysicalKeySnapshot): boolean {
+    if (!key.isDown) {
+      return this.physicalKeyConsumption.consumeRelease(key.keyCode);
     }
     const directCommand = resolveDirectControlHotkey(
-      event.key.code,
-      event.ctrlKey,
-      event.altKey,
-      event.logoKey
+      key.keyCode,
+      key.ctrlKey,
+      key.altKey,
+      key.logoKey
     );
     if (directCommand !== undefined) {
-      this.physicalKeyConsumption.recordConsumedDown(event.key.code);
+      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      this.physicalKeyboardController.noteExternalInputAction();
+      this.physicalKeyConsumption.recordConsumedDown(key.keyCode);
       LOGGER.info(`direct hotkey consumed: action=${directCommand.action}, target=${directCommand.target}`);
       this.observePhysicalOperation(this.directControl.execute(directCommand).then((result): Object => {
         if (!result.success) {
@@ -208,14 +241,7 @@ export class InputMethodLifecycleDispatcher {
     if (state.rawInput.length === 0 && this.pendingPhysicalOperationCount === 0) {
       this.physicalEditorSuffix.reset();
     }
-    const command = resolvePhysicalKeyCommand({
-      isDown: event.action === Action.DOWN,
-      unicodeChar: event.unicodeChar,
-      keyCode: event.key.code,
-      ctrlKey: event.ctrlKey,
-      altKey: event.altKey,
-      logoKey: event.logoKey
-    }, {
+    const command = resolvePhysicalKeyCommand(key, {
       sessionActive: state.sessionActive,
       editorConnected: state.editorConnected,
       chineseInputAllowed: state.editorContext.chineseModeAllowed && !state.editorContext.isPassword,
@@ -228,17 +254,25 @@ export class InputMethodLifecycleDispatcher {
 
     if (command.type === PhysicalKeyCommandType.NONE) {
       this.symbolGuideActive = false;
+      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      this.physicalKeyboardController.noteExternalInputAction();
       return false;
+    }
+    const physicalPeriodWillReplace = command.type === PhysicalKeyCommandType.PUNCTUATION
+      ? this.willReplacePhysicalChinesePeriod(command.character ?? '', Date.now())
+      : false;
+    if (command.type !== PhysicalKeyCommandType.PUNCTUATION) {
+      this.lastPhysicalChinesePeriodTimestampMs = undefined;
     }
     if (command.type === PhysicalKeyCommandType.DELETE &&
       this.physicalEditorSuffix.consumePunctuationDelete()) {
-      LOGGER.info(`physical punctuation delete consumed: keyCode=${event.key.code}`);
-      this.physicalKeyConsumption.recordConsumedDown(event.key.code);
+      LOGGER.info(`physical punctuation delete consumed: keyCode=${key.keyCode}`);
+      this.physicalKeyConsumption.recordConsumedDown(key.keyCode);
       this.observePhysicalOperation(this.physicalKeyboardController.deletePhysicalPunctuationSuffix());
       return true;
     }
-    LOGGER.debug(`physical key consumed: type=${command.type}, keyCode=${event.key.code}`);
-    this.physicalKeyConsumption.recordConsumedDown(event.key.code);
+    LOGGER.debug(`physical key consumed: type=${command.type}, keyCode=${key.keyCode}`);
+    this.physicalKeyConsumption.recordConsumedDown(key.keyCode);
     // Symbol guide: if active, the next LETTER resolves to a symbol
     if (this.symbolGuideActive && command.type === PhysicalKeyCommandType.LETTER) {
       this.symbolGuideActive = false;
@@ -259,11 +293,17 @@ export class InputMethodLifecycleDispatcher {
     }
     if (command.type === PhysicalKeyCommandType.CANDIDATE) {
       // Semicolon with a single candidate: commit it and arm the symbol guide
-      const isSemicolonSingleCandidate = event.unicodeChar === 59 && state.candidates.length === 1;
+      const isSemicolonSingleCandidate = (key.unicodeChar === 59 || key.keyCode === 2062) &&
+        state.candidates.length === 1;
       this.observePhysicalOperation(this.physicalKeyboardController.commitCandidate(command.candidateIndex ?? 0));
       if (isSemicolonSingleCandidate) {
-        this.symbolGuideActive = true;
-        LOGGER.info('symbol guide mode activated after semicolon single-candidate commit');
+        if (this.settingsStore.getSnapshot().schemeId === XIAOHE_YINXING_SCHEME_ID) {
+          this.observePhysicalOperation(this.physicalKeyboardController.handlePhysicalGuideSemicolon());
+          LOGGER.info('code-table symbol guide activated after semicolon single-candidate commit');
+        } else {
+          this.symbolGuideActive = true;
+          LOGGER.info('symbol guide mode activated after semicolon single-candidate commit');
+        }
       }
       return true;
     }
@@ -276,8 +316,14 @@ export class InputMethodLifecycleDispatcher {
       return true;
     }
     if (command.type === PhysicalKeyCommandType.SYMBOL_GUIDE) {
-      this.symbolGuideActive = true;
-      LOGGER.info('symbol guide mode activated');
+      if (this.settingsStore.getSnapshot().schemeId === XIAOHE_YINXING_SCHEME_ID) {
+        this.symbolGuideActive = false;
+        this.observePhysicalOperation(this.physicalKeyboardController.handlePhysicalGuideSemicolon());
+        LOGGER.info('code-table symbol guide key routed to engine');
+      } else {
+        this.symbolGuideActive = true;
+        LOGGER.info('symbol guide mode activated');
+      }
       return true;
     }
     if (command.type === PhysicalKeyCommandType.CANCEL) {
@@ -301,7 +347,9 @@ export class InputMethodLifecycleDispatcher {
       return true;
     }
     if (command.type === PhysicalKeyCommandType.PUNCTUATION) {
-      this.physicalEditorSuffix.recordPunctuation();
+      if (!physicalPeriodWillReplace) {
+        this.physicalEditorSuffix.recordPunctuation();
+      }
       this.observePhysicalOperation(
         this.physicalKeyboardController.insertPhysicalPunctuation(command.character ?? '')
       );
@@ -357,7 +405,27 @@ export class InputMethodLifecycleDispatcher {
     this.physicalOperationGeneration += 1;
     this.physicalKeyConsumption.reset();
     this.physicalEditorSuffix.reset();
+    this.lastPhysicalChinesePeriodTimestampMs = undefined;
     this.pendingPhysicalOperationCount = 0;
+  }
+
+  private willReplacePhysicalChinesePeriod(character: string, timestampMs: number): boolean {
+    if (character !== '。') {
+      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      return false;
+    }
+    const timeoutMs = this.settingsStore.getSnapshot().smartPeriodTimeoutMs;
+    if (timeoutMs <= 0) {
+      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      return false;
+    }
+    const previous = this.lastPhysicalChinesePeriodTimestampMs;
+    if (previous !== undefined && timestampMs >= previous && timestampMs - previous <= timeoutMs) {
+      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      return true;
+    }
+    this.lastPhysicalChinesePeriodTimestampMs = timestampMs;
+    return false;
   }
 
   private resolvePresentationMode(): InputPresentationMode {

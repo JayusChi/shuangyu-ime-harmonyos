@@ -2,6 +2,8 @@ import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
 import {
   HIDE_KEYBOARD_ACTION,
   KeyboardAction,
+  KeyboardMode,
+  TOGGLE_LANGUAGE_ACTION,
   SHOW_INPUT_METHOD_PICKER_ACTION
 } from '../../domain/keyboard/KeyboardAction';
 import {
@@ -13,10 +15,9 @@ import {
   CompositionPreeditView,
   resolveCompositionPreeditView
 } from '../../domain/candidate/CompositionPreeditView';
-import { toCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
+import { toContextualCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
 import {
   CandidateUiMode,
-  resolveCandidateCodeHint,
   resolveCandidateAccessibilityText,
   resolveCandidateEmptyFeedback,
   shouldShowCandidateExpansionAction
@@ -96,6 +97,8 @@ export interface CandidateBarProps {
   keyboardLayout?: ShuangpinKeyboardLayout;
   keyboardProfileName?: string;
   inputMethodPickerAvailable?: boolean;
+  keyboardMode?: KeyboardMode;
+  languageSwitchAvailable?: boolean;
   onCandidateClick?: (candidate: Candidate, index: number) => void;
   onToggleExpanded?: (expanded: boolean) => void;
   onAction?: (action: KeyboardAction) => void;
@@ -127,7 +130,10 @@ export struct CandidateBar {
   @Prop keyboardLayout: ShuangpinKeyboardLayout = ShuangpinKeyboardLayout.TWENTY_SIX_KEY;
   @Prop keyboardProfileName: string = '';
   @Prop inputMethodPickerAvailable: boolean = false;
+  @Prop keyboardMode: KeyboardMode = KeyboardMode.CHINESE;
+  @Prop languageSwitchAvailable: boolean = true;
   @State private actionPressed: boolean = false;
+  @State private languagePressed: boolean = false;
   @State private expansionPressed: boolean = false;
 
   private scroller: Scroller = new Scroller();
@@ -136,6 +142,22 @@ export struct CandidateBar {
     return this.keyboardProfileName.length > 0
       ? this.keyboardProfileName
       : shuangpinKeyboardLayoutDisplayName(this.keyboardLayout);
+  }
+
+  private languageLabel(): string {
+    if (this.keyboardMode === KeyboardMode.CHINESE) {
+      return '中';
+    }
+    if (this.keyboardMode === KeyboardMode.ENGLISH) {
+      return '英';
+    }
+    return '中/英';
+  }
+
+  private languageAccessibilityText(): string {
+    return this.keyboardMode === KeyboardMode.CHINESE
+      ? '当前中文，切换到英文'
+      : '当前英文，切换到中文';
   }
 
   onCandidateClick?: (candidate: Candidate, index: number) => void;
@@ -190,19 +212,6 @@ export struct CandidateBar {
       .accessibilityText('设置')
       .onClick((): void => this.onOpenSettings?.())
 
-      Row() {
-        Image($r('app.media.keyboard_hide_chevron'))
-          .width(20)
-          .height(20)
-          .fillColor(this.palette.functionKeyText)
-          .objectFit(ImageFit.Contain)
-      }
-      .height('100%')
-      .layoutWeight(0.45)
-      .justifyContent(FlexAlign.Center)
-      .alignItems(VerticalAlign.Center)
-      .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
-      .onClick((): void => this.onAction?.(HIDE_KEYBOARD_ACTION))
     }
     .width('100%')
     .height('100%')
@@ -318,10 +327,11 @@ export struct CandidateBar {
           ForEach(this.candidates, (candidate: Candidate, index: number) => {
             // 阶段 4.2：普通候选项仅渲染 candidate.text，宽度随文字自适应；
             // candidate.reading 仍保留在数据结构中供引擎、调试页与自动化测试使用。
-            Text(toCandidateDisplayItem(
+            Text(toContextualCandidateDisplayItem(
               candidate,
               index,
-              resolveCandidateCodeHint(this.candidateUiMode, this.rawInput, candidate.reading)
+              this.candidateUiMode,
+              this.rawInput
             ).displayText)
               .fontSize(this.candidateFontSize)
               .fontColor(this.palette.candidateText)
@@ -442,7 +452,32 @@ export struct CandidateBar {
         })
       }
 
-      if (this.state === CandidateBarState.ERROR || this.state === CandidateBarState.LOADING) {
+      Row() {
+        Text(this.languageLabel())
+          .fontSize(12)
+          .fontColor(this.palette.functionKeyText)
+          .fontWeight(FontWeight.Medium)
+      }
+      .width(this.actionWidth)
+      .height('100%')
+      .justifyContent(FlexAlign.Center)
+      .alignItems(VerticalAlign.Center)
+      .backgroundColor(this.languagePressed
+        ? this.palette.functionKeyPressedBackground
+        : this.palette.candidateBackground)
+      .border({ width: { left: 1 }, color: this.palette.candidateDivider })
+      .opacity(this.languageSwitchAvailable ? 1 : 0.45)
+      .enabled(this.languageSwitchAvailable)
+      .accessibilityText(this.languageAccessibilityText())
+      .onTouch((event: TouchEvent) => {
+        if (event.type === TouchType.Down) {
+          this.languagePressed = true;
+        } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+          this.languagePressed = false;
+        }
+      })
+      .onClick(() => this.onAction?.(TOGGLE_LANGUAGE_ACTION))
+
       Row() {
         Image($r('app.media.keyboard_hide_chevron'))
           .width(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
@@ -472,7 +507,6 @@ export struct CandidateBar {
           this.onAction(KEYBOARD_STATUS_BAR_LAYOUT.action);
         }
       })
-      }
     }
     .width('100%')
     .height(this.barHeight)

@@ -11,7 +11,7 @@ $bundlePath = Join-Path $repoRoot 'dictionaries\generated\xiaohe-yinxing-product
 $manifestPath = Join-Path $repoRoot 'dictionaries\generated\xiaohe-yinxing-production\manifest.json'
 $outputDir = Join-Path $repoRoot 'dictionaries\audit\xiaohe-yinxing\baseline'
 $relativeBundlePath = 'dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx'
-$expectedBundleSha256 = '6010300516e9e58da6cbbb4d136f70db0be137743122b2c29ce3175fe76fc4f5'
+$expectedBundleSha256 = 'cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94'
 
 New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 
@@ -20,6 +20,10 @@ function Write-Utf8NoBom {
         [Parameter(Mandatory = $true)][string]$Path,
         [Parameter(Mandatory = $true)][string]$Value
     )
+    if ((Test-Path -LiteralPath $Path -PathType Leaf) -and
+        ([IO.File]::ReadAllText($Path, [Text.Encoding]::UTF8) -ceq $Value)) {
+        return
+    }
     [IO.File]::WriteAllText($Path, $Value, [Text.UTF8Encoding]::new($false))
 }
 
@@ -51,7 +55,8 @@ if ($bundleSha256 -ne $expectedBundleSha256) {
     throw "Frozen bundle SHA-256 changed: $bundleSha256"
 }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
-$categoryIds = @($manifest.category_files | ForEach-Object { [string]$_.category_id })
+$categoryIds = @($manifest.category_files | Where-Object { [bool]$_.default_enabled } |
+    ForEach-Object { [string]$_.category_id })
 $categoryCounts = @($manifest.category_files | ForEach-Object {
     [ordered]@{
         category_id = [string]$_.category_id

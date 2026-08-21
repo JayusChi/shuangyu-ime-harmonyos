@@ -1,6 +1,7 @@
 import { inputMethodEngine } from '@kit.IMEKit';
 import { Logger } from '../../common/logging/Logger';
 import { EnterAction } from '../../domain/editor/EditorContext';
+import { EditorExtendAction } from '../../domain/keyboard/KeyboardAction';
 import {
   CompositionTextManager,
   HarmonyCompositionInputClient
@@ -305,6 +306,30 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
     return false;
   }
 
+  async sendExtendAction(action: EditorExtendAction): Promise<boolean> {
+    const inputClient = ImeConnectionService.inputClient;
+    if (!inputClient) {
+      LOGGER.error('editor extend action failed: no input client');
+      return false;
+    }
+    try {
+      let nativeAction = inputMethodEngine.ExtendAction.SELECT_ALL;
+      if (action === EditorExtendAction.CUT) {
+        nativeAction = inputMethodEngine.ExtendAction.CUT;
+      } else if (action === EditorExtendAction.COPY) {
+        nativeAction = inputMethodEngine.ExtendAction.COPY;
+      } else if (action === EditorExtendAction.PASTE) {
+        nativeAction = inputMethodEngine.ExtendAction.PASTE;
+      }
+      await inputClient.sendExtendAction(nativeAction);
+      LOGGER.info(`editor extend action ok: action=${action}`);
+      return ImeConnectionService.inputClient === inputClient;
+    } catch (err) {
+      LOGGER.warn(`editor extend action failed: action=${action}`);
+      return false;
+    }
+  }
+
   async sendEnter(action: EnterAction = EnterAction.ENTER): Promise<boolean> {
     const inputClient = ImeConnectionService.inputClient;
     if (!inputClient) {
@@ -373,5 +398,3 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
     }
   }
 }
-
-

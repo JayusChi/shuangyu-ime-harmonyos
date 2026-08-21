@@ -6,7 +6,7 @@ import {
   CandidateFontSizeMode,
   copyImeSettings,
   CURRENT_SETTINGS_SCHEMA_VERSION,
-  DEFAULT_XIAOHE_YINXING_HINT_CANDIDATE_COUNT,
+  DEFAULT_SMART_PERIOD_TIMEOUT_MS,
   DEFAULT_IME_SETTINGS,
   EffectiveTheme,
   HapticLevel,
@@ -16,7 +16,8 @@ import {
   resolveEffectiveTheme,
   settingsToRaw,
   ThemeMode,
-  XIAOHE_YINXING_CATEGORY_IDS
+  XIAOHE_YINXING_CATEGORY_IDS,
+  XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS
 } from '../main/ets/domain/settings/ImeSettings';
 import { HapticBackend, HapticFeedbackService } from '../main/ets/infrastructure/haptic/HapticFeedbackService';
 import { KeySoundBackend, KeySoundService } from '../main/ets/infrastructure/audio/KeySoundService';
@@ -76,7 +77,7 @@ import {
 import {
   PINYIN_9_PROFILE_ID,
   QUANPIN_26_PROFILE_ID,
-  XIAOHE_17_PROFILE_ID,
+  XIAOHE_18_PROFILE_ID,
   XIAOHE_26_PROFILE_ID
 } from '../main/ets/domain/keyboard/KeyboardProfile';
 
@@ -421,8 +422,7 @@ export default function stage11Test() {
       expect(DEFAULT_IME_SETTINGS.userLearningEnabled).assertTrue();
       expect(DEFAULT_IME_SETTINGS.spellingCorrectionEnabled).assertFalse();
       expect(DEFAULT_IME_SETTINGS.fuzzyOptions.length).assertEqual(0);
-      expect(DEFAULT_IME_SETTINGS.xiaoheYinxingHintCandidateCount)
-        .assertEqual(DEFAULT_XIAOHE_YINXING_HINT_CANDIDATE_COUNT);
+      expect(DEFAULT_IME_SETTINGS.smartPeriodTimeoutMs).assertEqual(DEFAULT_SMART_PERIOD_TIMEOUT_MS);
       expect(panelHeightForMode(KeyboardHeightMode.STANDARD)).assertEqual(894);
       expect(PORTRAIT_METRICS.statusBarActionWidth).assertEqual(48);
     });
@@ -489,6 +489,10 @@ export default function stage11Test() {
       expect(partial.keyboardHeightMode).assertEqual(KeyboardHeightMode.STANDARD);
       expect(partial.keySoundEnabled).assertTrue();
       expect(partial.userLearningEnabled).assertTrue();
+      expect(new SettingsValidator().validate({ smartPeriodTimeoutMs: '-1' }).smartPeriodTimeoutMs)
+        .assertEqual(DEFAULT_SMART_PERIOD_TIMEOUT_MS);
+      expect(new SettingsValidator().validate({ smartPeriodTimeoutMs: '800' }).smartPeriodTimeoutMs)
+        .assertEqual(800);
     });
 
     it('falls back unknown enums, booleans, scheme and future version safely', 0, () => {
@@ -584,6 +588,31 @@ export default function stage11Test() {
       expect(second).assertEqual(first);
     });
 
+    it('disables passthrough-dependent yinxing categories only for the legacy all-enabled default', 0, () => {
+      const migration = new SettingsMigration();
+      const validator = new SettingsValidator();
+      const expected = 'core|category-secondary|quick-symbol|one-key-secondary|' +
+        'out-of-table-character|symbol|symbol-group';
+
+      expect(DEFAULT_IME_SETTINGS.xiaoheYinxingEnabledCategoryIds.join('|')).assertEqual(expected);
+      expect(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS.join('|')).assertEqual(expected);
+
+      const legacyDefault = validator.validate(migration.migrate({
+        schemaVersion: '7',
+        xiaoheYinxingCategorySchemaVersion: '3',
+        xiaoheYinxingEnabledCategoryIds: JSON.stringify(XIAOHE_YINXING_CATEGORY_IDS)
+      }));
+      expect(legacyDefault.xiaoheYinxingEnabledCategoryIds.join('|')).assertEqual(expected);
+
+      const customized = validator.validate(migration.migrate({
+        schemaVersion: '7',
+        xiaoheYinxingCategorySchemaVersion: '3',
+        xiaoheYinxingEnabledCategoryIds: '["core","two-key-secondary","rare-character"]'
+      }));
+      expect(customized.xiaoheYinxingEnabledCategoryIds.join('|'))
+        .assertEqual('core|two-key-secondary|rare-character');
+    });
+
     it('preserves and validates fixed lexicon sources across schema migration', 0, () => {
       const migration = new SettingsMigration();
       const validator = new SettingsValidator();
@@ -624,26 +653,6 @@ export default function stage11Test() {
       expect(settings.lexiconSources[0].mode).assertEqual('MERGE');
 
       const restored = validator.validate(migration.migrate(settingsToRaw(settings)));
-      expect(imeSettingsEqual(restored, settings)).assertTrue();
-    });
-
-    it('validates and round-trips the yinxing precise hint candidate count', 0, () => {
-      const validator = new SettingsValidator();
-      expect(validator.validate({ xiaoheYinxingHintCandidateCount: '1' })
-        .xiaoheYinxingHintCandidateCount).assertEqual(1);
-      expect(validator.validate({ xiaoheYinxingHintCandidateCount: '9' })
-        .xiaoheYinxingHintCandidateCount).assertEqual(9);
-      expect(validator.validate({ xiaoheYinxingHintCandidateCount: '0' })
-        .xiaoheYinxingHintCandidateCount).assertEqual(9);
-      expect(validator.validate({ xiaoheYinxingHintCandidateCount: '10' })
-        .xiaoheYinxingHintCandidateCount).assertEqual(9);
-      expect(validator.validate({ xiaoheYinxingHintCandidateCount: 'broken' })
-        .xiaoheYinxingHintCandidateCount).assertEqual(9);
-
-      const settings = copyImeSettings(DEFAULT_IME_SETTINGS);
-      settings.xiaoheYinxingHintCandidateCount = 4;
-      const restored = validator.validate(new SettingsMigration().migrate(settingsToRaw(settings)));
-      expect(restored.xiaoheYinxingHintCandidateCount).assertEqual(4);
       expect(imeSettingsEqual(restored, settings)).assertTrue();
     });
 
@@ -709,6 +718,7 @@ export default function stage11Test() {
       settings.themeMode = ThemeMode.DARK;
       settings.hapticLevel = HapticLevel.STRONG;
       settings.keySoundEnabled = true;
+      settings.smartPeriodTimeoutMs = 1000;
       const roundTrip = new SettingsValidator().validate(settingsToRaw(settings));
       expect(imeSettingsEqual(settings, roundTrip)).assertTrue();
     });
@@ -1026,6 +1036,16 @@ export default function stage11Test() {
       expect(store.getSnapshot().keyboardHeightMode).assertEqual(KeyboardHeightMode.TALL);
     });
 
+    it('controller persists the smart period timeout and rejects out-of-range values', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const store = new SettingsStore();
+      const controller = new SettingsController(repo, store, new FakeSettingsEngine(), new InputSessionStore());
+      expect((await controller.setSmartPeriodTimeoutMs(800)).success).assertTrue();
+      expect(store.getSnapshot().smartPeriodTimeoutMs).assertEqual(800);
+      expect((await controller.setSmartPeriodTimeoutMs(2001)).success).assertFalse();
+      expect(repo.saveCount).assertEqual(1);
+    });
+
     it('serializes delayed saves and bases a rapid second field change on the first', 0, async () => {
       const repo = new DelayedSettingsRepository();
       const store = new SettingsStore();
@@ -1127,19 +1147,6 @@ export default function stage11Test() {
       expect(imeSettingsEqual(stored, repo.settings)).assertTrue();
     });
 
-    it('persists only valid yinxing precise hint candidate counts', 0, async () => {
-      const repo = new FakeSettingsRepository();
-      const store = new SettingsStore();
-      const controller = new SettingsController(repo, store, new FakeSettingsEngine(), new InputSessionStore());
-
-      expect((await controller.setXiaoheYinxingHintCandidateCount(4)).success).assertTrue();
-      expect(store.getSnapshot().xiaoheYinxingHintCandidateCount).assertEqual(4);
-      expect(repo.settings.xiaoheYinxingHintCandidateCount).assertEqual(4);
-      expect((await controller.setXiaoheYinxingHintCandidateCount(0)).success).assertFalse();
-      expect((await controller.setXiaoheYinxingHintCandidateCount(10)).success).assertFalse();
-      expect(store.getSnapshot().xiaoheYinxingHintCandidateCount).assertEqual(4);
-    });
-
     it('queues restore defaults behind an in-flight settings save', 0, async () => {
       const repo = new DelayedSettingsRepository();
       const store = new SettingsStore();
@@ -1235,8 +1242,8 @@ export default function stage11Test() {
       const controller = new SettingsController(repo, settingsStore, engine, sessionStore);
       sessionStore.updateComposition(candidateComposition());
 
-      const xiaohe17 = await controller.setKeyboardProfile(XIAOHE_17_PROFILE_ID);
-      expect(xiaohe17.success).assertTrue();
+      const xiaohe18 = await controller.setKeyboardProfile(XIAOHE_18_PROFILE_ID);
+      expect(xiaohe18.success).assertTrue();
       expect(engine.resetCount).assertEqual(1);
       expect(engine.schemeChanges.length).assertEqual(0);
       expect(sessionStore.getSnapshot().rawInput).assertEqual('');
