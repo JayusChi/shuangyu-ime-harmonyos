@@ -62,5 +62,14 @@ export default function undoCommitManagerTest() {
       const state = undoManager.canUndo();
       expect(state.lastCommit).assertEqual('第二条');
     });
+
+    it('应该保留安全替换的原文以支持反向撤销', () => {
+      undoManager.recordReplacement('用户原文', 'AI 建议文本');
+
+      const state = undoManager.canUndo();
+      expect(state.canUndo).assertTrue();
+      expect(state.lastCommit).assertEqual('AI 建议文本');
+      expect(state.replacementOriginalText).assertEqual('用户原文');
+    });
   });
 }

@@ -1,8 +1,16 @@
 # Project State
 
-更新时间：2026-08-21
+更新时间：2026-08-24
 
 ## 当前阶段
+
+**小鹤音形客户确认分类 IMPLEMENTED / HOST_RELEASE_VALIDATED / DEVICE_NOT_RUN（2026-08-24）** — 本条替代下方 2026-08-21 的 11 分类与旧 bundle 结论。设置页按客户原名和顺序显示 10 个系统开关：首选、分类、一简次选、二简次选、符号、全码词、生僻字、全码字、快符、ok拼字；“分类”原子控制次选/表外/随心内部表，“符号”原子控制符号/符号组。“直通”继续使用全码词行尾 `#直`，用户词库保持独立，因此两者不增加系统开关。二简次选、全码词、生僻字、全码字默认关闭，其余默认开启；分类设置 schema 5 会为旧设置加入默认开启的 ok拼字并保持自定义选择。正式 bundle 现为 12 个内部分类、162,702 条接受记录，其中 ok拼字 88,020 条；6/8 位 `ok...` 编码不会在第 4 码提前上屏。bundle 为 56,144,463 bytes、SHA-256 `e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad`，应用安装缓存升级到 v3。转换器 22 项、正式转换 2 项、码表运行时 96 项、正式引擎 17 项、严格 Clippy、ArkTS 499/499、正式词库校验、基线、Release 正负资源门禁、default Release HAP 与实包内容门禁均 PASS；unsigned HAP 为 70,915,773 bytes、SHA-256 `7779D50E1361C3DE19534EEAF7EFC8F50EC85DC063E29453C8FE44E7C8C89C7A`。客户下次提交用的 UTF-8/Tab 示例已放在 `双羽2026年8月20日使用反馈/给客户-词库提交模板/`。真机安装与输入验收未运行。
+
+**AI 输入法第 1 阶段 IMPLEMENTED / HOST_RELEASE_VALIDATED / DEVICE_NOT_RUN / CLOUD_NOT_CONFIGURED（2026-08-24）** — 已复用 AI-0 架构完成默认关闭、纯本地且确定性的上屏后关联词，以及续写、精简、礼貌、正式、翻译五个显式云动作。关联词复用 Rust context-reranker，会话内有界排序且最多 3 条；云 Provider 只接受配置注入的自有 HTTPS 代理，具备闭合载荷、8 秒硬超时、取消、响应字节/JSON/协议/requestId/Provider/候选严格校验。新输入、光标或原文变化、隐藏、停止、换框、乱序、迟到和旧 generation 都不能更新 UI 或编辑器；接受建议前再次核对原文，成功后复用安全撤销。模型输出含 `$cmd`、URL 或 HTML 时仍只作为普通文本。
+
+仓库未提供已批准的生产代理域名、鉴权、协议版本、限流、留存/不训练约定和最终隐私文案，故正式运行时保持 Cloud Provider 不可用，AI/云/关联开关默认关闭，未加入 INTERNET 或凭证，真实云为 `NOT_RUN`。ArkTS `499/499`（AI-1 `15/15`）、context-reranker `9/9`、关联词引擎专项 `9/9`、AI-1 FFI 定向测试、fmt、workspace 严格 Clippy、Release 负向门禁 `13/13`、default Release 构建和实包审计均 PASS。Rust workspace 全量测试仍被当前工作区既有小鹤生成 bundle 与冻结候选快照不一致阻塞，未改写冻结基线。unsigned HAP 为 70,917,449 bytes、SHA-256 `CB9D50C7C0E8F9BF78EC1CC69A89048E9C123172360EF58033FA3EAD8EBCCF9E`；Phone/Pad/2in1 和第三方宿主未运行。详见 `docs/features/ai/AI1_FIRST_INPUT.md`。
+
+**AI 输入法第 0 阶段 IMPLEMENTED / HOST_RELEASE_VALIDATED / DEVICE_NOT_RUN（2026-08-21）** — 已完成 AI/语音可替换协议、集中能力门控、稳定 request/session ID 与 generation 生命周期、确定性 Fake AI/Fake Speech、候选栏最小交互、设置 schema 9 和隐私骨架。AI 只处理最近一次仍可核对的 IME 上屏文本，接受建议时重新核对原文并原子替换，失败不先删除，成功可反向撤销；模型输出即使包含 `$cmd` 或 URL 也只作为普通文本。语音只验证准备/聆听/中间/最终/确认/取消/错误状态，不录音且必须明确确认上屏。两个总开关、云能力和自动上屏默认关闭；密码、未知及非普通文本编辑器失败关闭。正式包未增加网络或麦克风权限，Release 门禁现同时拒绝 `ohos.permission.INTERNET` 与 `ohos.permission.MICROPHONE`。ArkTS 全量测试、default Release HAP、实际 HAP 内容门禁及正负资源门禁 PASS；unsigned HAP 为 40,764,250 bytes、SHA-256 `0642944603309F84A71FFBF50BE6B7A539AFCD648A201E8EF1050C0C323402AB`。真实模型、云服务、真实语音、Phone/Pad/2in1 设备与第三方宿主验收均未运行。详见 `docs/features/ai/AI0_FOUNDATION.md`。
 
 **小鹤音形分类置顶/直通语义 IMPLEMENTED / HOST_RELEASE_VALIDATED / PRODUCTION_DIRECT_DATA_PENDING / DEVICE_NOT_RUN（2026-08-21）** — 正式分类仍为 11 个，快符继续只走分号引导。全码词 `#固` 包内规则已改为随 `full-code-word` 开关启用/隐藏，外部用户词库保持独立；转换器新增全码词专用 `#直`，使词条可按编码输入但不进入反引号万能键反查，其他分类使用该标记会被拒绝。客户现有权威全码词源尚无 `#直` 标记，未猜测具体条目；直通动作源中的 `$cmd/$ddcmd`、网络和平台动作继续隔离。转换器 23、码表运行时 95、输入引擎 158，共 276 项 Rust 测试、严格 Clippy 及 ArkTS 466/466 通过；正式 bundle 重建/校验仍为 11 分类、26,039,684 bytes、SHA-256 `cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94`。x86_64/arm64-v8a Native Release、default Release HAP 和内容门禁 PASS；unsigned HAP 为 40,671,548 bytes、SHA-256 `d1cb5173a27b90fb9c4b03ad9b0d916755ada0947321fa4ccff9a6ba403d4111`。设备验收未运行。
 

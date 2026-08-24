@@ -23,12 +23,19 @@ $expectedProductionLexiconSize = 3751923
 $expectedProductionLexiconSha256 = 'e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365'
 $expectedQuanpinContextModelSize = 37659
 $expectedQuanpinContextModelSha256 = '91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c'
-$expectedYinxingBundleSize = 26039684
-$expectedYinxingBundleSha256 = 'cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94'
-$releaseForbiddenPermissions = @('ohos.permission.INTERNET')
+$expectedYinxingBundleSize = 56144463
+$expectedYinxingBundleSha256 = 'e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad'
+$releaseForbiddenPermissions = @(
+    'ohos.permission.INTERNET',
+    'ohos.permission.MICROPHONE'
+)
 $forbiddenDebugContent = @(
     'DebugStage10',
     'DebugCodeTable',
+    'FakeAiProvider',
+    'FakeSpeechProvider',
+    'DebugAiProvider',
+    'DebugCloudAiProvider',
     $debugAcceptanceText
 )
 
@@ -58,8 +65,20 @@ function Assert-ReleaseSourceInputs {
         foreach ($permission in $releaseForbiddenPermissions) {
             if ($content.Contains([string]$permission)) {
                 $relative = $file.FullName.Substring($sourceRoot.Length).TrimStart('\', '/')
-                Stop-ReleaseGate 'REL_NETWORK_PERMISSION' $relative "Release source declares forbidden permission '$permission'" 'Remove the network permission; the IME is local-only.'
+                Stop-ReleaseGate 'REL_NETWORK_PERMISSION' $relative "Release source declares forbidden permission '$permission'" 'Keep unapproved cloud and microphone capabilities disabled; add only a separately approved, exact product permission profile.'
             }
+        }
+        $relative = $file.FullName.Substring($sourceRoot.Length).TrimStart('\', '/')
+        if ($content -match '(?i)endpoint\s*:\s*[''"]https?://(localhost|127\.0\.0\.1|[^''"]+\.(test|invalid))') {
+            Stop-ReleaseGate 'REL_AI_TEST_ENDPOINT' $relative 'Release source contains a localhost or reserved test AI endpoint' 'Inject only an approved production HTTPS proxy configuration outside the default unconfigured Release source.'
+        }
+        if ($content -match '(?i)(api[_-]?key|permanent[_-]?key)[^=\r\n]{0,64}=\s*[''"][^''"]+[''"]' -or
+            $content -match '[''"]sk-[A-Za-z0-9_-]{12,}[''"]') {
+            Stop-ReleaseGate 'REL_AI_PERMANENT_KEY' $relative 'Release source contains a permanent or model-vendor API key literal' 'Use short-lived proxy authentication supplied by the approved transport integration; never package permanent credentials.'
+        }
+        if ($content -match '-----BEGIN (RSA |EC )?PRIVATE KEY-----' -or
+            $content -match '-----BEGIN CERTIFICATE-----') {
+            Stop-ReleaseGate 'REL_AI_TEST_CERTIFICATE' $relative 'Release source contains embedded certificate or private-key material' 'Use the platform trust store and approved production TLS configuration.'
         }
     }
 }
@@ -266,7 +285,11 @@ try {
         'commitRegressionCandidate',
         'getDebugUserModelRecordCount',
         'refreshRegressionCandidates',
-        'commitFixedCandidateText'
+        'commitFixedCandidateText',
+        'FakeAiProvider',
+        'FakeSpeechProvider',
+        'DebugAiProvider',
+        'DebugCloudAiProvider'
     )
     foreach ($compiledEntry in @($entries | Where-Object {
         $_.FullName -eq 'ets/modules.abc' -or $_.FullName -like 'libs/*/libime_bridge.so'

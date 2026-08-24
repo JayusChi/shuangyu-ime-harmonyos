@@ -235,6 +235,22 @@ pub extern "C" fn ime_engine_previous_candidate_page(
 }
 
 #[no_mangle]
+pub extern "C" fn ime_engine_get_local_associations(
+    handle: *mut ImeEngineOpaque,
+    out_buffer: *mut ImeBuffer,
+) -> i32 {
+    clear_out_buffer(out_buffer);
+    catch_ffi(|| {
+        let engine = match engine_from_handle(handle) {
+            Ok(value) => value,
+            Err(code) => return code.as_i32(),
+        };
+        let suggestions = engine.engine.local_associations(3);
+        write_output(out_buffer, &association_suggestions_json(&suggestions))
+    })
+}
+
+#[no_mangle]
 pub extern "C" fn ime_engine_get_code_table_category_config(
     handle: *mut ImeEngineOpaque,
     out_buffer: *mut ImeBuffer,
@@ -529,5 +545,4 @@ pub unsafe extern "C" fn ime_engine_free_buffer(buffer: *mut ImeBuffer) -> i32 {
         ImeErrorCode::Success.as_i32()
     })
 }
-
 

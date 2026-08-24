@@ -3,7 +3,8 @@ use std::sync::Arc;
 use code_table_runtime::{
     query_exact_or_prefix, query_with_strategy, CategoryKind, CategorySelectionSnapshot,
     CodeTableBundle, CodeTableCommitPolicy, CodeTableErrorKind, CodeTableInputState,
-    CodeTableMatch, CodeTableQueryStrategy, CodeTableStateMachine, CATEGORY_SCHEMA_VERSION,
+    CodeTableMatch, CodeTableQueryStrategy, CodeTableSelection, CodeTableStateMachine,
+    FunctionalAction, FunctionalActionTable, CATEGORY_SCHEMA_VERSION,
 };
 use lexicon_core::{build_binary_lexicon_with_source_order, LexiconEntry};
 use user_lexicon::{parse_user_lexicon_bytes, UserLexiconSnapshot};
@@ -74,6 +75,90 @@ fn bare_guide_shows_the_reserved_default_and_repeat_commits_itself() {
     assert_eq!(repeated.commit_text.as_deref(), Some("；"));
     assert_eq!(machine.input_state(), CodeTableInputState::Idle);
     assert!(machine.current_candidates().is_empty());
+}
+
+#[test]
+fn production_direct_action_separates_candidate_label_from_committed_text() {
+    let mut machine = state(8, 64);
+    machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+
+    input(&mut machine, "oba");
+    assert_eq!(machine.current_candidates()[0].text, "横_一");
+    assert_eq!(machine.current_candidates()[0].code, "oba");
+    assert_eq!(
+        machine.select_current_page(0).unwrap(),
+        CodeTableSelection::CommitText("一".to_owned())
+    );
+}
+
+#[test]
+fn production_actions_keep_guide_and_direct_scopes_isolated() {
+    let actions = Arc::new(FunctionalActionTable::production_defaults());
+    let mut normal = state(8, 64);
+    normal.set_action_table(Some(Arc::clone(&actions)));
+    input(&mut normal, "p");
+    assert!(normal
+        .all_candidates()
+        .iter()
+        .all(|candidate| candidate.category_id != "functional"));
+
+    let mut guide = state(8, 64);
+    guide.set_action_table(Some(actions));
+    input(&mut guide, ";p");
+    assert_eq!(guide.current_candidates()[0].text, "〈〉");
+    assert!(matches!(
+        guide.select_current_page(0).unwrap(),
+        CodeTableSelection::Action(FunctionalAction::InsertPair { ref text, cursor_offset_utf16: 1 })
+            if text == "〈〉"
+    ));
+}
+
+#[test]
+fn production_double_semicolon_commits_full_width_colon() {
+    let mut machine = state(8, 64);
+    machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+    machine.process_key(';').unwrap();
+    assert_eq!(
+        machine.process_key(';').unwrap().commit_text.as_deref(),
+        Some("：")
+    );
+}
+
+#[test]
+fn production_direct_actions_expose_typed_category_presets_and_dynamic_values() {
+    let actions = Arc::new(FunctionalActionTable::production_defaults());
+    let mut presets = state(8, 64);
+    presets.set_action_table(Some(Arc::clone(&actions)));
+    input(&mut presets, "ojj");
+    assert_eq!(
+        candidate_texts(&presets)[0..3],
+        ["<熟手词库>", "<常规词库>", "<初学词库>"]
+    );
+    assert!(matches!(
+        presets.select_current_page(1).unwrap(),
+        CodeTableSelection::Action(FunctionalAction::DirectControl { ref action, ref target })
+            if action == "category.set" && target.contains("quick-symbol")
+    ));
+
+    let mut timestamp = state(8, 64);
+    timestamp.set_action_table(Some(actions));
+    input(&mut timestamp, "ouji");
+    assert!(matches!(
+        timestamp.select_current_page(0).unwrap(),
+        CodeTableSelection::Action(FunctionalAction::DateTimeText(
+            code_table_runtime::DateTimeFormatId::UnixTimestamp
+        ))
+    ));
+
+    let mut local_date = state(8, 64);
+    local_date.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+    input(&mut local_date, "orq");
+    assert!(matches!(
+        local_date.select_current_page(1).unwrap(),
+        CodeTableSelection::Action(FunctionalAction::DateTimeText(
+            code_table_runtime::DateTimeFormatId::DateLocalUnpadded
+        ))
+    ));
 }
 
 #[test]
@@ -1487,6 +1572,59 @@ fn stage11_6_7_valid_longer_code_blocks_unique_four_code_auto_commit() {
     assert_eq!(machine.raw_code(), "abcd");
     assert_eq!(machine.all_candidates().len(), 1);
     assert!(machine.has_valid_continuation());
+}
+
+#[test]
+fn ok_spelling_continues_past_four_codes_and_commits_at_six_or_eight() {
+    let specs = vec![
+        TableSpec {
+            id: "core",
+            order: 10,
+            enabled: true,
+            guide: false,
+            entries: vec![("普通四码", "okab")],
+        },
+        TableSpec {
+            id: "ok-spelling",
+            order: 20,
+            enabled: true,
+            guide: false,
+            entries: vec![("六位拼字", "okabcd"), ("八位拼字", "okefghij")],
+        },
+    ];
+    let bundle =
+        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
+
+    let mut six = CodeTableStateMachine::new(Arc::clone(&bundle), 8, 64).unwrap();
+    input(&mut six, "okab");
+    assert_eq!(six.raw_code(), "okab");
+    assert!(six.has_valid_continuation());
+    let fifth = six.process_key('c').unwrap();
+    assert!(fifth.commit_text.is_none());
+    assert_eq!(six.raw_code(), "okabc");
+    let sixth = six.process_key('d').unwrap();
+    assert_eq!(sixth.commit_text.as_deref(), Some("六位拼字"));
+    assert!(six.raw_code().is_empty());
+
+    let mut eight = CodeTableStateMachine::new(Arc::clone(&bundle), 8, 64).unwrap();
+    input(&mut eight, "okefgh");
+    assert_eq!(eight.raw_code(), "okefgh");
+    input(&mut eight, "i");
+    let eighth = eight.process_key('j').unwrap();
+    assert_eq!(eighth.commit_text.as_deref(), Some("八位拼字"));
+    assert!(eight.raw_code().is_empty());
+
+    let mut disabled = CodeTableStateMachine::new(bundle, 8, 64).unwrap();
+    disabled
+        .set_enabled_categories(vec!["core".to_owned()])
+        .unwrap();
+    input(&mut disabled, "oka");
+    let fourth = disabled.process_key('b').unwrap();
+    assert_eq!(fourth.commit_text.as_deref(), Some("普通四码"));
+    assert!(disabled.raw_code().is_empty());
+    let replayed = disabled.process_key('c').unwrap();
+    assert!(replayed.commit_text.is_none());
+    assert_eq!(disabled.raw_code(), "c");
 }
 
 #[test]

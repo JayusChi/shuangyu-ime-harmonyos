@@ -72,6 +72,10 @@ RustCallResult PreviousRegisteredEngineCandidatePage(uint32_t id) {
     return EngineRegistry::Instance().PreviousCandidatePage(id);
 }
 
+RustCallResult GetRegisteredEngineLocalAssociations(uint32_t id) {
+    return EngineRegistry::Instance().GetLocalAssociations(id);
+}
+
 RustCallResult GetRegisteredEngineCodeTableCategoryConfig(uint32_t id) {
     return EngineRegistry::Instance().GetCodeTableCategoryConfig(id);
 }

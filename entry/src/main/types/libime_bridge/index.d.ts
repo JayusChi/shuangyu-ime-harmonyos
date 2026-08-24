@@ -119,6 +119,7 @@ declare const imeBridge: {
   selectPinyinCombination(handle: number, combinationIndex: number): CompositionResult;
   nextCandidatePage(handle: number): CompositionResult;
   previousCandidatePage(handle: number): CompositionResult;
+  getLocalAssociations(handle: number): string;
   getCodeTableCategoryConfig(handle: number): string;
   setCodeTableCategories(handle: number, enabledCategoryIds: string[]): CompositionResult;
   reloadUserLexicon(handle: number): CompositionResult;
@@ -146,6 +147,7 @@ export const selectCandidate: (handle: number, candidateIndex: number) => Compos
 export const selectPinyinCombination: (handle: number, combinationIndex: number) => CompositionResult;
 export const nextCandidatePage: (handle: number) => CompositionResult;
 export const previousCandidatePage: (handle: number) => CompositionResult;
+export const getLocalAssociations: (handle: number) => string;
 export const getCodeTableCategoryConfig: (handle: number) => string;
 export const setCodeTableCategories: (handle: number, enabledCategoryIds: string[]) => CompositionResult;
 export const reloadUserLexicon: (handle: number) => CompositionResult;

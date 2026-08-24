@@ -1,5 +1,39 @@
 # 架构
 
+## AI 输入法第 1 阶段
+
+AI-1 继续复用 AI-0 的集中能力状态、request/session ID、generation 生命周期、`VerifiedTextReplacer`、撤销链和 UI 状态，没有建立平行架构。
+
+```text
+上屏完成 -> Rust context-reranker -> 有界确定性本地关联 -> 关联·本地
+用户点击 AI 动作 -> AiAssistController -> CloudAiProvider -> 自有 HTTPS 代理
+                                     -> 严格协议校验 -> AI·云端
+用户接受 -> 原文/会话复核 -> ImeConnectionService 原子替换 -> UndoCommitManager
+```
+
+本地关联使用现有会话内 n-gram，默认关闭、最多 3 条，不改变原始候选。云请求只携带最近一次仍属输入法所有的上屏文本和必要协议字段；8 秒硬超时，取消、乱序、迟到、旧 generation 或所有权丢失都会丢弃结果。云 Provider 只允许配置注入的批准 HTTPS 代理，模型输出全程仅为普通文本。
+
+当前没有批准的生产代理材料，因此默认运行时使用不可用 Provider，Release 不声明 INTERNET 权限。边界、测试和放行条件见 `features/ai/AI1_FIRST_INPUT.md` 与 `features/ai/AI1_CLOUD_PROXY_READINESS.md`。
+
+## AI 输入法第 0 阶段
+
+AI/语音骨架完全位于 ArkTS 层，不改变 `ArkTS -> C++ -> Rust` 输入引擎边界，也不向 Native 协议加入模型输出或可执行动作。
+
+```text
+InputMethodLifecycleDispatcher
+  -> InputMethodSecurityModeProvider
+  -> InputMethodCapabilityState
+  -> InputSessionController
+     -> AiAssistController -> AiProvider(Fake) -> VerifiedTextReplacer
+     -> VoiceInputController -> SpeechRecognitionProvider(Fake)
+  -> InputSessionStore
+  -> CandidateBar / KeyboardRootStage3
+```
+
+能力状态是安全模式、编辑器类型、会话、设置和 Provider 能力的集中真实来源。AI 请求与语音会话都绑定稳定 ID 和 session generation；输入继续、换框、隐藏、停止或销毁会使旧结果失效。模型输出永远只按普通文本处理，不进入直通命令或协议动作执行器。
+
+AI 替换只允许最近一次 IME 提交文本。`ImeConnectionService` 在编辑器侧重新核对光标前原文，再通过选区和单次 `insertText` 完成替换；核对失败不先删除原文。替换记录扩展既有 `UndoCommitManager`，反向撤销同样要求内容匹配。完整合同见 `features/ai/AI0_FOUNDATION.md`。
+
 ## 阶段 5 联合状态事务
 
 `keyboardProfileId` 仍是布局与 Rust scheme 的唯一产品真实来源。任何 profile 变化（包括同为 `xiaohe` 的 17/26 布局变化）都必须先经 ArkTS 调用 Native reset；跨 scheme 再调用 `changeScheme`。只有 Native 成功且 Preferences 保存成功后才发布 UI/Store 快照；任一步失败都恢复旧 Rust scheme、旧 profile 和旧持久化值。组合清理仍由 Rust reset 与 ArkTS Store 清理共同完成，不在 C++ 增加状态机。

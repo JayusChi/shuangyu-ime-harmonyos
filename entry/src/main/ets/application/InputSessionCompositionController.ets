@@ -764,6 +764,10 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     }
 
     const state = this.store.getSnapshot();
+    if (state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length === 0 &&
+      this.canJumpOutPair(generation)) {
+      return this.jumpOutPair(generation);
+    }
     if (state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0) {
       const detached = await this.resetCompositionDetachedByEditor(state, generation);
       if (!this.isInputSessionGenerationCurrent(generation)) {

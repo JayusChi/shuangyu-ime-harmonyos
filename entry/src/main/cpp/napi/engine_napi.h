@@ -17,6 +17,7 @@ napi_value SelectCandidate(napi_env env, napi_callback_info info);
 napi_value SelectPinyinCombination(napi_env env, napi_callback_info info);
 napi_value NextCandidatePage(napi_env env, napi_callback_info info);
 napi_value PreviousCandidatePage(napi_env env, napi_callback_info info);
+napi_value GetLocalAssociations(napi_env env, napi_callback_info info);
 napi_value GetCodeTableCategoryConfig(napi_env env, napi_callback_info info);
 napi_value SetCodeTableCategories(napi_env env, napi_callback_info info);
 napi_value ReloadUserLexicon(napi_env env, napi_callback_info info);

@@ -16,6 +16,25 @@ import {
   ScreenMetricsPx,
   screenMetricsEqual
 } from '../domain/display/ScreenMetrics';
+import {
+  AiPresentationState,
+  copyAiPresentationState,
+  createIdleAiPresentationState
+} from '../domain/ai/AiContracts';
+import {
+  copyVoicePresentationState,
+  createIdleVoicePresentationState,
+  VoicePresentationState
+} from '../domain/voice/VoiceContracts';
+import {
+  copyInputMethodCapabilityState,
+  createUnknownInputMethodCapabilityState,
+  InputMethodCapabilityState
+} from '../domain/security/InputMethodCapabilityState';
+import {
+  copyLocalAssociationSuggestions,
+  LocalAssociationSuggestion
+} from '../domain/ai/LocalAssociationContracts';
 
 export interface InputSessionState {
   sessionActive: boolean;
@@ -31,6 +50,10 @@ export interface InputSessionState {
   candidatePanelExpanded: boolean;
   candidatePageLoading: boolean;
   sessionLearningAllowed: boolean;
+  capabilityState: InputMethodCapabilityState;
+  aiPresentation: AiPresentationState;
+  voicePresentation: VoicePresentationState;
+  localAssociations: LocalAssociationSuggestion[];
   modeBeforeTransient: KeyboardMode;
   rawInput: string;
   preeditText: string;
@@ -69,6 +92,10 @@ function createInitialState(): InputSessionState {
     candidatePanelExpanded: false,
     candidatePageLoading: false,
     sessionLearningAllowed: editorContext.learningAllowed,
+    capabilityState: createUnknownInputMethodCapabilityState(),
+    aiPresentation: createIdleAiPresentationState(),
+    voicePresentation: createIdleVoicePresentationState(),
+    localAssociations: [],
     modeBeforeTransient: KeyboardMode.CHINESE,
     rawInput: '',
     preeditText: '',
@@ -113,6 +140,10 @@ export class InputSessionStore {
       candidatePanelExpanded: this.state.candidatePanelExpanded,
       candidatePageLoading: this.state.candidatePageLoading,
       sessionLearningAllowed: this.state.sessionLearningAllowed,
+      capabilityState: copyInputMethodCapabilityState(this.state.capabilityState),
+      aiPresentation: copyAiPresentationState(this.state.aiPresentation),
+      voicePresentation: copyVoicePresentationState(this.state.voicePresentation),
+      localAssociations: copyLocalAssociationSuggestions(this.state.localAssociations),
       modeBeforeTransient: this.state.modeBeforeTransient,
       rawInput: this.state.rawInput,
       preeditText: this.state.preeditText,
@@ -161,6 +192,7 @@ export class InputSessionStore {
     this.state.sessionActive = true;
     this.state.editorConnected = true;
     this.state.chineseCapsLock = false;
+    this.clearAssistInternal();
     this.clearErrorInternal();
     this.notify();
   }
@@ -179,6 +211,7 @@ export class InputSessionStore {
     this.state.candidatePageLoading = false;
     this.state.sessionLearningAllowed = false;
     this.state.chineseCapsLock = false;
+    this.clearAssistInternal();
     this.shiftController.reset();
     this.state.shiftState = this.shiftController.getState();
     this.clearCompositionInternal();
@@ -196,6 +229,7 @@ export class InputSessionStore {
     this.state.sessionLearningAllowed = context.learningAllowed && globalLearningEnabled;
     this.state.chineseCapsLock = false;
     this.shiftController.reset();
+    this.clearAssistInternal();
     this.state.shiftState = this.shiftController.getState();
     this.clearCompositionInternal();
     this.refreshCandidateVisibility();
@@ -216,6 +250,7 @@ export class InputSessionStore {
     this.state.candidatePanelExpanded = false;
     this.state.candidatePageLoading = false;
     this.state.chineseCapsLock = false;
+    this.clearAssistInternal();
     this.notify();
   }
 
@@ -315,6 +350,7 @@ export class InputSessionStore {
   }
 
   updateComposition(result: CompositionResult): void {
+    this.state.localAssociations = [];
     this.state.candidatePageLoading = false;
     if (!this.isCandidateBarAllowed()) {
       this.clearCompositionInternal();
@@ -421,6 +457,39 @@ export class InputSessionStore {
     this.notify();
   }
 
+  setInputMethodCapabilityState(capabilityState: InputMethodCapabilityState): void {
+    this.state.capabilityState = copyInputMethodCapabilityState(capabilityState);
+    this.notify();
+  }
+
+  updateAiPresentation(presentation: AiPresentationState): void {
+    this.state.aiPresentation = copyAiPresentationState(presentation);
+    this.notify();
+  }
+
+  updateVoicePresentation(presentation: VoicePresentationState): void {
+    this.state.voicePresentation = copyVoicePresentationState(presentation);
+    this.notify();
+  }
+
+  clearAssistPresentation(): void {
+    this.clearAssistInternal();
+    this.notify();
+  }
+
+  updateLocalAssociations(suggestions: LocalAssociationSuggestion[]): void {
+    this.state.localAssociations = copyLocalAssociationSuggestions(suggestions);
+    this.notify();
+  }
+
+  clearLocalAssociations(): void {
+    if (this.state.localAssociations.length === 0) {
+      return;
+    }
+    this.state.localAssociations = [];
+    this.notify();
+  }
+
   recordError(code: ImeErrorCode, message?: string): void {
     this.recordErrorInternal(code, message);
     this.refreshCandidateVisibility();
@@ -484,6 +553,13 @@ export class InputSessionStore {
     this.state.floatingCandidateVisible = false;
     this.state.candidatePanelExpanded = false;
     this.state.candidatePageLoading = false;
+    this.state.localAssociations = [];
+  }
+
+  private clearAssistInternal(): void {
+    this.state.aiPresentation = createIdleAiPresentationState();
+    this.state.voicePresentation = createIdleVoicePresentationState();
+    this.state.localAssociations = [];
   }
 
   private recordErrorInternal(code: ImeErrorCode, message?: string): void {

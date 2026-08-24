@@ -106,6 +106,12 @@ RustCallResult RustEngineHandle::PreviousCandidatePage() {
     return CopyResult(code, buffer);
 }
 
+RustCallResult RustEngineHandle::GetLocalAssociations() {
+    RustBuffer buffer;
+    int32_t code = ime_engine_get_local_associations(handle_, buffer.Out());
+    return CopyResult(code, buffer);
+}
+
 RustCallResult RustEngineHandle::GetCodeTableCategoryConfig() {
     RustBuffer buffer;
     int32_t code = ime_engine_get_code_table_category_config(handle_, buffer.Out());

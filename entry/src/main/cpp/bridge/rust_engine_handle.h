@@ -29,6 +29,7 @@ class RustEngineHandle {
     RustCallResult SelectPinyinCombination(size_t combinationIndex);
     RustCallResult NextCandidatePage();
     RustCallResult PreviousCandidatePage();
+    RustCallResult GetLocalAssociations();
     RustCallResult GetCodeTableCategoryConfig();
     RustCallResult SetCodeTableCategories(const std::string& categoryIdsJson);
     RustCallResult ReloadUserLexicon();

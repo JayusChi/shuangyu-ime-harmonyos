@@ -11,6 +11,7 @@ export enum PhysicalKeyCommandType {
   SECOND_CANDIDATE = 'second_candidate',
   THIRD_CANDIDATE = 'third_candidate',
   CANCEL = 'cancel',
+  JUMP_OUT_PAIR = 'jump_out_pair',
   SELECT_PREVIOUS = 'select_previous',
   SELECT_NEXT = 'select_next',
   PREVIOUS_PAGE = 'previous_page',
@@ -40,6 +41,8 @@ export interface PhysicalKeySessionSnapshot {
   candidateCount: number;
   /** True while an earlier consumed hardware key is still queued. */
   compositionPending?: boolean;
+  /** True while a verified pair insertion can still jump over its right delimiter. */
+  pairJumpAvailable?: boolean;
 }
 
 export interface PhysicalKeyCommand {
@@ -50,6 +53,7 @@ export interface PhysicalKeyCommand {
 }
 
 const KEYCODE_SPACE = 2050;
+const KEYCODE_TAB = 2049;
 const KEYCODE_ENTER = 2054;
 const KEYCODE_DELETE = 2055;
 const KEYCODE_NUMPAD_ENTER = 2119;
@@ -197,6 +201,20 @@ export function resolvePhysicalKeyCommand(
   }
 
   const hasComposition = session.rawInput.length > 0 || session.compositionPending === true;
+  const isTab = key.keyCode === KEYCODE_TAB || character === String.fromCharCode(9);
+  if (isTab) {
+    if (hasComposition) {
+      return { type: PhysicalKeyCommandType.CANCEL };
+    }
+    return session.pairJumpAvailable === true
+      ? { type: PhysicalKeyCommandType.JUMP_OUT_PAIR }
+      : NO_COMMAND;
+  }
+  const isEnter = key.keyCode === KEYCODE_ENTER || key.keyCode === KEYCODE_NUMPAD_ENTER ||
+    character === String.fromCharCode(10) || character === String.fromCharCode(13);
+  if (!hasComposition && isEnter && session.pairJumpAvailable === true) {
+    return { type: PhysicalKeyCommandType.JUMP_OUT_PAIR };
+  }
   if (!hasComposition) {
     return NO_COMMAND;
   }
@@ -243,8 +261,7 @@ export function resolvePhysicalKeyCommand(
   if (key.keyCode === KEYCODE_SPACE || character === ' ') {
     return { type: PhysicalKeyCommandType.SPACE };
   }
-  if (key.keyCode === KEYCODE_ENTER || key.keyCode === KEYCODE_NUMPAD_ENTER ||
-    character === String.fromCharCode(10) || character === String.fromCharCode(13)) {
+  if (isEnter) {
     return { type: PhysicalKeyCommandType.ENTER };
   }
   if (key.keyCode === KEYCODE_ESCAPE || character === String.fromCharCode(27)) {

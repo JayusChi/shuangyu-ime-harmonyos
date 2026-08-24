@@ -1,5 +1,25 @@
 # 测试计划
 
+## AI 输入法第 1 阶段
+
+主机自动化覆盖五个动作、本地关联开关/确定性/边界、普通输入零回退；Cloud Provider 成功、断网、超时、取消、空/超长响应、非法 JSON、协议/request/provider 不匹配、重复 ID、乱序和迟到；新输入、光标/原文变化、隐藏、停止和换框；BASIC/FULL/UNKNOWN、敏感编辑器、同意/开关/Provider 门控；Unicode 安全替换与撤销；命令形输出惰性处理。
+
+2026-08-24 实际结果：ArkTS `499/499 PASS`（AI-1 `15/15`），`context-reranker 9/9 PASS`，`quanpin_context_reranking_v2 9/9 PASS`，AI-1 FFI 定向测试 PASS，fmt 与 workspace 严格 Clippy PASS，Release 负向门禁 `13/13 PASS`，default Release HAP 与实包内容审计 PASS。Rust workspace 全量测试被当前工作区既有小鹤生成 bundle 与冻结候选快照不一致阻塞，冻结基线未被改写。真实代理为 `CLOUD_NOT_CONFIGURED / NOT_RUN`；Phone/Pad/2in1 和第三方宿主全部 `NOT_RUN`。完整记录见 `features/ai/AI1_FIRST_INPUT.md`。
+
+## AI 输入法第 0 阶段
+
+主机自动化必须覆盖：
+
+- 安全模式 BASIC/FULL/UNKNOWN、普通/搜索/多行和密码/未知/数字/电话/邮箱/URL 编辑器门控；
+- AI/语音开关默认关闭、schema 9 迁移、显式值保留和会话未激活失败关闭；
+- Fake AI 成功、空结果、错误、超时、取消、乱序、迟到结果与协议上限；
+- Fake Speech 中间/最终、空结果、错误、超时、取消、乱序、迟到结果与明确确认上屏；
+- request/session ID、generation 和生命周期失效；
+- AI 原文精确核对、失败不删除、成功替换、替换撤销，以及命令形文本保持不可执行；
+- 日志不输出正文，Release 不声明 INTERNET/MICROPHONE，正式资源白名单不变。
+
+2026-08-21：ArkTS 全量测试、default Release HAP、实际 HAP 内容门禁和 Release 资源负向门禁 PASS。Phone/Pad/2in1 的真实宿主输入框、触摸 UI、安全模式差异、窗口隐藏/换框压力和可访问性均为 `NOT_RUN`，不得表述为设备完成。
+
 ## 26 键全拼和 9 键拼音阶段 5
 
 2026-08-13 实际执行矩阵：

@@ -8,8 +8,9 @@ use crate::model::{
 };
 use crate::sha256;
 use crate::unicode_validation::{
-    normalize_code, validate_action_argument, validate_word, TextError,
+    normalize_code, normalize_code_with_limit, validate_action_argument, validate_word, TextError,
 };
+use crate::version::MAX_OK_SPELLING_CODE_LEN;
 
 pub fn parse_all(
     inputs: &[SourceInput],
@@ -238,7 +239,7 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
                         &input.spec.source_file_id,
                         physical_line,
                         reason,
-                        "code must be one to four ASCII letters",
+                        "code failed the category-specific ASCII grammar",
                         &digest,
                     );
                     continue;
@@ -335,6 +336,13 @@ fn normalize_category_code(
 ) -> std::result::Result<(String, bool), &'static str> {
     if category_id == "quick-symbol" && matches!(value, "_" | ";") {
         return Ok((value.to_owned(), false));
+    }
+    if category_id == "ok-spelling" {
+        let (code, changed) = normalize_code_with_limit(value, MAX_OK_SPELLING_CODE_LEN)?;
+        if !code.starts_with("ok") || !matches!(code.len(), 6 | 8) {
+            return Err("YX_OK_SPELLING_CODE_INVALID");
+        }
+        return Ok((code, changed));
     }
     normalize_code(value)
 }
@@ -524,6 +532,13 @@ mod tests {
         source
     }
 
+    fn ok_spelling_input(bytes: &[u8]) -> SourceInput {
+        let mut source = input(bytes);
+        source.spec.category_id = "ok-spelling".into();
+        source.spec.role = "spelling_resource".into();
+        source
+    }
+
     fn contract() -> ValidatedContract {
         ValidatedContract {
             categories: Vec::new(),
@@ -587,6 +602,28 @@ mod tests {
             rejected.rejected[0].reason_code,
             "REJECT_DIRECT_OUTSIDE_FULL_CODE_WORD"
         );
+    }
+
+    #[test]
+    fn ok_spelling_accepts_only_six_or_eight_letter_ok_codes() {
+        let result = parse_category(
+            &ok_spelling_input(
+                "六位\tOkAbCd\n八位\tokabcdef\n过短\tokab\n错前缀\totabcd\n过长\tokabcdefg\n"
+                    .as_bytes(),
+            ),
+            &contract(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            result
+                .system_records
+                .iter()
+                .map(|record| (record.text.as_str(), record.code.as_str()))
+                .collect::<Vec<_>>(),
+            [("六位", "okabcd"), ("八位", "okabcdef")]
+        );
+        assert_eq!(result.stats.rejected, 3);
     }
 
     #[test]

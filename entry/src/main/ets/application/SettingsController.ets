@@ -268,6 +268,27 @@ export class SettingsController {
     });
   }
 
+  async setAiEnabled(enabled: boolean): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.aiEnabled = enabled;
+      if (!enabled) {
+        settings.cloudAiEnabled = false;
+      }
+    });
+  }
+
+  async setLocalAssociationEnabled(enabled: boolean): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.localAssociationEnabled = enabled;
+    });
+  }
+
+  async setVoiceInputEnabled(enabled: boolean): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.voiceInputEnabled = enabled;
+    });
+  }
+
   async setSpellingCorrectionEnabled(enabled: boolean): Promise<SettingsOperationResult> {
     return this.enqueueSettingsMutationTask(async (previous: ImeSettings): Promise<SettingsOperationResult> => {
       return this.applyQuanpinFeatures(previous, enabled, previous.fuzzyOptions);

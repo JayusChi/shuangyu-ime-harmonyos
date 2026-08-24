@@ -72,6 +72,16 @@ export interface ImeSettings {
   hapticLevel: HapticLevel;
   keySoundEnabled: boolean;
   userLearningEnabled: boolean;
+  aiEnabled: boolean;
+  localAssociationEnabled: boolean;
+  cloudAiEnabled: boolean;
+  cloudAiConsentVersion: number;
+  preferredAiActions: string[];
+  voiceInputEnabled: boolean;
+  voiceLanguage: string;
+  voiceAutoCommit: boolean;
+  voiceCloudConsentVersion: number;
+  voicePunctuationEnabled: boolean;
   spellingCorrectionEnabled: boolean;
   fuzzyOptions: QuanpinFuzzyOption[];
   smartPeriodTimeoutMs: number;
@@ -93,6 +103,16 @@ export interface SettingsRaw {
   hapticLevel?: string;
   keySoundEnabled?: string;
   userLearningEnabled?: string;
+  aiEnabled?: string;
+  localAssociationEnabled?: string;
+  cloudAiEnabled?: string;
+  cloudAiConsentVersion?: string;
+  preferredAiActions?: string;
+  voiceInputEnabled?: string;
+  voiceLanguage?: string;
+  voiceAutoCommit?: string;
+  voiceCloudConsentVersion?: string;
+  voicePunctuationEnabled?: string;
   spellingCorrectionEnabled?: string;
   fuzzyOptions?: string;
   smartPeriodTimeoutMs?: string;
@@ -112,10 +132,11 @@ export interface ShuangpinSchemeOption {
   displayName: string;
 }
 
-export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 8;
+export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 9;
+export const DEFAULT_AI_ACTIONS: string[] = ['continue', 'concise', 'polite', 'formal', 'translate'];
 export const DEFAULT_SMART_PERIOD_TIMEOUT_MS: number = 500;
 export const SMART_PERIOD_TIMEOUT_OPTIONS_MS: number[] = [0, 300, 500, 800, 1000];
-export const XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: number = 4;
+export const XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: number = 5;
 export const XIAOHE_YINXING_CATEGORY_IDS: string[] = [
   'core',
   'category-secondary',
@@ -127,7 +148,8 @@ export const XIAOHE_YINXING_CATEGORY_IDS: string[] = [
   'symbol',
   'symbol-group',
   'rare-character',
-  'full-code-character'
+  'full-code-character',
+  'ok-spelling'
 ];
 export const XIAOHE_YINXING_DEFAULT_DISABLED_CATEGORY_IDS: string[] = [
   'two-key-secondary',
@@ -138,9 +160,18 @@ export const XIAOHE_YINXING_DEFAULT_DISABLED_CATEGORY_IDS: string[] = [
 export const XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS: string[] = XIAOHE_YINXING_CATEGORY_IDS.filter(
   (id: string): boolean => XIAOHE_YINXING_DEFAULT_DISABLED_CATEGORY_IDS.indexOf(id) < 0
 );
-export const XIAOHE_YINXING_CATEGORY_UI_IDS: string[] = XIAOHE_YINXING_CATEGORY_IDS.filter(
-  (id: string): boolean => id !== 'symbol-group'
-);
+export const XIAOHE_YINXING_CATEGORY_UI_IDS: string[] = [
+  'core',
+  'category-secondary',
+  'one-key-secondary',
+  'two-key-secondary',
+  'symbol',
+  'full-code-word',
+  'rare-character',
+  'full-code-character',
+  'quick-symbol',
+  'ok-spelling'
+];
 export const DEFAULT_SCHEME_ID: string = 'xiaohe';
 export const QUANPIN_SCHEME_ID: string = 'quanpin';
 export const PINYIN_9_SCHEME_ID: string = 'pinyin-9';
@@ -162,6 +193,16 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   hapticLevel: HapticLevel.LIGHT,
   keySoundEnabled: false,
   userLearningEnabled: true,
+  aiEnabled: false,
+  localAssociationEnabled: false,
+  cloudAiEnabled: false,
+  cloudAiConsentVersion: 0,
+  preferredAiActions: DEFAULT_AI_ACTIONS.slice(),
+  voiceInputEnabled: false,
+  voiceLanguage: 'zh-CN',
+  voiceAutoCommit: false,
+  voiceCloudConsentVersion: 0,
+  voicePunctuationEnabled: true,
   spellingCorrectionEnabled: false,
   fuzzyOptions: [],
   smartPeriodTimeoutMs: DEFAULT_SMART_PERIOD_TIMEOUT_MS,
@@ -203,6 +244,16 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     hapticLevel: settings.hapticLevel,
     keySoundEnabled: settings.keySoundEnabled,
     userLearningEnabled: settings.userLearningEnabled,
+    aiEnabled: settings.aiEnabled,
+    localAssociationEnabled: settings.localAssociationEnabled,
+    cloudAiEnabled: settings.cloudAiEnabled,
+    cloudAiConsentVersion: settings.cloudAiConsentVersion,
+    preferredAiActions: settings.preferredAiActions.slice(),
+    voiceInputEnabled: settings.voiceInputEnabled,
+    voiceLanguage: settings.voiceLanguage,
+    voiceAutoCommit: settings.voiceAutoCommit,
+    voiceCloudConsentVersion: settings.voiceCloudConsentVersion,
+    voicePunctuationEnabled: settings.voicePunctuationEnabled,
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled,
     fuzzyOptions: settings.fuzzyOptions.slice(),
     smartPeriodTimeoutMs: settings.smartPeriodTimeoutMs,
@@ -231,6 +282,18 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.hapticLevel === right.hapticLevel &&
     left.keySoundEnabled === right.keySoundEnabled &&
     left.userLearningEnabled === right.userLearningEnabled &&
+    left.aiEnabled === right.aiEnabled &&
+    left.localAssociationEnabled === right.localAssociationEnabled &&
+    left.cloudAiEnabled === right.cloudAiEnabled &&
+    left.cloudAiConsentVersion === right.cloudAiConsentVersion &&
+    left.preferredAiActions.length === right.preferredAiActions.length &&
+    left.preferredAiActions.every((action: string, index: number): boolean =>
+      action === right.preferredAiActions[index]) &&
+    left.voiceInputEnabled === right.voiceInputEnabled &&
+    left.voiceLanguage === right.voiceLanguage &&
+    left.voiceAutoCommit === right.voiceAutoCommit &&
+    left.voiceCloudConsentVersion === right.voiceCloudConsentVersion &&
+    left.voicePunctuationEnabled === right.voicePunctuationEnabled &&
     left.spellingCorrectionEnabled === right.spellingCorrectionEnabled &&
     left.smartPeriodTimeoutMs === right.smartPeriodTimeoutMs &&
     left.fuzzyOptions.length === right.fuzzyOptions.length &&
@@ -269,6 +332,16 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     hapticLevel: settings.hapticLevel,
     keySoundEnabled: settings.keySoundEnabled ? 'true' : 'false',
     userLearningEnabled: settings.userLearningEnabled ? 'true' : 'false',
+    aiEnabled: settings.aiEnabled ? 'true' : 'false',
+    localAssociationEnabled: settings.localAssociationEnabled ? 'true' : 'false',
+    cloudAiEnabled: settings.cloudAiEnabled ? 'true' : 'false',
+    cloudAiConsentVersion: `${settings.cloudAiConsentVersion}`,
+    preferredAiActions: JSON.stringify(settings.preferredAiActions),
+    voiceInputEnabled: settings.voiceInputEnabled ? 'true' : 'false',
+    voiceLanguage: settings.voiceLanguage,
+    voiceAutoCommit: settings.voiceAutoCommit ? 'true' : 'false',
+    voiceCloudConsentVersion: `${settings.voiceCloudConsentVersion}`,
+    voicePunctuationEnabled: settings.voicePunctuationEnabled ? 'true' : 'false',
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled ? 'true' : 'false',
     fuzzyOptions: JSON.stringify(settings.fuzzyOptions),
     smartPeriodTimeoutMs: `${settings.smartPeriodTimeoutMs}`,
@@ -287,6 +360,14 @@ export function normalizeXiaoheYinxingCategoryIds(values: string[]): string[] {
       requested.add(id);
     }
   });
+  if (requested.has('category-secondary') || requested.has('out-of-table-character')) {
+    requested.add('category-secondary');
+    requested.add('out-of-table-character');
+  }
+  if (requested.has('symbol') || requested.has('symbol-group')) {
+    requested.add('symbol');
+    requested.add('symbol-group');
+  }
   requested.add('core');
   return XIAOHE_YINXING_CATEGORY_IDS.filter((id: string) => requested.has(id));
 }

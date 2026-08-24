@@ -111,6 +111,15 @@ RustCallResult EngineRegistry::PreviousCandidatePage(uint32_t id) {
     return found->second.PreviousCandidatePage();
 }
 
+RustCallResult EngineRegistry::GetLocalAssociations(uint32_t id) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto found = engines_.find(id);
+    if (found == engines_.end()) {
+        return {IME_INVALID_HANDLE, ""};
+    }
+    return found->second.GetLocalAssociations();
+}
+
 RustCallResult EngineRegistry::GetCodeTableCategoryConfig(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);

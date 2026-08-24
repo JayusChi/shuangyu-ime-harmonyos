@@ -77,6 +77,16 @@ import {
   CandidateExpansionLayout,
   resolveCandidateExpansionLayout
 } from '../../domain/candidate/CandidateExpansionPolicy';
+import {
+  AiAction,
+  AiPresentationState,
+  createIdleAiPresentationState
+} from '../../domain/ai/AiContracts';
+import {
+  createIdleVoicePresentationState,
+  VoicePresentationState
+} from '../../domain/voice/VoiceContracts';
+import { LocalAssociationSuggestion } from '../../domain/ai/LocalAssociationContracts';
 
 const SELECTABLE_KEYBOARD_PROFILES: KeyboardProfile[] = enabledKeyboardProfiles();
 
@@ -130,6 +140,15 @@ struct KeyboardRoot {
   @State private auxiliaryPolicy: KeyboardAuxiliaryAreaPolicy =
     resolveKeyboardAuxiliaryAreaPolicy(SAFE_FALLBACK_SCREEN_METRICS_PX);
   @State private candidatePresentationMode: CandidatePresentationMode = CandidatePresentationMode.BAR;
+  @State private aiEntryVisible: boolean = false;
+  @State private aiEntryEnabled: boolean = false;
+  @State private aiUnavailableReason: string = '';
+  @State private voiceEntryVisible: boolean = false;
+  @State private voiceEntryEnabled: boolean = false;
+  @State private voiceUnavailableReason: string = '';
+  @State private aiPresentation: AiPresentationState = createIdleAiPresentationState();
+  @State private voicePresentation: VoicePresentationState = createIdleVoicePresentationState();
+  @State private localAssociations: LocalAssociationSuggestion[] = [];
 
   @State private metrics: OrientationMetrics = PORTRAIT_METRICS;
   private screenMetrics: ScreenMetricsPx = copyScreenMetrics(SAFE_FALLBACK_SCREEN_METRICS_PX);
@@ -194,6 +213,10 @@ struct KeyboardRoot {
     this.candidatePage = state.candidatePage;
     this.hasNextPage = state.hasNextPage;
     this.hasPreviousPage = state.hasPreviousPage;
+    this.aiPresentation = state.aiPresentation;
+    this.voicePresentation = state.voicePresentation;
+    this.localAssociations = state.localAssociations;
+    this.refreshAssistAvailability();
     if (!screenMetricsEqual(this.screenMetrics, state.screenMetrics)) {
       this.screenMetrics = copyScreenMetrics(state.screenMetrics);
       this.updateMetrics();
@@ -242,8 +265,19 @@ struct KeyboardRoot {
       this.candidatePanelExpanded = false;
     }
     this.candidatePresentationMode = settings.candidatePresentationMode;
+    this.aiEntryVisible = settings.aiEnabled;
+    this.voiceEntryVisible = settings.voiceInputEnabled;
+    this.refreshAssistAvailability();
     this.updateMetrics();
     this.updatePalette();
+  }
+
+  private refreshAssistAvailability(): void {
+    const availability = this.controller.getAssistAvailability();
+    this.aiEntryEnabled = availability.ai.available;
+    this.aiUnavailableReason = availability.ai.message;
+    this.voiceEntryEnabled = availability.voice.available;
+    this.voiceUnavailableReason = availability.voice.message;
   }
 
   private resolveCandidateFontSize(mode: CandidateFontSizeMode): number {
@@ -490,13 +524,38 @@ struct KeyboardRoot {
         inputMethodPickerAvailable: this.inputMethodPickerAvailable,
         keyboardMode: this.languageMode,
         languageSwitchAvailable: this.editorContext.chineseModeAllowed && this.editorContext.englishModeAllowed,
+        aiEntryVisible: this.aiEntryVisible,
+        aiEntryEnabled: this.aiEntryEnabled,
+        aiUnavailableReason: this.aiUnavailableReason,
+        voiceEntryVisible: this.voiceEntryVisible,
+        voiceEntryEnabled: this.voiceEntryEnabled,
+        voiceUnavailableReason: this.voiceUnavailableReason,
+        aiPresentation: this.aiPresentation,
+        voicePresentation: this.voicePresentation,
+        localAssociations: this.localAssociations,
         errorMessage: this.lastErrorMessage,
         candidateFontSize: this.candidateFontSize,
         onCandidateClick: (candidate: Candidate, index: number) => this.commitCandidate(index),
         onToggleExpanded: (expanded: boolean) => this.toggleCandidatePanel(expanded),
         onAction: (action: KeyboardAction) => this.dispatchAction(action),
         onOpenKeyboardLayoutSelector: () => this.toggleLayoutSelector(),
-        onOpenSettings: () => this.openSettings()
+        onOpenSettings: () => this.openSettings(),
+        onAiEntry: () => this.controller.showAiActions(),
+        onAiAction: (action: AiAction) => this.controller.requestAiSuggestions(action),
+        onAiSuggestionClick: (suggestionId: string) => {
+          this.controller.acceptAiSuggestion(suggestionId);
+        },
+        onAiCancel: () => this.controller.cancelAiRequest(),
+        onLocalAssociationClick: (associationId: string) => {
+          this.controller.acceptLocalAssociation(associationId);
+        },
+        onVoiceEntry: () => this.controller.startVoiceInput(),
+        onVoiceStop: () => this.controller.stopVoiceInput(),
+        onVoiceConfirm: () => {
+          this.controller.confirmVoiceResult();
+        },
+        onVoiceRetry: () => this.controller.retryVoiceInput(),
+        onVoiceCancel: () => this.controller.cancelVoiceInput()
       })
 
       if (this.shouldShowPinyinCombinationBar() && !this.isCandidatePanelActive()) {

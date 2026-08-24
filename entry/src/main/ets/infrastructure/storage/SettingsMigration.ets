@@ -1,5 +1,6 @@
 import {
   CURRENT_SETTINGS_SCHEMA_VERSION,
+  DEFAULT_AI_ACTIONS,
   DEFAULT_SMART_PERIOD_TIMEOUT_MS,
   SettingsRaw,
   XIAOHE_YINXING_CATEGORY_IDS,
@@ -46,9 +47,44 @@ export class SettingsMigration {
           migrated.xiaoheYinxingEnabledCategoryIds
         );
       }
+      if (!Number.isFinite(categoryVersion) || categoryVersion < 5) {
+        migrated.xiaoheYinxingEnabledCategoryIds = this.enableOkSpellingCategory(
+          migrated.xiaoheYinxingEnabledCategoryIds
+        );
+      }
     }
     if (!migrated.spellingCorrectionEnabled) {
       migrated.spellingCorrectionEnabled = 'false';
+    }
+    if (!migrated.aiEnabled) {
+      migrated.aiEnabled = 'false';
+    }
+    if (!migrated.localAssociationEnabled) {
+      migrated.localAssociationEnabled = 'false';
+    }
+    if (!migrated.cloudAiEnabled) {
+      migrated.cloudAiEnabled = 'false';
+    }
+    if (!migrated.cloudAiConsentVersion) {
+      migrated.cloudAiConsentVersion = '0';
+    }
+    if (!migrated.preferredAiActions) {
+      migrated.preferredAiActions = JSON.stringify(DEFAULT_AI_ACTIONS);
+    }
+    if (!migrated.voiceInputEnabled) {
+      migrated.voiceInputEnabled = 'false';
+    }
+    if (!migrated.voiceLanguage) {
+      migrated.voiceLanguage = 'zh-CN';
+    }
+    if (!migrated.voiceAutoCommit) {
+      migrated.voiceAutoCommit = 'false';
+    }
+    if (!migrated.voiceCloudConsentVersion) {
+      migrated.voiceCloudConsentVersion = '0';
+    }
+    if (!migrated.voicePunctuationEnabled) {
+      migrated.voicePunctuationEnabled = 'true';
     }
     if (!migrated.fuzzyOptions) {
       migrated.fuzzyOptions = '[]';
@@ -98,15 +134,39 @@ export class SettingsMigration {
       if (!Array.isArray(parsed)) {
         return JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS);
       }
+      const legacyCategoryIds = XIAOHE_YINXING_CATEGORY_IDS.filter(
+        (id: string): boolean => id !== 'ok-spelling'
+      );
       const requested: Set<string> = new Set<string>();
       parsed.forEach((item: Object) => {
-        if (typeof item === 'string' && XIAOHE_YINXING_CATEGORY_IDS.indexOf(item as string) >= 0) {
+        if (typeof item === 'string' && legacyCategoryIds.indexOf(item as string) >= 0) {
           requested.add(item as string);
         }
       });
-      const isLegacyDefault = requested.size === XIAOHE_YINXING_CATEGORY_IDS.length &&
-        XIAOHE_YINXING_CATEGORY_IDS.every((id: string): boolean => requested.has(id));
+      const isLegacyDefault = requested.size === legacyCategoryIds.length &&
+        legacyCategoryIds.every((id: string): boolean => requested.has(id));
       return isLegacyDefault ? JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS) : value;
+    } catch (_err) {
+      return JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS);
+    }
+  }
+
+  private enableOkSpellingCategory(value: string): string {
+    try {
+      const parsed: Object[] = JSON.parse(value) as Object[];
+      if (!Array.isArray(parsed)) {
+        return JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS);
+      }
+      const ids: string[] = [];
+      parsed.forEach((item: Object): void => {
+        if (typeof item === 'string') {
+          ids.push(item as string);
+        }
+      });
+      if (ids.indexOf('ok-spelling') < 0) {
+        ids.push('ok-spelling');
+      }
+      return JSON.stringify(ids);
     } catch (_err) {
       return JSON.stringify(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS);
     }
@@ -144,6 +204,16 @@ export class SettingsMigration {
       hapticLevel: raw.hapticLevel,
       keySoundEnabled: raw.keySoundEnabled,
       userLearningEnabled: raw.userLearningEnabled,
+      aiEnabled: raw.aiEnabled,
+      localAssociationEnabled: raw.localAssociationEnabled,
+      cloudAiEnabled: raw.cloudAiEnabled,
+      cloudAiConsentVersion: raw.cloudAiConsentVersion,
+      preferredAiActions: raw.preferredAiActions,
+      voiceInputEnabled: raw.voiceInputEnabled,
+      voiceLanguage: raw.voiceLanguage,
+      voiceAutoCommit: raw.voiceAutoCommit,
+      voiceCloudConsentVersion: raw.voiceCloudConsentVersion,
+      voicePunctuationEnabled: raw.voicePunctuationEnabled,
       spellingCorrectionEnabled: raw.spellingCorrectionEnabled,
       fuzzyOptions: raw.fuzzyOptions,
       smartPeriodTimeoutMs: raw.smartPeriodTimeoutMs,

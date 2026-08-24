@@ -4,7 +4,7 @@
   "bundle_id": "xiaohe-yinxing-production",
   "data_version": "source-receipt-1",
   "converter_version": "yinxing-converter/0-not-implemented",
-  "audit_manifest_sha256": "d45b2fe3930cf10c30a9f4887a7fe2cc98dc90b7f06ec490e56b9ff7718cb189",
+  "audit_manifest_sha256": "bb39015d3e4cd2998a4e14b904f277171951ea459d1b24b42d264cac4b0f2ffa",
   "source_roots": [
     "码表",
     "小鹤音形"
@@ -21,8 +21,8 @@
       "source": "小鹤音形/0.2.拼字.txt",
       "sha256": "7a34921c867d87ffcd05ce21350247af08d3633142d24f962944464389cd0879",
       "role": "spelling_resource",
-      "decision": "DEFERRED",
-      "conversion_input": false
+      "decision": "TRANSFORM",
+      "conversion_input": true
     },
     {
       "source": "小鹤音形/1.0.分类.txt",
@@ -210,7 +210,7 @@
   "categories": [
     {
       "category_id": "core",
-      "display_name": "核心主表",
+      "display_name": "首选",
       "role": "core_code_table",
       "authoritative_source": "小鹤音形/0.0.小鹤.txt",
       "supplemental_sources": [],
@@ -229,7 +229,7 @@
     },
     {
       "category_id": "category-secondary",
-      "display_name": "分类/次选",
+      "display_name": "分类",
       "role": "category_table",
       "authoritative_source": "小鹤音形/1.0.分类.txt",
       "supplemental_sources": [],
@@ -246,7 +246,7 @@
       "unsupported_record_policy": "reject_with_source_line",
       "confirmation_status": "frozen_by_user_authorization_2026-07-22",
       "requires_manual_confirmation": false,
-      "notes": "The overlapping export remains audit-only and is not merged."
+      "notes": "The UI groups this source with the out-of-table source as 分类（次选、表外、随心）."
     },
     {
       "category_id": "quick-symbol",
@@ -389,7 +389,7 @@
       "unsupported_record_policy": "reject_with_source_line",
       "confirmation_status": "authorized_by_user_2026-08-13",
       "requires_manual_confirmation": false,
-      "notes": "The apostrophe-led source is normalized to o-prefixed codes for the HarmonyOS runtime."
+      "notes": "The apostrophe-led source is normalized to o-prefixed codes; the UI groups it with 符号."
     },
     {
       "category_id": "rare-character",
@@ -430,6 +430,27 @@
       "confirmation_status": "frozen_by_user_authorization_2026-07-22",
       "requires_manual_confirmation": false,
       "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "ok-spelling",
+      "display_name": "ok拼字",
+      "role": "spelling_resource",
+      "authoritative_source": "小鹤音形/0.2.拼字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 拼字.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/0.2.拼字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternative is excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
+      "requires_manual_confirmation": false,
+      "notes": "All records use an ok prefix and a strict six- or eight-letter code."
     }
   ],
   "merge_plan": [
@@ -507,6 +528,13 @@
       "category_id": "full-code-character",
       "ordered_sources": [
         "小鹤音形/2.9.全码字.txt"
+      ],
+      "blocked": false
+    },
+    {
+      "category_id": "ok-spelling",
+      "ordered_sources": [
+        "小鹤音形/0.2.拼字.txt"
       ],
       "blocked": false
     }
@@ -592,7 +620,7 @@
     "raw_source_in_hap": false,
     "quarantined_source": "小鹤音形/ime.android.ini",
     "sanitized_configuration": "sanitized_configuration.json",
-    "sanitized_configuration_sha256": "b4b7705055953e0c65d579767875516fd11c8c973af810b3821045551e0d04f0"
+    "sanitized_configuration_sha256": "ebc2b5f0ded084e18379e006af19885a2b022fdf51701b0bb3b896dc1cf39b7e"
   },
   "missing_references": [
     {

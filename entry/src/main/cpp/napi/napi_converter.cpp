@@ -324,7 +324,11 @@ bool ParseCompositionResult(const std::string& json, CompositionResult& out) {
         if (out.actionType == "DATE_TIME_TEXT") {
             if (out.actionText.length() != 0 || out.actionCursorOffsetUtf16 != 0 ||
                 (out.actionFormatId != "DATE_ISO" && out.actionFormatId != "DATE_LOCAL" &&
-                 out.actionFormatId != "TIME_HM" && out.actionFormatId != "DATETIME_LOCAL")) {
+                 out.actionFormatId != "DATE_LOCAL_UNPADDED" &&
+                 out.actionFormatId != "TIME_HM" && out.actionFormatId != "TIME_HMS" &&
+                 out.actionFormatId != "TIME_LOCAL_HMS" &&
+                 out.actionFormatId != "DATETIME_LOCAL" &&
+                 out.actionFormatId != "UNIX_TIMESTAMP")) {
                 return false;
             }
         } else if (out.actionType == "INSERT_PAIR") {
@@ -334,6 +338,23 @@ bool ParseCompositionResult(const std::string& json, CompositionResult& out) {
             }
         } else if (out.actionType == "REPEAT_COMMIT" || out.actionType == "UNDO_COMMIT" ||
                    out.actionType == "MOVE_LINE_END") {
+            if (!out.actionFormatId.empty() || !out.actionText.empty() ||
+                out.actionCursorOffsetUtf16 != 0) {
+                return false;
+            }
+        } else if (out.actionType == "DIRECT_CONTROL") {
+            const bool allowedControl =
+                out.actionFormatId == "category.enable" ||
+                out.actionFormatId == "category.disable" ||
+                out.actionFormatId == "category.toggle" ||
+                out.actionFormatId == "category.set" ||
+                out.actionFormatId == "category.all" ||
+                out.actionFormatId == "category.core";
+            if (!allowedControl || out.actionText.length() > 512 ||
+                out.actionCursorOffsetUtf16 != 0) {
+                return false;
+            }
+        } else if (out.actionType == "IMPORT_USER_LEXICON") {
             if (!out.actionFormatId.empty() || !out.actionText.empty() ||
                 out.actionCursorOffsetUtf16 != 0) {
                 return false;

@@ -1,6 +1,6 @@
 # Xiaohe Yinxing Production Converter
 
-`yinxing-converter/1.0.0` is the stage 11.6.2C offline converter. It consumes only the eight files frozen by `conversion_contract.json`, writes a deterministic `HSPYXP01` 1.0 production bundle, and never executes source actions.
+`yinxing-converter/1.0.0` is the offline production converter. It consumes only the twelve files frozen by `conversion_contract.json`, writes a deterministic `HSPYXP01` 1.0 production bundle, and never executes source actions.
 
 ## Build and verify
 
@@ -26,9 +26,9 @@ yinxing-converter --version
 
 ## Safety and normalization
 
-Preflight validates the frozen IDs, versions, hashes, source roles, category order, decisions, sizes, and paths. It rejects symlinks and reads all eight source files and verifies all hashes before parsing the first line. Directory enumeration is not an input mechanism.
+Preflight validates the frozen IDs, versions, hashes, source roles, category order, decisions, sizes, and paths. It rejects symlinks and reads all twelve source files and verifies all hashes before parsing the first line. Directory enumeration is not an input mechanism.
 
-The parser accepts UTF-8 with optional BOM, LF, CRLF, and a missing final newline. Ordinary rows become `text<TAB>lowercase-code`, with one-to-four ASCII code letters and bounded Unicode-scalar text. Configuration headers, comments, and empty lines are counted but not emitted. User `#删`, `#固`, and `#N` records are separated into the user overlay contract. Mixed or unsupported rules are rejected with stable reason codes.
+The parser accepts UTF-8 with optional BOM, LF, CRLF, and a missing final newline. Ordinary rows become `text<TAB>lowercase-code`, with one-to-four ASCII code letters and bounded Unicode-scalar text. The `ok-spelling` category is the sole length exception: it requires a lowercase `ok` prefix and exactly 6 or 8 ASCII letters. Configuration headers, comments, and empty lines are counted but not emitted. User `#删`, `#固`, and `#N` records are separated into the user overlay contract; `#直` is accepted only for `full-code-word`. Mixed or unsupported rules are rejected with stable reason codes.
 
 `$cmd`, `$ddcmd`, URLs, credentials, network actions, external commands, platform-private actions, and all contract-deferred features are never executed. Rejection metadata stores only source file ID, physical line, stable reason, safe summary, and line digest.
 

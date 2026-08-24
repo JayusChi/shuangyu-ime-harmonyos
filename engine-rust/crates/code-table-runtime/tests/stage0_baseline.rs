@@ -40,11 +40,11 @@ fn stage0_machine_baselines_are_committed_path_clean_and_tied_to_frozen_bundle()
     }
     for expected in [
         "\"bundle_byte_size\"",
-        "26039684",
+        "56144463",
         "\"bundle_sha256\"",
-        "cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94",
+        "e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad",
         "\"ordinary_record_count\"",
-        "74646",
+        "162666",
         "\"embedded_fixed_rule_count\"",
         "\"core_required\"",
         "\"archive_allowlist_complete\"",
@@ -62,7 +62,7 @@ fn stage0_machine_baselines_are_committed_path_clean_and_tied_to_frozen_bundle()
         std::fs::metadata(bundle_path())
             .expect("formal bundle")
             .len(),
-        26_039_684
+        56_144_463
     );
     let bundle = CodeTableBundle::load_frozen_production_file(bundle_path())
         .expect("strict frozen loader verifies format, allowlist, hashes, and content");

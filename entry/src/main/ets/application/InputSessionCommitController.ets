@@ -234,6 +234,9 @@ export class InputSessionCommitController extends InputSessionControllerBase {
       if (this.undoCommitManager) {
         this.undoCommitManager.recordCommit(candidate.text);
       }
+      if (result.rawInput.length === 0) {
+        this.publishLocalAssociations();
+      }
 
       LOGGER.info(`candidate commit completed: stage=completed, index=${candidateIndex}`);
       return inputOperationOk();
@@ -267,6 +270,7 @@ export class InputSessionCommitController extends InputSessionControllerBase {
       actionSucceeded = inserted;
       if (inserted) {
         this.recordCommittedText(result.commitText);
+        this.publishLocalAssociations();
       }
     } else if (result.action !== null && result.action !== undefined) {
       const executed = await this.protocolActionExecutor.execute(result.action, generation);

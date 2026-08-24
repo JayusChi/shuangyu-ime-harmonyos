@@ -27,14 +27,14 @@ $indexSource = Join-Path $etsRoot 'Index.ets'
 [IO.File]::WriteAllText($indexSource, '@Entry struct Index {}', [Text.Encoding]::UTF8)
 $debugAcceptanceText = -join (@(0x8C03, 0x8BD5, 0x4E0E, 0x9A8C, 0x6536) | ForEach-Object { [char]$_ })
 
-function Invoke-NegativeGate {
+function Invoke-NegativeGate([string]$Case) {
     $previousPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-release-hap.ps1') `
         -ResourceInputOnly -ResourceRoot $resourceRoot -SourceRoot $sourceRoot 2>$null
     $exitCode = $LASTEXITCODE
     $ErrorActionPreference = $previousPreference
-    if ($exitCode -eq 0) { throw 'Release gate accepted a deliberately invalid resource set.' }
+    if ($exitCode -eq 0) { throw "Release gate accepted deliberately invalid case: $Case" }
 }
 
 try {
@@ -45,31 +45,44 @@ try {
     $productionBytes = [IO.File]::ReadAllBytes($production)
     $productionBytes[$productionBytes.Length - 1] = $productionBytes[$productionBytes.Length - 1] -bxor 0x01
     [IO.File]::WriteAllBytes($production, $productionBytes)
-    Invoke-NegativeGate
+    Invoke-NegativeGate 'tampered-production-lexicon'
     Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\resources\rawfile\production.lex') `
         -Destination $production -Force
 
     $fixture = Join-Path $rawfile 'code-table-fixture-synthetic.bundle'
     [IO.File]::WriteAllBytes($fixture, [byte[]](0x54, 0x45, 0x53, 0x54))
-    Invoke-NegativeGate
+    Invoke-NegativeGate 'synthetic-fixture'
     Remove-Item -LiteralPath $fixture -Force
 
     $rawSource = Join-Path $rawfile 'formal-source.txt'
     [IO.File]::WriteAllText($rawSource, "词条`tcode", [Text.Encoding]::UTF8)
-    Invoke-NegativeGate
+    Invoke-NegativeGate 'raw-source'
     Remove-Item -LiteralPath $rawSource -Force
 
     $credentialNamed = Join-Path $rawfile 'delivery-token.bin'
     [IO.File]::WriteAllBytes($credentialNamed, [byte[]](0x46, 0x41, 0x4b, 0x45))
-    Invoke-NegativeGate
+    Invoke-NegativeGate 'credential-resource'
     Remove-Item -LiteralPath $credentialNamed -Force
 
     [IO.File]::WriteAllText($indexSource, '@Entry struct DebugStage10 {}', [Text.Encoding]::UTF8)
-    Invoke-NegativeGate
+    Invoke-NegativeGate 'debug-provider-page'
     [IO.File]::WriteAllText($indexSource, "@Entry struct Index { private title: string = '$debugAcceptanceText'; }", [Text.Encoding]::UTF8)
-    Invoke-NegativeGate
+    Invoke-NegativeGate 'debug-acceptance-text'
     [IO.File]::WriteAllText($indexSource, "@Entry struct Index { private permission: string = 'ohos.permission.INTERNET'; }", [Text.Encoding]::UTF8)
-    Invoke-NegativeGate
+    Invoke-NegativeGate 'internet-permission'
+    [IO.File]::WriteAllText($indexSource, "@Entry struct Index { private permission: string = 'ohos.permission.MICROPHONE'; }", [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'microphone-permission'
+    [IO.File]::WriteAllText($indexSource, '@Entry struct FakeAiProvider {}', [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'fake-ai-provider'
+    [IO.File]::WriteAllText($indexSource, '@Entry struct DebugCloudAiProvider {}', [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'debug-cloud-provider'
+    [IO.File]::WriteAllText($indexSource, "@Entry struct Index { private config: string = 'endpoint: `"https://proxy.unit.test/v1/ime`"'; }", [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'reserved-test-endpoint'
+    [IO.File]::WriteAllText($indexSource, "@Entry struct Index { private apiKey: string = 'permanent-secret-value'; }", [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'permanent-key'
+    [IO.File]::WriteAllText($indexSource, "@Entry struct Index { private key: string = '-----BEGIN PRIVATE KEY-----'; }", [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'embedded-private-key'
+    [IO.File]::WriteAllText($indexSource, '@Entry struct Index {}', [Text.Encoding]::UTF8)
     Write-Host 'RELEASE_RESOURCE_GATE_TEST_RESULT=PASS'
     $global:LASTEXITCODE = 0
 } finally {

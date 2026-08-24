@@ -52,8 +52,12 @@ fn action_result(action: FunctionalAction) -> CompositionResult {
             format_id: match format_id {
                 RuntimeDateTimeFormatId::DateIso => DateTimeFormatId::DateIso,
                 RuntimeDateTimeFormatId::DateLocal => DateTimeFormatId::DateLocal,
+                RuntimeDateTimeFormatId::DateLocalUnpadded => DateTimeFormatId::DateLocalUnpadded,
                 RuntimeDateTimeFormatId::TimeHm => DateTimeFormatId::TimeHm,
+                RuntimeDateTimeFormatId::TimeHms => DateTimeFormatId::TimeHms,
+                RuntimeDateTimeFormatId::TimeLocalHms => DateTimeFormatId::TimeLocalHms,
                 RuntimeDateTimeFormatId::DateTimeLocal => DateTimeFormatId::DateTimeLocal,
+                RuntimeDateTimeFormatId::UnixTimestamp => DateTimeFormatId::UnixTimestamp,
             },
         },
         FunctionalAction::InsertPair {
@@ -66,6 +70,10 @@ fn action_result(action: FunctionalAction) -> CompositionResult {
         FunctionalAction::RepeatCommit => ProtocolAction::RepeatCommit,
         FunctionalAction::UndoCommit => ProtocolAction::UndoCommit,
         FunctionalAction::MoveLineEnd => ProtocolAction::MoveLineEnd,
+        FunctionalAction::DirectControl { action, target } => {
+            ProtocolAction::DirectControl { action, target }
+        }
+        FunctionalAction::ImportUserLexicon => ProtocolAction::ImportUserLexicon,
         FunctionalAction::StaticText(text)
         | FunctionalAction::StaticSymbol(text)
         | FunctionalAction::QuickSymbol(text) => return CompositionResult::committed(&text),
@@ -87,5 +95,3 @@ fn code_table_failure(
     output.error_message = message.to_owned();
     output
 }
-
-

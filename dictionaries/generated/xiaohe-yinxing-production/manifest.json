@@ -1,5 +1,5 @@
 {
-  "accepted_record_count": 74682,
+  "accepted_record_count": 162702,
   "action_metadata_file": {
     "byte_size": 91060,
     "path": "action-metadata.json",
@@ -8,15 +8,15 @@
   "audit_manifest_version": "1.1.0",
   "auditor_version": "yinxing-source-auditor/1.1.0",
   "build_timestamp_policy": "omitted",
-  "bundle_content_sha256": "c35a3691b023f823e6340588d74df184ecd65fe915a83a35b42feac77355e9c8",
+  "bundle_content_sha256": "9a89607b4525f85a3e62192ebd5066706945b0b17f260fe027aa3f93069a1681",
   "bundle_id": "xiaohe-yinxing-production",
-  "category_count": 11,
+  "category_count": 12,
   "category_files": [
     {
       "byte_size": 4591497,
       "category_id": "core",
       "default_enabled": true,
-      "display_name": "核心主表",
+      "display_name": "首选",
       "entry_count": 68505,
       "file": "categories/core.lex",
       "order": 0,
@@ -29,7 +29,7 @@
       "byte_size": 115959,
       "category_id": "category-secondary",
       "default_enabled": true,
-      "display_name": "分类/次选",
+      "display_name": "分类",
       "entry_count": 1690,
       "file": "categories/category-secondary.lex",
       "order": 1,
@@ -154,6 +154,19 @@
       "sha256": "9969dc88b88620a8e82bab28bb8a52e2fe1bb182eafe78a6875dff344b241f57",
       "source_file_id": "src-10",
       "source_sha256": "a3f4054bdcacac6427355b246dd86496fe09025a5b5058d0f8185a8f4cbee722"
+    },
+    {
+      "byte_size": 4951682,
+      "category_id": "ok-spelling",
+      "default_enabled": true,
+      "display_name": "ok拼字",
+      "entry_count": 88020,
+      "file": "categories/ok-spelling.lex",
+      "order": 11,
+      "role": "spelling_resource",
+      "sha256": "c8c9bf081abb4023623d0ab8e1b15de0c94c7cb23337ec713e81f03ed38816ed",
+      "source_file_id": "src-11",
+      "source_sha256": "7a34921c867d87ffcd05ce21350247af08d3633142d24f962944464389cd0879"
     }
   ],
   "category_order": [
@@ -167,18 +180,19 @@
     "symbol",
     "symbol-group",
     "rare-character",
-    "full-code-character"
+    "full-code-character",
+    "ok-spelling"
   ],
-  "command_policy_sha256": "6b5073dde18d5cc7d051a4febb4285d0116fc6f9e7846c830497de91b8f3e030",
+  "command_policy_sha256": "586e916afdb82bf1c2a170da7ddae384f966a7d2b8e7b3606bd0d17e4b330727",
   "conflict_record_count": 1,
-  "conversion_contract_sha256": "624ad86ab5b2702fd49b9cd1acac498706ee0f74411ec111d6d1b9a1dad7decf",
+  "conversion_contract_sha256": "2db0ef42190d3058f2404e9848185f6e4d85734bba1c6e18acc6c85fdf3380b6",
   "conversion_contract_version": "1.1.0",
   "converter_version": "yinxing-converter/1.0.0",
   "data_version": "source-receipt-1",
   "deferred_record_count": 0,
   "duplicate_record_count": 0,
   "format_version": "1.0",
-  "input_file_count": 11,
+  "input_file_count": 12,
   "manifest_version": 1,
   "rejected_record_count": 337,
   "scheme_id": "xiaohe-yinxing",
@@ -281,18 +295,27 @@
       "relative_path": "小鹤音形/2.9.全码字.txt",
       "sha256": "a3f4054bdcacac6427355b246dd86496fe09025a5b5058d0f8185a8f4cbee722",
       "source_file_id": "src-10"
+    },
+    {
+      "byte_size": 1086223,
+      "category_id": "ok-spelling",
+      "decision": "TRANSFORM",
+      "order": 11,
+      "relative_path": "小鹤音形/0.2.拼字.txt",
+      "sha256": "7a34921c867d87ffcd05ce21350247af08d3633142d24f962944464389cd0879",
+      "source_file_id": "src-11"
     }
   ],
-  "source_manifest_sha256": "d45b2fe3930cf10c30a9f4887a7fe2cc98dc90b7f06ec490e56b9ff7718cb189",
+  "source_manifest_sha256": "bb39015d3e4cd2998a4e14b904f277171951ea459d1b24b42d264cac4b0f2ffa",
   "statistics_file": {
-    "byte_size": 100588,
+    "byte_size": 101326,
     "path": "build-report.json",
-    "sha256": "f26ae08c11382ea20e399f5dddf095bf47dcf7e7d2d58297bed13160070fc167"
+    "sha256": "931692d3639271a8201f35631c2badfe4b0d5da5c28f963f9b43e39b98a2562a"
   },
   "trace_metadata_file": {
-    "byte_size": 20863833,
+    "byte_size": 46015337,
     "path": "trace-index.jsonl",
-    "sha256": "513a53875fd81826cd6aa4744f5df15dfe49690ba2e6bd154033ce3ae21bb3d1"
+    "sha256": "eed8a504c26386bf0171e1fa01be85f5178f3d5088ba2880f27b3b2493e0b2bb"
   },
   "transformed_record_count": 779,
   "user_rule_file": {

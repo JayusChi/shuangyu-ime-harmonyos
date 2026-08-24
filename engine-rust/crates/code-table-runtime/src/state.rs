@@ -12,9 +12,10 @@ use crate::bundle::CodeTableBundle;
 use crate::category::CategorySelectionSnapshot;
 use crate::error::{CodeTableError, CodeTableErrorKind};
 use crate::query::{
-    exact_system_candidates, longer_system_candidates, longer_system_codes, query_isolated_table,
-    query_with_strategy_and_snapshot, wildcard_system_candidates, CodeTableCandidate,
-    CodeTableMatch, CodeTableQueryStrategy, QuerySnapshot,
+    exact_system_candidates, has_longer_system_code_in_category, longer_system_candidates,
+    longer_system_codes, query_isolated_table, query_with_strategy_and_snapshot,
+    wildcard_system_candidates, CodeTableCandidate, CodeTableMatch, CodeTableQueryStrategy,
+    QuerySnapshot,
 };
 
 const PRECISE_HINT_CANDIDATE_LIMIT: usize = 1;
@@ -22,6 +23,8 @@ const PRECISE_HINT_CANDIDATE_LIMIT: usize = 1;
 const MAX_CODE_TABLE_SOURCE_CANDIDATES: usize = 4096;
 const GUIDE_PREFIX_DEFAULT_CODE: &str = "_";
 const GUIDE_REPEAT_CODE: &str = ";";
+const OK_SPELLING_CATEGORY_ID: &str = "ok-spelling";
+const OK_SPELLING_PREFIX: &str = "ok";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CodeTableInputState {
@@ -331,6 +334,8 @@ impl CodeTableStateMachine {
         }
         if self.input_state == CodeTableInputState::NormalCode
             && self.raw_code.len() >= self.commit_policy.top_screen_length
+            && !self.should_continue_ok_spelling(&self.raw_code, &category_snapshot)
+            && !self.has_direct_action_path(&self.raw_code)
         {
             outcome.commit_text = self
                 .exact_candidates_for_snapshots(&self.raw_code, &category_snapshot, &user_snapshot)
@@ -369,8 +374,10 @@ impl CodeTableStateMachine {
                 &category_snapshot,
                 &user_snapshot,
             );
+            let has_direct_exact = self.has_direct_action_exact(&self.raw_code);
             if self.raw_code.len() >= self.commit_policy.empty_code_clear_length
                 && exact.is_empty()
+                && !has_direct_exact
                 && !has_continuation
             {
                 if let Some(split) = self.empty_code_split_for_snapshots(
@@ -388,6 +395,7 @@ impl CodeTableStateMachine {
             } else if outcome.commit_text.is_none()
                 && self.raw_code.len() >= self.commit_policy.auto_commit_length
                 && exact.len() == 1
+                && !has_direct_exact
                 && !has_continuation
             {
                 outcome.commit_text = Some(exact[0].text.clone());
@@ -457,8 +465,13 @@ impl CodeTableStateMachine {
 
     pub fn set_action_table(&mut self, table: Option<Arc<FunctionalActionTable>>) {
         self.action_table = table;
-        if self.input_state == CodeTableInputState::GuideCode {
+        if matches!(
+            self.input_state,
+            CodeTableInputState::GuidePrefix | CodeTableInputState::GuideCode
+        ) {
             self.requery_guide();
+        } else if !self.raw_code.is_empty() {
+            self.requery();
         }
     }
 
@@ -642,11 +655,26 @@ impl CodeTableStateMachine {
                 .filter(|entry| !matches!(entry.action, UserLexiconAction::Delete))
                 .map(|entry| entry.code.clone()),
         );
-        codes.into_iter().any(|code| {
-            !self
-                .exact_candidates_for_snapshots(&code, selection, user_snapshot)
-                .is_empty()
-        })
+        self.has_direct_action_continuation(code)
+            || codes.into_iter().any(|code| {
+                !self
+                    .exact_candidates_for_snapshots(&code, selection, user_snapshot)
+                    .is_empty()
+            })
+    }
+
+    fn should_continue_ok_spelling(
+        &self,
+        code: &str,
+        selection: &CategorySelectionSnapshot,
+    ) -> bool {
+        code.starts_with(OK_SPELLING_PREFIX)
+            && has_longer_system_code_in_category(
+                &self.bundle,
+                selection,
+                OK_SPELLING_CATEGORY_ID,
+                code,
+            )
     }
 
     fn empty_code_split_for_snapshots(
@@ -679,6 +707,7 @@ impl CodeTableStateMachine {
             let suffix_is_visible = !self
                 .exact_candidates_for_snapshots(suffix, selection, user_snapshot)
                 .is_empty()
+                || self.has_direct_action_exact(suffix)
                 || self.has_valid_continuation_for_snapshots(suffix, selection, user_snapshot);
             if suffix_is_visible {
                 return Some(EmptyCodeSplit {
@@ -703,6 +732,7 @@ impl CodeTableStateMachine {
         user_snapshot: &UserLexiconSnapshot,
     ) {
         let mut query = self.query_for_snapshots(&self.raw_code, category_snapshot, user_snapshot);
+        self.merge_direct_actions(&mut query, &self.raw_code);
         query.candidates.truncate(self.max_candidates);
         self.query_cache = Some(query);
         self.current_page = 0;
@@ -914,7 +944,7 @@ impl CodeTableStateMachine {
             });
         if quick_symbols_enabled {
             if let Some(table) = &self.action_table {
-                let functional = table.query_exact_or_prefix(query_code);
+                let functional = table.query_guide_exact_or_prefix(query_code);
                 let functional_exact = functional
                     .first()
                     .is_some_and(|record| record.code == query_code);
@@ -957,6 +987,55 @@ impl CodeTableStateMachine {
         }
         query.candidates.truncate(self.max_candidates);
         query
+    }
+
+    fn merge_direct_actions(&self, query: &mut QuerySnapshot, raw_code: &str) {
+        let Some(table) = &self.action_table else {
+            return;
+        };
+        let functional = table.query_direct_exact_or_prefix(raw_code);
+        if functional.is_empty() {
+            return;
+        }
+        let functional_exact = functional
+            .first()
+            .is_some_and(|record| record.code == raw_code);
+        // Direct actions reserve their continuation path but stay invisible
+        // until the whole code is present. Otherwise the many `o...` actions
+        // would crowd ordinary one-letter candidates.
+        if !functional_exact {
+            return;
+        }
+        let candidates = functional.into_iter().map(|record| CodeTableCandidate {
+            id: format!("action:{}", record.id),
+            text: record.label.clone(),
+            code: record.code.clone(),
+            category_id: "functional".to_owned(),
+            source_order: record.source_order,
+            match_type: if record.code == raw_code {
+                CodeTableMatch::Exact
+            } else {
+                CodeTableMatch::Prefix
+            },
+        });
+        query.candidates.splice(0..0, candidates);
+        query.match_type = Some(CodeTableMatch::Exact);
+    }
+
+    fn has_direct_action_exact(&self, code: &str) -> bool {
+        self.action_table
+            .as_ref()
+            .is_some_and(|table| table.has_direct_exact(code))
+    }
+
+    fn has_direct_action_continuation(&self, code: &str) -> bool {
+        self.action_table
+            .as_ref()
+            .is_some_and(|table| table.has_direct_continuation(code))
+    }
+
+    fn has_direct_action_path(&self, code: &str) -> bool {
+        self.has_direct_action_exact(code) || self.has_direct_action_continuation(code)
     }
 
     fn exact_candidates_for(&self, code: &str) -> Vec<CodeTableCandidate> {

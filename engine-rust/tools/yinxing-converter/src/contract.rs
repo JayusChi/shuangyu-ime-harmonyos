@@ -52,6 +52,7 @@ const EXPECTED_CATEGORIES: [(&str, &str, &str); CATEGORY_COUNT] = [
         "full_code_character",
         "小鹤音形/2.9.全码字.txt",
     ),
+    ("ok-spelling", "spelling_resource", "小鹤音形/0.2.拼字.txt"),
 ];
 
 pub fn load_and_validate(
@@ -503,6 +504,7 @@ mod tests {
                 "symbol-group",
                 "rare-character",
                 "full-code-character",
+                "ok-spelling",
             ]
         );
     }

@@ -41,6 +41,15 @@ fn category_config_json(snapshot: &code_table_runtime::CategorySelectionSnapshot
     )
 }
 
+fn association_suggestions_json(suggestions: &[String]) -> String {
+    let values = suggestions
+        .iter()
+        .map(|text| format!("\"{}\"", escape_json(text)))
+        .collect::<Vec<_>>()
+        .join(",");
+    format!("[{}]", values)
+}
+
 fn user_lexicon_document_json(report: &UserLexiconLoadReport) -> String {
     let snapshot = &report.snapshot;
     let entries = snapshot
@@ -97,5 +106,4 @@ fn saved_user_lexicon_report(snapshot: UserLexiconSnapshot) -> UserLexiconLoadRe
         warning_code: String::new(),
     }
 }
-
 

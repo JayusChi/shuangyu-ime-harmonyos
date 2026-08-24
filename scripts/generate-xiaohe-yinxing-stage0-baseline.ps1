@@ -11,7 +11,7 @@ $bundlePath = Join-Path $repoRoot 'dictionaries\generated\xiaohe-yinxing-product
 $manifestPath = Join-Path $repoRoot 'dictionaries\generated\xiaohe-yinxing-production\manifest.json'
 $outputDir = Join-Path $repoRoot 'dictionaries\audit\xiaohe-yinxing\baseline'
 $relativeBundlePath = 'dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx'
-$expectedBundleSha256 = 'cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94'
+$expectedBundleSha256 = 'e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad'
 
 New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 
@@ -108,7 +108,7 @@ $formalBaseline = [ordered]@{
     default_enabled_category_ids = $categoryIds
     archive_file_count = $allowedArchiveFiles.Count
     allowed_archive_files = $allowedArchiveFiles
-    archive_allowlist_complete = ($allowedArchiveFiles.Count -eq 16)
+    archive_allowlist_complete = ($allowedArchiveFiles.Count -eq 17)
     unexpected_archive_files = @()
     unexpected_raw_or_config_files = $unexpectedArchiveNames
     contains_debug_data = $false

@@ -13,6 +13,7 @@ import {
   imeSettingsEqual,
   ImeSettings,
   KeyboardHeightMode,
+  normalizeXiaoheYinxingCategoryIds,
   resolveEffectiveTheme,
   settingsToRaw,
   ThemeMode,
@@ -572,14 +573,15 @@ export default function stage11Test() {
       });
       const settings = validator.validate(migrated);
       expect(settings.xiaoheYinxingEnabledCategoryIds.join('|'))
-        .assertEqual('core|category-secondary|quick-symbol|symbol|symbol-group|rare-character');
+        .assertEqual('core|category-secondary|quick-symbol|out-of-table-character|symbol|symbol-group|' +
+          'rare-character|ok-spelling');
 
       const empty = validator.validate(migration.migrate({
         schemaVersion: '1',
         xiaoheYinxingEnabledCategoryIds: '[]'
       }));
       expect(empty.xiaoheYinxingEnabledCategoryIds.join('|'))
-        .assertEqual('core|quick-symbol|symbol|symbol-group');
+        .assertEqual('core|quick-symbol|symbol|symbol-group|ok-spelling');
 
       const first = JSON.stringify(settingsToRaw(settings));
       const second = JSON.stringify(settingsToRaw(
@@ -588,11 +590,18 @@ export default function stage11Test() {
       expect(second).assertEqual(first);
     });
 
-    it('disables passthrough-dependent yinxing categories only for the legacy all-enabled default', 0, () => {
+    it('normalizes customer-facing grouped category switches atomically', 0, () => {
+      expect(normalizeXiaoheYinxingCategoryIds(['category-secondary']).join('|'))
+        .assertEqual('core|category-secondary|out-of-table-character');
+      expect(normalizeXiaoheYinxingCategoryIds(['symbol-group']).join('|'))
+        .assertEqual('core|symbol|symbol-group');
+    });
+
+    it('applies customer-confirmed yinxing defaults only to the legacy all-enabled profile', 0, () => {
       const migration = new SettingsMigration();
       const validator = new SettingsValidator();
       const expected = 'core|category-secondary|quick-symbol|one-key-secondary|' +
-        'out-of-table-character|symbol|symbol-group';
+        'out-of-table-character|symbol|symbol-group|ok-spelling';
 
       expect(DEFAULT_IME_SETTINGS.xiaoheYinxingEnabledCategoryIds.join('|')).assertEqual(expected);
       expect(XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS.join('|')).assertEqual(expected);
@@ -610,7 +619,7 @@ export default function stage11Test() {
         xiaoheYinxingEnabledCategoryIds: '["core","two-key-secondary","rare-character"]'
       }));
       expect(customized.xiaoheYinxingEnabledCategoryIds.join('|'))
-        .assertEqual('core|two-key-secondary|rare-character');
+        .assertEqual('core|two-key-secondary|rare-character|ok-spelling');
     });
 
     it('preserves and validates fixed lexicon sources across schema migration', 0, () => {

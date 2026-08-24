@@ -12,7 +12,7 @@ import { NativeEngineGateway } from '../infrastructure/native/NativeEngineGatewa
 
 const TAG = 'EngineCoordinator';
 const LOGGER = new Logger(TAG);
-const INTERFACE_VERSION = 9;
+const INTERFACE_VERSION = 10;
 const QUANPIN_CONFIG_VERSION = 1;
 const QUANPIN_CONTEXT_RERANKING_CONFIG_VERSION = 2;
 const DEFAULT_SCHEME_ID = 'xiaohe';
@@ -218,6 +218,13 @@ export class EngineCoordinator {
     }
     this.lastResult = this.gateway.previousCandidatePage(this.handle);
     return this.lastResult;
+  }
+
+  getLocalAssociations(): string[] {
+    if (!this.ensureInitialized() || this.gateway.getLocalAssociations === undefined) {
+      return [];
+    }
+    return this.gateway.getLocalAssociations(this.handle);
   }
 
   getCodeTableCategoryConfig(): CodeTableCategoryConfig {

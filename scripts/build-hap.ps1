@@ -100,8 +100,8 @@ try {
         }
         $formalBundle = Get-Item -LiteralPath $formalBundleSource
         $formalHash = (Get-FileHash -LiteralPath $formalBundleSource -Algorithm SHA256).Hash.ToLowerInvariant()
-        if ($formalBundle.Length -ne 26039684 -or
-            $formalHash -ne 'cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94') {
+        if ($formalBundle.Length -ne 56144463 -or
+            $formalHash -ne 'e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad') {
             throw "Frozen formal bundle identity mismatch: bytes=$($formalBundle.Length) sha256=$formalHash"
         }
         Copy-Item -LiteralPath $formalBundleSource -Destination $formalBundleResource -Force

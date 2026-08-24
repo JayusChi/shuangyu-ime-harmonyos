@@ -80,6 +80,7 @@ class Stage3SessionController extends InputSessionController {
   previousPageCount: number = 0;
   physicalLetters: string[] = [];
   physicalContinuationFlags: boolean[] = [];
+  pairJumpCount: number = 0;
 
   constructor(store: InputSessionStore) {
     super(store);
@@ -126,6 +127,13 @@ class Stage3SessionController extends InputSessionController {
   ): Promise<InputOperationResult> {
     this.previousPageCount += 1;
     this.stage3Store.updateComposition(composition(0, true, false));
+    return inputOperationOk();
+  }
+
+  async jumpOutPair(
+    _generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    this.pairJumpCount += 1;
     return inputOperationOk();
   }
 }
@@ -193,6 +201,25 @@ export default function computerStage3PhysicalKeyboardTest() {
         .assertEqual(PhysicalKeyCommandType.PREVIOUS_PAGE);
       expect(resolvePhysicalKeyCommand(key(2060, 93), session()).type)
         .assertEqual(PhysicalKeyCommandType.NEXT_PAGE);
+    });
+
+    it('routes Tab and Enter with composition then pair-jump priority', 0, () => {
+      expect(resolvePhysicalKeyCommand(key(2049), session()).type)
+        .assertEqual(PhysicalKeyCommandType.CANCEL);
+
+      const pair = session('');
+      pair.candidateCount = 0;
+      pair.pairJumpAvailable = true;
+      expect(resolvePhysicalKeyCommand(key(2049), pair).type)
+        .assertEqual(PhysicalKeyCommandType.JUMP_OUT_PAIR);
+      expect(resolvePhysicalKeyCommand(key(2054), pair).type)
+        .assertEqual(PhysicalKeyCommandType.JUMP_OUT_PAIR);
+
+      pair.pairJumpAvailable = false;
+      expect(resolvePhysicalKeyCommand(key(2049), pair).type)
+        .assertEqual(PhysicalKeyCommandType.NONE);
+      expect(resolvePhysicalKeyCommand(key(2054), pair).type)
+        .assertEqual(PhysicalKeyCommandType.NONE);
     });
 
     it('falls back to standard and numpad keyCode when unicodeChar is absent', 0, () => {
@@ -341,6 +368,12 @@ export default function computerStage3PhysicalKeyboardTest() {
       expect(fixture.sessionController.cancelCount).assertEqual(1);
       expect(fixture.sessionController.committedIndices.length).assertEqual(0);
       expect(fixture.store.getSnapshot().rawInput).assertEqual('');
+    });
+
+    it('serializes a routed physical pair jump through the keyboard controller', 0, async () => {
+      const fixture = createControllerFixture();
+      await fixture.controller.jumpOutPhysicalPair();
+      expect(fixture.sessionController.pairJumpCount).assertEqual(1);
     });
 
     it('does not consume letters for English password or disabled-candidate editors', 0, () => {

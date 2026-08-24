@@ -1,4 +1,11 @@
 impl ImeEngine {
+    pub fn local_associations(&self, limit: usize) -> Vec<String> {
+        if !self.current_state().raw_input.is_empty() {
+            return Vec::new();
+        }
+        self.quanpin_context_reranker.local_associations(limit)
+    }
+
     pub fn process_key(&mut self, key: char) -> CompositionResult {
         if let EngineBackend::CodeTable(machine) = &mut self.backend {
             return match machine.process_key(key) {
@@ -193,4 +200,3 @@ impl ImeEngine {
         output
     }
 }
-

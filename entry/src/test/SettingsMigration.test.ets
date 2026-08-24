@@ -1,6 +1,11 @@
 import { describe, it, expect } from '@ohos/hypium';
 import { SettingsValidator } from '../main/ets/infrastructure/storage/SettingsValidator';
-import { DEFAULT_SCHEME_ID, SettingsRaw } from '../main/ets/domain/settings/ImeSettings';
+import {
+  CURRENT_SETTINGS_SCHEMA_VERSION,
+  DEFAULT_SCHEME_ID,
+  SettingsRaw
+} from '../main/ets/domain/settings/ImeSettings';
+import { SettingsMigration } from '../main/ets/infrastructure/storage/SettingsMigration';
 
 export default function settingsMigrationTest() {
   describe('SettingsValidator scheme validation', () => {
@@ -59,6 +64,34 @@ export default function settingsMigrationTest() {
       const result1 = validator.validate(raw);
       const result2 = validator.validate({ schemeId: result1.schemeId });
       expect(result2.schemeId).assertEqual(DEFAULT_SCHEME_ID);
+    });
+
+    it('should migrate AI-0 settings with cloud and voice disabled by default', 0, () => {
+      const migrated = new SettingsMigration().migrate({ schemaVersion: '8' });
+      const result = validator.validate(migrated);
+      expect(result.schemaVersion).assertEqual(CURRENT_SETTINGS_SCHEMA_VERSION);
+      expect(result.aiEnabled).assertFalse();
+      expect(result.cloudAiEnabled).assertFalse();
+      expect(result.voiceInputEnabled).assertFalse();
+      expect(result.voiceAutoCommit).assertFalse();
+      expect(result.voiceLanguage).assertEqual('zh-CN');
+      expect(result.preferredAiActions.length).assertEqual(5);
+    });
+
+    it('should preserve explicit local AI-0 feature choices across migration', 0, () => {
+      const raw: SettingsRaw = {
+        schemaVersion: '8',
+        aiEnabled: 'true',
+        cloudAiEnabled: 'false',
+        voiceInputEnabled: 'true',
+        voiceLanguage: 'zh-CN',
+        voiceAutoCommit: 'false'
+      };
+      const result = validator.validate(new SettingsMigration().migrate(raw));
+      expect(result.aiEnabled).assertTrue();
+      expect(result.cloudAiEnabled).assertFalse();
+      expect(result.voiceInputEnabled).assertTrue();
+      expect(result.voiceAutoCommit).assertFalse();
     });
   });
 }

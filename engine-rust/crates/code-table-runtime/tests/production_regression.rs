@@ -10,9 +10,9 @@ use code_table_runtime::{
 };
 use user_lexicon::UserLexiconAction;
 
-const ARCHIVE_SHA256: &str = "cda61bc4011ab03100b52327325a4c908c3af1eddfe3daf3d2b871f840b15e94";
+const ARCHIVE_SHA256: &str = "e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad";
 const SNAPSHOT: &str = include_str!("data/xiaohe_yinxing_stage11_6_3.tsv");
-const CATEGORY_PROFILE: [(&str, usize); 11] = [
+const CATEGORY_PROFILE: [(&str, usize); 12] = [
     ("core", 68_505),
     ("category-secondary", 1_690),
     ("quick-symbol", 17),
@@ -24,8 +24,9 @@ const CATEGORY_PROFILE: [(&str, usize); 11] = [
     ("symbol-group", 743),
     ("rare-character", 498),
     ("full-code-character", 1_652),
+    ("ok-spelling", 88_020),
 ];
-const DEFAULT_CATEGORY_IDS: [&str; 7] = [
+const DEFAULT_CATEGORY_IDS: [&str; 8] = [
     "core",
     "category-secondary",
     "quick-symbol",
@@ -33,6 +34,7 @@ const DEFAULT_CATEGORY_IDS: [&str; 7] = [
     "out-of-table-character",
     "symbol",
     "symbol-group",
+    "ok-spelling",
 ];
 
 #[derive(Clone)]
@@ -69,7 +71,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     let path = bundle_path();
     assert_eq!(
         fs::metadata(&path).expect("bundle metadata").len(),
-        26_039_684
+        56_144_463
     );
     let bundle =
         CodeTableBundle::load_frozen_production_file(&path).expect("load frozen production bundle");
@@ -85,7 +87,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     assert_eq!(metadata.scheme_id, "xiaohe-yinxing");
     assert_eq!(metadata.data_version, "source-receipt-1");
     assert_eq!(metadata.converter_version, "yinxing-converter/1.0.0");
-    assert_eq!(metadata.archive_file_count, 16);
+    assert_eq!(metadata.archive_file_count, 17);
     assert_eq!(
         bundle
             .user_rules
@@ -109,7 +111,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        74_646
+        162_666
     );
     for category in &bundle.categories {
         assert_eq!(
@@ -230,6 +232,15 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 false,
                 true,
                 1_652,
+            ),
+            (
+                "ok-spelling",
+                CategoryKind::Extension,
+                11,
+                true,
+                false,
+                true,
+                88_020,
             ),
         ]
     );
@@ -433,7 +444,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        74_646
+        162_666
     );
 }
 

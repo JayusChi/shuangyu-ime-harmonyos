@@ -36,10 +36,17 @@ pub fn validate_word(value: &str) -> Result<TextFeatures, TextError> {
 }
 
 pub fn normalize_code(value: &str) -> Result<(String, bool), &'static str> {
+    normalize_code_with_limit(value, MAX_PRODUCTION_CODE_LEN)
+}
+
+pub fn normalize_code_with_limit(
+    value: &str,
+    max_length: usize,
+) -> Result<(String, bool), &'static str> {
     if value.is_empty() {
         return Err("YX_CODE_EMPTY");
     }
-    if value.len() > MAX_PRODUCTION_CODE_LEN {
+    if value.len() > max_length {
         return Err("YX_CODE_TOO_LONG");
     }
     if !value.bytes().all(|byte| byte.is_ascii_alphabetic()) {
@@ -108,5 +115,10 @@ mod tests {
         assert!(validate_word(&"𩽾".repeat(MAX_WORD_CHARS + 1)).is_err());
         assert_eq!(normalize_code("AbCd").unwrap(), ("abcd".to_owned(), true));
         assert!(normalize_code("abcde").is_err());
+        assert_eq!(
+            normalize_code_with_limit("OkHgPpVe", 8).unwrap(),
+            ("okhgppve".to_owned(), true)
+        );
+        assert!(normalize_code_with_limit("okhgppvea", 8).is_err());
     }
 }

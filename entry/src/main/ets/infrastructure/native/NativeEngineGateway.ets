@@ -18,7 +18,7 @@ import {
 
 const TAG = 'Stage0NativeGateway';
 const LOGGER = new Logger(TAG);
-const EXPECTED_INTERFACE_VERSION = 9;
+const EXPECTED_INTERFACE_VERSION = 10;
 
 export class NativeEngineGateway implements NativeEngineGatewayContract {
   getInterfaceVersion(): number {
@@ -166,6 +166,27 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     } catch (err) {
       LOGGER.error(`previousCandidatePage failed: ${JSON.stringify(err)}`);
       return this.createCompositionFailure(ImeErrorCode.NATIVE_BRIDGE_ERROR, 'Native previousCandidatePage failed');
+    }
+  }
+
+  getLocalAssociations(handle: number): string[] {
+    try {
+      const json: string = imeBridge.getLocalAssociations(handle);
+      const parsed = JSON.parse(json) as string[];
+      if (!Array.isArray(parsed) || parsed.length > 3) {
+        return [];
+      }
+      const output: string[] = [];
+      parsed.forEach((text: string): void => {
+        if (typeof text === 'string' && text.length > 0 && text.length <= 48 &&
+          output.indexOf(text) < 0) {
+          output.push(text);
+        }
+      });
+      return output.length === parsed.length ? output : [];
+    } catch (err) {
+      LOGGER.warn(`getLocalAssociations failed: ${JSON.stringify(err)}`);
+      return [];
     }
   }
 
@@ -392,7 +413,10 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     }
     if (value.type === 'DATE_TIME_TEXT') {
       if ((value.formatId === 'DATE_ISO' || value.formatId === 'DATE_LOCAL' ||
-        value.formatId === 'TIME_HM' || value.formatId === 'DATETIME_LOCAL') &&
+        value.formatId === 'DATE_LOCAL_UNPADDED' ||
+        value.formatId === 'TIME_HM' || value.formatId === 'TIME_HMS' ||
+        value.formatId === 'TIME_LOCAL_HMS' || value.formatId === 'DATETIME_LOCAL' ||
+        value.formatId === 'UNIX_TIMESTAMP') &&
         value.text === '' && value.cursorOffsetUtf16 === 0) {
         return {
           type: 'DATE_TIME_TEXT',
@@ -419,6 +443,27 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
       value.cursorOffsetUtf16 === 0) {
       return {
         type: value.type,
+        formatId: '',
+        text: '',
+        cursorOffsetUtf16: 0
+      };
+    }
+    if (value.type === 'DIRECT_CONTROL' && value.cursorOffsetUtf16 === 0 &&
+      (value.formatId === 'category.enable' || value.formatId === 'category.disable' ||
+        value.formatId === 'category.toggle' || value.formatId === 'category.set' ||
+        value.formatId === 'category.all' || value.formatId === 'category.core') &&
+      typeof value.text === 'string' && value.text.length <= 512 && /^[a-z0-9,-]*$/.test(value.text)) {
+      return {
+        type: 'DIRECT_CONTROL',
+        formatId: value.formatId,
+        text: value.text,
+        cursorOffsetUtf16: 0
+      };
+    }
+    if (value.type === 'IMPORT_USER_LEXICON' && value.formatId === '' && value.text === '' &&
+      value.cursorOffsetUtf16 === 0) {
+      return {
+        type: 'IMPORT_USER_LEXICON',
         formatId: '',
         text: '',
         cursorOffsetUtf16: 0

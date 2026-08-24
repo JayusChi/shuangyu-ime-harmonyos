@@ -3,6 +3,7 @@ import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
 import {
   EditorContext,
+  EditorKind,
   EnterAction,
   EDITOR_KIND_EXTRA_CONFIG_KEY
 } from '../domain/editor/EditorContext';
@@ -53,9 +54,27 @@ import {
 import { CommitHistoryManager } from './CommitHistoryManager';
 import { UndoCommitManager } from './UndoCommitManager';
 import { UserLexiconDocumentEditor } from './UserLexiconController';
+import { DirectControlService } from './DirectControlService';
 
 import { ImeInputService } from './ImeInputService';
 import { SmartPeriodController, SmartPeriodInputAction } from './SmartPeriodController';
+import { AiAction } from '../domain/ai/AiContracts';
+import {
+  AssistAvailability,
+  InputMethodCapabilityState,
+  resolveAssistAvailability
+} from '../domain/security/InputMethodCapabilityState';
+import { AiProvider } from '../infrastructure/ai/AiProvider';
+import { UnavailableAiProvider } from '../infrastructure/ai/UnavailableAiProvider';
+import { SpeechRecognitionProvider } from '../infrastructure/speech/SpeechRecognitionProvider';
+import { UnavailableSpeechProvider } from '../infrastructure/speech/UnavailableSpeechProvider';
+import { AiAssistController } from './AiAssistController';
+import { VoiceInputController } from './VoiceInputController';
+import { VerifiedTextReplacer } from './VerifiedTextReplacer';
+import {
+  LocalAssociationSuggestion,
+  normalizeLocalAssociations
+} from '../domain/ai/LocalAssociationContracts';
 
 const TAG = 'InputSessionController';
 const LOGGER = new Logger(TAG);
@@ -63,13 +82,19 @@ const LOGGER = new Logger(TAG);
 class SessionProtocolActionHandlers implements ProtocolActionHandlers {
   private readonly repeatHandler: (generation: number) => Promise<boolean>;
   private readonly undoHandler: (generation: number) => Promise<boolean>;
+  private readonly directControlHandler: (action: string, target: string, generation: number) => Promise<boolean>;
+  private readonly importUserLexiconHandler: (generation: number) => Promise<boolean>;
 
   constructor(
     repeatHandler: (generation: number) => Promise<boolean>,
-    undoHandler: (generation: number) => Promise<boolean>
+    undoHandler: (generation: number) => Promise<boolean>,
+    directControlHandler: (action: string, target: string, generation: number) => Promise<boolean>,
+    importUserLexiconHandler: (generation: number) => Promise<boolean>
   ) {
     this.repeatHandler = repeatHandler;
     this.undoHandler = undoHandler;
+    this.directControlHandler = directControlHandler;
+    this.importUserLexiconHandler = importUserLexiconHandler;
   }
 
   repeatLastCommit(generation: number): Promise<boolean> {
@@ -78,6 +103,14 @@ class SessionProtocolActionHandlers implements ProtocolActionHandlers {
 
   undoLastCommit(generation: number): Promise<boolean> {
     return this.undoHandler(generation);
+  }
+
+  executeDirectControl(action: string, target: string, generation: number): Promise<boolean> {
+    return this.directControlHandler(action, target, generation);
+  }
+
+  importUserLexicon(generation: number): Promise<boolean> {
+    return this.importUserLexiconHandler(generation);
   }
 }
 
@@ -93,6 +126,8 @@ export class InputSessionControllerBase {
   protected readonly inputMethodSwitcher: InputMethodSwitcher;
   protected readonly quanpinContextModelInstaller: QuanpinContextModelResourceInstaller;
   protected readonly smartPeriodController: SmartPeriodController;
+  protected readonly aiAssistController: AiAssistController;
+  protected readonly voiceInputController: VoiceInputController;
   protected userModelPath?: string;
   protected userLexiconPath?: string;
   protected abilityContext?: InputMethodExtensionContext;
@@ -106,8 +141,12 @@ export class InputSessionControllerBase {
   protected readonly commitHistoryManager: CommitHistoryManager = new CommitHistoryManager();
   protected undoCommitManager?: UndoCommitManager;
   protected readonly lexiconImportManager: UserLexiconImportManager = new UserLexiconImportManager();
+  protected readonly directControlService: DirectControlService;
   protected readonly onEditorAttributeChanged = (attribute: inputMethodEngine.EditorAttribute): void => {
     this.handleEditorAttributeChanged(attribute);
+  };
+  protected readonly onAssistSettingsChanged = (): void => {
+    this.reconcileAssistAvailability();
   };
 
   constructor(
@@ -122,7 +161,9 @@ export class InputSessionControllerBase {
     inputMethodSwitcher: InputMethodSwitcher = getSharedInputMethodSwitcher(),
     quanpinContextModelInstaller: QuanpinContextModelResourceInstaller =
       new QuanpinContextModelResourceInstaller(),
-    smartPeriodController: SmartPeriodController = new SmartPeriodController()
+    smartPeriodController: SmartPeriodController = new SmartPeriodController(),
+    aiProvider: AiProvider = new UnavailableAiProvider(),
+    speechProvider: SpeechRecognitionProvider = new UnavailableSpeechProvider()
   ) {
     this.store = store;
     this.imeService = imeService;
@@ -135,9 +176,18 @@ export class InputSessionControllerBase {
     this.inputMethodSwitcher = inputMethodSwitcher;
     this.quanpinContextModelInstaller = quanpinContextModelInstaller;
     this.smartPeriodController = smartPeriodController;
+    this.directControlService = new DirectControlService(settingsController);
     const actionHandlers: ProtocolActionHandlers = new SessionProtocolActionHandlers(
       (generation: number): Promise<boolean> => this.repeatLastCommit(generation),
-      (generation: number): Promise<boolean> => this.undoLastCommit(generation)
+      (generation: number): Promise<boolean> => this.undoLastCommit(generation),
+      async (action: string, target: string, generation: number): Promise<boolean> => {
+        if (!this.isInputSessionGenerationCurrent(generation)) {
+          return false;
+        }
+        const result = await this.directControlService.executeRaw(action, target);
+        return this.isInputSessionGenerationCurrent(generation) && result.success;
+      },
+      (generation: number): Promise<boolean> => this.importConfiguredUserLexicon(generation)
     );
     this.protocolActionExecutor = new ProtocolActionExecutor(
       this.imeService,
@@ -146,6 +196,32 @@ export class InputSessionControllerBase {
       actionHandlers
     );
     this.undoCommitManager = new UndoCommitManager(this.commitHistoryManager);
+    const verifiedTextReplacer = new VerifiedTextReplacer(
+      this.imeService,
+      (generation: number): boolean => this.isInputSessionGenerationCurrent(generation)
+    );
+    this.aiAssistController = new AiAssistController(
+      this.store,
+      (): ImeSettings => this.settingsController.getSettings(),
+      aiProvider,
+      verifiedTextReplacer,
+      (): string | null => this.commitHistoryManager.getLastCommit(),
+      (originalText: string, replacementText: string): void =>
+        this.recordReplacedText(originalText, replacementText),
+      8000,
+      async (sourceText: string): Promise<boolean> =>
+        this.imeService.textBeforeCursorMatches !== undefined &&
+          await this.imeService.textBeforeCursorMatches(sourceText),
+      async (): Promise<number | undefined> => this.imeService.getCursorIndex !== undefined
+        ? await this.imeService.getCursorIndex() : undefined
+    );
+    this.voiceInputController = new VoiceInputController(
+      this.store,
+      (): ImeSettings => this.settingsController.getSettings(),
+      speechProvider,
+      this.imeService,
+      (text: string): void => this.recordCommittedText(text)
+    );
   }
 
   getState(): InputSessionState {
@@ -165,6 +241,9 @@ export class InputSessionControllerBase {
   }
 
   beginInputAction(timestampMs: number = Date.now()): SmartPeriodInputAction {
+    this.aiAssistController.invalidateForInput();
+    this.voiceInputController.invalidateForInput();
+    this.store.clearLocalAssociations();
     return this.smartPeriodController.beginInput(timestampMs);
   }
 
@@ -172,13 +251,51 @@ export class InputSessionControllerBase {
     return generation === this.store.getSessionGeneration();
   }
 
+  canJumpOutPair(generation: number = this.getInputSessionGeneration()): boolean {
+    const state = this.store.getSnapshot();
+    return this.isInputSessionGenerationCurrent(generation) && state.sessionActive && state.editorConnected &&
+      (this.imeService.hasPendingPair?.(generation) ?? false);
+  }
+
+  async jumpOutPair(
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('pair jump');
+    }
+    const sessionCheck = this.ensureInputSession('pair jump');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+    if (!this.imeService.jumpOutPair) {
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'pair jump is unavailable');
+    }
+    const jumped = await this.imeService.jumpOutPair(generation);
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('pair jump completion');
+    }
+    if (jumped) {
+      this.store.clearError();
+      return inputOperationOk();
+    }
+    return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'pair jump target changed');
+  }
+
   async handleAbilityCreated(
     context?: InputMethodExtensionContext,
-    settingsReady?: Promise<ImeSettings>
+    settingsReady?: Promise<ImeSettings>,
+    capabilityState?: InputMethodCapabilityState
   ): Promise<void> {
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
+    this.commitHistoryManager.clear();
+    this.undoCommitManager?.clearUndoState();
     this.inputMethodSwitcher.setSessionActive(false);
     this.abilityContext = context;
     this.store.resetAll();
+    if (capabilityState) {
+      this.store.setInputMethodCapabilityState(capabilityState);
+    }
     ImeConnectionService.observeEditorAttributes(this.onEditorAttributeChanged);
     let lexiconPath: string | undefined = undefined;
     let userModelPath: string | undefined = undefined;
@@ -289,6 +406,7 @@ export class InputSessionControllerBase {
     }).catch((err: Object) => {
       LOGGER.warn(`user lexicon synchronization failed: ${JSON.stringify(err)}`);
     });
+    this.settingsController.subscribe(this.onAssistSettingsChanged);
     LOGGER.info('ability created');
   }
 
@@ -296,6 +414,9 @@ export class InputSessionControllerBase {
     keyboardController: inputMethodEngine.KeyboardController,
     inputClient: inputMethodEngine.InputClient
   ): void {
+    this.imeService.clearPairState?.();
+    this.commitHistoryManager.clear();
+    this.undoCommitManager?.clearUndoState();
     ImeConnectionService.bindSession(keyboardController, inputClient);
     this.store.markSessionStarted();
     this.inputMethodSwitcher.setSessionActive(true);
@@ -306,6 +427,9 @@ export class InputSessionControllerBase {
   }
 
   handleInputStop(): void {
+    this.imeService.clearPairState?.();
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
     this.inputMethodSwitcher.setSessionActive(false);
     this.imeService.clearPreviewText(this.getInputSessionGeneration()).catch((): void => {
       LOGGER.warn('input stop preview cleanup failed');
@@ -318,6 +442,7 @@ export class InputSessionControllerBase {
     ImeConnectionService.clearSession();
     this.store.markSessionStopped();
     this.commitHistoryManager.clear();
+    this.undoCommitManager?.clearUndoState();
     LOGGER.info('input session stopped');
   }
 
@@ -329,6 +454,9 @@ export class InputSessionControllerBase {
   }
 
   handleKeyboardHide(): void {
+    this.imeService.clearPairState?.();
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
     this.inputMethodSwitcher.setSessionActive(false);
     this.imeService.clearPreviewText(this.getInputSessionGeneration()).catch((): void => {
       LOGGER.warn('keyboard hide preview cleanup failed');
@@ -349,11 +477,20 @@ export class InputSessionControllerBase {
    * editor, disables the session, or resets the engine.
    */
   handleKeyboardPanelHidden(): void {
+    this.cancelAssistForLifecycle();
     this.store.markKeyboardHidden();
     LOGGER.info('keyboard panel hidden; input session preserved');
   }
 
+  cancelAssistForLifecycle(): void {
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
+  }
+
   handleDiscardTypingText(): void {
+    this.imeService.clearPairState?.();
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
     // The editor has already discarded its typing text.  Only reset local
     // ownership/state; writing the old range back could resurrect cleared
     // text or edit a newly focused field.
@@ -366,6 +503,11 @@ export class InputSessionControllerBase {
   }
 
   handleAbilityDestroyed(): void {
+    this.imeService.clearPairState?.();
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
+    this.commitHistoryManager.clear();
+    this.undoCommitManager?.clearUndoState();
     this.inputMethodSwitcher.setSessionActive(false);
     this.imeService.clearPreviewText(this.getInputSessionGeneration()).catch((): void => {
       LOGGER.warn('ability destroy preview cleanup failed');
@@ -375,6 +517,7 @@ export class InputSessionControllerBase {
     this.engineCoordinator.dispose();
     this.userModelCommandBus.unsubscribeClear();
     this.userLexiconSyncBus.unsubscribe();
+    this.settingsController.unsubscribe(this.onAssistSettingsChanged);
     this.userModelPath = undefined;
     this.userLexiconPath = undefined;
     this.abilityContext = undefined;
@@ -386,6 +529,9 @@ export class InputSessionControllerBase {
   }
 
   applyEditorContext(context: EditorContext): void {
+    this.imeService.clearPairState?.();
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
     // Attribute changes can already refer to a newly focused editor. Drop the
     // old range locally instead of risking a cleanup write into the new field.
     this.imeService.resetPreviewState();
@@ -409,6 +555,10 @@ export class InputSessionControllerBase {
     if (!this.store.getSnapshot().sessionActive) {
       return;
     }
+    this.aiAssistController.cancel(false);
+    this.voiceInputController.cancel(false);
+    this.commitHistoryManager.clear();
+    this.undoCommitManager?.clearUndoState();
     this.store.advanceSessionGeneration();
     this.applyEditorAttribute(attribute);
   }
@@ -431,6 +581,110 @@ export class InputSessionControllerBase {
     if (this.engineCoordinator.isInitialized()) {
       this.engineCoordinator.setSessionLearningAllowed(allowed);
     }
+  }
+
+  setInputMethodCapabilityState(capabilityState: InputMethodCapabilityState): void {
+    this.store.setInputMethodCapabilityState(capabilityState);
+    this.reconcileAssistAvailability();
+  }
+
+  getAssistAvailability(): AssistAvailability {
+    const snapshot = this.store.getSnapshot();
+    return resolveAssistAvailability(
+      snapshot.capabilityState,
+      snapshot.editorContext,
+      this.settingsController.getSettings(),
+      snapshot.sessionActive,
+      snapshot.editorConnected
+    );
+  }
+
+  requestAiSuggestions(action: AiAction = AiAction.POLITE): Promise<void> {
+    return this.aiAssistController.request(action);
+  }
+
+  showAiActions(): Promise<void> {
+    return this.aiAssistController.showActions();
+  }
+
+  acceptAiSuggestion(suggestionId: string): Promise<boolean> {
+    return this.aiAssistController.acceptSuggestion(suggestionId);
+  }
+
+  async acceptLocalAssociation(associationId: string): Promise<boolean> {
+    const snapshot = this.store.getSnapshot();
+    const generation = this.store.getSessionGeneration();
+    const suggestion = snapshot.localAssociations.find(
+      (item: LocalAssociationSuggestion): boolean => item.associationId === associationId
+    );
+    if (!suggestion || suggestion.sessionGeneration !== generation ||
+      !this.settingsController.getSettings().localAssociationEnabled ||
+      !snapshot.sessionActive || !snapshot.editorConnected || snapshot.rawInput.length > 0 ||
+      snapshot.editorContext.isPassword ||
+      (snapshot.editorContext.kind !== EditorKind.NORMAL_TEXT &&
+        snapshot.editorContext.kind !== EditorKind.MULTILINE &&
+        snapshot.editorContext.kind !== EditorKind.SEARCH)) {
+      this.store.clearLocalAssociations();
+      return false;
+    }
+    const result = await this.insertText(suggestion.text, 'local association', generation);
+    this.store.clearLocalAssociations();
+    return result.success;
+  }
+
+  cancelAiRequest(): void {
+    this.aiAssistController.cancel(true);
+  }
+
+  startVoiceInput(): boolean {
+    return this.voiceInputController.start();
+  }
+
+  stopVoiceInput(): void {
+    this.voiceInputController.stop();
+  }
+
+  confirmVoiceResult(): Promise<boolean> {
+    return this.voiceInputController.confirm();
+  }
+
+  retryVoiceInput(): boolean {
+    return this.voiceInputController.retry();
+  }
+
+  cancelVoiceInput(): void {
+    this.voiceInputController.cancel(true);
+  }
+
+  protected reconcileAssistAvailability(): void {
+    const availability = this.getAssistAvailability();
+    if (!availability.ai.available) {
+      this.aiAssistController.cancel(false);
+    }
+    if (!availability.voice.available) {
+      this.voiceInputController.cancel(false);
+    }
+    if (!this.settingsController.getSettings().localAssociationEnabled) {
+      this.store.clearLocalAssociations();
+    }
+  }
+
+  protected publishLocalAssociations(): void {
+    const snapshot = this.store.getSnapshot();
+    if (!this.settingsController.getSettings().localAssociationEnabled ||
+      !snapshot.sessionActive || !snapshot.editorConnected || snapshot.rawInput.length > 0 ||
+      snapshot.editorContext.isPassword ||
+      (snapshot.editorContext.kind !== EditorKind.NORMAL_TEXT &&
+        snapshot.editorContext.kind !== EditorKind.MULTILINE &&
+        snapshot.editorContext.kind !== EditorKind.SEARCH)) {
+      this.store.clearLocalAssociations();
+      return;
+    }
+    const generation = this.store.getSessionGeneration();
+    const suggestions = normalizeLocalAssociations(
+      this.engineCoordinator.getLocalAssociations(), generation
+    );
+    this.store.updateLocalAssociations(suggestions);
   }
 
   getUserModelRecordCount(): number {
@@ -606,7 +860,7 @@ export class InputSessionControllerBase {
     const result = await this.insertText(lastCommit, 'repeat last commit', generation);
 
     if (result.success) {
-      LOGGER.info(`重复上屏成功: ${lastCommit}`);
+      LOGGER.info(`重复上屏成功: length=${lastCommit.length}`);
       return true;
     }
 
@@ -628,16 +882,27 @@ export class InputSessionControllerBase {
       return false;
     }
 
-    const verifier = this.imeService.deleteBackwardIfMatches;
-    if (!verifier) {
-      LOGGER.warn('无法撤销: 当前编辑器连接不支持安全文本核对');
-      return false;
+    let reverted = false;
+    if (undoState.replacementOriginalText !== undefined) {
+      if (!this.imeService.replaceTextBeforeCursorIfMatches) {
+        LOGGER.warn('无法撤销替换: 当前编辑器连接不支持安全文本替换');
+        return false;
+      }
+      reverted = await this.imeService.replaceTextBeforeCursorIfMatches(
+        undoState.lastCommit!,
+        undoState.replacementOriginalText
+      );
+    } else {
+      if (!this.imeService.deleteBackwardIfMatches) {
+        LOGGER.warn('无法撤销: 当前编辑器连接不支持安全文本核对');
+        return false;
+      }
+      reverted = await this.imeService.deleteBackwardIfMatches(undoState.lastCommit!);
     }
-    const deleted = await verifier(undoState.lastCommit!);
 
-    if (deleted) {
+    if (reverted && this.isInputSessionGenerationCurrent(generation)) {
       this.undoCommitManager.clearUndoState();
-      LOGGER.info(`撤销上屏成功: ${undoState.lastCommit}`);
+      LOGGER.info(`撤销上屏成功: length=${undoState.lastCommitLength ?? 0}`);
       return true;
     }
 
@@ -649,29 +914,43 @@ export class InputSessionControllerBase {
     this.undoCommitManager?.recordCommit(text);
   }
 
+  protected recordReplacedText(originalText: string, replacementText: string): void {
+    this.commitHistoryManager.addCommit(replacementText);
+    this.undoCommitManager?.recordReplacement(originalText, replacementText);
+  }
+
+  protected async importConfiguredUserLexicon(generation: number): Promise<boolean> {
+    const context = this.abilityContext;
+    if (!context || !this.isInputSessionGenerationCurrent(generation)) {
+      return false;
+    }
+    const imported = await this.autoLoadLexiconSources(context);
+    return imported && this.isInputSessionGenerationCurrent(generation);
+  }
+
   /**
    * 自动加载词库源
    */
-  protected async autoLoadLexiconSources(context: InputMethodExtensionContext): Promise<void> {
+  protected async autoLoadLexiconSources(context: InputMethodExtensionContext): Promise<boolean> {
     try {
       const settings = await this.settingsController.getSettings();
       const sources = settings.lexiconSources || [];
 
       if (sources.length === 0) {
         LOGGER.info('没有配置词库源，跳过自动加载');
-        return;
+        return false;
       }
 
       const enabledSources = sources.filter((s) => s.enabled);
       if (enabledSources.length === 0) {
         LOGGER.info('没有启用的词库源，跳过自动加载');
-        return;
+        return false;
       }
 
       const pathResult = this.userLexiconPathProvider.getUserLexiconPath(context);
       if (!pathResult.success) {
         LOGGER.warn(`无法获取用户词库路径: ${pathResult.errorMessage}`);
-        return;
+        return false;
       }
       const targetPath = pathResult.path;
       const result = await this.lexiconImportManager.importFromSources(enabledSources, targetPath);
@@ -680,12 +959,25 @@ export class InputSessionControllerBase {
         LOGGER.info(`自动加载词库源完成: ${result.message}`);
         // 触发同步总线发布更新
         const lexiconContent = UserLexiconDocumentEditor.serialize(result.finalDocument.entries);
-        await this.userLexiconSyncBus.publish(lexiconContent);
+        const published = await this.userLexiconSyncBus.publish(lexiconContent);
+        if (!published) {
+          LOGGER.warn('用户词库已在本机导入，但跨实例同步发布失败');
+        }
+        if (this.engineCoordinator.isInitialized()) {
+          const reloaded = this.engineCoordinator.reloadUserLexicon();
+          if (!reloaded.success) {
+            LOGGER.warn('用户词库导入成功，但当前引擎重载失败');
+            return false;
+          }
+          this.store.updateComposition(reloaded);
+        }
+        return true;
       } else {
         LOGGER.warn(`自动加载词库源失败: ${result.message}`);
       }
     } catch (err) {
       LOGGER.error(`自动加载词库源失败: ${JSON.stringify(err)}`);
     }
+    return false;
   }
 }

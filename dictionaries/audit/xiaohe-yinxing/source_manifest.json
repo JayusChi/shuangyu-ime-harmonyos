@@ -110,8 +110,8 @@
       "file_role": "spelling_resource",
       "role_evidence": "numbered delivery name plus matching content syntax",
       "security_classification": "clean",
-      "decision": "DEFERRED",
-      "decision_reason": "feature is retained but outside the first conversion scope",
+      "decision": "TRANSFORM",
+      "decision_reason": "customer confirmed ok spelling as a default-enabled product category on 2026-08-24",
       "syntax_statistics": {
         "ordinary": 88020,
         "user_deletion": 0,

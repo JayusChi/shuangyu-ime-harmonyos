@@ -22,6 +22,22 @@ import {
   resolveCandidateEmptyFeedback,
   shouldShowCandidateExpansionAction
 } from '../../domain/candidate/CandidateUiPolicy';
+import {
+  AiAction,
+  AI_ACTIONS,
+  AiPresentationState,
+  AiProviderKind,
+  AiRequestState,
+  AiSuggestion,
+  aiActionLabel,
+  createIdleAiPresentationState
+} from '../../domain/ai/AiContracts';
+import {
+  createIdleVoicePresentationState,
+  VoicePresentationState,
+  VoiceSessionState
+} from '../../domain/voice/VoiceContracts';
+import { LocalAssociationSuggestion } from '../../domain/ai/LocalAssociationContracts';
 
 const CANDIDATE_BAR_HORIZONTAL_PADDING = 8;
 
@@ -99,11 +115,30 @@ export interface CandidateBarProps {
   inputMethodPickerAvailable?: boolean;
   keyboardMode?: KeyboardMode;
   languageSwitchAvailable?: boolean;
+  aiEntryVisible?: boolean;
+  aiEntryEnabled?: boolean;
+  aiUnavailableReason?: string;
+  voiceEntryVisible?: boolean;
+  voiceEntryEnabled?: boolean;
+  voiceUnavailableReason?: string;
+  aiPresentation?: AiPresentationState;
+  voicePresentation?: VoicePresentationState;
+  localAssociations?: LocalAssociationSuggestion[];
   onCandidateClick?: (candidate: Candidate, index: number) => void;
   onToggleExpanded?: (expanded: boolean) => void;
   onAction?: (action: KeyboardAction) => void;
   onOpenKeyboardLayoutSelector?: () => void;
   onOpenSettings?: () => void;
+  onAiEntry?: () => void;
+  onAiAction?: (action: AiAction) => void;
+  onAiSuggestionClick?: (suggestionId: string) => void;
+  onAiCancel?: () => void;
+  onLocalAssociationClick?: (associationId: string) => void;
+  onVoiceEntry?: () => void;
+  onVoiceStop?: () => void;
+  onVoiceConfirm?: () => void;
+  onVoiceRetry?: () => void;
+  onVoiceCancel?: () => void;
 }
 
 @Component
@@ -132,9 +167,20 @@ export struct CandidateBar {
   @Prop inputMethodPickerAvailable: boolean = false;
   @Prop keyboardMode: KeyboardMode = KeyboardMode.CHINESE;
   @Prop languageSwitchAvailable: boolean = true;
+  @Prop aiEntryVisible: boolean = false;
+  @Prop aiEntryEnabled: boolean = false;
+  @Prop aiUnavailableReason: string = '';
+  @Prop voiceEntryVisible: boolean = false;
+  @Prop voiceEntryEnabled: boolean = false;
+  @Prop voiceUnavailableReason: string = '';
+  @Prop aiPresentation: AiPresentationState = createIdleAiPresentationState();
+  @Prop voicePresentation: VoicePresentationState = createIdleVoicePresentationState();
+  @Prop localAssociations: LocalAssociationSuggestion[] = [];
   @State private actionPressed: boolean = false;
   @State private languagePressed: boolean = false;
   @State private expansionPressed: boolean = false;
+  @State private aiPressed: boolean = false;
+  @State private voicePressed: boolean = false;
 
   private scroller: Scroller = new Scroller();
 
@@ -165,6 +211,16 @@ export struct CandidateBar {
   onAction?: (action: KeyboardAction) => void;
   onOpenKeyboardLayoutSelector?: () => void;
   onOpenSettings?: () => void;
+  onAiEntry?: () => void;
+  onAiAction?: (action: AiAction) => void;
+  onAiSuggestionClick?: (suggestionId: string) => void;
+  onAiCancel?: () => void;
+  onLocalAssociationClick?: (associationId: string) => void;
+  onVoiceEntry?: () => void;
+  onVoiceStop?: () => void;
+  onVoiceConfirm?: () => void;
+  onVoiceRetry?: () => void;
+  onVoiceCancel?: () => void;
 
   @Builder
   private IdleToolbar() {
@@ -202,6 +258,50 @@ export struct CandidateBar {
       .accessibilityText('输入法')
       .onClick((): void => this.onAction?.(SHOW_INPUT_METHOD_PICKER_ACTION))
 
+      if (this.aiEntryVisible) {
+        Row() {
+          Text(this.aiEntryEnabled ? 'AI' : 'AI不可用')
+            .fontSize(11)
+            .fontColor(this.palette.functionKeyText)
+            .maxLines(1)
+        }
+        .height('100%')
+        .layoutWeight(0.8)
+        .justifyContent(FlexAlign.Center)
+        .opacity(this.aiEntryEnabled ? 1 : 0.45)
+        .enabled(this.aiEntryEnabled)
+        .backgroundColor(this.aiPressed
+          ? this.palette.functionKeyPressedBackground
+          : this.palette.candidateBackground)
+        .accessibilityText(this.aiEntryEnabled ? 'AI 辅助' : this.aiUnavailableReason)
+        .onTouch((event: TouchEvent): void => {
+          this.aiPressed = event.type === TouchType.Down;
+        })
+        .onClick((): void => this.onAiEntry?.())
+      }
+
+      if (this.voiceEntryVisible) {
+        Row() {
+          Text(this.voiceEntryEnabled ? '语音' : '语音不可用')
+            .fontSize(11)
+            .fontColor(this.palette.functionKeyText)
+            .maxLines(1)
+        }
+        .height('100%')
+        .layoutWeight(0.9)
+        .justifyContent(FlexAlign.Center)
+        .opacity(this.voiceEntryEnabled ? 1 : 0.45)
+        .enabled(this.voiceEntryEnabled)
+        .backgroundColor(this.voicePressed
+          ? this.palette.functionKeyPressedBackground
+          : this.palette.candidateBackground)
+        .accessibilityText(this.voiceEntryEnabled ? '语音输入' : this.voiceUnavailableReason)
+        .onTouch((event: TouchEvent): void => {
+          this.voicePressed = event.type === TouchType.Down;
+        })
+        .onClick((): void => this.onVoiceEntry?.())
+      }
+
       Row({ space: 4 }) {
         Text('⚙').fontSize(15).fontColor(this.palette.functionKeyText)
         Text('设置').fontSize(11).fontColor(this.palette.functionKeyText).maxLines(1)
@@ -216,6 +316,174 @@ export struct CandidateBar {
     .width('100%')
     .height('100%')
     .padding({ left: 2, right: 2 })
+  }
+
+  @Builder
+  private AiAssistView() {
+    if (this.aiPresentation.state === AiRequestState.ACTIONS) {
+      Scroll() {
+        Row({ space: 7 }) {
+          Text('AI·云端')
+            .fontSize(11)
+            .fontColor(this.palette.candidateReading)
+          ForEach(AI_ACTIONS, (action: AiAction) => {
+            Text(aiActionLabel(action))
+              .fontSize(12)
+              .fontColor(this.palette.candidateText)
+              .padding({ left: 9, right: 9, top: 4, bottom: 4 })
+              .borderRadius(4)
+              .backgroundColor(this.palette.functionKeyBackground)
+              .accessibilityText(`AI 动作，${aiActionLabel(action)}，云端处理`)
+              .onClick((): void => this.onAiAction?.(action))
+          }, (action: AiAction): string => action)
+          Text('取消')
+            .fontSize(11)
+            .fontColor(this.palette.functionKeyText)
+            .onClick((): void => this.onAiCancel?.())
+        }
+        .height('100%')
+        .alignItems(VerticalAlign.Center)
+        .padding({ left: CANDIDATE_BAR_HORIZONTAL_PADDING, right: CANDIDATE_BAR_HORIZONTAL_PADDING })
+      }
+      .scrollable(ScrollDirection.Horizontal)
+      .scrollBar(BarState.Off)
+      .width('100%')
+      .height('100%')
+    } else if (this.aiPresentation.state === AiRequestState.READY) {
+      Scroll() {
+        Row({ space: 6 }) {
+          Text(this.aiPresentation.providerKind === AiProviderKind.CLOUD ? 'AI·云端' : 'AI')
+            .fontSize(11)
+            .fontColor(this.palette.candidateReading)
+          ForEach(this.aiPresentation.suggestions, (suggestion: AiSuggestion) => {
+            Text(suggestion.text)
+              .fontSize(this.candidateFontSize)
+              .fontColor(this.palette.candidateText)
+              .fontWeight(FontWeight.Medium)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+              .borderRadius(4)
+              .backgroundColor(this.palette.functionKeyBackground)
+              .accessibilityText(`AI 候选，${suggestion.label}`)
+              .onClick((): void => this.onAiSuggestionClick?.(suggestion.suggestionId))
+          }, (suggestion: AiSuggestion): string => suggestion.suggestionId)
+          Text('取消')
+            .fontSize(11)
+            .fontColor(this.palette.functionKeyText)
+            .onClick((): void => this.onAiCancel?.())
+        }
+        .height('100%')
+        .alignItems(VerticalAlign.Center)
+        .padding({ left: CANDIDATE_BAR_HORIZONTAL_PADDING, right: CANDIDATE_BAR_HORIZONTAL_PADDING })
+      }
+      .scrollable(ScrollDirection.Horizontal)
+      .scrollBar(BarState.Off)
+      .width('100%')
+      .height('100%')
+    } else {
+      Row({ space: 8 }) {
+        Text('AI')
+          .fontSize(11)
+          .fontColor(this.palette.candidateReading)
+        Text(this.aiPresentation.statusMessage)
+          .fontSize(11)
+          .fontColor(this.aiPresentation.state === AiRequestState.ERROR
+            ? this.palette.errorText
+            : this.palette.candidateText)
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .layoutWeight(1)
+        if (this.aiPresentation.state === AiRequestState.LOADING ||
+          this.aiPresentation.state === AiRequestState.APPLYING) {
+          Text('取消')
+            .fontSize(11)
+            .fontColor(this.palette.functionKeyText)
+            .onClick((): void => this.onAiCancel?.())
+        }
+      }
+      .width('100%')
+      .height('100%')
+      .padding({ left: CANDIDATE_BAR_HORIZONTAL_PADDING, right: CANDIDATE_BAR_HORIZONTAL_PADDING })
+      .alignItems(VerticalAlign.Center)
+    }
+  }
+
+  @Builder
+  private VoiceAssistView() {
+    Row({ space: 8 }) {
+      Text('语音')
+        .fontSize(11)
+        .fontColor(this.palette.candidateReading)
+      Text(this.voicePresentation.finalText.length > 0
+        ? this.voicePresentation.finalText
+        : (this.voicePresentation.interimText.length > 0
+          ? this.voicePresentation.interimText
+          : this.voicePresentation.statusMessage))
+        .fontSize(11)
+        .fontColor(this.voicePresentation.state === VoiceSessionState.ERROR
+          ? this.palette.errorText
+          : this.palette.candidateText)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .layoutWeight(1)
+      if (this.voicePresentation.state === VoiceSessionState.RESULT_READY) {
+        Text('上屏').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceConfirm?.())
+        Text('重说').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceRetry?.())
+        Text('取消').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceCancel?.())
+      } else if (this.voicePresentation.state === VoiceSessionState.LISTENING) {
+        Text('停止').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceStop?.())
+        Text('取消').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceCancel?.())
+      } else if (this.voicePresentation.state === VoiceSessionState.ERROR) {
+        Text('重试').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceRetry?.())
+        Text('取消').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceCancel?.())
+      } else if (this.voicePresentation.state === VoiceSessionState.FINALIZING ||
+        this.voicePresentation.state === VoiceSessionState.COMMITTING) {
+        Text('取消').fontSize(11).fontColor(this.palette.functionKeyText)
+          .onClick((): void => this.onVoiceCancel?.())
+      }
+    }
+    .width('100%')
+    .height('100%')
+    .padding({ left: CANDIDATE_BAR_HORIZONTAL_PADDING, right: CANDIDATE_BAR_HORIZONTAL_PADDING })
+    .alignItems(VerticalAlign.Center)
+  }
+
+  @Builder
+  private LocalAssociationView() {
+    Scroll() {
+      Row({ space: 7 }) {
+        Text('关联·本地')
+          .fontSize(11)
+          .fontColor(this.palette.candidateReading)
+        ForEach(this.localAssociations, (suggestion: LocalAssociationSuggestion) => {
+          Text(suggestion.text)
+            .fontSize(this.candidateFontSize)
+            .fontColor(this.palette.candidateText)
+            .fontWeight(FontWeight.Medium)
+            .maxLines(1)
+            .padding({ left: 9, right: 9, top: 4, bottom: 4 })
+            .borderRadius(4)
+            .backgroundColor(this.palette.functionKeyBackground)
+            .accessibilityText(`本地关联词，${suggestion.text}`)
+            .onClick((): void => this.onLocalAssociationClick?.(suggestion.associationId))
+        }, (suggestion: LocalAssociationSuggestion): string => suggestion.associationId)
+      }
+      .height('100%')
+      .alignItems(VerticalAlign.Center)
+      .padding({ left: CANDIDATE_BAR_HORIZONTAL_PADDING, right: CANDIDATE_BAR_HORIZONTAL_PADDING })
+    }
+    .scrollable(ScrollDirection.Horizontal)
+    .scrollBar(BarState.Off)
+    .width('100%')
+    .height('100%')
   }
 
   private expansionAccessibilityText(): string {
@@ -404,7 +672,13 @@ export struct CandidateBar {
   build() {
     Row() {
       Column() {
-        if (this.state === CandidateBarState.IDLE) {
+        if (this.voicePresentation.state !== VoiceSessionState.IDLE) {
+          this.VoiceAssistView()
+        } else if (this.aiPresentation.state !== AiRequestState.IDLE) {
+          this.AiAssistView()
+        } else if (this.localAssociations.length > 0) {
+          this.LocalAssociationView()
+        } else if (this.state === CandidateBarState.IDLE) {
           this.IdleToolbar()
         } else if (this.contentVisible) {
           if (this.state === CandidateBarState.LOADING) {

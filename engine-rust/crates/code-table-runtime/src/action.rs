@@ -15,8 +15,12 @@ pub const MAX_PAIR_CURSOR_OFFSET_UTF16: u32 = 16;
 pub enum DateTimeFormatId {
     DateIso,
     DateLocal,
+    DateLocalUnpadded,
     TimeHm,
+    TimeHms,
+    TimeLocalHms,
     DateTimeLocal,
+    UnixTimestamp,
 }
 
 impl DateTimeFormatId {
@@ -24,8 +28,12 @@ impl DateTimeFormatId {
         match self {
             Self::DateIso => "DATE_ISO",
             Self::DateLocal => "DATE_LOCAL",
+            Self::DateLocalUnpadded => "DATE_LOCAL_UNPADDED",
             Self::TimeHm => "TIME_HM",
+            Self::TimeHms => "TIME_HMS",
+            Self::TimeLocalHms => "TIME_LOCAL_HMS",
             Self::DateTimeLocal => "DATETIME_LOCAL",
+            Self::UnixTimestamp => "UNIX_TIMESTAMP",
         }
     }
 
@@ -33,8 +41,12 @@ impl DateTimeFormatId {
         match value {
             "DATE_ISO" => Some(Self::DateIso),
             "DATE_LOCAL" => Some(Self::DateLocal),
+            "DATE_LOCAL_UNPADDED" => Some(Self::DateLocalUnpadded),
             "TIME_HM" => Some(Self::TimeHm),
+            "TIME_HMS" => Some(Self::TimeHms),
+            "TIME_LOCAL_HMS" => Some(Self::TimeLocalHms),
             "DATETIME_LOCAL" => Some(Self::DateTimeLocal),
+            "UNIX_TIMESTAMP" => Some(Self::UnixTimestamp),
             _ => None,
         }
     }
@@ -53,6 +65,19 @@ pub enum FunctionalAction {
     RepeatCommit,
     UndoCommit,
     MoveLineEnd,
+    DirectControl {
+        action: String,
+        target: String,
+    },
+    ImportUserLexicon,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ActionScope {
+    /// The action is reached after the semicolon quick-symbol guide.
+    Guide,
+    /// The action is reached from the ordinary code stream.
+    Direct,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -61,6 +86,7 @@ pub struct ActionRecord {
     pub code: String,
     pub label: String,
     pub source_order: u32,
+    pub scope: ActionScope,
     pub action: FunctionalAction,
 }
 
@@ -77,14 +103,70 @@ impl FunctionalActionTable {
     /// expressions remain rejected and are never interpreted at runtime.
     pub fn production_defaults() -> Self {
         let records = vec![
-            production_record(
-                "undo-commit",
-                "i",
-                "撤销上屏",
-                FunctionalAction::UndoCommit,
+            guide_record(
+                "symbol-colon",
+                ";",
+                "：",
+                FunctionalAction::StaticSymbol("：".to_owned()),
                 0,
             ),
-            production_record(
+            guide_record(
+                "symbol-colon-open-quote",
+                "q",
+                "：“",
+                FunctionalAction::StaticSymbol("：“".to_owned()),
+                1,
+            ),
+            guide_record(
+                "symbol-question",
+                "w",
+                "？",
+                FunctionalAction::StaticSymbol("？".to_owned()),
+                2,
+            ),
+            guide_record(
+                "symbol-open-round",
+                "e",
+                "（",
+                FunctionalAction::StaticSymbol("（".to_owned()),
+                3,
+            ),
+            guide_record(
+                "symbol-close-round",
+                "r",
+                "）",
+                FunctionalAction::StaticSymbol("）".to_owned()),
+                4,
+            ),
+            guide_record(
+                "literal-tab",
+                "t",
+                "Tab",
+                FunctionalAction::StaticText("\t".to_owned()),
+                5,
+            ),
+            guide_record(
+                "symbol-open-title",
+                "y",
+                "《",
+                FunctionalAction::StaticSymbol("《".to_owned()),
+                6,
+            ),
+            guide_record(
+                "symbol-close-title",
+                "u",
+                "》",
+                FunctionalAction::StaticSymbol("》".to_owned()),
+                7,
+            ),
+            guide_record(
+                "undo-commit",
+                "i",
+                "[撤销]",
+                FunctionalAction::UndoCommit,
+                8,
+            ),
+            guide_record(
                 "pair-corner",
                 "o",
                 "「」",
@@ -92,26 +174,54 @@ impl FunctionalActionTable {
                     text: "「」".to_owned(),
                     cursor_offset_utf16: 1,
                 },
-                1,
+                9,
             ),
-            production_record(
-                "pair-double-corner",
+            guide_record(
+                "pair-angle",
                 "p",
-                "『』",
+                "〈〉",
                 FunctionalAction::InsertPair {
-                    text: "『』".to_owned(),
+                    text: "〈〉".to_owned(),
                     cursor_offset_utf16: 1,
                 },
-                2,
+                10,
             ),
-            production_record(
+            guide_record(
+                "symbol-exclamation",
+                "a",
+                "！",
+                FunctionalAction::StaticSymbol("！".to_owned()),
+                11,
+            ),
+            guide_record(
+                "symbol-ellipsis",
+                "s",
+                "……",
+                FunctionalAction::StaticSymbol("……".to_owned()),
+                12,
+            ),
+            guide_record(
+                "symbol-pause",
+                "d",
+                "、",
+                FunctionalAction::StaticSymbol("、".to_owned()),
+                13,
+            ),
+            guide_record(
                 "repeat-commit",
                 "f",
                 "重复",
                 FunctionalAction::RepeatCommit,
-                3,
+                14,
             ),
-            production_record(
+            guide_record(
+                "symbol-middle-dot",
+                "g",
+                "·",
+                FunctionalAction::StaticSymbol("·".to_owned()),
+                15,
+            ),
+            guide_record(
                 "pair-title",
                 "h",
                 "《》",
@@ -119,9 +229,9 @@ impl FunctionalActionTable {
                     text: "《》".to_owned(),
                     cursor_offset_utf16: 1,
                 },
-                4,
+                16,
             ),
-            production_record(
+            guide_record(
                 "pair-quote",
                 "j",
                 "“”",
@@ -129,9 +239,9 @@ impl FunctionalActionTable {
                     text: "“”".to_owned(),
                     cursor_offset_utf16: 1,
                 },
-                5,
+                17,
             ),
-            production_record(
+            guide_record(
                 "pair-round-cn",
                 "k",
                 "（）",
@@ -139,9 +249,9 @@ impl FunctionalActionTable {
                     text: "（）".to_owned(),
                     cursor_offset_utf16: 1,
                 },
-                6,
+                18,
             ),
-            production_record(
+            guide_record(
                 "pair-lenticular",
                 "l",
                 "〔〕",
@@ -149,20 +259,170 @@ impl FunctionalActionTable {
                     text: "〔〕".to_owned(),
                     cursor_offset_utf16: 1,
                 },
-                7,
+                19,
             ),
-            production_record(
+            guide_record(
+                "symbol-open-quote",
+                "z",
+                "“",
+                FunctionalAction::StaticSymbol("“".to_owned()),
+                20,
+            ),
+            guide_record(
+                "symbol-arrow-right",
+                "x",
+                "→",
+                FunctionalAction::StaticSymbol("→".to_owned()),
+                21,
+            ),
+            guide_record(
+                "symbol-close-quote",
+                "c",
+                "”",
+                FunctionalAction::StaticSymbol("”".to_owned()),
+                22,
+            ),
+            guide_record(
+                "symbol-em-dash",
+                "v",
+                "——",
+                FunctionalAction::StaticSymbol("——".to_owned()),
+                23,
+            ),
+            guide_record(
+                "symbol-ideographic-space",
+                "b",
+                "⎵",
+                FunctionalAction::StaticSymbol("　".to_owned()),
+                24,
+            ),
+            guide_record(
                 "move-line-end",
                 "n",
-                "End",
+                "[End]",
                 FunctionalAction::MoveLineEnd,
+                25,
+            ),
+            guide_record(
+                "symbol-at",
+                "m",
+                "@",
+                FunctionalAction::StaticSymbol("@".to_owned()),
+                26,
+            ),
+            direct_record(
+                "direct-oba",
+                "oba",
+                "横_一",
+                FunctionalAction::StaticText("一".to_owned()),
+                0,
+            ),
+            direct_record(
+                "date-iso",
+                "orq",
+                "日期 YYYY-MM-DD",
+                FunctionalAction::DateTimeText(DateTimeFormatId::DateIso),
+                1,
+            ),
+            direct_record(
+                "date-local",
+                "orq",
+                "日期 YYYY年M月D日",
+                FunctionalAction::DateTimeText(DateTimeFormatId::DateLocalUnpadded),
+                2,
+            ),
+            direct_record(
+                "time-hms",
+                "ouj",
+                "时间 HH:mm:ss",
+                FunctionalAction::DateTimeText(DateTimeFormatId::TimeHms),
+                3,
+            ),
+            direct_record(
+                "time-local-hms",
+                "ouj",
+                "时间 HH时mm分ss秒",
+                FunctionalAction::DateTimeText(DateTimeFormatId::TimeLocalHms),
+                4,
+            ),
+            direct_record(
+                "unix-timestamp",
+                "ouji",
+                "Unix 时间戳",
+                FunctionalAction::DateTimeText(DateTimeFormatId::UnixTimestamp),
+                5,
+            ),
+            direct_record(
+                "poem-jing-ye-si",
+                "jysi",
+                "「静夜思」",
+                FunctionalAction::StaticText(
+                    "　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n".to_owned(),
+                ),
+                6,
+            ),
+            direct_record(
+                "lexicon-preset-experienced",
+                "ojj",
+                "<熟手词库>",
+                FunctionalAction::DirectControl {
+                    action: "category.core".to_owned(),
+                    target: String::new(),
+                },
+                7,
+            ),
+            direct_record(
+                "lexicon-preset-standard",
+                "ojj",
+                "<常规词库>",
+                FunctionalAction::DirectControl {
+                    action: "category.set".to_owned(),
+                    target: "core,category-secondary,quick-symbol,one-key-secondary,out-of-table-character,symbol,symbol-group,ok-spelling".to_owned(),
+                },
                 8,
+            ),
+            direct_record(
+                "lexicon-preset-beginner",
+                "ojj",
+                "<初学词库>",
+                FunctionalAction::DirectControl {
+                    action: "category.all".to_owned(),
+                    target: String::new(),
+                },
+                9,
+            ),
+            direct_record(
+                "two-key-secondary-enable",
+                "oej",
+                "<二简次选>",
+                FunctionalAction::DirectControl {
+                    action: "category.enable".to_owned(),
+                    target: "two-key-secondary".to_owned(),
+                },
+                10,
+            ),
+            direct_record(
+                "two-key-secondary-disable",
+                "oej",
+                "[关闭二简次选]",
+                FunctionalAction::DirectControl {
+                    action: "category.disable".to_owned(),
+                    target: "two-key-secondary".to_owned(),
+                },
+                11,
+            ),
+            direct_record(
+                "import-user-lexicon",
+                "odr",
+                "[导入用户词库]",
+                FunctionalAction::ImportUserLexicon,
+                12,
             ),
         ];
         Self {
             fixture_only: false,
             records,
-            file_sha256: "built-in-production-actions-v1".to_owned(),
+            file_sha256: "built-in-production-actions-v2".to_owned(),
         }
     }
 
@@ -295,6 +555,7 @@ impl FunctionalActionTable {
                 code,
                 label,
                 source_order: index as u32,
+                scope: ActionScope::Guide,
                 action,
             });
         }
@@ -306,14 +567,48 @@ impl FunctionalActionTable {
     }
 
     pub fn query_exact_or_prefix(&self, code: &str) -> Vec<&ActionRecord> {
+        self.query_guide_exact_or_prefix(code)
+    }
+
+    pub fn query_guide_exact_or_prefix(&self, code: &str) -> Vec<&ActionRecord> {
+        self.query_scope_exact_or_prefix(ActionScope::Guide, code)
+    }
+
+    pub fn query_direct_exact_or_prefix(&self, code: &str) -> Vec<&ActionRecord> {
+        self.query_scope_exact_or_prefix(ActionScope::Direct, code)
+    }
+
+    pub fn has_direct_exact(&self, code: &str) -> bool {
+        !code.is_empty()
+            && self
+                .records
+                .iter()
+                .any(|record| record.scope == ActionScope::Direct && record.code == code)
+    }
+
+    pub fn has_direct_continuation(&self, code: &str) -> bool {
+        !code.is_empty()
+            && self.records.iter().any(|record| {
+                record.scope == ActionScope::Direct
+                    && record.code.len() > code.len()
+                    && record.code.starts_with(code)
+            })
+    }
+
+    fn query_scope_exact_or_prefix(&self, scope: ActionScope, code: &str) -> Vec<&ActionRecord> {
         if code.is_empty() {
             return Vec::new();
         }
-        let exact = self.records.iter().any(|record| record.code == code);
+        let exact = self
+            .records
+            .iter()
+            .any(|record| record.scope == scope && record.code == code);
         self.records
             .iter()
             .filter(|record| {
-                if exact {
+                if record.scope != scope {
+                    false
+                } else if exact {
                     record.code == code
                 } else {
                     record.code.starts_with(code)
@@ -333,14 +628,36 @@ fn production_record(
     label: &str,
     action: FunctionalAction,
     source_order: u32,
+    scope: ActionScope,
 ) -> ActionRecord {
     ActionRecord {
         id: id.to_owned(),
         code: code.to_owned(),
         label: label.to_owned(),
         source_order,
+        scope,
         action,
     }
+}
+
+fn guide_record(
+    id: &str,
+    code: &str,
+    label: &str,
+    action: FunctionalAction,
+    source_order: u32,
+) -> ActionRecord {
+    production_record(id, code, label, action, source_order, ActionScope::Guide)
+}
+
+fn direct_record(
+    id: &str,
+    code: &str,
+    label: &str,
+    action: FunctionalAction,
+    source_order: u32,
+) -> ActionRecord {
+    production_record(id, code, label, action, source_order, ActionScope::Direct)
 }
 
 fn required_text(object: &BTreeMap<String, JsonValue>) -> Result<String, CodeTableError> {
@@ -517,7 +834,57 @@ mod tests {
             table.query_exact_or_prefix("j")[0].action,
             FunctionalAction::InsertPair { .. }
         ));
-        assert!(table.query_exact_or_prefix("x").is_empty());
+        assert!(matches!(
+            table.query_exact_or_prefix("x")[0].action,
+            FunctionalAction::StaticSymbol(ref text) if text == "→"
+        ));
+        assert!(table.query_exact_or_prefix("oba").is_empty());
+        let direct = table.query_direct_exact_or_prefix("oba");
+        assert_eq!(direct[0].label, "横_一");
+        assert!(matches!(
+            direct[0].action,
+            FunctionalAction::StaticText(ref text) if text == "一"
+        ));
+    }
+
+    #[test]
+    fn production_quick_symbols_match_the_clearwind_kf_map() {
+        let table = FunctionalActionTable::production_defaults();
+        let expected = [
+            (";", "："),
+            ("q", "：“"),
+            ("w", "？"),
+            ("e", "（"),
+            ("r", "）"),
+            ("t", "Tab"),
+            ("y", "《"),
+            ("u", "》"),
+            ("i", "[撤销]"),
+            ("o", "「」"),
+            ("p", "〈〉"),
+            ("a", "！"),
+            ("s", "……"),
+            ("d", "、"),
+            ("f", "重复"),
+            ("g", "·"),
+            ("h", "《》"),
+            ("j", "“”"),
+            ("k", "（）"),
+            ("l", "〔〕"),
+            ("z", "“"),
+            ("x", "→"),
+            ("c", "”"),
+            ("v", "——"),
+            ("b", "⎵"),
+            ("n", "[End]"),
+            ("m", "@"),
+        ];
+        for (code, label) in expected {
+            let records = table.query_guide_exact_or_prefix(code);
+            assert_eq!(records.len(), 1, "guide code {code}");
+            assert_eq!(records[0].label, label, "guide code {code}");
+            assert_eq!(records[0].scope, ActionScope::Guide);
+        }
     }
 
     #[test]

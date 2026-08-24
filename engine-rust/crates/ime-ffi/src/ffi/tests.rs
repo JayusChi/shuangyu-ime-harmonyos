@@ -174,6 +174,18 @@ mod tests {
     }
 
     #[test]
+    fn local_association_ffi_is_bounded_json_and_defaults_empty() {
+        let mut handle = create_default_engine();
+        let mut out = ImeBuffer::empty();
+        assert_eq!(
+            ime_engine_get_local_associations(handle, &mut out),
+            ImeErrorCode::Success.as_i32()
+        );
+        assert_eq!(take_buffer(out), "[]");
+        assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
+    }
+
+    #[test]
     fn quanpin_letter_contract_has_no_fixed_length_gate_cross_ffi() {
         let config = br#"{"interfaceVersion":7,"schemeId":"quanpin"}"#;
         let mut handle = ptr::null_mut();
@@ -294,12 +306,12 @@ mod tests {
     #[test]
     fn quanpin_features_default_off_and_parse_all_supported_options() {
         let defaults =
-            parse_engine_config(r#"{"interfaceVersion":9,"schemeId":"quanpin"}"#).unwrap();
+            parse_engine_config(r#"{"interfaceVersion":10,"schemeId":"quanpin"}"#).unwrap();
         assert!(!defaults.quanpin_features.spelling_correction_enabled);
         assert!(defaults.quanpin_features.fuzzy_options.is_empty());
 
         let configured = parse_engine_config(
-            r#"{"interfaceVersion":9,"schemeId":"quanpin","quanpinConfigVersion":1,"spellingCorrectionEnabled":true,"fuzzyOptions":["n_l","z_zh","c_ch","s_sh","in_ing","en_eng","an_ang","ian_iang"]}"#,
+            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinConfigVersion":1,"spellingCorrectionEnabled":true,"fuzzyOptions":["n_l","z_zh","c_ch","s_sh","in_ing","en_eng","an_ang","ian_iang"]}"#,
         )
         .unwrap();
         assert!(configured.quanpin_features.spelling_correction_enabled);
@@ -309,11 +321,11 @@ mod tests {
     #[test]
     fn quanpin_features_reject_unknown_options_and_versions() {
         assert!(parse_engine_config(
-            r#"{"interfaceVersion":9,"schemeId":"quanpin","fuzzyOptions":["unknown"]}"#
+            r#"{"interfaceVersion":10,"schemeId":"quanpin","fuzzyOptions":["unknown"]}"#
         )
         .is_err());
         assert!(parse_engine_config(
-            r#"{"interfaceVersion":9,"schemeId":"quanpin","quanpinConfigVersion":2}"#
+            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinConfigVersion":2}"#
         )
         .is_err());
     }
@@ -321,13 +333,13 @@ mod tests {
     #[test]
     fn quanpin_context_reranking_config_crosses_ffi_parser_and_defaults_off() {
         let defaults =
-            parse_engine_config(r#"{"interfaceVersion":9,"schemeId":"quanpin"}"#).unwrap();
+            parse_engine_config(r#"{"interfaceVersion":10,"schemeId":"quanpin"}"#).unwrap();
         assert!(!defaults.quanpin_context_reranking.enabled);
         assert_eq!(defaults.quanpin_context_reranking.model_path, None);
         assert_eq!(defaults.quanpin_context_reranking.model_sha256, None);
 
         let configured = parse_engine_config(
-            r#"{"interfaceVersion":9,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":2,"quanpinContextRerankingEnabled":true,"quanpinContextModelPath":"data/context.qng","quanpinContextModelSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"#,
+            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":2,"quanpinContextRerankingEnabled":true,"quanpinContextModelPath":"data/context.qng","quanpinContextModelSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"#,
         )
         .unwrap();
         assert!(configured.quanpin_context_reranking.enabled);
@@ -344,7 +356,7 @@ mod tests {
     #[test]
     fn quanpin_context_reranking_rejects_wrong_config_version() {
         assert!(parse_engine_config(
-            r#"{"interfaceVersion":9,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":3}"#
+            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":3}"#
         )
         .is_err());
     }
@@ -639,7 +651,7 @@ mod tests {
     fn production_direct_actions_cross_ffi_as_closed_protocol_actions() {
         let formal = formal_bundle_path().to_string_lossy().replace('\\', "\\\\");
         let config = format!(
-            "{{\"interfaceVersion\":9,\"schemeId\":\"xiaohe-yinxing\",\"codeTableBundlePath\":\"{formal}\",\"candidatePageSize\":5}}"
+            "{{\"interfaceVersion\":10,\"schemeId\":\"xiaohe-yinxing\",\"codeTableBundlePath\":\"{formal}\",\"candidatePageSize\":5}}"
         );
         let mut handle = ptr::null_mut();
         assert_eq!(
@@ -673,6 +685,39 @@ mod tests {
                 code as char
             );
         }
+
+        let mut out = ImeBuffer::empty();
+        for key in b"oba" {
+            assert_eq!(
+                ime_engine_process_key(handle, key, 1, &mut out),
+                ImeErrorCode::Success.as_i32()
+            );
+            let _ = take_buffer(out);
+            out = ImeBuffer::empty();
+        }
+        assert_eq!(
+            ime_engine_select_candidate(handle, 0, &mut out),
+            ImeErrorCode::Success.as_i32()
+        );
+        let display_commit = take_buffer(out);
+        assert!(display_commit.contains("\"commitText\":\"一\""));
+
+        out = ImeBuffer::empty();
+        for key in b"ojj" {
+            assert_eq!(
+                ime_engine_process_key(handle, key, 1, &mut out),
+                ImeErrorCode::Success.as_i32()
+            );
+            let _ = take_buffer(out);
+            out = ImeBuffer::empty();
+        }
+        assert_eq!(
+            ime_engine_select_candidate(handle, 0, &mut out),
+            ImeErrorCode::Success.as_i32()
+        );
+        let category_action = take_buffer(out);
+        assert!(category_action.contains("\"type\":\"DIRECT_CONTROL\""));
+        assert!(category_action.contains("\"formatId\":\"category.core\""));
 
         assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
     }
@@ -1431,4 +1476,3 @@ mod tests {
         assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
     }
 }
-

@@ -137,6 +137,13 @@ impl QuanpinContextReranker {
         self.context.record_committed_words(words);
     }
 
+    pub(crate) fn local_associations(&self, limit: usize) -> Vec<String> {
+        self.model
+            .as_ref()
+            .map(|model| model.suggest_next(self.context.words(), limit))
+            .unwrap_or_default()
+    }
+
     pub(crate) fn rerank(
         &self,
         candidates: Vec<SentenceCandidate>,

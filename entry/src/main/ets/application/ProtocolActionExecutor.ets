@@ -18,6 +18,8 @@ export interface ProtocolActionImeService {
 export interface ProtocolActionHandlers {
   repeatLastCommit?(generation: number): Promise<boolean>;
   undoLastCommit?(generation: number): Promise<boolean>;
+  executeDirectControl?(action: string, target: string, generation: number): Promise<boolean>;
+  importUserLexicon?(generation: number): Promise<boolean>;
 }
 
 class EmptyProtocolActionHandlers implements ProtocolActionHandlers {
@@ -146,6 +148,42 @@ export class ProtocolActionExecutor {
           false
         );
       }
+      if (action.type === 'DIRECT_CONTROL') {
+        if (!this.handlers.executeDirectControl) {
+          return this.result(ProtocolActionExecutionStatus.FAILED, false);
+        }
+        let success: boolean = false;
+        try {
+          success = await this.handlers.executeDirectControl(action.formatId, action.text, generation);
+        } catch (err) {
+          return this.result(ProtocolActionExecutionStatus.FAILED, false);
+        }
+        if (!this.isGenerationCurrent(generation)) {
+          return this.result(ProtocolActionExecutionStatus.SESSION_INVALID, false);
+        }
+        return this.result(
+          success ? ProtocolActionExecutionStatus.SUCCESS : ProtocolActionExecutionStatus.FAILED,
+          false
+        );
+      }
+      if (action.type === 'IMPORT_USER_LEXICON') {
+        if (!this.handlers.importUserLexicon) {
+          return this.result(ProtocolActionExecutionStatus.FAILED, false);
+        }
+        let success: boolean = false;
+        try {
+          success = await this.handlers.importUserLexicon(generation);
+        } catch (err) {
+          return this.result(ProtocolActionExecutionStatus.FAILED, false);
+        }
+        if (!this.isGenerationCurrent(generation)) {
+          return this.result(ProtocolActionExecutionStatus.SESSION_INVALID, false);
+        }
+        return this.result(
+          success ? ProtocolActionExecutionStatus.SUCCESS : ProtocolActionExecutionStatus.FAILED,
+          false
+        );
+      }
       if (action.type !== 'INSERT_PAIR' ||
         !this.validPair(action.text, action.cursorOffsetUtf16) ||
         !this.imeService.insertPairText) {
@@ -185,15 +223,24 @@ export class ProtocolActionExecutor {
     const day = snapshot.getDate().toString().padStart(2, '0');
     const hour = snapshot.getHours().toString().padStart(2, '0');
     const minute = snapshot.getMinutes().toString().padStart(2, '0');
+    const second = snapshot.getSeconds().toString().padStart(2, '0');
     switch (formatId) {
       case 'DATE_ISO':
         return `${year}-${month}-${day}`;
       case 'DATE_LOCAL':
         return `${year}年${month}月${day}日`;
+      case 'DATE_LOCAL_UNPADDED':
+        return `${year}年${snapshot.getMonth() + 1}月${snapshot.getDate()}日`;
       case 'TIME_HM':
         return `${hour}:${minute}`;
+      case 'TIME_HMS':
+        return `${hour}:${minute}:${second}`;
+      case 'TIME_LOCAL_HMS':
+        return `${hour}时${minute}分${second}秒`;
       case 'DATETIME_LOCAL':
         return `${year}年${month}月${day}日 ${hour}:${minute}`;
+      case 'UNIX_TIMESTAMP':
+        return Math.floor(snapshot.getTime() / 1000).toString();
       default:
         return '';
     }

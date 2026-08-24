@@ -2,6 +2,7 @@ import {
   CandidateFontSizeMode,
   CandidatePresentationMode,
   CURRENT_SETTINGS_SCHEMA_VERSION,
+  DEFAULT_AI_ACTIONS,
   DEFAULT_IME_SETTINGS,
   HapticLevel,
   ImeSettings,
@@ -39,6 +40,31 @@ export class SettingsValidator {
         raw.userLearningEnabled,
         DEFAULT_IME_SETTINGS.userLearningEnabled
       ),
+      aiEnabled: this.booleanValue(raw.aiEnabled, DEFAULT_IME_SETTINGS.aiEnabled),
+      localAssociationEnabled: this.booleanValue(
+        raw.localAssociationEnabled,
+        DEFAULT_IME_SETTINGS.localAssociationEnabled
+      ),
+      cloudAiEnabled: this.booleanValue(raw.cloudAiEnabled, DEFAULT_IME_SETTINGS.cloudAiEnabled),
+      cloudAiConsentVersion: this.nonNegativeInteger(
+        raw.cloudAiConsentVersion,
+        DEFAULT_IME_SETTINGS.cloudAiConsentVersion
+      ),
+      preferredAiActions: this.preferredAiActions(raw.preferredAiActions),
+      voiceInputEnabled: this.booleanValue(
+        raw.voiceInputEnabled,
+        DEFAULT_IME_SETTINGS.voiceInputEnabled
+      ),
+      voiceLanguage: raw.voiceLanguage === 'zh-CN' ? raw.voiceLanguage : DEFAULT_IME_SETTINGS.voiceLanguage,
+      voiceAutoCommit: this.booleanValue(raw.voiceAutoCommit, DEFAULT_IME_SETTINGS.voiceAutoCommit),
+      voiceCloudConsentVersion: this.nonNegativeInteger(
+        raw.voiceCloudConsentVersion,
+        DEFAULT_IME_SETTINGS.voiceCloudConsentVersion
+      ),
+      voicePunctuationEnabled: this.booleanValue(
+        raw.voicePunctuationEnabled,
+        DEFAULT_IME_SETTINGS.voicePunctuationEnabled
+      ),
       spellingCorrectionEnabled: this.booleanValue(
         raw.spellingCorrectionEnabled,
         DEFAULT_IME_SETTINGS.spellingCorrectionEnabled
@@ -72,6 +98,36 @@ export class SettingsValidator {
     } catch (_err) {
       return [];
     }
+  }
+
+  private preferredAiActions(value?: string): string[] {
+    if (!value) {
+      return DEFAULT_AI_ACTIONS.slice();
+    }
+    try {
+      const parsed: Object[] = JSON.parse(value) as Object[];
+      if (!Array.isArray(parsed)) {
+        return DEFAULT_AI_ACTIONS.slice();
+      }
+      const requested: Set<string> = new Set<string>();
+      parsed.forEach((item: Object): void => {
+        if (typeof item === 'string' && DEFAULT_AI_ACTIONS.indexOf(item as string) >= 0) {
+          requested.add(item as string);
+        }
+      });
+      const actions = DEFAULT_AI_ACTIONS.filter((action: string): boolean => requested.has(action));
+      return actions.length > 0 ? actions : DEFAULT_AI_ACTIONS.slice();
+    } catch (_err) {
+      return DEFAULT_AI_ACTIONS.slice();
+    }
+  }
+
+  private nonNegativeInteger(value: string | undefined, defaultValue: number): number {
+    if (!value) {
+      return defaultValue;
+    }
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : defaultValue;
   }
 
   private inputPresentationPreference(value?: string): InputPresentationPreference {

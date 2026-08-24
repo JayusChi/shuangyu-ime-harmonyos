@@ -28,6 +28,7 @@ class EngineRegistry {
     RustCallResult SelectPinyinCombination(uint32_t id, size_t combinationIndex);
     RustCallResult NextCandidatePage(uint32_t id);
     RustCallResult PreviousCandidatePage(uint32_t id);
+    RustCallResult GetLocalAssociations(uint32_t id);
     RustCallResult GetCodeTableCategoryConfig(uint32_t id);
     RustCallResult SetCodeTableCategories(uint32_t id, const std::string& categoryIdsJson);
     RustCallResult ReloadUserLexicon(uint32_t id);

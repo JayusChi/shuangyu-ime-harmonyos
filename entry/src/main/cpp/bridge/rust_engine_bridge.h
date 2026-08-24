@@ -10,8 +10,8 @@ struct RustCallResult {
     std::string payload;
 };
 
-constexpr uint32_t CURRENT_INTERFACE_VERSION = 9;
-constexpr uint32_t CURRENT_ABI_VERSION = 9;
+constexpr uint32_t CURRENT_INTERFACE_VERSION = 10;
+constexpr uint32_t CURRENT_ABI_VERSION = 10;
 constexpr uint32_t STAGE7_INTERFACE_VERSION = CURRENT_INTERFACE_VERSION;
 constexpr uint32_t STAGE7_ABI_VERSION = CURRENT_ABI_VERSION;
 constexpr uint32_t STAGE5_INTERFACE_VERSION = CURRENT_INTERFACE_VERSION;
@@ -35,6 +35,7 @@ RustCallResult SelectRegisteredEngineCandidate(uint32_t id, size_t candidateInde
 RustCallResult SelectRegisteredEnginePinyinCombination(uint32_t id, size_t combinationIndex);
 RustCallResult NextRegisteredEngineCandidatePage(uint32_t id);
 RustCallResult PreviousRegisteredEngineCandidatePage(uint32_t id);
+RustCallResult GetRegisteredEngineLocalAssociations(uint32_t id);
 RustCallResult GetRegisteredEngineCodeTableCategoryConfig(uint32_t id);
 RustCallResult SetRegisteredEngineCodeTableCategories(uint32_t id, const std::string& categoryIdsJson);
 RustCallResult ReloadRegisteredEngineUserLexicon(uint32_t id);

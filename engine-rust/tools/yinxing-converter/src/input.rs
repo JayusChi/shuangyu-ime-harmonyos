@@ -78,7 +78,7 @@ pub fn preflight_all(source_root: &Path, contract: &ValidatedContract) -> Result
         }
         inputs.push(SourceInput { spec, bytes });
     }
-    // Parsing starts only after every one of the eight byte hashes has passed.
+    // Parsing starts only after every one of the twelve byte hashes has passed.
     Ok(inputs)
 }
 

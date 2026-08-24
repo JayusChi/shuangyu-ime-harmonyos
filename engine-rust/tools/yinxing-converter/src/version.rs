@@ -12,14 +12,15 @@ pub const CONVERSION_CONTRACT_VERSION: &str = "1.1.0";
 pub const AUDITOR_VERSION: &str = "yinxing-source-auditor/1.1.0";
 pub const FROZEN_CONVERTER_PLACEHOLDER: &str = "yinxing-converter/0-not-implemented";
 pub const SOURCE_MANIFEST_SHA256: &str =
-    "d45b2fe3930cf10c30a9f4887a7fe2cc98dc90b7f06ec490e56b9ff7718cb189";
+    "bb39015d3e4cd2998a4e14b904f277171951ea459d1b24b42d264cac4b0f2ffa";
 pub const CONVERSION_CONTRACT_SHA256: &str =
-    "624ad86ab5b2702fd49b9cd1acac498706ee0f74411ec111d6d1b9a1dad7decf";
+    "2db0ef42190d3058f2404e9848185f6e4d85734bba1c6e18acc6c85fdf3380b6";
 pub const SANITIZED_CONFIGURATION_SHA256: &str =
-    "b4b7705055953e0c65d579767875516fd11c8c973af810b3821045551e0d04f0";
-pub const CATEGORY_COUNT: usize = 11;
+    "ebc2b5f0ded084e18379e006af19885a2b022fdf51701b0bb3b896dc1cf39b7e";
+pub const CATEGORY_COUNT: usize = 12;
 pub const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_WORD_CHARS: usize = 64;
 pub const MAX_PRODUCTION_CODE_LEN: usize = 4;
+pub const MAX_OK_SPELLING_CODE_LEN: usize = 8;
 pub const MAX_ACTION_ARGUMENT_CHARS: usize = 256;
 pub const LEXICON_VERSION: u32 = 11_602;

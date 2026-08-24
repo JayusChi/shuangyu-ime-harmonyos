@@ -179,6 +179,23 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
     );
   }
 
+  hasPendingPair(generation: number = 0): boolean {
+    return this.pairInsertionService.hasPending(generation);
+  }
+
+  async jumpOutPair(generation: number = 0): Promise<boolean> {
+    const inputClient = ImeConnectionService.inputClient;
+    return this.pairInsertionService.jumpOut(
+      inputClient,
+      generation,
+      (): boolean => ImeConnectionService.inputClient === inputClient
+    );
+  }
+
+  clearPairState(): void {
+    this.pairInsertionService.clear();
+  }
+
   async finishPreviewText(generation: number = 0): Promise<boolean> {
     const inputClient = ImeConnectionService.inputClient;
     if (!inputClient) {
@@ -254,6 +271,86 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
         result === DeleteResult.CONFIRMED_SUCCESS;
     } catch (err) {
       LOGGER.warn('undo text verification failed');
+      return false;
+    }
+  }
+
+  async textBeforeCursorMatches(text: string): Promise<boolean> {
+    const inputClient = ImeConnectionService.inputClient;
+    if (!inputClient || text.length <= 0) {
+      return false;
+    }
+    try {
+      const observed = await inputClient.getForward(text.length);
+      return ImeConnectionService.inputClient === inputClient && observed === text;
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  async getCursorIndex(): Promise<number | undefined> {
+    const inputClient = ImeConnectionService.inputClient;
+    if (!inputClient) {
+      return undefined;
+    }
+    try {
+      const cursor = await inputClient.getTextIndexAtCursor();
+      return ImeConnectionService.inputClient === inputClient && Number.isInteger(cursor) && cursor >= 0
+        ? cursor : undefined;
+    } catch (_err) {
+      return undefined;
+    }
+  }
+
+  async replaceTextBeforeCursorIfMatches(
+    sourceText: string,
+    replacementText: string,
+    stillOwned: () => boolean = (): boolean => true,
+    expectedCursorUtf16?: number
+  ): Promise<boolean> {
+    const inputClient = ImeConnectionService.inputClient;
+    if (!inputClient || sourceText.length <= 0 || replacementText.length <= 0) {
+      return false;
+    }
+    let originalCursor: number = -1;
+    try {
+      originalCursor = await inputClient.getTextIndexAtCursor();
+      const observed = await inputClient.getForward(sourceText.length);
+      if (ImeConnectionService.inputClient !== inputClient || !stillOwned() || observed !== sourceText ||
+        (expectedCursorUtf16 !== undefined && originalCursor !== expectedCursorUtf16) ||
+        originalCursor < sourceText.length) {
+        LOGGER.warn('verified replacement rejected because source ownership no longer matches');
+        return false;
+      }
+      await inputClient.selectByRange({
+        start: originalCursor - sourceText.length,
+        end: originalCursor
+      });
+      if (ImeConnectionService.inputClient !== inputClient || !stillOwned()) {
+        await inputClient.selectByRange({ start: originalCursor, end: originalCursor });
+        return false;
+      }
+      const inserted = await inputClient.insertText(replacementText);
+      if (!inserted || ImeConnectionService.inputClient !== inputClient) {
+        try {
+          await inputClient.selectByRange({ start: originalCursor, end: originalCursor });
+        } catch (_restoreErr) {
+        }
+        LOGGER.warn('verified replacement insert was rejected');
+        return false;
+      }
+      LOGGER.info(
+        `verified replacement ok: sourceLength=${sourceText.length}, replacementLength=${replacementText.length}`
+      );
+      return true;
+    } catch (_err) {
+      if (originalCursor >= 0 && ImeConnectionService.inputClient === inputClient) {
+        try {
+          await inputClient.selectByRange({ start: originalCursor, end: originalCursor });
+        } catch (_restoreErr) {
+        }
+      }
+      LOGGER.warn('verified replacement failed');
       return false;
     }
   }

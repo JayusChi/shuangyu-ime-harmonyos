@@ -3,7 +3,7 @@
   "categories": [
     {
       "category_id": "core",
-      "display_name": "核心主表",
+      "display_name": "首选",
       "role": "core_code_table",
       "authoritative_source": "小鹤音形/0.0.小鹤.txt",
       "supplemental_sources": [],
@@ -22,7 +22,7 @@
     },
     {
       "category_id": "category-secondary",
-      "display_name": "分类/次选",
+      "display_name": "分类",
       "role": "category_table",
       "authoritative_source": "小鹤音形/1.0.分类.txt",
       "supplemental_sources": [],
@@ -185,7 +185,7 @@
       "notes": "Semicolon-led quick symbols for faster input."
     },
     {
-      "category_id": "symbol-table",
+      "category_id": "symbol",
       "display_name": "符号",
       "role": "symbol_table",
       "authoritative_source": "小鹤音形/2.6.符号.txt",
@@ -203,7 +203,47 @@
       "unsupported_record_policy": "reject_with_source_line",
       "confirmation_status": "frozen_by_user_authorization_2026-08-12",
       "requires_manual_confirmation": false,
-      "notes": "Symbol tables including special characters and emojis."
+      "notes": "Symbol tables including special characters and emojis; grouped with symbol-group in the UI."
+    },
+    {
+      "category_id": "symbol-group",
+      "display_name": "符号组",
+      "role": "symbol_group",
+      "authoritative_source": "小鹤音形/2.7.符号组.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/2.7.符号组.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_user_2026-08-13",
+      "requires_manual_confirmation": false,
+      "notes": "Grouped with symbol in the UI."
+    },
+    {
+      "category_id": "ok-spelling",
+      "display_name": "ok拼字",
+      "role": "spelling_resource",
+      "authoritative_source": "小鹤音形/0.2.拼字.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 拼字.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/0.2.拼字.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternative is excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
+      "requires_manual_confirmation": false,
+      "notes": "Strict six- or eight-letter ok-prefixed spelling records."
     }
   ]
 }

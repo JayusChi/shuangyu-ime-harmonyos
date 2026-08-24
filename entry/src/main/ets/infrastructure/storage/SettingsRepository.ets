@@ -31,6 +31,16 @@ interface SettingsPreferenceKeys {
   HAPTIC_LEVEL: string;
   KEY_SOUND_ENABLED: string;
   USER_LEARNING_ENABLED: string;
+  AI_ENABLED: string;
+  LOCAL_ASSOCIATION_ENABLED: string;
+  CLOUD_AI_ENABLED: string;
+  CLOUD_AI_CONSENT_VERSION: string;
+  PREFERRED_AI_ACTIONS: string;
+  VOICE_INPUT_ENABLED: string;
+  VOICE_LANGUAGE: string;
+  VOICE_AUTO_COMMIT: string;
+  VOICE_CLOUD_CONSENT_VERSION: string;
+  VOICE_PUNCTUATION_ENABLED: string;
   SPELLING_CORRECTION_ENABLED: string;
   FUZZY_OPTIONS: string;
   SMART_PERIOD_TIMEOUT_MS: string;
@@ -55,6 +65,16 @@ const KEYS: SettingsPreferenceKeys = {
   HAPTIC_LEVEL: 'haptic_level',
   KEY_SOUND_ENABLED: 'key_sound_enabled',
   USER_LEARNING_ENABLED: 'user_learning_enabled',
+  AI_ENABLED: 'ai_enabled',
+  LOCAL_ASSOCIATION_ENABLED: 'local_association_enabled',
+  CLOUD_AI_ENABLED: 'cloud_ai_enabled',
+  CLOUD_AI_CONSENT_VERSION: 'cloud_ai_consent_version',
+  PREFERRED_AI_ACTIONS: 'preferred_ai_actions',
+  VOICE_INPUT_ENABLED: 'voice_input_enabled',
+  VOICE_LANGUAGE: 'voice_language',
+  VOICE_AUTO_COMMIT: 'voice_auto_commit',
+  VOICE_CLOUD_CONSENT_VERSION: 'voice_cloud_consent_version',
+  VOICE_PUNCTUATION_ENABLED: 'voice_punctuation_enabled',
   SPELLING_CORRECTION_ENABLED: 'quanpin_spelling_correction_enabled',
   FUZZY_OPTIONS: 'quanpin_fuzzy_options',
   SMART_PERIOD_TIMEOUT_MS: 'smart_period_timeout_ms',
@@ -218,6 +238,16 @@ export class SettingsRepository implements SettingsRepositoryContract {
       hapticLevel: await this.readString(storage, KEYS.HAPTIC_LEVEL),
       keySoundEnabled: await this.readString(storage, KEYS.KEY_SOUND_ENABLED),
       userLearningEnabled: await this.readString(storage, KEYS.USER_LEARNING_ENABLED),
+      aiEnabled: await this.readString(storage, KEYS.AI_ENABLED),
+      localAssociationEnabled: await this.readString(storage, KEYS.LOCAL_ASSOCIATION_ENABLED),
+      cloudAiEnabled: await this.readString(storage, KEYS.CLOUD_AI_ENABLED),
+      cloudAiConsentVersion: await this.readString(storage, KEYS.CLOUD_AI_CONSENT_VERSION),
+      preferredAiActions: await this.readString(storage, KEYS.PREFERRED_AI_ACTIONS),
+      voiceInputEnabled: await this.readString(storage, KEYS.VOICE_INPUT_ENABLED),
+      voiceLanguage: await this.readString(storage, KEYS.VOICE_LANGUAGE),
+      voiceAutoCommit: await this.readString(storage, KEYS.VOICE_AUTO_COMMIT),
+      voiceCloudConsentVersion: await this.readString(storage, KEYS.VOICE_CLOUD_CONSENT_VERSION),
+      voicePunctuationEnabled: await this.readString(storage, KEYS.VOICE_PUNCTUATION_ENABLED),
       spellingCorrectionEnabled: await this.readString(storage, KEYS.SPELLING_CORRECTION_ENABLED),
       fuzzyOptions: await this.readString(storage, KEYS.FUZZY_OPTIONS),
       smartPeriodTimeoutMs: await this.readString(storage, KEYS.SMART_PERIOD_TIMEOUT_MS),
@@ -249,6 +279,16 @@ export class SettingsRepository implements SettingsRepositoryContract {
     await storage.put(KEYS.HAPTIC_LEVEL, raw.hapticLevel ?? '');
     await storage.put(KEYS.KEY_SOUND_ENABLED, raw.keySoundEnabled ?? '');
     await storage.put(KEYS.USER_LEARNING_ENABLED, raw.userLearningEnabled ?? '');
+    await storage.put(KEYS.AI_ENABLED, raw.aiEnabled ?? '');
+    await storage.put(KEYS.LOCAL_ASSOCIATION_ENABLED, raw.localAssociationEnabled ?? '');
+    await storage.put(KEYS.CLOUD_AI_ENABLED, raw.cloudAiEnabled ?? '');
+    await storage.put(KEYS.CLOUD_AI_CONSENT_VERSION, raw.cloudAiConsentVersion ?? '');
+    await storage.put(KEYS.PREFERRED_AI_ACTIONS, raw.preferredAiActions ?? '');
+    await storage.put(KEYS.VOICE_INPUT_ENABLED, raw.voiceInputEnabled ?? '');
+    await storage.put(KEYS.VOICE_LANGUAGE, raw.voiceLanguage ?? '');
+    await storage.put(KEYS.VOICE_AUTO_COMMIT, raw.voiceAutoCommit ?? '');
+    await storage.put(KEYS.VOICE_CLOUD_CONSENT_VERSION, raw.voiceCloudConsentVersion ?? '');
+    await storage.put(KEYS.VOICE_PUNCTUATION_ENABLED, raw.voicePunctuationEnabled ?? '');
     await storage.put(KEYS.SPELLING_CORRECTION_ENABLED, raw.spellingCorrectionEnabled ?? '');
     await storage.put(KEYS.FUZZY_OPTIONS, raw.fuzzyOptions ?? '');
     await storage.put(KEYS.SMART_PERIOD_TIMEOUT_MS, raw.smartPeriodTimeoutMs ?? '');

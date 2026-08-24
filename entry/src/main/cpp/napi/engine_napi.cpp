@@ -602,6 +602,20 @@ napi_value PreviousCandidatePage(napi_env env, napi_callback_info info) {
     return ConvertCompositionJsonToArkObject(env, result.payload);
 }
 
+napi_value GetLocalAssociations(napi_env env, napi_callback_info info) {
+    uint32_t handle = 0;
+    if (!ReadHandleArgument(env, info, handle)) {
+        ThrowNativeError(env, IME_INVALID_ARGUMENT, "getLocalAssociations requires a numeric handle");
+        return nullptr;
+    }
+    RustCallResult result = GetRegisteredEngineLocalAssociations(handle);
+    if (result.code != IME_SUCCESS) {
+        ThrowNativeError(env, result.code, ErrorMessageForCode(result.code));
+        return nullptr;
+    }
+    return CreateString(env, result.payload);
+}
+
 napi_value GetCodeTableCategoryConfig(napi_env env, napi_callback_info info) {
     uint32_t handle = 0;
     if (!ReadHandleArgument(env, info, handle)) {

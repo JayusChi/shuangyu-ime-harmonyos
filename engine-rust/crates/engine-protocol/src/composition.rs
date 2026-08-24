@@ -26,9 +26,9 @@ pub const ENGINE_VERSION_PINYIN_STAGE2: &str = "0.0.1-pinyin-stage2-quality4";
 pub const INTERFACE_VERSION_PINYIN_STAGE3: u32 = 7;
 pub const ABI_VERSION_PINYIN_STAGE3: u32 = 7;
 pub const ENGINE_VERSION_PINYIN_STAGE3: &str = "0.0.1-pinyin-stage3";
-pub const INTERFACE_VERSION_DIRECT_ACTIONS: u32 = 9;
-pub const ABI_VERSION_DIRECT_ACTIONS: u32 = 9;
-pub const ENGINE_VERSION_DIRECT_ACTIONS: &str = "0.0.1-quanpin-features";
+pub const INTERFACE_VERSION_DIRECT_ACTIONS: u32 = 10;
+pub const ABI_VERSION_DIRECT_ACTIONS: u32 = 10;
+pub const ENGINE_VERSION_DIRECT_ACTIONS: &str = "0.0.1-direct-controls";
 pub const INTERFACE_VERSION_STAGE7: u32 = INTERFACE_VERSION_STAGE8;
 pub const ABI_VERSION_STAGE7: u32 = ABI_VERSION_STAGE8;
 pub const ENGINE_VERSION_STAGE7: &str = ENGINE_VERSION_STAGE8;
@@ -84,14 +84,23 @@ pub enum ProtocolAction {
     RepeatCommit,
     UndoCommit,
     MoveLineEnd,
+    DirectControl {
+        action: String,
+        target: String,
+    },
+    ImportUserLexicon,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum DateTimeFormatId {
     DateIso,
     DateLocal,
+    DateLocalUnpadded,
     TimeHm,
+    TimeHms,
+    TimeLocalHms,
     DateTimeLocal,
+    UnixTimestamp,
 }
 
 impl DateTimeFormatId {
@@ -99,8 +108,12 @@ impl DateTimeFormatId {
         match self {
             Self::DateIso => "DATE_ISO",
             Self::DateLocal => "DATE_LOCAL",
+            Self::DateLocalUnpadded => "DATE_LOCAL_UNPADDED",
             Self::TimeHm => "TIME_HM",
+            Self::TimeHms => "TIME_HMS",
+            Self::TimeLocalHms => "TIME_LOCAL_HMS",
             Self::DateTimeLocal => "DATETIME_LOCAL",
+            Self::UnixTimestamp => "UNIX_TIMESTAMP",
         }
     }
 }
@@ -126,6 +139,13 @@ impl ProtocolAction {
                 "{\"type\":\"UNDO_COMMIT\",\"formatId\":\"\",\"text\":\"\",\"cursorOffsetUtf16\":0}".to_owned(),
             Self::MoveLineEnd =>
                 "{\"type\":\"MOVE_LINE_END\",\"formatId\":\"\",\"text\":\"\",\"cursorOffsetUtf16\":0}".to_owned(),
+            Self::DirectControl { action, target } => format!(
+                "{{\"type\":\"DIRECT_CONTROL\",\"formatId\":\"{}\",\"text\":\"{}\",\"cursorOffsetUtf16\":0}}",
+                escape_json(action),
+                escape_json(target)
+            ),
+            Self::ImportUserLexicon =>
+                "{\"type\":\"IMPORT_USER_LEXICON\",\"formatId\":\"\",\"text\":\"\",\"cursorOffsetUtf16\":0}".to_owned(),
         }
     }
 }
@@ -384,6 +404,22 @@ mod tests {
             assert!(json.contains("\"cursorOffsetUtf16\":0"));
             assert!(json.contains("\"commitText\":\"\""));
         }
+    }
+
+    #[test]
+    fn serializes_direct_control_and_import_as_closed_typed_actions() {
+        let control = ProtocolAction::DirectControl {
+            action: "category.enable".to_owned(),
+            target: "two-key-secondary".to_owned(),
+        }
+        .to_json();
+        assert!(control.contains("\"type\":\"DIRECT_CONTROL\""));
+        assert!(control.contains("\"formatId\":\"category.enable\""));
+        assert!(control.contains("\"text\":\"two-key-secondary\""));
+
+        let import = ProtocolAction::ImportUserLexicon.to_json();
+        assert!(import.contains("\"type\":\"IMPORT_USER_LEXICON\""));
+        assert!(import.contains("\"cursorOffsetUtf16\":0"));
     }
 
     #[test]

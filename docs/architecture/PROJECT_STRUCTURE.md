@@ -6,17 +6,24 @@ entry/src/main/ets/inputmethod/        InputMethodExtensionAbility 适配器
 entry/src/main/ets/application/        生命周期、面板、会话、键盘控制器和长按删除控制器
 entry/src/main/ets/state/              输入会话状态存储
 entry/src/main/ets/domain/editor/      编辑器上下文和输入能力模型
+entry/src/main/ets/domain/ai/          AI 请求、候选、来源所有权和状态合同
+entry/src/main/ets/domain/voice/       语音会话、结果和状态合同
+entry/src/main/ets/domain/security/    输入法安全模式、权限与能力门控模型
 entry/src/main/ets/domain/keyboard/    结构化键盘动作模型
 entry/src/main/ets/domain/settings/    设置模型、默认值和可用方案目录
 entry/src/main/ets/presentation/       正式键盘 UI、候选栏、设置组件、设计常量和布局模型
 entry/src/main/ets/stage0/             历史阶段 0 验证键盘
 entry/src/main/ets/infrastructure/ime/ IME Kit、编辑器属性和文本预览适配
+entry/src/main/ets/infrastructure/ai/  AI Provider、严格云代理/传输边界和正式不可用实现
+entry/src/main/ets/infrastructure/speech/ 语音 Provider 接口和正式不可用实现
+entry/src/main/ets/infrastructure/security/ IME 安全模式探测与能力快照
 entry/src/main/ets/infrastructure/native/ Native 引擎网关和跨层类型
 entry/src/main/ets/infrastructure/resource/ 生产词库资源安装
 entry/src/main/ets/infrastructure/storage/ 设置、用户模型和用户词库沙箱路径
 entry/src/main/ets/infrastructure/audio/ 按键音适配
 entry/src/main/ets/infrastructure/haptic/ 震动适配
 entry/src/main/ets/common/             共享错误和日志助手
+entry/src/test/support/                AI/语音确定性 Fake，仅供主机测试且不进入 Release
 entry/src/internalDebug/ets/pages/     内部 Debug 启动页、输入框验收页和码表验收页
 entry/src/internalDebug/ets/infrastructure/resource/ Debug-only fixture 安装器
 entry/src/internalDebug/resources/     Debug 入口覆盖和构建期内部 fixture；不进入 Release
@@ -33,6 +40,7 @@ engine-rust/crates/shuangpin-parser    双拼编码解析与状态机
 engine-rust/crates/lexicon-core        二进制词库、运行时索引、共享校验和 source_order
 engine-rust/crates/candidate-query     Exact/Prefix/ExactOrPrefix 查询和缓存
 engine-rust/crates/candidate-ranking   ExistingRanking/SourceOrder、去重和稳定排序
+engine-rust/crates/context-reranker    会话内重排与有界确定性本地关联词
 engine-rust/crates/sentence-decoder    多音节短句图与有界 Viterbi 解码
 engine-rust/crates/user-model          自动学习、持久化和损坏恢复
 engine-rust/crates/user-lexicon        #删/#固/#N 人工硬规则和可靠保存

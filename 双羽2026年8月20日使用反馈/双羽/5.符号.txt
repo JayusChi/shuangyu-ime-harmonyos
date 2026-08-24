@@ -1,0 +1,887 @@
+$CC("横_一", type("一"))	oba
+$CC("竖_丨", type("丨"))	obl
+$CC("撇_丿", type("丿"))	obp
+$CC("点_丶", type("丶"))	obd
+$CC("折_乛", type("乛"))	obv
+$CC("捺_乀", type("乀"))	obn
+$CC("鱼", type("鱼"))	oba
+冖	obb
+宀	obb
+丷	obb
+疒	obb
+勹	obb
+比左	obb
+艹	obc
+廾	obc
+冫	obd
+氵	obd
+刂	obd
+⺈	obd
+阝	obe
+卩	obe
+彐	obe
+$CC("山", type("山"))	obe
+见下	obe
+扌	obf
+龶	obf
+寿上	obf
+带上	obf
+$CC("缶", type("缶"))	obf
+既左	obg
+$CC("艮", type("艮"))	obg
+$CC("鬼", type("鬼"))	obg
+$CC("革", type("革"))	obg
+$CC("骨", type("骨"))	obg
+灬	obh
+虍	obh
+$CC("黑", type("黑"))	obh
+余下	obh
+彳	obi
+$CC("亍", type("亍"))	obi
+$CC("虫", type("虫"))	obi
+钅	obj
+$CC("金", type("金"))	obj
+龹	obj
+匚	obk
+冂	obk
+凵	obk
+囗	obk
+㠯	obk
+耂	obl
+$CC("立", type("立"))	obl
+$CC("龙", type("龙"))	obl
+朩	obm
+⺧	obn
+牜	obn
+$CC("日", type("日"))	obo
+$CC("月", type("月"))	obo
+$CC("目", type("目"))	obo
+礻	obp
+衤	obp
+犭	obq
+$CC("求", type("求"))	obq
+具上	obq
+其上	obq
+亻	obr
+纟	obs
+厶	obs
+龴	obs
+罒	obs
+$CC("田", type("田"))	obt
+饣	obu
+龵	obu
+𠂇	obu
+氺	obu
+$CC("石", type("石"))	obu
+⺮	obv
+豸	obv
+亠	obw
+夂	obw
+攵	obw
+$CC("文", type("文"))	obw
+忄	obx
+乂	obx
+⺍	obx
+⺌	obx
+⺗	obx
+讠	oby
+⺶	oby
+⺷	oby
+𧘇	oby
+$CC("羊", type("羊"))	oby
+⻊	obz
+廴	obz
+辶	obz
+[破涕为笑]	owxk
+[合十]	owbt
+[微笑]	owwx
+[撇嘴]	owpz
+[色]	owse
+[发呆]	owfd
+[得意]	owdy
+[流汗]	owlh
+[流泪]	owll
+[坏笑]	owhx
+[害羞]	owhx
+[闭嘴]	owbz
+[睡]	owuv
+[大哭]	owdk
+[鼓掌]	owgv
+[尴尬]	owgg
+[发怒]	owfn
+[偷笑]	owtx
+[调皮]	owtp
+[呲牙]	owcy
+[惊讶]	owjy
+[难过]	owng
+[囧]	owjs
+[抓狂]	owvk
+[吐]	owtu
+[晕]	owyy
+[愉快]	owyk
+[白眼]	owby
+[傲慢]	owam
+[抠鼻]	owkb
+[困]	owky
+[惊恐]	owjk
+[憨笑]	owhx
+[悠闲]	owyx
+[奋斗]	owfd
+[咒骂]	owvm
+[疑问]	owyw
+[嘘]	owxu
+[衰]	owuk
+[骷髅]	owkl
+[强]	owql
+[敲打]	owqd
+[再见]	owzj
+[擦汗]	owch
+[左哼哼]	owhh
+[右哼哼]	owhh
+[哈欠]	owhq
+[鄙视]	owbu
+[委屈]	owwq
+[快哭了]	owkk
+[阴险]	owyx
+[亲亲]	owqq
+[可怜]	owkl
+[菜刀]	owcd
+[西瓜]	owxg
+[啤酒]	owpj
+[咖啡]	owkf
+[猪头]	owvt
+[玫瑰]	owmg
+[凋谢]	owdx
+[嘴唇]	owzi
+[爱心]	owax
+[心碎]	owxs
+[蛋糕]	owdg
+[炸弹]	owvd
+[便便]	owbb
+[月亮]	owyl
+[太阳]	owty
+[拥抱]	owyb
+[弱]	owro
+[握手]	owwu
+[胜利]	owul
+[抱拳]	owbq
+[勾引]	owgy
+[拳头]	owqt
+[OK]	owok
+[跳跳]	owtt
+[发抖]	owfd
+[怄火]	owoh
+[转圈]	owvq
+[嘿哈]	owhh
+[捂脸]	owwl
+[奸笑]	owjx
+[机智]	owjv
+[皱眉]	owvm
+[耶]	owye
+[吃瓜]	owig
+[加油]	owjy
+[汗]	owhj
+[天啊]	owta
+[Emm]	owem
+[社会社会]	owuh
+[旺柴]	owwi
+[打脸]	owdl
+[加油加油]	owjy
+[哇]	owwa
+[红包]	owhb
+[發]	owfa
+[福]	owfu
+[翻白眼]	owby
+[666]	owll
+[让我看看]	owtk
+[叹气]	owtq
+[苦涩]	owks
+[裂开]	owlk
+[笑脸]	owxl
+[生病]	owub
+[脸红]	owlh
+[恐惧]	owkj
+[失望]	owuw
+[好的]	owhd
+[合十]	owhu
+[庆祝]	owqv
+[礼物]	owlw
+[烟花]	owyh
+[爆竹]	owbv
+👏	oigv
+🙏	oibt
+👍	oiql
+👎	oiro
+🫰	oibx
+🤝	oiwu
+🥱	oihq
+🌹	oimg
+😋	oimw
+😂	oixk
+❤️	oihx
+🤦	oiwl
+🤣	oixd
+🔥	oiho
+😊	oixn
+🙂	oihh
+🤭	oitx
+😍	oise
+🤔	oisk
+😵	oiyy
+🤗	oiyb
+🙄	oiby
+😡	oifn
+😘	oifw
+😚	oitz
+😓	oilh
+😐	oilm
+😏	oidy
+😄	oidx
+😀	oiha
+😕	oipz
+🎉	oiqv
+😫	oipb
+😛	oitu
+😒	oibz
+😠	oiuq
+😢	oiku
+😕	oikh
+💀	oikl
+🍉	oiig
+😶	oiim
+😤	oiiq
+🤕	oiuu
+😴	oiuj
+😪	oiky
+😁	oicy
+😖	oivk
+😉	oivy
+😎	oimj
+😙	oiwf
+😲	oijy
+😣	oiji
+😯	oiij
+🥵	oire
+🥶	oilg
+👂	oier
+🚶	oizl
+👌	oiok
+🫶	oian
+🤟	oian
+🤘🏻	oiyg
+🖕	oicc
+🤙	oidh
+😜	oitp
+😞	oiuw
+🫣	oitk
+😧	oitk
+😰	oilh
+🤬	oivm
+😊	oiwx
+😋	oihi
+😇	oitu
+😑	oiwy
+🤨	oitm
+😥	oiuw
+😤	oiam
+😌	oiax
+😷	oikv
+😟	oiyu
+😨	oikj
+😱	oijk
+😭	oidk
+🤫	oixu
+🤐	oibz
+😚	oiqq
+🤥	oiuh
+🌙	oiyl
+☀️	oity
+🙃	oidl
+😔	oiis
+🤮	oiot
+😅	oikx
+🤢	oiex
+🥺	oikq
+🤓	oiud
+🥹	oidx
+🤡	oixi
+🥳	oipd
+🤬	oinm
+💢	oinu
+💓	oixt
+🛩️	oifj
+🚩	oiqv
+🦀	oipx
+🚬	oiyt
+🙋	oiju
+🧋	oini
+🤩	oiib
+🥂	oivh
+🍻	oigb
+💔	oixs
+🍚	oiif
+🍵	oiia
+🐻	oixs
+🐔	oijt
+🐂	oinq
+🐦	oinn
+🐴	oimt
+🐍	oiue
+🐲	oilt
+🐟	oiyu
+🐋	oijy
+🐖	oivu
+🐑	oiyh
+🐕	oigz
+🐈	oimc
+🐉	oils
+🦌	oilu
+🍺️	oipj
+🍉	oixg
+🎂	oidg
+💣	oivd
+💩	oidb
+🐶	oigt
+🐏	oiyh
+🐊	oiey
+🐧	oiqe
+🦋	oihd
+🐌	oiwn
+🐭	oiut
+🐢	oiwg
+🐵	oiht
+🐷	oivt
+🐹	oicu
+🐮	oint
+🐡	oiht
+🐯	oiht
+🐁	oilu
+🐺	oilt
+🐛	oiqi
+🐞	oipi
+🐬	oiht
+🐫	oilt
+🦖	oikl
+🦕	oikl
+🐨	oikl
+🐤	oixj
+🐇	oitz
+🐓	oiji
+🐼	oixm
+🐜	oimy
+🐘	oidx
+🐝	oimf
+🐱	oimt
+🐿️	oiss
+🦎	oixy
+🐸	oiqw
+🐰	oitz
+🍑	oitz
+👀	oiyj
+🌸	oihx
+🐎	oima
+🚶	oirf
+🐅	oihu
+🍜	oimm
+💰	oiqm
+❓	oiwh
+❗	oijt
+✅	oidv
+✔	oidv
+❌	oico
+🇨🇳	oigq
+☕️	oikf
+🍕	oips
+📸	oipv
+🚀	oihj
+🍔	oihb
+🎃	oing
+🦁	oiuz
+⚽	oizq
+🎧	oiej
+🚗	oiiz
+🏠	oifz
+🌍	oidq
+🔔	oild
+💡	oidp
+⏰	oinv
+🗓	oirl
+🏆	oijb
+💦	oiuv
+💩	oibb
+💉	oidv
+🍀	oisy
+🎋	oivz
+🧨	oibv
+🔥	oihy
+📍	oitd
+🌈	oich
+🤖	oijq
+🍓	oicm
+🍑	oitc
+🏃	oipb
+🎋	oiqx
+🎅🏾	oiud
+🥵	oifu
+💰	oiqd
+🦐	oixx
+💯	oibf
+📢	oilb
+🥕	oilb
+💐	oihs
+✨	oiul
+🍑	oipg
+🙅	oijv
+🎁	oilw
+🫡	oijl
+🙇	oijg
+🍆	oiqz
+😅	oigg
+😨	oihp
+🥺	oiwq
+🧚‍♀️	oijl
+🎅	oilr
+👩‍❤️‍👨	oiaq
+🥷	oirv
+🤰	oiyf
+💃	oitw
+🧎	oiqd
+💞	oiax
+👋	oihu
+😮‍💨	oitq
+🥶	oifd
+😶‍🌫️	oiwm
+🤦	oiwn
+🧠	oidn
+🫀	oixz
+🌊	oilh
+㊙️	oimi
+⭕	oiyq
+🔴	oihs
+❤️	oihs
+🟡	oihl
+💛	oihl
+🟢	oilv
+💚	oilv
+🔵	oilj
+💙	oilj
+🟣	oizi
+💜	oizi
+⚫	oihw
+🖤	oihw
+⚪	oibd
+🤍	oibd
+🔨	oiiz
+🚫	oijv
+👮	oiji
+1⃣	oiyi
+3️⃣	oisj
+2️⃣	oier
+✏️	oibi
+🪽	oiib
+🪄	oimb
+💋	oiiy
+🚶🐎👀🌸	oigh
+🐎🐎🐅🐅	oimh
+@	ota
+α	ota
+～	otb
+β	otb
+℃	otc
+©	otc
+°	otd
+＝	otd
+≠	otd
+＞	otdy
+≥	otdy
+の	ote
+ε	ote
+′	otf
+Φ	otf
+■	otfh
+□	otfh
+√	otg
+γ	otg
+✓	otg
+℉	oth
+※	oth
+¤	oth
+×	oti
+÷	oti
+✗	oti
+＋	otj
+－	otj
+⤴	otk
+⎵	otk
+∅	otk
+m³	otl
+″	otm
+μ	otm
+￠	otm
+♂	otn
+♀	otn
+№	otn
+€	oto
+Ω	oto
+㎡	otp
+π	otp
+☰	otq
+☷	otq
+¥	otr
+∴	ots
+∵	ots
+▲	otsu
+△	otsu
+▶	otsy
+▷	otsy
+▼	otsx
+▽	otsx
+◀	otsz
+◁	otsz
+฿	ott
+τ	ott
+℡	ott
+ϟ	otu
+囍	otu
+™	otu
+§	otv
+®	otv
+㈱	otv
+‱	otw
+∞	otw
+＜	otx
+≤	otx
+★	otxk
+✩	otxk
+£	oty
+≈	oty
+●	otyr
+○	otyr
+↑	otz
+↓	otz
+←	otz
+ā	opa
+á	opa
+ǎ	opas
+à	opas
+ō	opo
+ó	opo
+ǒ	opos
+ò	opos
+ē	ope
+é	ope
+ê	ope
+ě	opes
+è	opes
+ī	opi
+í	opi
+ǐ	opis
+ì	opis
+ū	opu
+ú	opu
+ǔ	opus
+ù	opus
+ǖ	opv
+ǘ	opv
+ü	opv
+ǚ	opvs
+ǜ	opvs
+ḿ	opm
+m̀	opm
+ń	opn
+ň	opn
+ǹ	opn
+ɪ	oey
+æ	oea
+ʌ	oea
+ɑ:	oea
+ʊ	oew
+ə	oee
+θ	oes
+ʃ	oeu
+ð	oez
+ʒ	oer
+ŋ	oen
+i:	oey
+ɒ	oeo
+ɔ:	oeo
+u:	oew
+ɜ:	oee
+$CC("凹", type("凹"))	oxa
+$CC("百", type("百"))	oxb
+$CC("白", type("白"))	oxb
+$CC("八", type("八"))	oxb
+$CC("卜", type("卜"))	oxb
+$CC("匕", type("匕"))	oxb
+$CC("卞", type("卞"))	oxb
+$CC("不", type("不"))	oxb
+$CC("巴", type("巴"))	oxb
+$CC("本", type("本"))	oxb
+$CC("必", type("必"))	oxb
+$CC("丙", type("丙"))	oxb
+$CC("半", type("半"))	oxb
+$CC("办", type("办"))	oxb
+$CC("寸", type("寸"))	oxc
+$CC("才", type("才"))	oxc
+$CC("册", type("册"))	oxc
+$CC("匆", type("匆"))	oxc
+$CC("大", type("大"))	oxd
+$CC("丁", type("丁"))	oxd
+$CC("刀", type("刀"))	oxd
+$CC("歹", type("歹"))	oxd
+$CC("刁", type("刁"))	oxd
+$CC("东", type("东"))	oxd
+$CC("丹", type("丹"))	oxd
+$CC("电", type("电"))	oxd
+$CC("氐", type("氐"))	oxd
+$CC("二", type("二"))	oxe
+$CC("耳", type("耳"))	oxe
+$CC("儿", type("儿"))	oxe
+$CC("而", type("而"))	oxe
+$CC("非", type("非"))	oxf
+$CC("方", type("方"))	oxf
+$CC("飞", type("飞"))	oxf
+$CC("夫", type("夫"))	oxf
+$CC("凡", type("凡"))	oxf
+$CC("甫", type("甫"))	oxf
+$CC("弗", type("弗"))	oxf
+$CC("乏", type("乏"))	oxf
+$CC("丰", type("丰"))	oxf
+$CC("广", type("广"))	oxg
+$CC("弓", type("弓"))	oxg
+$CC("戈", type("戈"))	oxg
+$CC("工", type("工"))	oxg
+$CC("瓜", type("瓜"))	oxg
+$CC("干", type("干"))	oxg
+$CC("个", type("个"))	oxg
+$CC("甘", type("甘"))	oxg
+$CC("丐", type("丐"))	oxg
+$CC("果", type("果"))	oxg
+$CC("更", type("更"))	oxg
+$CC("夬", type("夬"))	oxg
+$CC("禾", type("禾"))	oxh
+$CC("户", type("户"))	oxh
+$CC("互", type("互"))	oxh
+$CC("乎", type("乎"))	oxh
+$CC("火", type("火"))	oxh
+$CC("川", type("川"))	oxi
+$CC("厂", type("厂"))	oxi
+$CC("车", type("车"))	oxi
+$CC("长", type("长"))	oxi
+$CC("叉", type("叉"))	oxi
+$CC("尺", type("尺"))	oxi
+$CC("丑", type("丑"))	oxi
+$CC("臣", type("臣"))	oxi
+$CC("成", type("成"))	oxi
+$CC("垂", type("垂"))	oxi
+$CC("斥", type("斥"))	oxi
+$CC("串", type("串"))	oxi
+$CC("产", type("产"))	oxi
+$CC("出", type("出"))	oxi
+$CC("巾", type("巾"))	oxj
+$CC("几", type("几"))	oxj
+$CC("九", type("九"))	oxj
+$CC("斤", type("斤"))	oxj
+$CC("久", type("久"))	oxj
+$CC("巨", type("巨"))	oxj
+$CC("己", type("己"))	oxj
+$CC("井", type("井"))	oxj
+$CC("及", type("及"))	oxj
+$CC("夹", type("夹"))	oxj
+$CC("甲", type("甲"))	oxj
+$CC("臼", type("臼"))	oxj
+$CC("韭", type("韭"))	oxj
+$CC("戋", type("戋"))	oxj
+$CC("柬", type("柬"))	oxj
+$CC("击", type("击"))	oxj
+$CC("口", type("口"))	oxk
+$CC("开", type("开"))	oxk
+$CC("亏", type("亏"))	oxk
+$CC("了", type("了"))	oxl
+$CC("力", type("力"))	oxl
+$CC("乐", type("乐"))	oxl
+$CC("来", type("来"))	oxl
+$CC("良", type("良"))	oxl
+$CC("两", type("两"))	oxl
+$CC("里", type("里"))	oxl
+$CC("吏", type("吏"))	oxl
+$CC("耒", type("耒"))	oxl
+$CC("卵", type("卵"))	oxl
+$CC("丽", type("丽"))	oxl
+$CC("木", type("木"))	oxm
+$CC("毛", type("毛"))	oxm
+$CC("米", type("米"))	oxm
+$CC("门", type("门"))	oxm
+$CC("马", type("马"))	oxm
+$CC("皿", type("皿"))	oxm
+$CC("末", type("末"))	oxm
+$CC("灭", type("灭"))	oxm
+$CC("母", type("母"))	oxm
+$CC("民", type("民"))	oxm
+$CC("么", type("么"))	oxm
+$CC("面", type("面"))	oxm
+$CC("廿", type("廿"))	oxn
+$CC("女", type("女"))	oxn
+$CC("牛", type("牛"))	oxn
+$CC("鸟", type("鸟"))	oxn
+$CC("乃", type("乃"))	oxn
+$CC("内", type("内"))	oxn
+$CC("农", type("农"))	oxn
+$CC("年", type("年"))	oxn
+$CC("片", type("片"))	oxp
+$CC("平", type("平"))	oxp
+$CC("爿", type("爿"))	oxp
+$CC("七", type("七"))	oxq
+$CC("千", type("千"))	oxq
+$CC("犬", type("犬"))	oxq
+$CC("且", type("且"))	oxq
+$CC("丘", type("丘"))	oxq
+$CC("曲", type("曲"))	oxq
+$CC("气", type("气"))	oxq
+$CC("乞", type("乞"))	oxq
+$CC("人", type("人"))	oxr
+$CC("入", type("入"))	oxr
+$CC("冉", type("冉"))	oxr
+$CC("壬", type("壬"))	oxr
+$CC("刃", type("刃"))	oxr
+$CC("三", type("三"))	oxs
+$CC("巳", type("巳"))	oxs
+$CC("肃", type("肃"))	oxs
+$CC("土", type("土"))	oxt
+$CC("天", type("天"))	oxt
+$CC("太", type("太"))	oxt
+$CC("屯", type("屯"))	oxt
+$CC("十", type("十"))	oxu
+$CC("尸", type("尸"))	oxu
+$CC("士", type("士"))	oxu
+$CC("手", type("手"))	oxu
+$CC("身", type("身"))	oxu
+$CC("水", type("水"))	oxu
+$CC("上", type("上"))	oxu
+$CC("少", type("少"))	oxu
+$CC("术", type("术"))	oxu
+$CC("失", type("失"))	oxu
+$CC("生", type("生"))	oxu
+$CC("世", type("世"))	oxu
+$CC("申", type("申"))	oxu
+$CC("史", type("史"))	oxu
+$CC("升", type("升"))	oxu
+$CC("事", type("事"))	oxu
+$CC("书", type("书"))	oxu
+$CC("束", type("束"))	oxu
+$CC("勺", type("勺"))	oxu
+$CC("戍", type("戍"))	oxu
+$CC("豕", type("豕"))	oxu
+$CC("氏", type("氏"))	oxu
+$CC("矢", type("矢"))	oxu
+$CC("止", type("止"))	oxv
+$CC("爪", type("爪"))	oxv
+$CC("主", type("主"))	oxv
+$CC("舟", type("舟"))	oxv
+$CC("之", type("之"))	oxv
+$CC("正", type("正"))	oxv
+$CC("丈", type("丈"))	oxv
+$CC("中", type("中"))	oxv
+$CC("专", type("专"))	oxv
+$CC("朱", type("朱"))	oxv
+$CC("州", type("州"))	oxv
+$CC("重", type("重"))	oxv
+$CC("乍", type("乍"))	oxv
+$CC("王", type("王"))	oxw
+$CC("瓦", type("瓦"))	oxw
+$CC("五", type("五"))	oxw
+$CC("无", type("无"))	oxw
+$CC("万", type("万"))	oxw
+$CC("午", type("午"))	oxw
+$CC("亡", type("亡"))	oxw
+$CC("未", type("未"))	oxw
+$CC("乌", type("乌"))	oxw
+$CC("韦", type("韦"))	oxw
+$CC("勿", type("勿"))	oxw
+$CC("为", type("为"))	oxw
+$CC("戊", type("戊"))	oxw
+$CC("我", type("我"))	oxw
+$CC("丸", type("丸"))	oxw
+$CC("兀", type("兀"))	oxw
+$CC("小", type("小"))	oxx
+$CC("西", type("西"))	oxx
+$CC("心", type("心"))	oxx
+$CC("血", type("血"))	oxx
+$CC("下", type("下"))	oxx
+$CC("夕", type("夕"))	oxx
+$CC("乡", type("乡"))	oxx
+$CC("习", type("习"))	oxx
+$CC("戌", type("戌"))	oxx
+$CC("又", type("又"))	oxy
+$CC("酉", type("酉"))	oxy
+$CC("已", type("已"))	oxy
+$CC("于", type("于"))	oxy
+$CC("义", type("义"))	oxy
+$CC("与", type("与"))	oxy
+$CC("夭", type("夭"))	oxy
+$CC("玉", type("玉"))	oxy
+$CC("牙", type("牙"))	oxy
+$CC("丫", type("丫"))	oxy
+$CC("永", type("永"))	oxy
+$CC("尤", type("尤"))	oxy
+$CC("也", type("也"))	oxy
+$CC("业", type("业"))	oxy
+$CC("由", type("由"))	oxy
+$CC("央", type("央"))	oxy
+$CC("亚", type("亚"))	oxy
+$CC("严", type("严"))	oxy
+$CC("用", type("用"))	oxy
+$CC("幺", type("幺"))	oxy
+$CC("禺", type("禺"))	oxy
+$CC("臾", type("臾"))	oxy
+$CC("尹", type("尹"))	oxy
+$CC("禹", type("禹"))	oxy
+$CC("夷", type("夷"))	oxy
+$CC("弋", type("弋"))	oxy
+$CC("聿", type("聿"))	oxy
+$CC("雨", type("雨"))	oxy
+$CC("曳", type("曳"))	oxy
+$CC("再", type("再"))	oxz
+$CC("自", type("自"))	oxz
+$CC("子", type("子"))	oxz
+①	oyy
+Ⅰ	oyy
+②	oye
+Ⅱ	oye
+③	oys
+Ⅲ	oys
+④	oysi
+Ⅳ	oysi
+④	oyf
+Ⅳ	oyf
+⑤	oyw
+Ⅴ	oyw
+⑥	oyl
+Ⅵ	oyl
+⑦	oyq
+Ⅶ	oyq
+⑧	oyb
+Ⅷ	oyb
+⑨	oyj
+Ⅸ	oyj
+⑩	oyu
+Ⅹ	oyu
+
+# no comment
+😊	oi
+👌	ok
+~	op
+‰	oq
+_	ow
+&	oa
+*	os
+$	od
+^	of
+=	oh
+#	oj
+|	ol
++	oz
+-	oc
+%	ob
+<	on
+>	om

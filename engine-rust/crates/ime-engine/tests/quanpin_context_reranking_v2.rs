@@ -142,6 +142,27 @@ fn select_text(engine: &mut ImeEngine, raw: &str, expected: &str) {
 }
 
 #[test]
+fn local_associations_are_post_commit_only_bounded_deterministic_and_privacy_cleared() {
+    let mut engine = enabled_engine(20);
+    assert!(engine.local_associations(3).is_empty());
+    let composing = type_text(&mut engine, "jintian");
+    assert!(!composing.raw_input.is_empty());
+    assert!(engine.local_associations(3).is_empty());
+
+    let today = rank(&composing, "今天");
+    let committed = engine.select_candidate(today).expect("commit 今天");
+    assert!(committed.composition_finished);
+    let expected = vec!["天气".to_owned()];
+    assert_eq!(engine.local_associations(99), expected);
+    for _ in 0..8 {
+        assert_eq!(engine.local_associations(3), expected);
+    }
+
+    engine.set_session_learning_allowed(false);
+    assert!(engine.local_associations(3).is_empty());
+}
+
+#[test]
 fn word_bigram_lifts_only_an_already_recalled_complete_candidate() {
     let mut base = engine_with_config(QuanpinContextRerankingConfig::default(), 20);
     let mut reranked = enabled_engine(20);

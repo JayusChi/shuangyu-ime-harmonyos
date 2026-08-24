@@ -57,7 +57,8 @@ export interface CompositionResult {
   compositionFinished: boolean;
 }
 
-export type DateTimeFormatId = 'DATE_ISO' | 'DATE_LOCAL' | 'TIME_HM' | 'DATETIME_LOCAL';
+export type DateTimeFormatId = 'DATE_ISO' | 'DATE_LOCAL' | 'DATE_LOCAL_UNPADDED' | 'TIME_HM' | 'TIME_HMS' |
+  'TIME_LOCAL_HMS' | 'DATETIME_LOCAL' | 'UNIX_TIMESTAMP';
 
 export interface DateTimeTextAction {
   type: 'DATE_TIME_TEXT';
@@ -94,8 +95,22 @@ export interface MoveLineEndAction {
   cursorOffsetUtf16: 0;
 }
 
+export interface DirectControlAction {
+  type: 'DIRECT_CONTROL';
+  formatId: string;
+  text: string;
+  cursorOffsetUtf16: 0;
+}
+
+export interface ImportUserLexiconAction {
+  type: 'IMPORT_USER_LEXICON';
+  formatId: '';
+  text: '';
+  cursorOffsetUtf16: 0;
+}
+
 export type ProtocolAction = DateTimeTextAction | InsertPairAction | RepeatCommitAction |
-  UndoCommitAction | MoveLineEndAction;
+  UndoCommitAction | MoveLineEndAction | DirectControlAction | ImportUserLexiconAction;
 
 export type CodeTableCategoryKind =
   'PRIMARY' |
@@ -181,6 +196,7 @@ export interface NativeEngineGatewayContract {
   selectPinyinCombination(handle: number, combinationIndex: number): CompositionResult;
   nextCandidatePage(handle: number): CompositionResult;
   previousCandidatePage(handle: number): CompositionResult;
+  getLocalAssociations?(handle: number): string[];
   getCodeTableCategoryConfig(handle: number): CodeTableCategoryConfig;
   setCodeTableCategories(handle: number, enabledCategoryIds: string[]): CompositionResult;
   reloadUserLexicon(handle: number): CompositionResult;

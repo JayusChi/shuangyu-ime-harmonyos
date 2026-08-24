@@ -8,7 +8,7 @@ use engine_protocol::ProtocolAction;
 use ime_engine::{EngineConfig, ImeEngine};
 use user_lexicon::{parse_user_lexicon_bytes, save_snapshot_atomic};
 
-const ALL_CATEGORY_IDS: [&str; 11] = [
+const ALL_CATEGORY_IDS: [&str; 12] = [
     "core",
     "category-secondary",
     "quick-symbol",
@@ -20,6 +20,7 @@ const ALL_CATEGORY_IDS: [&str; 11] = [
     "symbol-group",
     "rare-character",
     "full-code-character",
+    "ok-spelling",
 ];
 
 fn workspace() -> PathBuf {

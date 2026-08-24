@@ -29,6 +29,8 @@ import computerStage5Test from './ComputerStage5.test';
 import directControlUserLexiconTest from './DirectControlUserLexicon.test';
 import pinyin9Stage4Test from './Pinyin9Stage4.test';
 import keyboardAlternateGestureTest from './KeyboardAlternateGesture.test';
+import ai0FoundationTest from './Ai0Foundation.test';
+import ai1InputTest from './Ai1Input.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -62,4 +64,6 @@ export default function testsuite() {
   directControlUserLexiconTest();
   pinyin9Stage4Test();
   keyboardAlternateGestureTest();
+  ai0FoundationTest();
+  ai1InputTest();
 }

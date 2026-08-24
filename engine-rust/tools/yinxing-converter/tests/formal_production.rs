@@ -29,7 +29,7 @@ fn all_codes(bundle: &CodeTableBundle) -> BTreeSet<String> {
 fn formal_bundle_queries_are_stable_across_code_lengths_and_categories() {
     let bundle = load_bundle();
     assert_eq!(bundle.bundle_id, "xiaohe-yinxing-production");
-    assert_eq!(bundle.categories.len(), 11);
+    assert_eq!(bundle.categories.len(), 12);
     assert!(bundle.guide.is_none());
     assert!(bundle.production_metadata.is_some());
     assert_eq!(
@@ -53,6 +53,7 @@ fn formal_bundle_queries_are_stable_across_code_lengths_and_categories() {
             "out-of-table-character",
             "symbol",
             "symbol-group",
+            "ok-spelling",
         ]
     );
     let enabled = bundle

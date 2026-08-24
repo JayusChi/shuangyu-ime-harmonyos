@@ -2,7 +2,7 @@
   "schema_version": "xiaohe-yinxing-stage0-candidates/1",
   "scheme_id": "xiaohe-yinxing",
   "page_size": 9,
-  "enabled_category_ids": ["core", "category-secondary", "quick-symbol", "one-key-secondary", "out-of-table-character", "symbol", "symbol-group"],
+  "enabled_category_ids": ["core", "category-secondary", "quick-symbol", "one-key-secondary", "out-of-table-character", "symbol", "symbol-group", "ok-spelling"],
   "required_queries": [
     {
       "raw_code": "aa",
@@ -882,7 +882,7 @@
     "states": [
       {
         "case_id": "all_default",
-        "enabled_category_ids": ["core", "category-secondary", "quick-symbol", "one-key-secondary", "out-of-table-character", "symbol", "symbol-group"],
+        "enabled_category_ids": ["core", "category-secondary", "quick-symbol", "one-key-secondary", "out-of-table-character", "symbol", "symbol-group", "ok-spelling"],
         "candidate_count": 2,
         "unique_exact": false,
         "would_auto_commit_at_four_keys": false,
@@ -909,7 +909,7 @@
       },
       {
         "case_id": "one_optional_disabled",
-        "enabled_category_ids": ["core", "quick-symbol", "one-key-secondary", "out-of-table-character", "symbol", "symbol-group"],
+        "enabled_category_ids": ["core", "quick-symbol", "one-key-secondary", "out-of-table-character", "symbol", "symbol-group", "ok-spelling"],
         "candidate_count": 1,
         "unique_exact": true,
         "would_auto_commit_at_four_keys": true,

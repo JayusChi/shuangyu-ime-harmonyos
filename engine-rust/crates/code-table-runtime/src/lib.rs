@@ -13,7 +13,7 @@ mod sha256;
 mod state;
 
 pub use action::{
-    ActionRecord, DateTimeFormatId, FunctionalAction, FunctionalActionTable,
+    ActionRecord, ActionScope, DateTimeFormatId, FunctionalAction, FunctionalActionTable,
     ACTION_TABLE_FORMAT_VERSION, MAX_ACTION_TEXT_BYTES, MAX_PAIR_CURSOR_OFFSET_UTF16,
 };
 pub use bundle::{CodeTableBundle, CodeTableCategory, FIXTURE_SCHEME_ID, PRODUCTION_SCHEME_ID};

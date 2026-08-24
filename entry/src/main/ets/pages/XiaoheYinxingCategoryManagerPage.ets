@@ -32,13 +32,13 @@ interface CategoryInfo {
 const CATEGORY_INFO_MAP: Record<string, CategoryInfo> = {
   'core': {
     id: 'core',
-    displayName: '核心词库',
-    description: '基础必选词库，包含常用汉字和词组'
+    displayName: '首选',
+    description: '基础必选词库，始终启用'
   },
   'category-secondary': {
     id: 'category-secondary',
-    displayName: '分类简码',
-    description: '按分类的简码词条'
+    displayName: '分类',
+    description: '包含次选、表外和随心词条'
   },
   'quick-symbol': {
     id: 'quick-symbol',
@@ -47,13 +47,13 @@ const CATEGORY_INFO_MAP: Record<string, CategoryInfo> = {
   },
   'one-key-secondary': {
     id: 'one-key-secondary',
-    displayName: '一键简码',
-    description: '单键输入的常用字简码'
+    displayName: '一简次选',
+    description: '一键编码的次选词条'
   },
   'two-key-secondary': {
     id: 'two-key-secondary',
-    displayName: '二键简码',
-    description: '两键输入的常用字简码'
+    displayName: '二简次选',
+    description: '二键编码的次选词条，默认关闭'
   },
   'out-of-table-character': {
     id: 'out-of-table-character',
@@ -62,23 +62,28 @@ const CATEGORY_INFO_MAP: Record<string, CategoryInfo> = {
   },
   'full-code-word': {
     id: 'full-code-word',
-    displayName: '全码词组',
-    description: '需要完整编码的词组'
+    displayName: '全码词',
+    description: '支持 #固置顶和 #直精确输入，默认关闭'
   },
   'symbol': {
     id: 'symbol',
     displayName: '符号',
-    description: 'o 编码引导的符号、特殊字符与表情'
+    description: '合并符号和符号组，使用 o 编码输入'
   },
   'rare-character': {
     id: 'rare-character',
     displayName: '生僻字',
-    description: '罕见的汉字'
+    description: '罕见汉字，默认关闭'
   },
   'full-code-character': {
     id: 'full-code-character',
-    displayName: '全码单字',
-    description: '需要完整编码的单字'
+    displayName: '全码字',
+    description: '需要完整编码的单字，默认关闭'
+  },
+  'ok-spelling': {
+    id: 'ok-spelling',
+    displayName: 'ok拼字',
+    description: '以 ok 开头的六码或八码拼字词条'
   }
 };
 
@@ -120,10 +125,19 @@ struct XiaoheYinxingCategoryManagerPage {
   }
 
   private isCategoryEnabled(categoryId: string): boolean {
-    if (categoryId === 'symbol') {
-      return this.enabledCategoryIds.includes('symbol') && this.enabledCategoryIds.includes('symbol-group');
+    return this.targetCategoryIds(categoryId).every(
+      (id: string): boolean => this.enabledCategoryIds.includes(id)
+    );
+  }
+
+  private targetCategoryIds(categoryId: string): string[] {
+    if (categoryId === 'category-secondary') {
+      return ['category-secondary', 'out-of-table-character'];
     }
-    return this.enabledCategoryIds.includes(categoryId);
+    if (categoryId === 'symbol') {
+      return ['symbol', 'symbol-group'];
+    }
+    return [categoryId];
   }
 
   private enabledUiCategoryCount(): number {
@@ -131,14 +145,14 @@ struct XiaoheYinxingCategoryManagerPage {
   }
 
   private async toggleCategory(categoryId: string): Promise<void> {
-    // 核心词库不可禁用
+    // 首选词库不可禁用
     if (categoryId === 'core') {
-      this.showToast('核心词库不可禁用');
+      this.showToast('首选不可禁用');
       return;
     }
 
     const isCurrentlyEnabled = this.isCategoryEnabled(categoryId);
-    const targetIds: string[] = categoryId === 'symbol' ? ['symbol', 'symbol-group'] : [categoryId];
+    const targetIds: string[] = this.targetCategoryIds(categoryId);
     if (isCurrentlyEnabled) {
       this.enabledCategoryIds = this.enabledCategoryIds.filter((id: string) => !targetIds.includes(id));
     } else {
@@ -265,7 +279,7 @@ struct XiaoheYinxingCategoryManagerPage {
               .width('100%')
               .alignItems(VerticalAlign.Center)
 
-              Text('核心词库始终启用，其余分类可按需开关。')
+              Text('首选始终启用；二简次选、全码词、生僻字和全码字默认关闭。')
                 .fontSize(13)
                 .fontColor(this.theme.secondaryText)
                 .width('100%')

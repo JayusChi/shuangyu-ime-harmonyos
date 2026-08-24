@@ -9,6 +9,7 @@ export interface UndoState {
   reason?: string;
   lastCommit?: string;
   lastCommitLength?: number;
+  replacementOriginalText?: string;
 }
 
 /**
@@ -20,6 +21,7 @@ export class UndoCommitManager {
   private lastUndoableCommit: string | null = null;
   private lastUndoableLength: number = 0;
   private lastCommitTime: number = 0;
+  private replacementOriginalText?: string;
 
   constructor(historyManager: CommitHistoryManager) {
     this.historyManager = historyManager;
@@ -32,6 +34,14 @@ export class UndoCommitManager {
     this.lastUndoableCommit = text;
     this.lastUndoableLength = text.length;
     this.lastCommitTime = Date.now();
+    this.replacementOriginalText = undefined;
+  }
+
+  recordReplacement(originalText: string, replacementText: string): void {
+    this.lastUndoableCommit = replacementText;
+    this.lastUndoableLength = replacementText.length;
+    this.lastCommitTime = Date.now();
+    this.replacementOriginalText = originalText;
   }
 
   /**
@@ -56,7 +66,8 @@ export class UndoCommitManager {
     return {
       canUndo: true,
       lastCommit: this.lastUndoableCommit,
-      lastCommitLength: this.lastUndoableLength
+      lastCommitLength: this.lastUndoableLength,
+      replacementOriginalText: this.replacementOriginalText
     };
   }
 
@@ -67,6 +78,7 @@ export class UndoCommitManager {
     this.lastUndoableCommit = null;
     this.lastUndoableLength = 0;
     this.lastCommitTime = 0;
+    this.replacementOriginalText = undefined;
   }
 
   /**

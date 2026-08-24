@@ -169,11 +169,11 @@ class FakeNativeGateway implements NativeEngineGatewayContract {
   userLearningEnabledValues: boolean[] = [];
 
   getInterfaceVersion(): number {
-    return 9;
+    return 10;
   }
 
   getEngineVersion(): string {
-    return '0.0.1-quanpin-features';
+    return '0.0.1-direct-controls';
   }
 
   getNativeBuildInfo(): string {
@@ -181,7 +181,7 @@ class FakeNativeGateway implements NativeEngineGatewayContract {
   }
 
   createEngine(config: EngineConfig): number {
-    if (config.interfaceVersion !== 9 || config.schemeId !== 'xiaohe') {
+    if (config.interfaceVersion !== 10 || config.schemeId !== 'xiaohe') {
       throw new Error('bad config');
     }
     this.createdCount += 1;
@@ -339,7 +339,7 @@ class ReloadableSchemeGateway extends FakeNativeGateway {
       codeTableActionFixtureSha256: config.codeTableActionFixtureSha256,
       candidatePageSize: config.candidatePageSize
     });
-    if (config.interfaceVersion !== 9) {
+    if (config.interfaceVersion !== 10) {
       throw new Error('bad interface version');
     }
     if (config.schemeId === 'xiaohe-yinxing') {
@@ -375,7 +375,7 @@ class QuanpinGateway extends FakeNativeGateway {
   configs: EngineConfig[] = [];
 
   createEngine(config: EngineConfig): number {
-    if (config.interfaceVersion !== 9 || config.schemeId !== 'quanpin') {
+    if (config.interfaceVersion !== 10 || config.schemeId !== 'quanpin') {
       throw new Error('bad quanpin config');
     }
     this.configs.push({
@@ -406,7 +406,7 @@ class T9Gateway extends FakeNativeGateway {
   boundaryCount: number = 0;
 
   createEngine(config: EngineConfig): number {
-    if (config.interfaceVersion !== 9 || config.schemeId !== 'pinyin-9') {
+    if (config.interfaceVersion !== 10 || config.schemeId !== 'pinyin-9') {
       throw new Error('bad pinyin-9 config');
     }
     this.createdCount += 1;

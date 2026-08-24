@@ -43,6 +43,7 @@ import {
 import { getSharedSettingsStore, SettingsStore } from '../state/SettingsStore';
 import { DirectControlService, getSharedDirectControlService } from './DirectControlService';
 import { resolveDirectControlHotkey } from '../domain/direct/DirectControlCommand';
+import { InputMethodSecurityModeProvider } from '../infrastructure/security/InputMethodSecurityModeProvider';
 
 const TAG = 'InputMethodLifecycle';
 const LOGGER = new Logger(TAG);
@@ -57,6 +58,8 @@ export class InputMethodLifecycleDispatcher {
   private readonly settingsStore: SettingsStore;
   private readonly physicalKeyboard: PhysicalKeyboardStateProvider;
   private readonly directControl: DirectControlService;
+  private readonly securityModeProvider: InputMethodSecurityModeProvider;
+  private imeAbility?: inputMethodEngine.InputMethodAbility;
   private presentationMode: InputPresentationMode = InputPresentationMode.TOUCH;
   private presentationState: InputPresentationState = InputPresentationState.INACTIVE;
   private readonly physicalKeyConsumption = new PhysicalKeyConsumptionTracker();
@@ -81,7 +84,8 @@ export class InputMethodLifecycleDispatcher {
       new SoftKeyboardPanelOwnershipCoordinator(),
     settingsStore: SettingsStore = getSharedSettingsStore(),
     physicalKeyboard: PhysicalKeyboardStateProvider = new PhysicalKeyboardMonitor(),
-    directControl: DirectControlService = getSharedDirectControlService()
+    directControl: DirectControlService = getSharedDirectControlService(),
+    securityModeProvider: InputMethodSecurityModeProvider = new InputMethodSecurityModeProvider()
   ) {
     this.sessionController = sessionController;
     this.panelController = panelController ?? new InputPanelController(sessionController);
@@ -94,6 +98,7 @@ export class InputMethodLifecycleDispatcher {
     this.settingsStore = settingsStore;
     this.physicalKeyboard = physicalKeyboard;
     this.directControl = directControl;
+    this.securityModeProvider = securityModeProvider;
     this.physicalKeyboardController = new KeyboardController(sessionController);
   }
 
@@ -102,7 +107,9 @@ export class InputMethodLifecycleDispatcher {
     context: InputMethodExtensionContext,
     settingsReady?: Promise<ImeSettings>
   ): Promise<void> {
-    await this.sessionController.handleAbilityCreated(context, settingsReady);
+    this.imeAbility = imeAbility;
+    const capabilityState = this.securityModeProvider.probe(imeAbility, false, false);
+    await this.sessionController.handleAbilityCreated(context, settingsReady, capabilityState);
     this.refreshScreenMetrics(undefined, 'abilityCreate');
     this.panelController.bindAbility(imeAbility, context, settingsReady);
     this.floatingCandidateController.bindAbility(imeAbility, context);
@@ -115,6 +122,11 @@ export class InputMethodLifecycleDispatcher {
     keyboardController: inputMethodEngine.KeyboardController,
     inputClient: inputMethodEngine.InputClient
   ): void {
+    if (this.imeAbility) {
+      this.sessionController.setInputMethodCapabilityState(
+        this.securityModeProvider.probe(this.imeAbility, false, false)
+      );
+    }
     this.resetPhysicalKeyState();
     this.refreshScreenMetrics(undefined, 'inputStart');
     this.sessionController.handleInputStart(keyboardController, inputClient);
@@ -151,6 +163,9 @@ export class InputMethodLifecycleDispatcher {
 
   handleKeyboardHide(): void {
     if (this.presentationMode === InputPresentationMode.HARDWARE) {
+      // The fixed panel is intentionally non-destructive in hardware mode, but
+      // assist results must never survive a platform keyboard-hide boundary.
+      this.sessionController.cancelAssistForLifecycle();
       LOGGER.info('keyboardHide ignored in HARDWARE_READY; composition preserved');
       return;
     }
@@ -171,6 +186,7 @@ export class InputMethodLifecycleDispatcher {
     this.physicalKeyboard.stop();
     this.physicalKeyboardController.dispose();
     this.sessionController.handleAbilityDestroyed();
+    this.imeAbility = undefined;
     this.inputActive = false;
     this.presentationState = InputPresentationState.INACTIVE;
     LOGGER.info('ability lifecycle destroyed');
@@ -249,7 +265,8 @@ export class InputMethodLifecycleDispatcher {
       keyboardMode: state.keyboardMode,
       rawInput: state.rawInput,
       candidateCount: state.candidates.length,
-      compositionPending: rapidPhysicalContinuation
+      compositionPending: rapidPhysicalContinuation,
+      pairJumpAvailable: this.sessionController.canJumpOutPair()
     });
 
     if (command.type === PhysicalKeyCommandType.NONE) {
@@ -328,6 +345,10 @@ export class InputMethodLifecycleDispatcher {
     }
     if (command.type === PhysicalKeyCommandType.CANCEL) {
       this.observePhysicalOperation(this.physicalKeyboardController.cancelPhysicalComposition());
+      return true;
+    }
+    if (command.type === PhysicalKeyCommandType.JUMP_OUT_PAIR) {
+      this.observePhysicalOperation(this.physicalKeyboardController.jumpOutPhysicalPair());
       return true;
     }
     if (command.type === PhysicalKeyCommandType.SELECT_PREVIOUS) {

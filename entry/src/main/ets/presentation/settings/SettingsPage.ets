@@ -218,6 +218,40 @@ export struct SettingsPage {
           })
         }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground)
 
+        this.SectionHeader('AI 输入（AI-1）')
+        Column({ space: 16 }) {
+          SwitchSettingRow({
+            title: 'AI 总开关',
+            description: '五个生成动作仅在完整体验模式、明确同意且生产代理已配置时可用',
+            checked: this.settings.aiEnabled,
+            disabled: this.busy,
+            primaryTextColor: this.theme.primaryText,
+            secondaryTextColor: this.theme.secondaryText,
+            onCheckedChange: (value: boolean) => {
+              this.busy = true;
+              this.controller.setAiEnabled(value).then((r) => this.finish(r));
+            }
+          })
+          Divider().color(this.theme.divider)
+          SwitchSettingRow({
+            title: '上屏后本地关联词',
+            description: '纯本地、确定性、最多 3 条；关闭后立即恢复原有候选行为',
+            checked: this.settings.localAssociationEnabled,
+            disabled: this.busy,
+            primaryTextColor: this.theme.primaryText,
+            secondaryTextColor: this.theme.secondaryText,
+            onCheckedChange: (value: boolean) => {
+              this.busy = true;
+              this.controller.setLocalAssociationEnabled(value).then((r) => this.finish(r));
+            }
+          })
+          Divider().color(this.theme.divider)
+          Text('当前 Release 未配置获批的自有云端代理，因此云 AI 保持关闭。不上传编辑器全文、选区、剪贴板、宿主标识、用户词库或按键序列；日志不记录正文。')
+            .fontSize(12)
+            .fontColor(this.theme.secondaryText)
+            .width('100%')
+        }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground)
+
         if (this.settings.schemeId === XIAOHE_YINXING_SCHEME_ID) {
           this.SectionHeader('音形分类词库')
           Column({ space: 16 }) {

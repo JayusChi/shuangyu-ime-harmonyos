@@ -228,6 +228,32 @@ pub(crate) fn longer_system_codes(
     codes
 }
 
+pub(crate) fn has_longer_system_code_in_category(
+    bundle: &CodeTableBundle,
+    selection: &CategorySelectionSnapshot,
+    category_id: &str,
+    prefix: &str,
+) -> bool {
+    if prefix.is_empty() || !selection.is_enabled(category_id) {
+        return false;
+    }
+    let Some(category) = bundle
+        .categories
+        .iter()
+        .find(|category| category.id == category_id)
+    else {
+        return false;
+    };
+    if !is_normal_query_category(category) {
+        return false;
+    }
+    // The binary index contains one row per distinct code. Two rows are
+    // sufficient to cover an exact prefix row followed by a longer row.
+    find_prefix_indexes(&category.lexicon, prefix, 2)
+        .into_iter()
+        .any(|index| index.pinyin_key.len() > prefix.len())
+}
+
 pub(crate) fn longer_system_candidates(
     bundle: &CodeTableBundle,
     selection: &CategorySelectionSnapshot,

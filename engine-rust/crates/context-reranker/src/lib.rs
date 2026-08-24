@@ -25,6 +25,7 @@ pub const MAX_CONTEXT_WORDS: usize = 2;
 pub const MAX_BIGRAM_QUERIES: usize = 96;
 pub const MAX_TRIGRAM_QUERIES: usize = 12;
 pub const MAX_RERANK_MICROS: u64 = 5_000;
+pub const MAX_ASSOCIATION_SUGGESTIONS: usize = 3;
 pub const QUERY_CACHE_CAPACITY: usize = 0;
 pub const MAX_BASE_SCORE_GAP_FOR_REORDER: i64 = 350;
 pub const MAX_BIGRAM_BONUS: i64 = 96;
@@ -273,6 +274,39 @@ impl WordNgramModel {
             .sum()
     }
 
+    /// Returns a bounded deterministic next-word list for an already-owned,
+    /// in-memory context. No new model, history, or unbounded candidate pool is
+    /// introduced for association suggestions.
+    pub fn suggest_next(&self, committed_context: &[String], limit: usize) -> Vec<String> {
+        let limit = limit.min(MAX_ASSOCIATION_SUGGESTIONS);
+        if limit == 0 {
+            return Vec::new();
+        }
+        let context = committed_context
+            .iter()
+            .filter(|word| valid_word(word))
+            .rev()
+            .take(MAX_CONTEXT_WORDS)
+            .cloned()
+            .collect::<Vec<_>>();
+        let context = context.into_iter().rev().collect::<Vec<_>>();
+        let trigram_rights = if context.len() == MAX_CONTEXT_WORDS {
+            self.trigrams
+                .get(&context[0])
+                .and_then(|middles| middles.get(&context[1]))
+        } else {
+            None
+        };
+        if let Some(rights) = trigram_rights.filter(|rights| !rights.is_empty()) {
+            return top_associations(rights, limit);
+        }
+        context
+            .last()
+            .and_then(|previous| self.bigrams.get(previous))
+            .map(|rights| top_associations(rights, limit))
+            .unwrap_or_default()
+    }
+
     fn bigram_bonus(&self, left: &str, right: &str) -> Option<i64> {
         self.bigrams
             .get(left)
@@ -289,6 +323,16 @@ impl WordNgramModel {
             .copied()
             .map(trigram_bonus)
     }
+}
+
+fn top_associations(rights: &HashMap<String, u32>, limit: usize) -> Vec<String> {
+    let mut top = Vec::<(u32, String)>::with_capacity(limit + 1);
+    for (word, count) in rights {
+        top.push((*count, word.clone()));
+        top.sort_by(|left, right| right.0.cmp(&left.0).then_with(|| left.1.cmp(&right.1)));
+        top.truncate(limit);
+    }
+    top.into_iter().map(|(_, word)| word).collect()
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -897,6 +941,23 @@ mod tests {
     }
 
     #[test]
+    fn local_associations_are_bounded_deterministic_and_use_trigram_then_bigram() {
+        let model = model();
+        assert_eq!(
+            model.suggest_next(&["天气".into()], MAX_ASSOCIATION_SUGGESTIONS),
+            vec!["不错", "不佳"]
+        );
+        assert_eq!(
+            model.suggest_next(&["昨天".into(), "今天".into()], 1),
+            vec!["天气"]
+        );
+        let expected = model.suggest_next(&["天气".into()], MAX_ASSOCIATION_SUGGESTIONS);
+        for _ in 0..8 {
+            assert_eq!(expected, model.suggest_next(&["天气".into()], 99));
+        }
+    }
+
+    #[test]
     fn hard_limits_are_explicit() {
         assert_eq!(std::hint::black_box(QUERY_CACHE_CAPACITY), 0);
         assert_eq!(std::hint::black_box(MAX_CANDIDATE_POOL), 16);
@@ -909,6 +970,7 @@ mod tests {
         assert_eq!(std::hint::black_box(MAX_MODEL_MEMORY_BYTES), 512 * 1024);
         assert_eq!(std::hint::black_box(MAX_MODEL_LOAD_MICROS), 250_000);
         assert_eq!(std::hint::black_box(MAX_RERANK_MICROS), 5_000);
+        assert_eq!(std::hint::black_box(MAX_ASSOCIATION_SUGGESTIONS), 3);
     }
 
     #[test]

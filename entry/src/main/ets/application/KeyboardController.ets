@@ -15,6 +15,8 @@ import {
   CandidatePageDirection
 } from '../domain/candidate/CandidateExpansionPolicy';
 import { SmartPeriodInputAction } from './SmartPeriodController';
+import { AiAction } from '../domain/ai/AiContracts';
+import { AssistAvailability } from '../domain/security/InputMethodCapabilityState';
 
 const TAG = 'KeyboardController';
 const LOGGER = new Logger(TAG);
@@ -57,6 +59,50 @@ export class KeyboardController {
 
   getInputMethodSwitchCapabilities(): InputMethodSwitchCapabilities {
     return this.sessionController.getInputMethodSwitchCapabilities();
+  }
+
+  getAssistAvailability(): AssistAvailability {
+    return this.sessionController.getAssistAvailability();
+  }
+
+  requestAiSuggestions(action: AiAction = AiAction.POLITE): Promise<void> {
+    return this.sessionController.requestAiSuggestions(action);
+  }
+
+  showAiActions(): Promise<void> {
+    return this.sessionController.showAiActions();
+  }
+
+  acceptAiSuggestion(suggestionId: string): Promise<boolean> {
+    return this.sessionController.acceptAiSuggestion(suggestionId);
+  }
+
+  acceptLocalAssociation(associationId: string): Promise<boolean> {
+    return this.sessionController.acceptLocalAssociation(associationId);
+  }
+
+  cancelAiRequest(): void {
+    this.sessionController.cancelAiRequest();
+  }
+
+  startVoiceInput(): boolean {
+    return this.sessionController.startVoiceInput();
+  }
+
+  stopVoiceInput(): void {
+    this.sessionController.stopVoiceInput();
+  }
+
+  confirmVoiceResult(): Promise<boolean> {
+    return this.sessionController.confirmVoiceResult();
+  }
+
+  retryVoiceInput(): boolean {
+    return this.sessionController.retryVoiceInput();
+  }
+
+  cancelVoiceInput(): void {
+    this.sessionController.cancelVoiceInput();
   }
 
   /** Invalidates a pending double-press sequence for a key handled by the host. */
@@ -151,6 +197,12 @@ export class KeyboardController {
         ? state.highlightedIndex
         : 0;
       return this.sessionController.sendEnter(generation, index);
+    });
+  }
+
+  async jumpOutPhysicalPair(): Promise<InputOperationResult> {
+    return this.enqueueInputOperation('hardware_pair_jump', async (generation: number): Promise<InputOperationResult> => {
+      return this.sessionController.jumpOutPair(generation);
     });
   }
 
