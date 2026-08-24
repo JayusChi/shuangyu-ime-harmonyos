@@ -767,6 +767,18 @@ mod tests {
             ffi_create(built_in_config.as_ptr(), built_in_config.len(), &mut handle),
             ImeErrorCode::Success.as_i32()
         );
+        let enabled_categories = br#"["core","full-code-word"]"#;
+        let mut category_out = ImeBuffer::empty();
+        assert_eq!(
+            ime_engine_set_code_table_categories(
+                handle,
+                enabled_categories.as_ptr(),
+                enabled_categories.len(),
+                &mut category_out,
+            ),
+            ImeErrorCode::Success.as_i32()
+        );
+        let _ = take_buffer(category_out);
         let mut built_in_json = String::new();
         for key in rule.code.as_bytes() {
             let mut out = ImeBuffer::empty();
@@ -792,6 +804,17 @@ mod tests {
             ffi_create(external_config.as_ptr(), external_config.len(), &mut handle),
             ImeErrorCode::Success.as_i32()
         );
+        let mut category_out = ImeBuffer::empty();
+        assert_eq!(
+            ime_engine_set_code_table_categories(
+                handle,
+                enabled_categories.as_ptr(),
+                enabled_categories.len(),
+                &mut category_out,
+            ),
+            ImeErrorCode::Success.as_i32()
+        );
+        let _ = take_buffer(category_out);
         let mut external_json = String::new();
         for key in rule.code.as_bytes() {
             let mut out = ImeBuffer::empty();
@@ -1180,7 +1203,7 @@ mod tests {
         );
         let defaults = take_buffer(out);
         assert!(defaults.contains("\"schemaVersion\":1"));
-        assert!(defaults.contains("\"displayName\":\"核心主表\""));
+        assert!(defaults.contains("\"displayName\":\"首选\""));
         assert!(defaults.contains("\"kind\":\"PRIMARY\""));
         assert!(defaults.contains("\"enabledCategoryIds\":[\"core\",\"category-secondary\""));
 

@@ -121,7 +121,7 @@ fn production_guide_exposes_repeat_pair_undo_and_line_end_actions() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
         .expect("formal engine");
 
-    for (code, expected_label) in [("f", "重复"), ("i", "撤销上屏"), ("j", "“”"), ("n", "End")]
+    for (code, expected_label) in [("f", "重复"), ("i", "[撤销]"), ("j", "“”"), ("n", "[End]")]
     {
         engine.reset();
         let state = enter(&mut engine, &format!(";{code}"));
@@ -159,7 +159,7 @@ fn production_guide_prefix_candidate_and_double_semicolon_follow_the_table() {
     );
 
     let repeated = engine.process_key(';');
-    assert_eq!(repeated.commit_text, "；");
+    assert_eq!(repeated.commit_text, "：");
     assert!(repeated.raw_input.is_empty());
     assert!(repeated.candidates.is_empty());
 }
