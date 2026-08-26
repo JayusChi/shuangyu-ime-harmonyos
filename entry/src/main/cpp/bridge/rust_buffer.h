@@ -3,7 +3,7 @@
 
 #include "ime_engine_ffi.h"
 
-#include <string>
+#include <cstddef>
 
 class RustBuffer {
   public:
@@ -18,7 +18,8 @@ class RustBuffer {
     RustBuffer& operator=(RustBuffer&& other) noexcept;
 
     ImeBuffer* Out();
-    std::string ToString() const;
+    const char* Data() const;
+    size_t Size() const;
     bool Empty() const;
     void Reset();
 

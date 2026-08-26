@@ -23,8 +23,8 @@ $expectedProductionLexiconSize = 3751923
 $expectedProductionLexiconSha256 = 'e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365'
 $expectedQuanpinContextModelSize = 37659
 $expectedQuanpinContextModelSha256 = '91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c'
-$expectedYinxingBundleSize = 56144463
-$expectedYinxingBundleSha256 = 'e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad'
+$expectedYinxingBundleSize = 56183822
+$expectedYinxingBundleSha256 = '0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942'
 $releaseForbiddenPermissions = @(
     'ohos.permission.INTERNET',
     'ohos.permission.MICROPHONE'
@@ -79,6 +79,37 @@ function Assert-ReleaseSourceInputs {
         if ($content -match '-----BEGIN (RSA |EC )?PRIVATE KEY-----' -or
             $content -match '-----BEGIN CERTIFICATE-----') {
             Stop-ReleaseGate 'REL_AI_TEST_CERTIFICATE' $relative 'Release source contains embedded certificate or private-key material' 'Use the platform trust store and approved production TLS configuration.'
+        }
+    }
+
+    $moduleProfilePath = Join-Path $sourceRoot 'module.json5'
+    $moduleProfileText = [IO.File]::ReadAllText($moduleProfilePath, [Text.Encoding]::UTF8)
+    if ($moduleProfileText -notmatch '"name"\s*:\s*"ohos\.extension\.input_method"' -or
+        $moduleProfileText -notmatch '"resource"\s*:\s*"\$profile:stage0_input_method"') {
+        Stop-ReleaseGate 'REL_IME_SUBTYPE_METADATA' 'module.json5' 'Input-method subtype metadata is missing or references the wrong profile' 'Declare ohos.extension.input_method metadata with $profile:stage0_input_method.'
+    }
+
+    $subtypeProfilePath = Join-Path $sourceRoot 'resources\base\profile\stage0_input_method.json'
+    if (-not (Test-Path -LiteralPath $subtypeProfilePath -PathType Leaf)) {
+        Stop-ReleaseGate 'REL_IME_SUBTYPE_PROFILE_MISSING' 'resources/base/profile/stage0_input_method.json' 'Input-method subtype profile is missing' 'Restore the standard subtype profile.'
+    }
+    try {
+        $subtypeProfile = [IO.File]::ReadAllText($subtypeProfilePath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+    } catch {
+        Stop-ReleaseGate 'REL_IME_SUBTYPE_PROFILE_INVALID' 'resources/base/profile/stage0_input_method.json' 'Input-method subtype profile is not valid JSON' 'Restore a valid standard subtype profile.'
+    }
+    $zhCnSubtypes = @($subtypeProfile.subtypes | Where-Object {
+        [string]$_.id -eq 'shuangyu_zh_cn' -and [string]$_.locale -eq 'zh-CN'
+    })
+    if ($zhCnSubtypes.Count -ne 1) {
+        Stop-ReleaseGate 'REL_IME_ZH_CN_SUBTYPE' 'resources/base/profile/stage0_input_method.json' 'The required shuangyu_zh_cn / zh-CN subtype is missing or duplicated' 'Declare exactly one standard Chinese subtype.'
+    }
+
+    $abilityPath = Join-Path $sourceRoot 'ets\inputmethod\Stage0InputMethodAbilityBase.ets'
+    $abilityText = [IO.File]::ReadAllText($abilityPath, [Text.Encoding]::UTF8)
+    foreach ($subscription in @("keyboardDelegate.on('keyEvent'", "keyboardDelegate.on('keyDown'", "keyboardDelegate.on('keyUp'")) {
+        if (-not $abilityText.Contains($subscription)) {
+            Stop-ReleaseGate 'REL_IME_PC_KEY_CHANNEL' 'ets/inputmethod/Stage0InputMethodAbilityBase.ets' "Required physical-key subscription is missing: $subscription" 'Keep both modern keyEvent and PC-compatible keyDown/keyUp subscriptions.'
         }
     }
 }
@@ -187,6 +218,18 @@ try {
     if ([string]$module.app.buildMode -ne 'release' -or [bool]$module.app.debug) {
         Stop-ReleaseGate 'REL_HAP_BUILD_MODE' $hap.FullName "HAP is not Release: buildMode=$($module.app.buildMode) debug=$($module.app.debug)" 'Build the default product in release mode.'
     }
+    $inputMethodExtension = @($module.module.extensionAbilities | Where-Object {
+        [string]$_.name -eq 'Stage0InputMethodAbility' -and [string]$_.type -eq 'inputMethod'
+    }) | Select-Object -First 1
+    if ($null -eq $inputMethodExtension) {
+        Stop-ReleaseGate 'REL_HAP_IME_EXTENSION_MISSING' 'module.json' 'Release HAP is missing Stage0InputMethodAbility' 'Rebuild the Release HAP with the input-method extension.'
+    }
+    $inputMethodMetadata = @($inputMethodExtension.metadata | Where-Object {
+        [string]$_.name -eq 'ohos.extension.input_method'
+    }) | Select-Object -First 1
+    if ($null -eq $inputMethodMetadata) {
+        Stop-ReleaseGate 'REL_HAP_IME_SUBTYPE_METADATA' 'module.json' 'Packaged input-method extension is missing standard subtype metadata' 'Restore the metadata and rebuild without stale profile outputs.'
+    }
     foreach ($permission in $releaseForbiddenPermissions) {
         if ($moduleText.Contains([string]$permission)) {
             Stop-ReleaseGate 'REL_NETWORK_PERMISSION' 'module.json' "Release HAP declares forbidden permission '$permission'" 'Remove the network permission and rebuild.'
@@ -194,6 +237,24 @@ try {
     }
 
     $entryNames = @($entries | ForEach-Object { $_.FullName })
+    $subtypeEntry = $entries | Where-Object {
+        $_.FullName -eq 'resources/base/profile/stage0_input_method.json'
+    } | Select-Object -First 1
+    if ($null -eq $subtypeEntry) {
+        Stop-ReleaseGate 'REL_HAP_IME_SUBTYPE_PROFILE_MISSING' 'resources/base/profile/stage0_input_method.json' 'Release HAP is missing the input-method subtype profile' 'Restore the profile and rebuild.'
+    }
+    $subtypeReader = [System.IO.StreamReader]::new($subtypeEntry.Open(), [System.Text.Encoding]::UTF8)
+    try {
+        $packagedSubtypeProfile = $subtypeReader.ReadToEnd() | ConvertFrom-Json
+    } finally {
+        $subtypeReader.Dispose()
+    }
+    $packagedZhCnSubtypes = @($packagedSubtypeProfile.subtypes | Where-Object {
+        [string]$_.id -eq 'shuangyu_zh_cn' -and [string]$_.locale -eq 'zh-CN'
+    })
+    if ($packagedZhCnSubtypes.Count -ne 1) {
+        Stop-ReleaseGate 'REL_HAP_IME_ZH_CN_SUBTYPE' 'resources/base/profile/stage0_input_method.json' 'Packaged HAP does not contain exactly one shuangyu_zh_cn / zh-CN subtype' 'Rebuild from the corrected subtype profile.'
+    }
     $packagedRawfiles = @($entryNames | Where-Object { $_ -like 'resources/rawfile/*' })
     $approvedHapRawfiles = @(
         'resources/rawfile/production.lex',

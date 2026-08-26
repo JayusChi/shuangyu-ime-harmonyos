@@ -2,6 +2,10 @@ import { ProtocolAction } from '../infrastructure/native/NativeEngineTypes';
 import { TimeProvider, SystemTimeProvider } from '../infrastructure/time/TimeProvider';
 import { SerialActionExecutor } from './SerialActionExecutor';
 import { PairInsertResult } from '../infrastructure/ime/ImeConnectionService';
+import {
+  LunarDateProvider,
+  SystemLunarDateProvider
+} from '../infrastructure/time/LunarDateProvider';
 
 export interface ProtocolActionImeService {
   commitPreviewText(text: string, generation?: number): Promise<boolean>;
@@ -43,17 +47,20 @@ export class ProtocolActionExecutor {
   private readonly timeProvider: TimeProvider;
   private readonly isGenerationCurrent: (generation: number) => boolean;
   private readonly handlers: ProtocolActionHandlers;
+  private readonly lunarDateProvider: LunarDateProvider;
 
   constructor(
     imeService: ProtocolActionImeService,
     timeProvider: TimeProvider = new SystemTimeProvider(),
     isGenerationCurrent: (generation: number) => boolean = (): boolean => true,
-    handlers: ProtocolActionHandlers = new EmptyProtocolActionHandlers()
+    handlers: ProtocolActionHandlers = new EmptyProtocolActionHandlers(),
+    lunarDateProvider: LunarDateProvider = new SystemLunarDateProvider()
   ) {
     this.imeService = imeService;
     this.timeProvider = timeProvider;
     this.isGenerationCurrent = isGenerationCurrent;
     this.handlers = handlers;
+    this.lunarDateProvider = lunarDateProvider;
   }
 
   execute(action: ProtocolAction, generation: number): Promise<ProtocolActionExecutionResult> {
@@ -237,6 +244,14 @@ export class ProtocolActionExecutor {
         return `${hour}:${minute}:${second}`;
       case 'TIME_LOCAL_HMS':
         return `${hour}时${minute}分${second}秒`;
+      case 'TIME_WEEKDAY': {
+        const weekdays: string[] = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+        return `${hour}:${minute} ${weekdays[snapshot.getDay()]}`;
+      }
+      case 'TIME_LOCAL_HM':
+        return `${snapshot.getHours()}点${snapshot.getMinutes()}分`;
+      case 'LUNAR_DATE_FESTIVAL':
+        return this.lunarDateProvider.format(snapshot);
       case 'DATETIME_LOCAL':
         return `${year}年${month}月${day}日 ${hour}:${minute}`;
       case 'UNIX_TIMESTAMP':

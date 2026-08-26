@@ -15,6 +15,9 @@ impl ImeEngine {
         let Some(candidate) = self.session.select_current_page(page_index).cloned() else {
             return Err(EngineOperationError::InvalidCandidate);
         };
+        // Selection can mutate user ranking, so no compatibility decode that
+        // captured the previous user scores may survive the commit.
+        self.t9_compatibility_decode_cache.clear();
         let commit_text = candidate.text;
         if let Some(learning_key) = candidate.learning_key {
             if self.user_model.record_selection(learning_key) {
@@ -74,4 +77,3 @@ impl ImeEngine {
     }
 
 }
-

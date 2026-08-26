@@ -127,14 +127,53 @@ pub(crate) fn deduplicate_candidates(
 }
 
 pub(crate) fn compare_path(left: &SentencePath, right: &SentencePath) -> std::cmp::Ordering {
-    right
-        .score
-        .cmp(&left.score)
-        .then_with(|| left.fallback_count().cmp(&right.fallback_count()))
-        .then_with(|| left.edges.len().cmp(&right.edges.len()))
-        .then_with(|| left.text().cmp(&right.text()))
-        .then_with(|| left.reading().cmp(&right.reading()))
-        .then_with(|| left.path_key().cmp(&right.path_key()))
+    compare_path_parts(left.score, &left.edges, right.score, &right.edges)
+}
+
+pub(crate) fn compare_path_parts(
+    left_score: i64,
+    left_edges: &[WordEdge],
+    right_score: i64,
+    right_edges: &[WordEdge],
+) -> std::cmp::Ordering {
+    right_score
+        .cmp(&left_score)
+        .then_with(|| {
+            left_edges
+                .iter()
+                .filter(|edge| edge.fallback)
+                .count()
+                .cmp(&right_edges.iter().filter(|edge| edge.fallback).count())
+        })
+        .then_with(|| left_edges.len().cmp(&right_edges.len()))
+        // String ordering is byte-lexicographic. Compare the borrowed pieces
+        // directly so hot sort comparisons do not rebuild joined Strings.
+        .then_with(|| {
+            left_edges
+                .iter()
+                .flat_map(|edge| edge.text.bytes())
+                .cmp(right_edges.iter().flat_map(|edge| edge.text.bytes()))
+        })
+        .then_with(|| joined_reading_bytes(left_edges).cmp(joined_reading_bytes(right_edges)))
+        // Path identity is the final, rarely reached tie-break. Keep the
+        // existing token contract exactly rather than changing ordering.
+        .then_with(|| path_key_for_edges(left_edges).cmp(&path_key_for_edges(right_edges)))
+}
+
+fn joined_reading_bytes(edges: &[WordEdge]) -> impl Iterator<Item = u8> + '_ {
+    edges.iter().enumerate().flat_map(|(index, edge)| {
+        std::iter::once(b' ')
+            .take(usize::from(index > 0))
+            .chain(edge.reading.bytes())
+    })
+}
+
+fn path_key_for_edges(edges: &[WordEdge]) -> String {
+    edges
+        .iter()
+        .map(WordEdge::path_token)
+        .collect::<Vec<_>>()
+        .join(">")
 }
 
 fn compare_candidate(left: &SentenceCandidate, right: &SentenceCandidate) -> std::cmp::Ordering {

@@ -1,5 +1,5 @@
 import Want from '@ohos.app.ability.Want';
-import { InputMethodExtensionAbility, inputMethodEngine } from '@kit.IMEKit';
+import { InputMethodExtensionAbility, InputMethodSubtype, inputMethodEngine } from '@kit.IMEKit';
 import { InputMethodLifecycleDispatcher } from '../application/InputMethodLifecycleDispatcher';
 import { Logger } from '../common/logging/Logger';
 import { Configuration, ConfigurationConstant } from '@kit.AbilityKit';
@@ -12,6 +12,11 @@ import {
   PhysicalKeySnapshot,
   PhysicalKeyStartupDeferral
 } from '../domain/keyboard/PhysicalKeyboardRouting';
+import {
+  LegacyPhysicalKeyState,
+  PhysicalKeyEventChannel,
+  PhysicalKeyEventDeduplicator
+} from '../domain/keyboard/PhysicalKeyEventCompatibility';
 
 const TAG = 'Stage0InputMethodAbility';
 const LOGGER = new Logger(TAG);
@@ -26,11 +31,14 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
   private runtimeInitialization?: Promise<void>;
   private systemThemeMonitor?: SystemThemeMonitor;
   private readonly startupPhysicalKeys = new PhysicalKeyStartupDeferral();
+  private readonly legacyPhysicalKeys = new LegacyPhysicalKeyState();
+  private readonly physicalKeyEvents = new PhysicalKeyEventDeduplicator();
 
   private readonly onInputStart = (
     keyboardController: inputMethodEngine.KeyboardController,
     inputClient: inputMethodEngine.InputClient
   ): void => {
+    this.resetPhysicalKeyCompatibilityState();
     this.runAfterInitialization((): void => {
       this.systemThemeMonitor?.refresh();
       this.lifecycleDispatcher.handleInputStart(keyboardController, inputClient);
@@ -38,6 +46,7 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
   };
 
   private readonly onInputStop = (): void => {
+    this.resetPhysicalKeyCompatibilityState();
     this.runAfterInitialization((): void => this.lifecycleDispatcher.handleInputStop());
   };
 
@@ -60,23 +69,56 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
     this.runAfterInitialization((): void => this.lifecycleDispatcher.handleCursorContextChange(x, y, height));
   };
 
-  private readonly onPhysicalKeyEvent = (event: KeyEvent): boolean => {
-    if (this.runtimeReady) {
-      return this.lifecycleDispatcher.handlePhysicalKeyEvent(event);
-    }
-    const snapshot = this.snapshotPhysicalKeyEvent(event);
-    if (!this.startupPhysicalKeys.shouldDefer(snapshot)) {
-      return false;
-    }
-    // inputStart is registered before the first hardware key, and all queued
-    // callbacks share the same initialization promise. Replaying here keeps
-    // their arrival order while returning true synchronously prevents the host
-    // editor from committing the cold-start letter a second time.
-    this.runAfterInitialization((): void => {
-      this.lifecycleDispatcher.handleDeferredPhysicalKeyEvent(snapshot);
-    });
-    return true;
+  private readonly onSetSubtype = (subtype: InputMethodSubtype): void => {
+    LOGGER.info(`input method subtype selected: id=${subtype.id}, locale=${subtype.locale}`);
   };
+
+  private readonly onPhysicalKeyEvent = (event: KeyEvent): boolean => {
+    return this.dispatchPhysicalKeySnapshot(
+      this.snapshotPhysicalKeyEvent(event),
+      PhysicalKeyEventChannel.MODERN
+    );
+  };
+
+  private readonly onLegacyPhysicalKeyDown = (event: inputMethodEngine.KeyEvent): boolean => {
+    return this.dispatchPhysicalKeySnapshot(
+      this.legacyPhysicalKeys.snapshot(event.keyCode, true),
+      PhysicalKeyEventChannel.LEGACY
+    );
+  };
+
+  private readonly onLegacyPhysicalKeyUp = (event: inputMethodEngine.KeyEvent): boolean => {
+    return this.dispatchPhysicalKeySnapshot(
+      this.legacyPhysicalKeys.snapshot(event.keyCode, false),
+      PhysicalKeyEventChannel.LEGACY
+    );
+  };
+
+  private dispatchPhysicalKeySnapshot(
+    snapshot: PhysicalKeySnapshot,
+    channel: PhysicalKeyEventChannel
+  ): boolean {
+    const timestampMs = Date.now();
+    const duplicateDecision = this.physicalKeyEvents.findDuplicateDecision(channel, snapshot, timestampMs);
+    if (duplicateDecision !== undefined) {
+      return duplicateDecision;
+    }
+    let handled = false;
+    if (this.runtimeReady) {
+      handled = this.lifecycleDispatcher.handlePhysicalKeySnapshot(snapshot);
+    } else if (this.startupPhysicalKeys.shouldDefer(snapshot)) {
+      // inputStart is registered before the first hardware key, and all queued
+      // callbacks share the same initialization promise. Replaying here keeps
+      // their arrival order while returning true synchronously prevents the host
+      // editor from committing the cold-start letter a second time.
+      this.runAfterInitialization((): void => {
+        this.lifecycleDispatcher.handleDeferredPhysicalKeyEvent(snapshot);
+      });
+      handled = true;
+    }
+    this.physicalKeyEvents.record(channel, snapshot, handled, timestampMs);
+    return handled;
+  }
 
   private snapshotPhysicalKeyEvent(event: KeyEvent): PhysicalKeySnapshot {
     return {
@@ -88,6 +130,11 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
       logoKey: event.logoKey,
       shiftKey: event.shiftKey
     };
+  }
+
+  private resetPhysicalKeyCompatibilityState(): void {
+    this.legacyPhysicalKeys.reset();
+    this.physicalKeyEvents.reset();
   }
 
   onCreate(want: Want): void {
@@ -145,8 +192,14 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
     imeAbility.on('keyboardShow', this.onKeyboardShow);
     imeAbility.on('keyboardHide', this.onKeyboardHide);
     imeAbility.on('discardTypingText', this.onDiscardTypingText);
+    imeAbility.on('setSubtype', this.onSetSubtype);
     keyboardDelegate.on('cursorContextChange', this.onCursorContextChange);
     keyboardDelegate.on('keyEvent', this.onPhysicalKeyEvent);
+    // HarmonyOS PC hosts can still use the API 8 delegate path. Subscribe to
+    // both generations so native desktop editors and ArkUI editors share the
+    // same physical-key routing implementation.
+    keyboardDelegate.on('keyDown', this.onLegacyPhysicalKeyDown);
+    keyboardDelegate.on('keyUp', this.onLegacyPhysicalKeyUp);
     this.registered = true;
   }
 
@@ -175,8 +228,11 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
       this.imeAbility.off('keyboardShow', this.onKeyboardShow);
       this.imeAbility.off('keyboardHide', this.onKeyboardHide);
       this.imeAbility.off('discardTypingText', this.onDiscardTypingText);
+      this.imeAbility.off('setSubtype', this.onSetSubtype);
       this.keyboardDelegate?.off('cursorContextChange', this.onCursorContextChange);
       this.keyboardDelegate?.off('keyEvent', this.onPhysicalKeyEvent);
+      this.keyboardDelegate?.off('keyDown', this.onLegacyPhysicalKeyDown);
+      this.keyboardDelegate?.off('keyUp', this.onLegacyPhysicalKeyUp);
     }
     this.lifecycleDispatcher.handleAbilityDestroy();
     this.systemThemeMonitor?.stop();
@@ -184,6 +240,7 @@ export default class Stage0InputMethodAbilityBase extends InputMethodExtensionAb
     getSharedSettingsController().stopCrossRuntimeSync();
     this.registered = false;
     this.startupPhysicalKeys.reset();
+    this.resetPhysicalKeyCompatibilityState();
     this.runtimeInitialization = undefined;
     this.imeAbility = undefined;
     this.keyboardDelegate = undefined;

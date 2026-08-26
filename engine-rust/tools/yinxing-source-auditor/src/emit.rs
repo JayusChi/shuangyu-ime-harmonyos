@@ -161,6 +161,7 @@ fn syntax_json(s: &SyntaxStats) -> Json {
         ("ordinary", Json::Number(s.ordinary)),
         ("user_deletion", Json::Number(s.user_delete)),
         ("user_pin", Json::Number(s.user_pin)),
+        ("direct_add", Json::Number(s.direct_add)),
         ("user_position", Json::Number(s.user_position)),
         ("user_mixed_rule", Json::Number(s.user_mixed)),
         ("cmd", Json::Number(s.cmd)),
@@ -189,6 +190,7 @@ fn syntax_reason(kind: &str) -> &'static str {
         "ordinary" => "ACCEPT_TABLE_RECORD",
         "user_deletion" => "TRANSFORM_USER_DELETE",
         "user_pin" => "TRANSFORM_USER_PIN",
+        "direct_add" => "TRANSFORM_DIRECT_ADD",
         "user_position" => "TRANSFORM_USER_POSITION",
         "user_mixed_rule" => "REJECT_AMBIGUOUS_USER_RULE",
         "cmd" => "REJECT_UNSUPPORTED_COMMAND",
@@ -201,7 +203,9 @@ fn syntax_reason(kind: &str) -> &'static str {
 fn syntax_action(kind: &str) -> &'static str {
     match kind {
         "ordinary" => "retain with source line",
-        "user_deletion" | "user_pin" | "user_position" => "convert through frozen user rule policy",
+        "user_deletion" | "user_pin" | "direct_add" | "user_position" => {
+            "convert through frozen user rule policy"
+        }
         "comment" | "empty" => "exclude from candidate records",
         "configuration_header" | "configuration_item" => "parse only as non-executable reference",
         _ => "isolate and require explicit support",
@@ -589,6 +593,7 @@ fn syntax_decision(kind: &str) -> &'static str {
         "ordinary" => "ACCEPTED",
         "user_deletion"
         | "user_pin"
+        | "direct_add"
         | "user_position"
         | "configuration_header"
         | "configuration_item" => "TRANSFORM",
@@ -659,6 +664,7 @@ fn contract_json(
                     "ordinary",
                     "user_deletion",
                     "user_pin",
+                    "direct_add",
                     "user_position",
                     "user_mixed_rule",
                     "cmd",
@@ -677,6 +683,10 @@ fn contract_json(
             "user_rule_policy",
             Json::object(vec![
                 ("ordinary", Json::string("transform")),
+                (
+                    "direct_add",
+                    Json::string("transform only in full-code-word; hide from wildcard lookup"),
+                ),
                 ("delete", Json::string("transform exact text+code")),
                 ("pin", Json::string("transform stable fixed prefix")),
                 (

@@ -32,6 +32,7 @@ class RustEngineHandle {
     RustCallResult GetLocalAssociations();
     RustCallResult GetCodeTableCategoryConfig();
     RustCallResult SetCodeTableCategories(const std::string& categoryIdsJson);
+    RustCallResult SetCodeTableCommitPolicy(const std::string& policyJson);
     RustCallResult ReloadUserLexicon();
     RustCallResult SetUserModelPath(const std::string& path);
     RustCallResult LoadUserModel();

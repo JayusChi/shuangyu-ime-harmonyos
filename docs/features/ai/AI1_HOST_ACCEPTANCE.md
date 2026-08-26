@@ -2,6 +2,15 @@
 
 当前所有设备与第三方宿主项均为 `NOT_RUN`。本文是可执行验收材料，不是通过记录。
 
+结果模板为 `AI1_HOST_ACCEPTANCE_RESULT.example.json`。复制为带日期的证据文件后逐项填写；先运行结构门禁，再在发布结论前运行完成门禁：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/validate-ai1-host-acceptance.ps1 -Path <result.json>
+powershell -ExecutionPolicy Bypass -File scripts/validate-ai1-host-acceptance.ps1 -Path <result.json> -RequireComplete
+```
+
+示例文件应通过结构门禁、应被 `-RequireComplete` 拒绝，因为它明确记录全部 `NOT_RUN`。只有 7 类环境全部 PASS、五个结果维度全部 PASS、有证据路径、执行时间和 64 位 HAP SHA-256 时，完成门禁才通过。
+
 ## 目标矩阵
 
 | 环境 | 普通输入 | 本地关联 | 云动作 | 生命周期/替换 | 当前状态 |

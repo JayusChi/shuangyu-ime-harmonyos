@@ -106,4 +106,3 @@ fn saved_user_lexicon_report(snapshot: UserLexiconSnapshot) -> UserLexiconLoadRe
         warning_code: String::new(),
     }
 }
-

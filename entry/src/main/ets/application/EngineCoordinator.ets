@@ -9,6 +9,10 @@ import {
   UserModelStatus
 } from '../infrastructure/native/NativeEngineTypes';
 import { NativeEngineGateway } from '../infrastructure/native/NativeEngineGateway';
+import {
+  ChineseTextConverter,
+  SystemChineseTextConverter
+} from '../infrastructure/text/ChineseTextConverter';
 
 const TAG = 'EngineCoordinator';
 const LOGGER = new Logger(TAG);
@@ -27,12 +31,31 @@ export class EngineCoordinator {
   private activeSchemeId: string = DEFAULT_SCHEME_ID;
   private lastResult: CompositionResult = this.emptyResult();
   private initializationConfig?: EngineConfig;
+  // `initializationConfig.codeTableBundlePath` is a requested configuration
+  // value, not proof that the current native handle actually loaded the
+  // bundle. Rust intentionally ignores the path when a handle is created for
+  // a phonetic scheme, so hot switching must track handle ownership
+  // separately and recreate the engine when the bundle is not resident.
+  private loadedCodeTableBundlePath?: string;
   private userModelPath: string = '';
   private userLearningEnabled: boolean = true;
   private sessionLearningAllowed: boolean = true;
+  private initializationTask?: Promise<CompositionResult>;
+  private lifecycleGeneration: number = 0;
+  private traditionalOutputEnabled: boolean = false;
+  private readonly chineseTextConverter: ChineseTextConverter;
 
-  constructor(gateway: NativeEngineGatewayContract = new NativeEngineGateway()) {
+  constructor(
+    gateway: NativeEngineGatewayContract = new NativeEngineGateway(),
+    chineseTextConverter: ChineseTextConverter = new SystemChineseTextConverter()
+  ) {
     this.gateway = gateway;
+    this.chineseTextConverter = chineseTextConverter;
+  }
+
+  setTraditionalOutputEnabled(enabled: boolean): void {
+    this.traditionalOutputEnabled = enabled;
+    this.lastResult = this.applyOutputMode(this.lastResult);
   }
 
   initialize(
@@ -76,6 +99,7 @@ export class EngineCoordinator {
       this.initialized = true;
       this.activeSchemeId = schemeId;
       this.initializationConfig = this.copyConfig(config);
+      this.loadedCodeTableBundlePath = this.loadedBundlePathForConfig(config);
       this.lastResult = this.emptyResult();
       const engineVersion = this.gateway.getEngineVersion();
       const nativeBuildInfo = this.gateway.getNativeBuildInfo();
@@ -92,16 +116,137 @@ export class EngineCoordinator {
       this.initialized = false;
       this.activeSchemeId = DEFAULT_SCHEME_ID;
       this.initializationConfig = undefined;
+      this.loadedCodeTableBundlePath = undefined;
+      this.lastResult = this.failure(ImeErrorCode.NATIVE_BRIDGE_ERROR, `engine initialize failed: ${detail}`);
+      return this.lastResult;
+    }
+  }
+
+  async initializeAsync(
+    schemeId: string = DEFAULT_SCHEME_ID,
+    lexiconPath?: string,
+    userLexiconPath?: string,
+    candidatePageSize: number = DEFAULT_CANDIDATE_PAGE_SIZE,
+    codeTableBundlePath?: string,
+    codeTableActionFixturePath?: string,
+    codeTableActionFixtureSha256?: string,
+    spellingCorrectionEnabled: boolean = false,
+    fuzzyOptions: FuzzyOptionId[] = [],
+    quanpinContextModelPath?: string,
+    quanpinContextModelSha256?: string
+  ): Promise<CompositionResult> {
+    if (this.initialized && this.handle > 0) {
+      return this.lastResult;
+    }
+    if (this.initializationTask !== undefined) {
+      return this.initializationTask;
+    }
+    if (this.gateway.createEngineAsync === undefined) {
+      return this.initialize(
+        schemeId,
+        lexiconPath,
+        userLexiconPath,
+        candidatePageSize,
+        codeTableBundlePath,
+        codeTableActionFixturePath,
+        codeTableActionFixtureSha256,
+        spellingCorrectionEnabled,
+        fuzzyOptions,
+        quanpinContextModelPath,
+        quanpinContextModelSha256
+      );
+    }
+
+    const initializationStartedAt = Date.now();
+    const config: EngineConfig = {
+      interfaceVersion: INTERFACE_VERSION,
+      schemeId,
+      lexiconPath,
+      codeTableBundlePath,
+      codeTableActionFixturePath,
+      codeTableActionFixtureSha256,
+      userLexiconPath,
+      candidatePageSize,
+      quanpinConfigVersion: QUANPIN_CONFIG_VERSION,
+      spellingCorrectionEnabled,
+      fuzzyOptions: fuzzyOptions.slice(),
+      quanpinContextRerankingConfigVersion: QUANPIN_CONTEXT_RERANKING_CONFIG_VERSION,
+      quanpinContextRerankingEnabled: quanpinContextModelPath !== undefined &&
+        quanpinContextModelSha256 !== undefined,
+      quanpinContextModelPath,
+      quanpinContextModelSha256
+    };
+    const generation = this.lifecycleGeneration;
+    const initializationTask = this.initializeThroughAsyncGateway(
+      config,
+      schemeId,
+      initializationStartedAt,
+      generation
+    );
+    this.initializationTask = initializationTask;
+    try {
+      return await initializationTask;
+    } finally {
+      if (this.initializationTask === initializationTask) {
+        this.initializationTask = undefined;
+      }
+    }
+  }
+
+  private async initializeThroughAsyncGateway(
+    config: EngineConfig,
+    schemeId: string,
+    initializationStartedAt: number,
+    generation: number
+  ): Promise<CompositionResult> {
+    try {
+      const handle = await this.gateway.createEngineAsync!(config);
+      if (generation !== this.lifecycleGeneration) {
+        try {
+          this.gateway.destroyEngine(handle);
+        } catch (err) {
+          LOGGER.warn(`stale asynchronous engine destroy failed: ${JSON.stringify(err)}`);
+        }
+        return this.lastResult;
+      }
+      this.handle = handle;
+      this.initialized = true;
+      this.activeSchemeId = schemeId;
+      this.initializationConfig = this.copyConfig(config);
+      this.loadedCodeTableBundlePath = this.loadedBundlePathForConfig(config);
+      this.lastResult = this.emptyResult();
+      const engineVersion = this.gateway.getEngineVersion();
+      const nativeBuildInfo = this.gateway.getNativeBuildInfo();
+      LOGGER.info(
+        `engine initialized asynchronously: schemeId=${schemeId}, ` +
+          `initializationMs=${Date.now() - initializationStartedAt}, version=${engineVersion}, ` +
+          `interface=${this.gateway.getInterfaceVersion()}, native=${nativeBuildInfo}`
+      );
+      return this.lastResult;
+    } catch (err) {
+      if (generation !== this.lifecycleGeneration) {
+        return this.lastResult;
+      }
+      const detail = err instanceof Error ? err.message : JSON.stringify(err);
+      LOGGER.error(`asynchronous engine initialize failed: ${detail}`);
+      this.handle = 0;
+      this.initialized = false;
+      this.activeSchemeId = DEFAULT_SCHEME_ID;
+      this.initializationConfig = undefined;
+      this.loadedCodeTableBundlePath = undefined;
       this.lastResult = this.failure(ImeErrorCode.NATIVE_BRIDGE_ERROR, `engine initialize failed: ${detail}`);
       return this.lastResult;
     }
   }
 
   dispose(): void {
+    this.lifecycleGeneration += 1;
+    this.initializationTask = undefined;
     if (!this.initialized || this.handle <= 0) {
       this.handle = 0;
       this.initialized = false;
       this.initializationConfig = undefined;
+      this.loadedCodeTableBundlePath = undefined;
       this.userModelPath = '';
       this.lastResult = this.emptyResult();
       return;
@@ -117,6 +262,7 @@ export class EngineCoordinator {
     this.initialized = false;
     this.activeSchemeId = DEFAULT_SCHEME_ID;
     this.initializationConfig = undefined;
+    this.loadedCodeTableBundlePath = undefined;
     this.userModelPath = '';
     this.lastResult = this.emptyResult();
     try {
@@ -131,7 +277,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    this.lastResult = this.gateway.processKey(this.handle, key);
+    this.lastResult = this.applyOutputMode(this.gateway.processKey(this.handle, key));
     return this.lastResult;
   }
 
@@ -139,7 +285,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    const result = this.gateway.insertSegmentBoundary(this.handle);
+    const result = this.applyOutputMode(this.gateway.insertSegmentBoundary(this.handle));
     if (result.success) {
       this.lastResult = result;
     }
@@ -150,7 +296,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    this.lastResult = this.gateway.backspace(this.handle);
+    this.lastResult = this.applyOutputMode(this.gateway.backspace(this.handle));
     return this.lastResult;
   }
 
@@ -158,7 +304,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    this.lastResult = this.gateway.reset(this.handle);
+    this.lastResult = this.applyOutputMode(this.gateway.reset(this.handle));
     return this.lastResult;
   }
 
@@ -167,10 +313,10 @@ export class EngineCoordinator {
       return this.lastResult;
     }
     if (schemeId === 'xiaohe-yinxing' && codeTableBundlePath &&
-      this.initializationConfig?.codeTableBundlePath !== codeTableBundlePath) {
+      this.loadedCodeTableBundlePath !== codeTableBundlePath) {
       return this.recreateWithCodeTableBundle(schemeId, codeTableBundlePath);
     }
-    const result = this.gateway.changeScheme(this.handle, schemeId);
+    const result = this.applyOutputMode(this.gateway.changeScheme(this.handle, schemeId));
     if (result.success) {
       this.lastResult = result;
       this.activeSchemeId = schemeId;
@@ -189,7 +335,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    this.lastResult = this.gateway.selectCandidate(this.handle, candidateIndex);
+    this.lastResult = this.applyOutputMode(this.gateway.selectCandidate(this.handle, candidateIndex));
     return this.lastResult;
   }
 
@@ -197,7 +343,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    const result = this.gateway.selectPinyinCombination(this.handle, combinationIndex);
+    const result = this.applyOutputMode(this.gateway.selectPinyinCombination(this.handle, combinationIndex));
     if (result.success) {
       this.lastResult = result;
     }
@@ -208,7 +354,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    this.lastResult = this.gateway.nextCandidatePage(this.handle);
+    this.lastResult = this.applyOutputMode(this.gateway.nextCandidatePage(this.handle));
     return this.lastResult;
   }
 
@@ -216,7 +362,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    this.lastResult = this.gateway.previousCandidatePage(this.handle);
+    this.lastResult = this.applyOutputMode(this.gateway.previousCandidatePage(this.handle));
     return this.lastResult;
   }
 
@@ -224,7 +370,9 @@ export class EngineCoordinator {
     if (!this.ensureInitialized() || this.gateway.getLocalAssociations === undefined) {
       return [];
     }
-    return this.gateway.getLocalAssociations(this.handle);
+    const values = this.gateway.getLocalAssociations(this.handle);
+    return this.traditionalOutputEnabled ?
+      values.map((value: string): string => this.chineseTextConverter.toTraditional(value)) : values;
   }
 
   getCodeTableCategoryConfig(): CodeTableCategoryConfig {
@@ -238,7 +386,25 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    const result = this.gateway.setCodeTableCategories(this.handle, enabledCategoryIds);
+    const result = this.applyOutputMode(this.gateway.setCodeTableCategories(this.handle, enabledCategoryIds));
+    if (result.success) {
+      this.lastResult = result;
+    }
+    return result;
+  }
+
+  setCodeTableCommitPolicy(
+    autoCommitEnabled: boolean,
+    emptyClearLength: number
+  ): CompositionResult {
+    if (!this.ensureInitialized() || this.gateway.setCodeTableCommitPolicy === undefined) {
+      return this.failure(ImeErrorCode.NATIVE_BRIDGE_ERROR, 'commit policy update is unavailable');
+    }
+    const result = this.applyOutputMode(this.gateway.setCodeTableCommitPolicy(
+      this.handle,
+      autoCommitEnabled,
+      emptyClearLength
+    ));
     if (result.success) {
       this.lastResult = result;
     }
@@ -249,7 +415,7 @@ export class EngineCoordinator {
     if (!this.ensureInitialized()) {
       return this.lastResult;
     }
-    const result = this.gateway.reloadUserLexicon(this.handle);
+    const result = this.applyOutputMode(this.gateway.reloadUserLexicon(this.handle));
     if (result.success) {
       this.lastResult = result;
     }
@@ -376,6 +542,7 @@ export class EngineCoordinator {
     const previousHandle = this.handle;
     this.handle = nextHandle;
     this.initializationConfig = nextConfig;
+    this.loadedCodeTableBundlePath = this.loadedBundlePathForConfig(nextConfig);
     this.lastResult = this.emptyResult();
     try {
       this.gateway.flushUserModel(previousHandle);
@@ -460,6 +627,7 @@ export class EngineCoordinator {
     }
     this.handle = nextHandle;
     this.initializationConfig = nextConfig;
+    this.loadedCodeTableBundlePath = codeTableBundlePath;
     this.activeSchemeId = schemeId;
     this.lastResult = this.emptyResult();
     try {
@@ -491,6 +659,14 @@ export class EngineCoordinator {
     };
   }
 
+  private loadedBundlePathForConfig(config: EngineConfig): string | undefined {
+    if ((config.schemeId === 'xiaohe-yinxing' || config.schemeId === 'code-table-fixture') &&
+      config.codeTableBundlePath && config.codeTableBundlePath.length > 0) {
+      return config.codeTableBundlePath;
+    }
+    return undefined;
+  }
+
   private emptyResult(): CompositionResult {
     return {
       success: true,
@@ -514,6 +690,21 @@ export class EngineCoordinator {
       action: null,
       compositionFinished: false
     };
+  }
+
+  private applyOutputMode(result: CompositionResult): CompositionResult {
+    if (!this.traditionalOutputEnabled || !result.success) {
+      return result;
+    }
+    result.candidates.forEach((candidate): void => {
+      if (candidate.source !== 'functional') {
+        candidate.text = this.chineseTextConverter.toTraditional(candidate.text);
+      }
+    });
+    if (result.action === null && result.commitText.length > 0) {
+      result.commitText = this.chineseTextConverter.toTraditional(result.commitText);
+    }
+    return result;
   }
 
   private failure(code: ImeErrorCode, message: string): CompositionResult {

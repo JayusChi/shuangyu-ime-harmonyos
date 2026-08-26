@@ -14,6 +14,7 @@ pub fn scan(text: &str) -> SyntaxStats {
             "ordinary" => stats.ordinary += 1,
             "user_deletion" => stats.user_delete += 1,
             "user_pin" => stats.user_pin += 1,
+            "direct_add" => stats.direct_add += 1,
             "user_position" => stats.user_position += 1,
             "user_mixed_rule" => stats.user_mixed += 1,
             "cmd" => stats.cmd += 1,
@@ -37,6 +38,7 @@ pub fn scan(text: &str) -> SyntaxStats {
                 "ordinary"
                     | "user_deletion"
                     | "user_pin"
+                    | "direct_add"
                     | "user_position"
                     | "user_mixed_rule"
                     | "cmd"
@@ -87,6 +89,7 @@ fn classify(line: &str) -> String {
             return match marker {
                 "删" => "user_deletion",
                 "固" => "user_pin",
+                "直" => "direct_add",
                 value
                     if !value.is_empty()
                         && value.bytes().all(|b| b.is_ascii_digit())
@@ -128,9 +131,10 @@ mod tests {
                 stats.ordinary,
                 stats.user_delete,
                 stats.user_pin,
+                stats.direct_add,
                 stats.user_position
             ),
-            (1, 1, 1, 1)
+            (1, 1, 1, 0, 1)
         );
         assert_eq!(
             (
@@ -150,5 +154,13 @@ mod tests {
     fn rejects_bad_table_shapes() {
         let s = scan("\tabc\na\t\na\tb\tc\na\tab#0\na\tab#unknown");
         assert_eq!(s.unrecognized, 5);
+    }
+
+    #[test]
+    fn classifies_direct_add_as_an_explicit_record() {
+        let stats = scan("直通词\tabcd#直");
+        assert_eq!(stats.direct_add, 1);
+        assert_eq!(stats.unrecognized, 0);
+        assert_eq!(stats.records[0].syntax, "direct_add");
     }
 }

@@ -43,6 +43,8 @@ export interface PhysicalKeySessionSnapshot {
   compositionPending?: boolean;
   /** True while a verified pair insertion can still jump over its right delimiter. */
   pairJumpAvailable?: boolean;
+  /** True while a previous consumed Chinese period can still be replaced by a second period. */
+  smartPeriodContinuation?: boolean;
 }
 
 export interface PhysicalKeyCommand {
@@ -214,6 +216,15 @@ export function resolvePhysicalKeyCommand(
     character === String.fromCharCode(10) || character === String.fromCharCode(13);
   if (!hasComposition && isEnter && session.pairJumpAvailable === true) {
     return { type: PhysicalKeyCommandType.JUMP_OUT_PAIR };
+  }
+  // The first period may have committed the candidate and emptied composition
+  // before the second DOWN event arrives. Keep only that armed continuation in
+  // the IME so SmartPeriodController can replace `。` with `.` atomically.
+  if (!hasComposition && session.smartPeriodContinuation === true && character === '.') {
+    return {
+      type: PhysicalKeyCommandType.PUNCTUATION,
+      character: '。'
+    };
   }
   if (!hasComposition) {
     return NO_COMMAND;

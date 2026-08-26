@@ -13,6 +13,7 @@ import {
 } from './ImeDeleteService';
 import { PairInsertionService, PairInsertResult } from './PairInsertionService';
 import { ImeConnectionLifecycle } from './ImeConnectionLifecycle';
+import { resolveCurrentLineRange } from '../../domain/editor/CurrentLineRange';
 
 export {
   CompositionInputClient,
@@ -35,6 +36,7 @@ const LOGGER = new Logger(TAG);
 
 const LINE_END_QUERY_UNITS = 4096;
 const LINE_END_QUERY_LIMIT = 128;
+const CURRENT_LINE_QUERY_UNITS = 4096;
 
 export class ImeConnectionService extends ImeConnectionLifecycle {
   private readonly safeDeleteExecutor: SafeDeleteExecutor = new SafeDeleteExecutor();
@@ -302,6 +304,19 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
     }
   }
 
+  async getTextBeforeCursor(maxUnits: number): Promise<string | undefined> {
+    const inputClient = ImeConnectionService.inputClient;
+    if (!inputClient || !Number.isInteger(maxUnits) || maxUnits <= 0 || maxUnits > 4096) {
+      return undefined;
+    }
+    try {
+      const text = await inputClient.getForward(maxUnits);
+      return ImeConnectionService.inputClient === inputClient ? text : undefined;
+    } catch (_err) {
+      return undefined;
+    }
+  }
+
   async replaceTextBeforeCursorIfMatches(
     sourceText: string,
     replacementText: string,
@@ -398,6 +413,49 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
         await inputClient.selectByRange({ start: originalCursor, end: originalCursor });
       } catch (restoreErr) {
         LOGGER.warn('move to line end cursor restore failed');
+      }
+    }
+    return false;
+  }
+
+  async deleteCurrentLine(): Promise<boolean> {
+    const inputClient = ImeConnectionService.inputClient;
+    if (!inputClient) {
+      return false;
+    }
+    let originalCursor: number = -1;
+    try {
+      originalCursor = await inputClient.getTextIndexAtCursor();
+      const before = await inputClient.getForward(CURRENT_LINE_QUERY_UNITS);
+      const after = await inputClient.getBackward(CURRENT_LINE_QUERY_UNITS);
+      if (ImeConnectionService.inputClient !== inputClient) {
+        return false;
+      }
+      const range = resolveCurrentLineRange(
+        originalCursor,
+        before,
+        after,
+        before.length >= CURRENT_LINE_QUERY_UNITS,
+        after.length >= CURRENT_LINE_QUERY_UNITS
+      );
+      if (range === undefined) {
+        return false;
+      }
+      await inputClient.selectByRange(range);
+      if (ImeConnectionService.inputClient !== inputClient) {
+        return false;
+      }
+      const deleted = await inputClient.insertText('');
+      if (deleted && ImeConnectionService.inputClient === inputClient) {
+        return true;
+      }
+    } catch (_err) {
+      LOGGER.warn('delete current line failed');
+    }
+    if (originalCursor >= 0 && ImeConnectionService.inputClient === inputClient) {
+      try {
+        await inputClient.selectByRange({ start: originalCursor, end: originalCursor });
+      } catch (_restoreErr) {
       }
     }
     return false;

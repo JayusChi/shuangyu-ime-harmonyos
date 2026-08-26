@@ -18,13 +18,16 @@ import {
 } from '../domain/display/ScreenMetrics';
 import {
   AiPresentationState,
+  AiRequestState,
+  AiSuggestion,
   copyAiPresentationState,
   createIdleAiPresentationState
 } from '../domain/ai/AiContracts';
 import {
   copyVoicePresentationState,
   createIdleVoicePresentationState,
-  VoicePresentationState
+  VoicePresentationState,
+  VoiceSessionState
 } from '../domain/voice/VoiceContracts';
 import {
   copyInputMethodCapabilityState,
@@ -75,6 +78,34 @@ export interface InputSessionState {
 }
 
 export type InputSessionStateListener = () => void;
+
+function aiPresentationEqual(left: AiPresentationState, right: AiPresentationState): boolean {
+  if (left.state !== right.state || left.requestId !== right.requestId ||
+    left.sessionGeneration !== right.sessionGeneration || left.action !== right.action ||
+    left.providerKind !== right.providerKind || left.errorCode !== right.errorCode ||
+    left.statusMessage !== right.statusMessage || left.suggestions.length !== right.suggestions.length) {
+    return false;
+  }
+  for (let index = 0; index < left.suggestions.length; index += 1) {
+    const leftSuggestion: AiSuggestion = left.suggestions[index];
+    const rightSuggestion: AiSuggestion = right.suggestions[index];
+    if (leftSuggestion.suggestionId !== rightSuggestion.suggestionId ||
+      leftSuggestion.requestId !== rightSuggestion.requestId || leftSuggestion.text !== rightSuggestion.text ||
+      leftSuggestion.label !== rightSuggestion.label || leftSuggestion.providerKind !== rightSuggestion.providerKind ||
+      leftSuggestion.replacePolicy !== rightSuggestion.replacePolicy) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function voicePresentationEqual(left: VoicePresentationState, right: VoicePresentationState): boolean {
+  return left.state === right.state && left.voiceSessionId === right.voiceSessionId &&
+    left.sessionGeneration === right.sessionGeneration && left.providerKind === right.providerKind &&
+    left.language === right.language && left.interimText === right.interimText &&
+    left.finalText === right.finalText && left.errorCode === right.errorCode &&
+    left.statusMessage === right.statusMessage;
+}
 
 function createInitialState(): InputSessionState {
   const editorContext = createUnknownEditorContext();
@@ -180,6 +211,14 @@ export class InputSessionStore {
 
   getSessionGeneration(): number {
     return this.sessionGeneration;
+  }
+
+  isAiPresentationIdle(): boolean {
+    return this.state.aiPresentation.state === AiRequestState.IDLE;
+  }
+
+  isVoicePresentationIdle(): boolean {
+    return this.state.voicePresentation.state === VoiceSessionState.IDLE;
   }
 
   advanceSessionGeneration(): number {
@@ -365,17 +404,17 @@ export class InputSessionStore {
     }
     this.state.rawInput = result.rawInput;
     this.state.preeditText = result.preeditText;
-    this.state.parsedSyllables = result.parsedSyllables.slice();
+    this.state.parsedSyllables = result.parsedSyllables;
     this.state.pendingCode = result.pendingCode;
-    this.state.displaySegments = result.displaySegments?.slice() ?? [];
-    this.state.segmentBoundaries = result.segmentBoundaries?.slice() ?? [];
+    this.state.displaySegments = result.displaySegments ?? [];
+    this.state.segmentBoundaries = result.segmentBoundaries ?? [];
     this.state.currentPinyin = result.currentPinyin ?? '';
-    this.state.pinyinCombinations = result.pinyinCombinations?.slice() ?? [];
+    this.state.pinyinCombinations = result.pinyinCombinations ?? [];
     if (result.rawInput.length > 0) {
       this.state.chineseCapsLock = false;
     }
     this.state.parserState = result.parserState;
-    this.state.candidates = result.candidates.slice();
+    this.state.candidates = result.candidates;
     this.state.highlightedIndex = result.highlightedIndex;
     this.state.hasNextPage = result.hasNextPage;
     this.state.hasPreviousPage = result.hasPreviousPage;
@@ -463,11 +502,17 @@ export class InputSessionStore {
   }
 
   updateAiPresentation(presentation: AiPresentationState): void {
+    if (aiPresentationEqual(this.state.aiPresentation, presentation)) {
+      return;
+    }
     this.state.aiPresentation = copyAiPresentationState(presentation);
     this.notify();
   }
 
   updateVoicePresentation(presentation: VoicePresentationState): void {
+    if (voicePresentationEqual(this.state.voicePresentation, presentation)) {
+      return;
+    }
     this.state.voicePresentation = copyVoicePresentationState(presentation);
     this.notify();
   }

@@ -1,6 +1,11 @@
 {
-  "inputMethod": {
-    "name": "$string:Stage0InputMethodAbility_label",
-    "icon": "$media:layered_image"
-  }
+  "subtypes": [
+    {
+      "icon": "$media:layered_image",
+      "id": "shuangyu_zh_cn",
+      "label": "$string:Stage0InputMethodAbility_label",
+      "locale": "zh-CN",
+      "mode": "lower"
+    }
+  ]
 }

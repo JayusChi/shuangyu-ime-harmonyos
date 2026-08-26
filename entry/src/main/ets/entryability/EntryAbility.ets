@@ -1,6 +1,6 @@
 import { AbilityConstant, Configuration, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { window } from '@kit.ArkUI';
+import { router, window } from '@kit.ArkUI';
 import { getSharedSettingsController } from '../application/SettingsController';
 import { HarmonySystemThemeBackend, SystemThemeMonitor } from '../application/SystemThemeMonitor';
 import {
@@ -17,8 +17,11 @@ export default class EntryAbility extends UIAbility {
   private systemThemeMonitor?: SystemThemeMonitor;
   private settingsInitialization?: Promise<Object>;
   private settingsWindowCoordinator?: SettingsWindowCoordinator;
+  private requestedEntryPage: string = 'pages/Index';
+  private contentLoaded: boolean = false;
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    this.requestedEntryPage = this.entryPageFromWant(want);
     const settingsController = getSharedSettingsController();
     try {
       this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
@@ -48,6 +51,12 @@ export default class EntryAbility extends UIAbility {
 
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     this.handleDirectControlWant(want);
+    this.requestedEntryPage = this.entryPageFromWant(want);
+    if (this.contentLoaded) {
+      router.replaceUrl({ url: this.requestedEntryPage }).catch((err: Object): void => {
+        hilog.warn(DOMAIN, 'Settings', 'Entry page switch failed: %{public}s', JSON.stringify(err));
+      });
+    }
   }
 
   onConfigurationUpdate(newConfig: Configuration): void {
@@ -113,18 +122,25 @@ export default class EntryAbility extends UIAbility {
   }
 
   private loadSettingsPage(windowStage: window.WindowStage, onLoaded?: () => void): void {
-    const entryPage = this.context.resourceManager.getStringSync($r('app.string.settings_entry_page').id);
+    const entryPage = this.requestedEntryPage;
     windowStage.loadContent(entryPage, (err) => {
       if (err.code) {
         hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err));
         return;
       }
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
+      this.contentLoaded = true;
       onLoaded?.();
     });
   }
 
+  private entryPageFromWant(want: Want): string {
+    const value = want.parameters?.['entryPage'];
+    return typeof value === 'string' && value === 'pages/UserLexicon' ? value : 'pages/Index';
+  }
+
   onWindowStageDestroy(): void {
+    this.contentLoaded = false;
     if (this.settingsWindowCoordinator !== undefined) {
       this.settingsWindowCoordinator.stop();
       unregisterSharedSettingsWindowCoordinator(this.settingsWindowCoordinator);

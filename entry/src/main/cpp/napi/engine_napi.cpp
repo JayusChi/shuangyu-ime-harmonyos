@@ -5,11 +5,20 @@
 #include "rust_engine_bridge.h"
 
 #include <cstdint>
+#include <new>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
 constexpr int32_t DEFAULT_CANDIDATE_PAGE_SIZE = 50;
+
+struct AsyncEngineCreateContext {
+    napi_async_work work = nullptr;
+    napi_deferred deferred = nullptr;
+    std::string config;
+    EngineBridgeCreateResult result = {IME_ENGINE_INTERNAL_ERROR, 0};
+};
 
 #ifndef IME_NATIVE_ABI
 #define IME_NATIVE_ABI "unknown"
@@ -23,6 +32,56 @@ constexpr int32_t DEFAULT_CANDIDATE_PAGE_SIZE = 50;
 
 void ThrowNativeError(napi_env env, int32_t code, const std::string& message) {
     napi_throw_error(env, std::to_string(code).c_str(), message.c_str());
+}
+
+void RejectEngineCreate(napi_env env, napi_deferred deferred, int32_t code, const std::string& message) {
+    napi_value codeValue = nullptr;
+    napi_value messageValue = nullptr;
+    napi_value error = nullptr;
+    napi_create_string_utf8(env, std::to_string(code).c_str(), NAPI_AUTO_LENGTH, &codeValue);
+    napi_create_string_utf8(env, message.c_str(), NAPI_AUTO_LENGTH, &messageValue);
+    if (napi_create_error(env, codeValue, messageValue, &error) == napi_ok) {
+        napi_reject_deferred(env, deferred, error);
+    }
+}
+
+void ExecuteCreateEngine(napi_env, void* data) {
+    auto* context = static_cast<AsyncEngineCreateContext*>(data);
+    if (GetRustAbiVersion() != STAGE7_ABI_VERSION) {
+        context->result = {IME_ABI_VERSION_MISMATCH, 0};
+        return;
+    }
+    context->result = CreateRegisteredEngine(context->config);
+}
+
+void CompleteCreateEngine(napi_env env, napi_status status, void* data) {
+    auto* context = static_cast<AsyncEngineCreateContext*>(data);
+    if (status != napi_ok) {
+        if (context->result.code == IME_SUCCESS && context->result.id > 0) {
+            DestroyRegisteredEngine(context->result.id);
+        }
+        RejectEngineCreate(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "asynchronous engine creation failed");
+    } else if (context->result.code != IME_SUCCESS) {
+        RejectEngineCreate(
+            env,
+            context->deferred,
+            context->result.code,
+            ErrorMessageForCode(context->result.code));
+    } else {
+        napi_value id = nullptr;
+        if (napi_create_uint32(env, context->result.id, &id) != napi_ok) {
+            DestroyRegisteredEngine(context->result.id);
+            RejectEngineCreate(
+                env,
+                context->deferred,
+                IME_NATIVE_BRIDGE_ERROR,
+                "unable to return asynchronous engine handle");
+        } else if (napi_resolve_deferred(env, context->deferred, id) != napi_ok) {
+            DestroyRegisteredEngine(context->result.id);
+        }
+    }
+    napi_delete_async_work(env, context->work);
+    delete context;
 }
 
 bool ReadArguments(napi_env env, napi_callback_info info, size_t expected, napi_value* args) {
@@ -446,6 +505,53 @@ napi_value CreateEngine(napi_env env, napi_callback_info info) {
     return id;
 }
 
+napi_value CreateEngineAsync(napi_env env, napi_callback_info info) {
+    std::string config;
+    if (!ReadEngineConfigJson(env, info, config)) {
+        ThrowNativeError(env, IME_INVALID_ARGUMENT, "createEngineAsync requires an EngineConfig object");
+        return nullptr;
+    }
+    if (config.empty()) {
+        ThrowNativeError(env, IME_ABI_VERSION_MISMATCH, "interface version mismatch");
+        return nullptr;
+    }
+
+    auto* context = new (std::nothrow) AsyncEngineCreateContext();
+    if (context == nullptr) {
+        ThrowNativeError(env, IME_BUFFER_ALLOCATION_FAILED, "unable to allocate asynchronous engine context");
+        return nullptr;
+    }
+    context->config = std::move(config);
+
+    napi_value promise = nullptr;
+    if (napi_create_promise(env, &context->deferred, &promise) != napi_ok) {
+        delete context;
+        ThrowNativeError(env, IME_NATIVE_BRIDGE_ERROR, "unable to create engine promise");
+        return nullptr;
+    }
+
+    napi_value resourceName = nullptr;
+    napi_create_string_utf8(env, "createEngineAsync", NAPI_AUTO_LENGTH, &resourceName);
+    if (napi_create_async_work(
+            env,
+            nullptr,
+            resourceName,
+            ExecuteCreateEngine,
+            CompleteCreateEngine,
+            context,
+            &context->work) != napi_ok) {
+        RejectEngineCreate(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to create engine async work");
+        delete context;
+        return promise;
+    }
+    if (napi_queue_async_work(env, context->work) != napi_ok) {
+        napi_delete_async_work(env, context->work);
+        RejectEngineCreate(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to queue engine async work");
+        delete context;
+    }
+    return promise;
+}
+
 napi_value DestroyEngine(napi_env env, napi_callback_info info) {
     uint32_t handle = 0;
     if (!ReadHandleArgument(env, info, handle)) {
@@ -638,6 +744,20 @@ napi_value SetCodeTableCategories(napi_env env, napi_callback_info info) {
         return nullptr;
     }
     RustCallResult result = SetRegisteredEngineCodeTableCategories(handle, categoryIdsJson);
+    if (result.code != IME_SUCCESS) {
+        return CreateCompositionErrorResult(env, result.code, ErrorMessageForCode(result.code));
+    }
+    return ConvertCompositionJsonToArkObject(env, result.payload);
+}
+
+napi_value SetCodeTableCommitPolicy(napi_env env, napi_callback_info info) {
+    uint32_t handle = 0;
+    std::string policyJson;
+    if (!ReadHandleAndStringArguments(env, info, handle, policyJson) || policyJson.empty()) {
+        ThrowNativeError(env, IME_INVALID_ARGUMENT, "setCodeTableCommitPolicy requires handle and policy JSON");
+        return nullptr;
+    }
+    RustCallResult result = SetRegisteredEngineCodeTableCommitPolicy(handle, policyJson);
     if (result.code != IME_SUCCESS) {
         return CreateCompositionErrorResult(env, result.code, ErrorMessageForCode(result.code));
     }

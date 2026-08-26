@@ -99,6 +99,9 @@ pub enum DateTimeFormatId {
     TimeHm,
     TimeHms,
     TimeLocalHms,
+    TimeWeekday,
+    TimeLocalHm,
+    LunarDateFestival,
     DateTimeLocal,
     UnixTimestamp,
 }
@@ -112,6 +115,9 @@ impl DateTimeFormatId {
             Self::TimeHm => "TIME_HM",
             Self::TimeHms => "TIME_HMS",
             Self::TimeLocalHms => "TIME_LOCAL_HMS",
+            Self::TimeWeekday => "TIME_WEEKDAY",
+            Self::TimeLocalHm => "TIME_LOCAL_HM",
+            Self::LunarDateFestival => "LUNAR_DATE_FESTIVAL",
             Self::DateTimeLocal => "DATETIME_LOCAL",
             Self::UnixTimestamp => "UNIX_TIMESTAMP",
         }

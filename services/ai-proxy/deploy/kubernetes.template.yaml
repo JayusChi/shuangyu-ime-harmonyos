@@ -1,0 +1,62 @@
+# TEMPLATE ONLY. This is not an approved production deployment.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: REPLACE_AI_PROXY_NAME
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: REPLACE_AI_PROXY_NAME
+  template:
+    metadata:
+      labels:
+        app: REPLACE_AI_PROXY_NAME
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ai-proxy
+          image: REPLACE_PINNED_IMAGE_BY_DIGEST
+          args: ["node", "src/server.mjs"]
+          envFrom:
+            - configMapRef:
+                name: REPLACE_AI_PROXY_CONFIG
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: ai-proxy-secrets
+              mountPath: /run/secrets/ai-proxy
+              readOnly: true
+      volumes:
+        - name: ai-proxy-secrets
+          secret:
+            secretName: REPLACE_AI_PROXY_SECRET

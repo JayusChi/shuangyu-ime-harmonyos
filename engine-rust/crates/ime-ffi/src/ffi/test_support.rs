@@ -12,9 +12,9 @@ pub extern "C" fn ime_engine_get_test_candidates(
         };
 
         let engine = Stage0ImeEngine;
-        write_output(
+        write_owned_output(
             out_buffer,
-            &engine.get_test_candidates(&input).to_stage0_json(),
+            engine.get_test_candidates(&input).to_stage0_json(),
         )
     })
 }
@@ -25,5 +25,4 @@ pub extern "C" fn ime_engine_stage5_test_panic(out_buffer: *mut ImeBuffer) -> i3
     clear_out_buffer(out_buffer);
     catch_ffi(|| panic!("stage5 test panic probe"))
 }
-
 

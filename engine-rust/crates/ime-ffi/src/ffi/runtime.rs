@@ -14,12 +14,11 @@ fn clear_out_buffer(out_buffer: *mut ImeBuffer) {
     }
 }
 
-fn write_output(out_buffer: *mut ImeBuffer, value: &str) -> i32 {
+fn write_bytes(out_buffer: *mut ImeBuffer, mut bytes: Box<[u8]>) -> i32 {
     if out_buffer.is_null() {
         return ImeErrorCode::BufferAllocationFailed.as_i32();
     }
 
-    let mut bytes = value.as_bytes().to_vec().into_boxed_slice();
     let len = bytes.len();
     let data = if len == 0 {
         ptr::null_mut()
@@ -33,6 +32,14 @@ fn write_output(out_buffer: *mut ImeBuffer, value: &str) -> i32 {
         *out_buffer = ImeBuffer { data, len };
     }
     ImeErrorCode::Success.as_i32()
+}
+
+fn write_output(out_buffer: *mut ImeBuffer, value: &str) -> i32 {
+    write_bytes(out_buffer, value.as_bytes().to_vec().into_boxed_slice())
+}
+
+fn write_owned_output(out_buffer: *mut ImeBuffer, value: String) -> i32 {
+    write_bytes(out_buffer, value.into_bytes().into_boxed_slice())
 }
 
 fn read_input_utf8(input_utf8: *const u8, input_len: usize) -> Result<String, ImeErrorCode> {
@@ -77,6 +84,17 @@ fn validate_key_arg(key: &str) -> Result<char, ImeErrorCode> {
     Ok(ch)
 }
 
+fn read_key_arg(input_utf8: *const u8, input_len: usize) -> Result<char, ImeErrorCode> {
+    if input_len == 0 || input_utf8.is_null() {
+        return Err(ImeErrorCode::InvalidArgument);
+    }
+
+    // SAFETY: input_utf8 is non-null and the caller promises input_len readable bytes.
+    let bytes = unsafe { slice::from_raw_parts(input_utf8, input_len) };
+    let key = str::from_utf8(bytes).map_err(|_| ImeErrorCode::InvalidUtf8)?;
+    validate_key_arg(key)
+}
+
 fn map_create_error(error: ime_engine::EngineCreateError) -> ImeErrorCode {
     error.code()
 }
@@ -86,7 +104,7 @@ fn write_status(
     result: Result<user_model::UserModelStatus, ime_engine::EngineOperationError>,
 ) -> i32 {
     match result {
-        Ok(status) => write_output(out_buffer, &status.to_json()),
+        Ok(status) => write_owned_output(out_buffer, status.to_json()),
         Err(error) => error.code().as_i32(),
     }
 }
@@ -100,4 +118,3 @@ fn engine_from_handle<'a>(
     // SAFETY: handle is non-null and must have been returned by ime_engine_create.
     Ok(unsafe { &mut *handle })
 }
-

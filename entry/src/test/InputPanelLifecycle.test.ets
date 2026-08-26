@@ -38,6 +38,7 @@ class FakePanel implements ManagedKeyboardPanel {
   showGate?: Deferred;
   hideGate?: Deferred;
   bottomSystemInsetPx: number = 0;
+  rejectResize: boolean = false;
 
   async setUiContent(path: string): Promise<void> {
     this.setContentCount += 1;
@@ -47,6 +48,9 @@ class FakePanel implements ManagedKeyboardPanel {
     this.resizeCount += 1;
     this.resizeWidths.push(width);
     this.resizeHeights.push(height);
+    if (this.rejectResize) {
+      throw new Error('resize rejected');
+    }
   }
 
   async show(): Promise<void> {
@@ -344,6 +348,22 @@ export default function inputPanelLifecycleTest() {
 
       expect(backend.panel.resizeCount).assertEqual(2);
       expect(backend.panel.resizeHeights[1]).assertEqual(996);
+    });
+
+    it('does not retry forever after the platform rejects a resize', 0, async () => {
+      const backend = new FakePanelBackend();
+      const settingsStore = new SettingsStore();
+      const controller = createController(backend, settingsStore);
+      controller.handleInputStart();
+      await controller.waitForLifecycleIdle();
+
+      backend.panel.rejectResize = true;
+      const tall = copyImeSettings(DEFAULT_IME_SETTINGS);
+      tall.keyboardHeightMode = KeyboardHeightMode.TALL;
+      settingsStore.replace(tall);
+      await controller.waitForLifecycleIdle();
+
+      expect(backend.panel.resizeCount).assertEqual(2);
     });
 
     it('first landscape panel resize uses the injected 2880x1920 snapshot', 0, async () => {

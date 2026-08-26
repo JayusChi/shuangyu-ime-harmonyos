@@ -326,7 +326,7 @@
             "text": "好",
             "reading": "hc",
             "source": "core",
-            "stable_id": "ct:xiaohe-yinxing-production:core:15944"
+            "stable_id": "ct:xiaohe-yinxing-production:core:15961"
           }
         ],
         "candidate_page": 0,
@@ -353,7 +353,7 @@
             "text": "你",
             "reading": "ni",
             "source": "core",
-            "stable_id": "ct:xiaohe-yinxing-production:core:34865"
+            "stable_id": "ct:xiaohe-yinxing-production:core:34897"
           }
         ],
         "candidate_page": 0,
@@ -374,19 +374,13 @@
         "parsed_syllables": [],
         "pending_code": "",
         "parser_state": "complete",
-        "candidate_count": 2,
+        "candidate_count": 1,
         "candidates": [
           {
             "text": "事",
             "reading": "ui",
             "source": "core",
-            "stable_id": "ct:xiaohe-yinxing-production:core:48045"
-          },
-          {
-            "text": "室",
-            "reading": "ui",
-            "source": "two-key-secondary",
-            "stable_id": "ct:xiaohe-yinxing-production:two-key-secondary:43"
+            "stable_id": "ct:xiaohe-yinxing-production:core:48102"
           }
         ],
         "candidate_page": 0,
@@ -394,7 +388,7 @@
         "has_next_page": false,
         "commit_text": "",
         "composition_finished": false,
-        "json_utf8_bytes": 636
+        "json_utf8_bytes": 501
       }
     },
     {
@@ -413,7 +407,7 @@
             "text": "只",
             "reading": "vi",
             "source": "core",
-            "stable_id": "ct:xiaohe-yinxing-production:core:51772"
+            "stable_id": "ct:xiaohe-yinxing-production:core:51834"
           },
           {
             "text": "支持",

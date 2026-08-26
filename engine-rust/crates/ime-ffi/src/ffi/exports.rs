@@ -63,11 +63,7 @@ pub extern "C" fn ime_engine_process_key(
 ) -> i32 {
     clear_out_buffer(out_buffer);
     catch_ffi(|| {
-        let key = match read_input_utf8(key_utf8, key_len) {
-            Ok(value) => value,
-            Err(code) => return code.as_i32(),
-        };
-        let key = match validate_key_arg(&key) {
+        let key = match read_key_arg(key_utf8, key_len) {
             Ok(value) => value,
             Err(code) => return code.as_i32(),
         };
@@ -75,7 +71,7 @@ pub extern "C" fn ime_engine_process_key(
             Ok(value) => value,
             Err(code) => return code.as_i32(),
         };
-        write_output(out_buffer, &engine.engine.process_key(key).to_json())
+        write_owned_output(out_buffer, engine.engine.process_key(key).to_json())
     })
 }
 
@@ -94,7 +90,7 @@ pub extern "C" fn ime_engine_insert_segment_boundary(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -109,7 +105,7 @@ pub extern "C" fn ime_engine_backspace(
             Ok(value) => value,
             Err(code) => return code.as_i32(),
         };
-        write_output(out_buffer, &engine.engine.backspace().to_json())
+        write_owned_output(out_buffer, engine.engine.backspace().to_json())
     })
 }
 
@@ -124,7 +120,7 @@ pub extern "C" fn ime_engine_reset(
             Ok(value) => value,
             Err(code) => return code.as_i32(),
         };
-        write_output(out_buffer, &engine.engine.reset().to_json())
+        write_owned_output(out_buffer, engine.engine.reset().to_json())
     })
 }
 
@@ -152,7 +148,7 @@ pub extern "C" fn ime_engine_change_scheme(
             Ok(value) => value,
             Err(_) => return ImeErrorCode::InvalidScheme.as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -172,7 +168,7 @@ pub extern "C" fn ime_engine_select_candidate(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -192,7 +188,7 @@ pub extern "C" fn ime_engine_select_pinyin_combination(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -211,7 +207,7 @@ pub extern "C" fn ime_engine_next_candidate_page(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -230,7 +226,7 @@ pub extern "C" fn ime_engine_previous_candidate_page(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -246,7 +242,7 @@ pub extern "C" fn ime_engine_get_local_associations(
             Err(code) => return code.as_i32(),
         };
         let suggestions = engine.engine.local_associations(3);
-        write_output(out_buffer, &association_suggestions_json(&suggestions))
+        write_owned_output(out_buffer, association_suggestions_json(&suggestions))
     })
 }
 
@@ -265,7 +261,7 @@ pub extern "C" fn ime_engine_get_code_table_category_config(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &category_config_json(&snapshot))
+        write_owned_output(out_buffer, category_config_json(&snapshot))
     })
 }
 
@@ -294,7 +290,43 @@ pub extern "C" fn ime_engine_set_code_table_categories(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn ime_engine_set_code_table_commit_policy(
+    handle: *mut ImeEngineOpaque,
+    policy_json_utf8: *const u8,
+    policy_json_len: usize,
+    out_buffer: *mut ImeBuffer,
+) -> i32 {
+    clear_out_buffer(out_buffer);
+    catch_ffi(|| {
+        let json = match read_input_utf8(policy_json_utf8, policy_json_len) {
+            Ok(value) => value,
+            Err(code) => return code.as_i32(),
+        };
+        let auto_commit_length = match extract_json_usize(&json, "autoCommitLength") {
+            Ok(Some(value @ (4 | 64))) => value,
+            _ => return ImeErrorCode::InvalidArgument.as_i32(),
+        };
+        let empty_code_clear_length = match extract_json_usize(&json, "emptyClearLength") {
+            Ok(Some(value @ (4 | 12))) => value,
+            _ => return ImeErrorCode::InvalidArgument.as_i32(),
+        };
+        let engine = match engine_from_handle(handle) {
+            Ok(value) => value,
+            Err(code) => return code.as_i32(),
+        };
+        let result = match engine
+            .engine
+            .set_code_table_commit_policy(auto_commit_length, empty_code_clear_length)
+        {
+            Ok(value) => value,
+            Err(error) => return error.code().as_i32(),
+        };
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -313,7 +345,7 @@ pub extern "C" fn ime_engine_reload_user_lexicon(
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),
         };
-        write_output(out_buffer, &result.to_json())
+        write_owned_output(out_buffer, result.to_json())
     })
 }
 
@@ -334,7 +366,7 @@ pub extern "C" fn ime_user_lexicon_load(
             Ok(report) => user_lexicon_document_json(&report),
             Err(error) => user_lexicon_error_json(&error),
         };
-        write_output(out_buffer, &json)
+        write_owned_output(out_buffer, json)
     })
 }
 
@@ -366,18 +398,18 @@ pub extern "C" fn ime_user_lexicon_save(
         };
         let snapshot = match parse_user_lexicon_bytes(&path, content.as_bytes()) {
             Ok(parsed) => parsed.into_snapshot(),
-            Err(error) => return write_output(out_buffer, &user_lexicon_error_json(&error)),
+            Err(error) => return write_owned_output(out_buffer, user_lexicon_error_json(&error)),
         };
         if let Err(error) = save_snapshot_atomic_if_revision(
             std::path::Path::new(&path),
             &expected_revision,
             &snapshot,
         ) {
-            return write_output(out_buffer, &user_lexicon_error_json(&error));
+            return write_owned_output(out_buffer, user_lexicon_error_json(&error));
         }
-        write_output(
+        write_owned_output(
             out_buffer,
-            &user_lexicon_document_json(&saved_user_lexicon_report(snapshot)),
+            user_lexicon_document_json(&saved_user_lexicon_report(snapshot)),
         )
     })
 }
@@ -460,9 +492,9 @@ pub extern "C" fn ime_engine_set_user_learning_enabled(
             Ok(value) => value,
             Err(code) => return code.as_i32(),
         };
-        write_output(
+        write_owned_output(
             out_buffer,
-            &engine.engine.set_user_learning_enabled(enabled).to_json(),
+            engine.engine.set_user_learning_enabled(enabled).to_json(),
         )
     })
 }
@@ -479,9 +511,9 @@ pub extern "C" fn ime_engine_set_session_learning_allowed(
             Ok(value) => value,
             Err(code) => return code.as_i32(),
         };
-        write_output(
+        write_owned_output(
             out_buffer,
-            &engine
+            engine
                 .engine
                 .set_session_learning_allowed(allowed)
                 .to_json(),
@@ -545,4 +577,3 @@ pub unsafe extern "C" fn ime_engine_free_buffer(buffer: *mut ImeBuffer) -> i32 {
         ImeErrorCode::Success.as_i32()
     })
 }
-

@@ -18,7 +18,7 @@ ArkTS InputMethodExtensionAbility -> C++ Node-API -> Rust C ABI
 - 2026-08-18 已完成全拼候选质量提升：正式随包词库启用 V2 全领域 131 条增量，并加入 ≥5 音节正式长词精确召回保护；V2 dev Top1/Top3/Top5 为 `97.917%/97.917%/97.917%`。评测器新增三类互斥失败指标、隔离用户学习效果探针和只接受长度桶的匿名分布加权入口；真实匿名分布尚未提供，未伪造真实数据结论。详见 [全拼候选质量提升 V3](docs/features/pinyin/QUANPIN_QUALITY_IMPROVEMENT_V3.md)。
 - 2026-08-13 已完成客户提出的六项直通编码：`;f` 重复上屏、`;i` 安全撤销、六组成对符号居中、`;n` 行末定位、分类词库原子组合开关，以及授权固定来源用户词库的合并/补充/替换导入。实现使用有限动作白名单，不执行任意 `$cmd`；Rust workspace、Clippy、ArkTS、双 ABI Native、Release HAP 与内容门禁通过，设备专项未运行。详见 [六项直通编码实现说明](docs/features/direct-control/DIRECT_ENCODING_SIX_REQUIREMENTS.md)。
 - 2026-08-13 阶段 5 已完成四正式档案的主机联合收口：`xiaohe-17`、`xiaohe-26`、`quanpin-26`、`pinyin-9` 均从统一入口启用；Rust `505/505`、ArkTS `440/440`、双 ABI Native、Release HAP 与实包内容门禁通过。x86_64 Phone/Pad signed Release 已完成核心全拼/T9/双拼链路，但 ARM64 真机、真实第三方应用和完整旋转/性能矩阵未运行，因此状态为 `IMPLEMENTED / HOST_VALIDATION_COMPLETED / DEVICE_VALIDATION_PARTIAL`；详见 [阶段 5 验收](docs/features/pinyin/PINYIN_STAGE5_FINAL_ACCEPTANCE.md)。
-- 2026-08-19 工程版本已升级为 `0.4.0`（`versionCode=4000000`），用于客户测试发布；本版纳入 26 键全拼、9 键拼音、六项直通编码、全领域词库和小鹤音形冷启动/内存优化。AGC 上传前仍需核对应用身份、完成软件包基础检测和所需设备矩阵。
+- 2026-08-25 工程版本已升级为 `0.5.0`（`versionCode=5000000`），用于客户测试发布；本版纳入 26 键全拼、9 键拼音、六项直通编码、全领域词库和小鹤音形冷启动/内存优化，并修复横屏 T9 首次面板创建及实体键盘智能句号连续输入。AGC 上传前仍需核对应用身份、完成软件包基础检测和所需设备矩阵。
 - 当前四个拼音正式档案：`xiaohe-17`、默认 `xiaohe-26`、`quanpin-26`、`pinyin-9`；小鹤音形另以 `xiaohe-yinxing-17/26` 隔离提供。
 - 阶段 12 已加入直通命令、`Ctrl+Alt+0～9` 实体键盘预设、11 类音形词库正式开关，以及支持普通/隐藏/固顶/第 N 位和批量导入导出的用户词库管理页；详见 [阶段 12 文档](docs/features/direct-control/STAGE12_DIRECT_CONTROL_USER_LEXICON.md)。
 - 中文组合输入码由 Rust 输出两码展示段，候选栏以下划线显示未上屏状态；例如 `vegewtyijkjj` 显示为 `ve'ge'wt'yi'jk'jj`。显示分隔符不参与查询、学习或上屏。
@@ -128,7 +128,7 @@ $env:DEVECO_SDK_HOME='C:\Program Files\Huawei\DevEco Studio\sdk'
 当前 `default` 产品已引用发布签名配置，构建会同时保留
 `build/outputs/default/HarmonyOS_Input-default-signed.app` 和对应 unsigned 中间产物。
 上传候选只能使用 signed APP；上传前仍必须用签名检查工具复核证书/Profile/包名，确认
-`com.corrosion.shuangyuime`、vendor、`0.4.0`/`4000000` 与 AGC 正式应用记录一致，并通过 AGC 软件包基础检测。
+`com.corrosion.shuangyuime`、vendor、`0.5.0`/`5000000` 需与 AGC 正式应用记录一致，并通过 AGC 软件包基础检测。
 
 阶段 3 验证：
 

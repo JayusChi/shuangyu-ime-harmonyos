@@ -76,6 +76,7 @@ impl ImeEngine {
         self.quanpin_context_reranker.clear_context();
         self.last_t9_joint_stats = T9JointDecoderStats::default();
         self.t9_joint_session.clear();
+        self.t9_compatibility_decode_cache.clear();
         if let EngineBackend::CodeTable(machine) = &mut self.backend {
             machine.reset();
             self.session.clear();

@@ -137,7 +137,7 @@ fn production_direct_actions_expose_typed_category_presets_and_dynamic_values() 
     assert!(matches!(
         presets.select_current_page(1).unwrap(),
         CodeTableSelection::Action(FunctionalAction::DirectControl { ref action, ref target })
-            if action == "category.set" && target.contains("quick-symbol")
+            if action == "category.preset" && target == "standard"
     ));
 
     let mut timestamp = state(8, 64);
@@ -158,6 +158,25 @@ fn production_direct_actions_expose_typed_category_presets_and_dynamic_values() 
         CodeTableSelection::Action(FunctionalAction::DateTimeText(
             code_table_runtime::DateTimeFormatId::DateLocalUnpadded
         ))
+    ));
+
+    let mut weekday = state(8, 64);
+    weekday.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+    input(&mut weekday, "ouj");
+    assert!(matches!(
+        weekday.select_current_page(0).unwrap(),
+        CodeTableSelection::Action(FunctionalAction::DateTimeText(
+            code_table_runtime::DateTimeFormatId::TimeWeekday
+        ))
+    ));
+
+    let mut open_url = state(8, 64);
+    open_url.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+    input(&mut open_url, "xhgw");
+    assert!(matches!(
+        open_url.select_current_page(0).unwrap(),
+        CodeTableSelection::Action(FunctionalAction::DirectControl { ref action, ref target })
+            if action == "url.open" && target == "flypy-home"
     ));
 }
 
@@ -1906,6 +1925,19 @@ fn stage11_6_7_commit_policy_rejects_invalid_or_incoherent_lengths() {
         split_above_normal.kind,
         CodeTableErrorKind::InvalidCommitPolicy
     );
+}
+
+#[test]
+fn customer_commit_policy_can_change_only_at_a_clean_boundary() {
+    let mut machine = state(8, 64);
+    let policy = CodeTableCommitPolicy::new(64, 4, 12, 64).unwrap();
+    machine.set_commit_policy(policy).unwrap();
+    assert_eq!(machine.commit_policy(), policy);
+    machine.process_key('a').unwrap();
+    assert!(machine
+        .set_commit_policy(CodeTableCommitPolicy::default())
+        .is_err());
+    assert_eq!(machine.commit_policy(), policy);
 }
 
 #[test]

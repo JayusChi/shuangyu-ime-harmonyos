@@ -31,6 +31,7 @@ class EngineRegistry {
     RustCallResult GetLocalAssociations(uint32_t id);
     RustCallResult GetCodeTableCategoryConfig(uint32_t id);
     RustCallResult SetCodeTableCategories(uint32_t id, const std::string& categoryIdsJson);
+    RustCallResult SetCodeTableCommitPolicy(uint32_t id, const std::string& policyJson);
     RustCallResult ReloadUserLexicon(uint32_t id);
     RustCallResult SetUserModelPath(uint32_t id, const std::string& path);
     RustCallResult LoadUserModel(uint32_t id);

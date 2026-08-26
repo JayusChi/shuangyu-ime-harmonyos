@@ -194,6 +194,91 @@ class PlainTextAiProvider implements AiProvider {
 
 export default function ai0FoundationTest() {
   describe('AI-0 capability and lifecycle foundation', () => {
+    it('does not notify listeners for equal assist presentation states', 0, () => {
+      const store = new InputSessionStore();
+      let notifications = 0;
+      store.subscribe((): void => {
+        notifications += 1;
+      });
+
+      store.updateAiPresentation(store.getSnapshot().aiPresentation);
+      store.updateVoicePresentation(store.getSnapshot().voicePresentation);
+      expect(notifications).assertEqual(0);
+
+      store.updateAiPresentation({
+        state: AiRequestState.ACTIONS,
+        requestId: '',
+        sessionGeneration: 1,
+        action: AiAction.POLITE,
+        suggestions: [],
+        errorCode: AiErrorCode.NONE,
+        statusMessage: '选择 AI 动作'
+      });
+      store.updateAiPresentation({
+        state: AiRequestState.ACTIONS,
+        requestId: '',
+        sessionGeneration: 1,
+        action: AiAction.POLITE,
+        suggestions: [],
+        errorCode: AiErrorCode.NONE,
+        statusMessage: '选择 AI 动作'
+      });
+      expect(notifications).assertEqual(1);
+
+      store.updateVoicePresentation({
+        state: VoiceSessionState.LISTENING,
+        voiceSessionId: 'voice-1',
+        sessionGeneration: 1,
+        language: 'zh-CN',
+        interimText: '测试',
+        finalText: '',
+        errorCode: VoiceErrorCode.NONE,
+        statusMessage: '正在识别'
+      });
+      store.updateVoicePresentation({
+        state: VoiceSessionState.LISTENING,
+        voiceSessionId: 'voice-1',
+        sessionGeneration: 1,
+        language: 'zh-CN',
+        interimText: '测试',
+        finalText: '',
+        errorCode: VoiceErrorCode.NONE,
+        statusMessage: '正在识别'
+      });
+      expect(notifications).assertEqual(2);
+    });
+
+    it('keeps idle input invalidation off the session notification path', 0, () => {
+      const store = activeStore();
+      const service = new Ai0FakeImeService();
+      const aiController = new AiAssistController(
+        store,
+        (): ImeSettings => enabledSettings(),
+        new FakeAiProvider(),
+        new VerifiedTextReplacer(service, (): boolean => true),
+        (): string | null => null,
+        (): void => {}
+      );
+      const voiceController = new VoiceInputController(
+        store,
+        (): ImeSettings => enabledSettings(),
+        new FakeSpeechProvider(),
+        service,
+        (): void => {}
+      );
+      let notifications = 0;
+      store.subscribe((): void => {
+        notifications += 1;
+      });
+
+      aiController.invalidateForInput();
+      voiceController.invalidateForInput();
+
+      expect(notifications).assertEqual(0);
+      expect(store.getSnapshot().aiPresentation.state).assertEqual(AiRequestState.IDLE);
+      expect(store.getSnapshot().voicePresentation.state).assertEqual(VoiceSessionState.IDLE);
+    });
+
     it('blocks cloud AI and voice in basic security mode', 0, () => {
       const capability = fullCapability();
       capability.securityMode = InputMethodSecurityMode.BASIC;

@@ -60,7 +60,13 @@
         "icon": "$media:layered_image",
         "label": "$string:Stage0InputMethodAbility_label",
         "type": "inputMethod",
-        "exported": true
+        "exported": true,
+        "metadata": [
+          {
+            "name": "ohos.extension.input_method",
+            "resource": "$profile:stage0_input_method"
+          }
+        ]
       }
     ]
   }

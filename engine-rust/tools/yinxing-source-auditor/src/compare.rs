@@ -131,12 +131,13 @@ fn conflicts(left: &BTreeMap<&str, BTreeSet<&str>>, right: &BTreeMap<&str, BTree
         .filter(|(key, values)| right.get(*key).is_some_and(|other| other != *values))
         .count() as u64
 }
-fn syntax_signature(file: &SourceFile) -> [u64; 9] {
+fn syntax_signature(file: &SourceFile) -> [u64; 10] {
     let s = &file.syntax;
     [
         s.ordinary,
         s.user_delete,
         s.user_pin,
+        s.direct_add,
         s.user_position,
         s.user_mixed,
         s.cmd,

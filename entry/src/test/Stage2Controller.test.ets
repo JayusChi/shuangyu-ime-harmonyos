@@ -20,6 +20,7 @@ import {
 import { QWERTY_KEY_ROWS } from '../main/ets/presentation/keyboard/KeyboardLayout';
 import { createUnknownEditorContext } from '../main/ets/domain/editor/EditorContext';
 import { copyImeSettings, DEFAULT_IME_SETTINGS, ImeSettings } from '../main/ets/domain/settings/ImeSettings';
+import { ChineseTextConverter } from '../main/ets/infrastructure/text/ChineseTextConverter';
 
 class FakeImeInputService implements ImeInputService {
   insertedTexts: string[] = [];
@@ -320,6 +321,29 @@ class FakeNativeGateway implements NativeEngineGatewayContract {
     return createUserModelStatus(true, true, allowed, false, 0, '');
   }
 
+}
+
+class FakeTraditionalConverter implements ChineseTextConverter {
+  toTraditional(text: string): string {
+    return text === '你' ? '妳' : `繁:${text}`;
+  }
+}
+
+class TraditionalGateway extends FakeNativeGateway {
+  processKey(_handle: number, key: string): CompositionResult {
+    this.processKeys.push(key);
+    return createCandidateComposition('你');
+  }
+}
+
+class AsyncNativeGateway extends FakeNativeGateway {
+  asyncCreateCount: number = 0;
+
+  async createEngineAsync(config: EngineConfig): Promise<number> {
+    this.asyncCreateCount += 1;
+    await nextTask();
+    return this.createEngine(config);
+  }
 }
 
 class ReloadableSchemeGateway extends FakeNativeGateway {
@@ -788,6 +812,50 @@ function createFakeEngineCoordinator(gateway: FakeNativeGateway = new FakeNative
 
 export default function stage2ControllerTest() {
   describe('stage2ControllerTest', () => {
+    it('converts normal candidates and commit text after the approved traditional toggle', 0, () => {
+      const engine = new EngineCoordinator(new TraditionalGateway(), new FakeTraditionalConverter());
+      expect(engine.initialize().success).assertTrue();
+      engine.setTraditionalOutputEnabled(true);
+
+      const composing = engine.processKey('n');
+      expect(composing.candidates[0].text).assertEqual('妳');
+      const committed = engine.selectCandidate(0);
+      expect(committed.commitText).assertEqual('妳');
+    });
+
+    it('initializesTheEngineThroughTheAsyncNativePath', 0, async () => {
+      const gateway = new AsyncNativeGateway();
+      const engineCoordinator = new EngineCoordinator(gateway);
+
+      const initialization = engineCoordinator.initializeAsync();
+      expect(gateway.asyncCreateCount).assertEqual(1);
+      expect(gateway.createdCount).assertEqual(0);
+
+      const result = await initialization;
+      expect(result.success).assertTrue();
+      expect(gateway.createdCount).assertEqual(1);
+      expect(engineCoordinator.isInitialized()).assertTrue();
+    });
+
+    it('sharesOverlappingAsyncInitializationAndDestroysAStaleHandle', 0, async () => {
+      const gateway = new AsyncNativeGateway();
+      const engineCoordinator = new EngineCoordinator(gateway);
+
+      const first = engineCoordinator.initializeAsync();
+      const second = engineCoordinator.initializeAsync();
+      expect(gateway.asyncCreateCount).assertEqual(1);
+      await Promise.all([first, second]);
+      expect(gateway.createdCount).assertEqual(1);
+
+      engineCoordinator.dispose();
+      const stale = engineCoordinator.initializeAsync();
+      engineCoordinator.dispose();
+      await stale;
+      expect(gateway.createdCount).assertEqual(2);
+      expect(gateway.destroyedCount).assertEqual(2);
+      expect(engineCoordinator.isInitialized()).assertFalse();
+    });
+
     it('initializesThePersistedQuanpinProfileBeforeHardwareInputCanStart', 0, async () => {
       const store = new InputSessionStore();
       const gateway = new QuanpinGateway();
@@ -1130,6 +1198,27 @@ export default function stage2ControllerTest() {
       expect(gateway.loadUserModelPath).assertEqual('/files/user-model.dat');
       expect(gateway.userLearningEnabledValues[gateway.userLearningEnabledValues.length - 1]).assertFalse();
       expect(gateway.sessionLearningAllowedValues[gateway.sessionLearningAllowedValues.length - 1]).assertFalse();
+    });
+
+    it('recreatesWhenAPhoneticHandleOnlyCarriedTheProductionBundlePathInConfig', 0, () => {
+      const gateway = new ReloadableSchemeGateway();
+      const engine = new EngineCoordinator(gateway);
+      const initialized = engine.initialize(
+        'xiaohe',
+        '/files/production.lex',
+        '/files/user.txt',
+        17,
+        '/files/production.hsyx'
+      );
+      expect(initialized.success).assertTrue();
+
+      const switched = engine.changeScheme('xiaohe-yinxing', '/files/production.hsyx');
+
+      expect(switched.success).assertTrue();
+      expect(engine.getActiveSchemeId()).assertEqual('xiaohe-yinxing');
+      expect(gateway.configs.length).assertEqual(2);
+      expect(gateway.configs[1].schemeId).assertEqual('xiaohe-yinxing');
+      expect(gateway.destroyedHandles.length).assertEqual(1);
     });
 
     it('candidatePagesUseSevenByDefaultAndKeepExplicitOverrides', 0, () => {

@@ -12,11 +12,11 @@ pub const CONVERSION_CONTRACT_VERSION: &str = "1.1.0";
 pub const AUDITOR_VERSION: &str = "yinxing-source-auditor/1.1.0";
 pub const FROZEN_CONVERTER_PLACEHOLDER: &str = "yinxing-converter/0-not-implemented";
 pub const SOURCE_MANIFEST_SHA256: &str =
-    "bb39015d3e4cd2998a4e14b904f277171951ea459d1b24b42d264cac4b0f2ffa";
+    "b59c7cf78096a86e99f5162107c7486623449efeda70631015e2bf39b0818459";
 pub const CONVERSION_CONTRACT_SHA256: &str =
-    "2db0ef42190d3058f2404e9848185f6e4d85734bba1c6e18acc6c85fdf3380b6";
+    "94bc2aa06d10723ffd82b7919627005e44f31215b7ba958f295375adbbc5cae1";
 pub const SANITIZED_CONFIGURATION_SHA256: &str =
-    "ebc2b5f0ded084e18379e006af19885a2b022fdf51701b0bb3b896dc1cf39b7e";
+    "e777399836e35b20fddaa108b32793aa6121b25f13a3adc048761cb7f27a4d90";
 pub const CATEGORY_COUNT: usize = 12;
 pub const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_WORD_CHARS: usize = 64;

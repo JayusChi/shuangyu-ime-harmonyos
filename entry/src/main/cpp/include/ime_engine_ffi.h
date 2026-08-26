@@ -54,6 +54,12 @@ int32_t ime_engine_set_code_table_categories(
     size_t category_ids_json_len,
     ImeBuffer* out_buffer);
 
+int32_t ime_engine_set_code_table_commit_policy(
+    ImeEngineHandle handle,
+    const uint8_t* policy_json_utf8,
+    size_t policy_json_len,
+    ImeBuffer* out_buffer);
+
 int32_t ime_engine_reload_user_lexicon(ImeEngineHandle handle, ImeBuffer* out_buffer);
 
 int32_t ime_user_lexicon_load(

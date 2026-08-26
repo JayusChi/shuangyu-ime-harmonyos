@@ -44,6 +44,11 @@ export enum CandidatePresentationMode {
   AUTO = 'auto'
 }
 
+export enum PunctuationMode {
+  CHINESE = 'chinese',
+  ENGLISH = 'english'
+}
+
 export type LexiconImportMode = 'REPLACE' | 'APPEND' | 'MERGE';
 
 export type QuanpinFuzzyOption = 'n_l' | 'z_zh' | 'c_ch' | 's_sh' |
@@ -85,6 +90,12 @@ export interface ImeSettings {
   spellingCorrectionEnabled: boolean;
   fuzzyOptions: QuanpinFuzzyOption[];
   smartPeriodTimeoutMs: number;
+  punctuationMode: PunctuationMode;
+  fullWidthEnabled: boolean;
+  numericPeriodEnabled: boolean;
+  traditionalOutputEnabled: boolean;
+  codeTableEmptyClearLength: number;
+  codeTableAutoCommitEnabled: boolean;
   inputPresentationPreference: InputPresentationPreference;
   candidatePresentationMode: CandidatePresentationMode;
   xiaoheYinxingCategorySchemaVersion: number;
@@ -116,6 +127,12 @@ export interface SettingsRaw {
   spellingCorrectionEnabled?: string;
   fuzzyOptions?: string;
   smartPeriodTimeoutMs?: string;
+  punctuationMode?: string;
+  fullWidthEnabled?: string;
+  numericPeriodEnabled?: string;
+  traditionalOutputEnabled?: string;
+  codeTableEmptyClearLength?: string;
+  codeTableAutoCommitEnabled?: string;
   inputPresentationPreference?: string;
   candidatePresentationMode?: string;
   xiaoheYinxingCategorySchemaVersion?: string;
@@ -132,7 +149,7 @@ export interface ShuangpinSchemeOption {
   displayName: string;
 }
 
-export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 9;
+export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 10;
 export const DEFAULT_AI_ACTIONS: string[] = ['continue', 'concise', 'polite', 'formal', 'translate'];
 export const DEFAULT_SMART_PERIOD_TIMEOUT_MS: number = 500;
 export const SMART_PERIOD_TIMEOUT_OPTIONS_MS: number[] = [0, 300, 500, 800, 1000];
@@ -206,6 +223,12 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   spellingCorrectionEnabled: false,
   fuzzyOptions: [],
   smartPeriodTimeoutMs: DEFAULT_SMART_PERIOD_TIMEOUT_MS,
+  punctuationMode: PunctuationMode.CHINESE,
+  fullWidthEnabled: false,
+  numericPeriodEnabled: false,
+  traditionalOutputEnabled: false,
+  codeTableEmptyClearLength: 4,
+  codeTableAutoCommitEnabled: true,
   inputPresentationPreference: InputPresentationPreference.AUTO,
   candidatePresentationMode: CandidatePresentationMode.AUTO,
   xiaoheYinxingCategorySchemaVersion: XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
@@ -257,6 +280,12 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled,
     fuzzyOptions: settings.fuzzyOptions.slice(),
     smartPeriodTimeoutMs: settings.smartPeriodTimeoutMs,
+    punctuationMode: settings.punctuationMode,
+    fullWidthEnabled: settings.fullWidthEnabled,
+    numericPeriodEnabled: settings.numericPeriodEnabled,
+    traditionalOutputEnabled: settings.traditionalOutputEnabled,
+    codeTableEmptyClearLength: settings.codeTableEmptyClearLength,
+    codeTableAutoCommitEnabled: settings.codeTableAutoCommitEnabled,
     inputPresentationPreference: settings.inputPresentationPreference,
     candidatePresentationMode: settings.candidatePresentationMode,
     xiaoheYinxingCategorySchemaVersion: settings.xiaoheYinxingCategorySchemaVersion,
@@ -296,6 +325,12 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.voicePunctuationEnabled === right.voicePunctuationEnabled &&
     left.spellingCorrectionEnabled === right.spellingCorrectionEnabled &&
     left.smartPeriodTimeoutMs === right.smartPeriodTimeoutMs &&
+    left.punctuationMode === right.punctuationMode &&
+    left.fullWidthEnabled === right.fullWidthEnabled &&
+    left.numericPeriodEnabled === right.numericPeriodEnabled &&
+    left.traditionalOutputEnabled === right.traditionalOutputEnabled &&
+    left.codeTableEmptyClearLength === right.codeTableEmptyClearLength &&
+    left.codeTableAutoCommitEnabled === right.codeTableAutoCommitEnabled &&
     left.fuzzyOptions.length === right.fuzzyOptions.length &&
     left.fuzzyOptions.every((option: QuanpinFuzzyOption, index: number): boolean =>
       option === right.fuzzyOptions[index]) &&
@@ -345,6 +380,12 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled ? 'true' : 'false',
     fuzzyOptions: JSON.stringify(settings.fuzzyOptions),
     smartPeriodTimeoutMs: `${settings.smartPeriodTimeoutMs}`,
+    punctuationMode: settings.punctuationMode,
+    fullWidthEnabled: settings.fullWidthEnabled ? 'true' : 'false',
+    numericPeriodEnabled: settings.numericPeriodEnabled ? 'true' : 'false',
+    traditionalOutputEnabled: settings.traditionalOutputEnabled ? 'true' : 'false',
+    codeTableEmptyClearLength: `${settings.codeTableEmptyClearLength}`,
+    codeTableAutoCommitEnabled: settings.codeTableAutoCommitEnabled ? 'true' : 'false',
     inputPresentationPreference: settings.inputPresentationPreference,
     candidatePresentationMode: settings.candidatePresentationMode,
     xiaoheYinxingCategorySchemaVersion: `${settings.xiaoheYinxingCategorySchemaVersion}`,

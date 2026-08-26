@@ -47,9 +47,9 @@ Expected copied locations:
 - `%USERPROFILE%\.cargo\bin` is not present in the current Codex PowerShell PATH, although Rust is installed there. Scripts prepend it for the current process when needed.
 - `DEVECO_SDK_HOME` must point to `C:\Program Files\Huawei\DevEco Studio\sdk` for hvigor on this machine.
 - `arm64-v8a` and `x86_64` are both configured, so both Rust artifacts are required for the current build profile; both are now generated.
-- The input method extension registration uses `type: "inputMethod"` without the original `ohos.extension.input_method` metadata profile, which made the current emulator list and switch to this input method.
+- Historical stage-0 note: the emulator was temporarily made visible by removing a malformed input-method profile. This workaround was superseded on 2026-08-26: the extension now declares standard `ohos.extension.input_method` metadata and a valid root-level `subtypes` profile containing `shuangyu_zh_cn` / `zh-CN`.
 - HAP build warns that no signingConfigs profile is configured and sign `hos_hap` is skipped.
-- The initial `ohos.extension.input_method` metadata profile made the current emulator skip the input method in `ime -l`; removing that metadata made it visible and switchable.
+- The profile that originally caused `ime -l` to skip the IME used the obsolete/malformed `{ "inputMethod": ... }` shape. The corrected `{ "subtypes": [...] }` profile builds, packages, installs, and is visible in `ime -l` on the HarmonyOS 6.1 2in1 emulator.
 - Runtime hilog before the panel fix showed `Stage0ImeConnection: IME session bound`, followed by system keyboard panel rectangles with height `1`, which explains why the input field had focus but no visible keyboard.
 - `stage0/Stage0Keyboard` must be listed in `resources/base/profile/main_pages.json`; otherwise `setUiContent` fails with `path should be a path to specific page`.
 - ArkUI dimensions are vp while `Panel.resize` uses physical pixels on this emulator; the stage 0 keyboard uses compact controls so every verification button fits inside the `420px` keyboard content area.

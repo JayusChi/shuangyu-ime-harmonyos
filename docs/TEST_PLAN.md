@@ -1,10 +1,16 @@
 # 测试计划
 
+## 客户回传小鹤音形词库更新（2026-08-24）
+
+客户回传目录已执行严格 UTF-8/Tab/编码/重复校验、元数据清理、直通合并和符号组规范化；原件未改写。客户缺失的表外段保留项目既有 362 条，44 条直通命令或 URL 继续隔离。导入器重复运行前后，清理目录和正式源目录的逐文件 SHA-256 完全一致。
+
+实际结果：源审计 PASS；正式 bundle 构建与 `-VerifyOnly` PASS；候选基线、完整 Rust workspace、fmt、严格 Clippy、ArkTS `502/502`、x86_64/arm64-v8a OHOS Release Native、Release 正负资源门禁、default Release HAP 与实包内容审计全部 PASS。bundle 为 56,183,822 bytes、SHA-256 `0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942`；unsigned HAP 为 71,008,252 bytes、SHA-256 `0C1753EB17569F8478B50CE2475D709BA868756CF0575719DDF53C23B49BEA03`。真机安装与 Phone/Pad/2in1 输入验收为 `NOT_RUN`。
+
 ## AI 输入法第 1 阶段
 
 主机自动化覆盖五个动作、本地关联开关/确定性/边界、普通输入零回退；Cloud Provider 成功、断网、超时、取消、空/超长响应、非法 JSON、协议/request/provider 不匹配、重复 ID、乱序和迟到；新输入、光标/原文变化、隐藏、停止和换框；BASIC/FULL/UNKNOWN、敏感编辑器、同意/开关/Provider 门控；Unicode 安全替换与撤销；命令形输出惰性处理。
 
-2026-08-24 实际结果：ArkTS `499/499 PASS`（AI-1 `15/15`），`context-reranker 9/9 PASS`，`quanpin_context_reranking_v2 9/9 PASS`，AI-1 FFI 定向测试 PASS，fmt 与 workspace 严格 Clippy PASS，Release 负向门禁 `13/13 PASS`，default Release HAP 与实包内容审计 PASS。Rust workspace 全量测试被当前工作区既有小鹤生成 bundle 与冻结候选快照不一致阻塞，冻结基线未被改写。真实代理为 `CLOUD_NOT_CONFIGURED / NOT_RUN`；Phone/Pad/2in1 和第三方宿主全部 `NOT_RUN`。完整记录见 `features/ai/AI1_FIRST_INPUT.md`。
+2026-08-24 实际结果：ArkTS `506/506 PASS`（AI-1 `19/19`），自有代理协议 `9/9 PASS`，无配置启动按预期失败关闭，宿主结果 schema 正向 PASS 且全 `NOT_RUN` 示例被完成门禁拒绝；`context-reranker 9/9 PASS`，`quanpin_context_reranking_v2 9/9 PASS`，AI-1 FFI 定向测试 PASS，fmt 与 workspace 严格 Clippy PASS，Release 负向门禁 `13/13 PASS`，default Release HAP 与实包内容审计 PASS。Rust workspace 全量测试被当前工作区既有小鹤生成 bundle 与冻结候选快照不一致阻塞，冻结基线未被改写。参考代理为 `IMPLEMENTED / HOST_TESTED / NOT_DEPLOYED`；真实代理/供应商为 `CLOUD_NOT_CONFIGURED / NOT_RUN`，Phone/Pad/2in1 和第三方宿主全部 `NOT_RUN`。因此 AI-1 是 `CORE_IMPLEMENTED / PRODUCTION_COMPLETION_BLOCKED`，不是生产完成。完整记录见 `features/ai/AI1_FIRST_INPUT.md`。
 
 ## AI 输入法第 0 阶段
 

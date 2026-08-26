@@ -10,20 +10,20 @@ use code_table_runtime::{
 };
 use user_lexicon::UserLexiconAction;
 
-const ARCHIVE_SHA256: &str = "e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad";
+const ARCHIVE_SHA256: &str = "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942";
 const SNAPSHOT: &str = include_str!("data/xiaohe_yinxing_stage11_6_3.tsv");
 const CATEGORY_PROFILE: [(&str, usize); 12] = [
-    ("core", 68_505),
+    ("core", 68_568),
     ("category-secondary", 1_690),
-    ("quick-symbol", 17),
+    ("quick-symbol", 16),
     ("one-key-secondary", 26),
     ("two-key-secondary", 66),
     ("out-of-table-character", 362),
     ("full-code-word", 464),
     ("symbol", 623),
-    ("symbol-group", 743),
+    ("symbol-group", 707),
     ("rare-character", 498),
-    ("full-code-character", 1_652),
+    ("full-code-character", 1_654),
     ("ok-spelling", 88_020),
 ];
 const DEFAULT_CATEGORY_IDS: [&str; 8] = [
@@ -71,7 +71,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     let path = bundle_path();
     assert_eq!(
         fs::metadata(&path).expect("bundle metadata").len(),
-        56_144_463
+        56_183_822
     );
     let bundle =
         CodeTableBundle::load_frozen_production_file(&path).expect("load frozen production bundle");
@@ -111,7 +111,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        162_666
+        162_694
     );
     for category in &bundle.categories {
         assert_eq!(
@@ -150,7 +150,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             ))
             .collect::<Vec<_>>(),
         vec![
-            ("core", CategoryKind::Primary, 0, true, true, false, 68_505),
+            ("core", CategoryKind::Primary, 0, true, true, false, 68_568),
             (
                 "category-secondary",
                 CategoryKind::PrimaryEquivalent,
@@ -167,7 +167,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 true,
                 false,
                 true,
-                17,
+                16,
             ),
             (
                 "one-key-secondary",
@@ -213,7 +213,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 true,
                 false,
                 true,
-                743,
+                707,
             ),
             (
                 "rare-character",
@@ -231,7 +231,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 false,
                 false,
                 true,
-                1_652,
+                1_654,
             ),
             (
                 "ok-spelling",
@@ -326,7 +326,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             );
         }
     }
-    assert_eq!(case_count, 23);
+    assert_eq!(case_count, 35);
     assert!(SNAPSHOT.contains(&format!("META\tbundle_sha256\t{ARCHIVE_SHA256}")));
 }
 
@@ -444,7 +444,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        162_666
+        162_694
     );
 }
 

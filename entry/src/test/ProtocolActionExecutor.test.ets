@@ -8,6 +8,7 @@ import {
 import { PairInsertResult } from '../main/ets/infrastructure/ime/ImeConnectionService';
 import { ProtocolAction } from '../main/ets/infrastructure/native/NativeEngineTypes';
 import { TimeProvider } from '../main/ets/infrastructure/time/TimeProvider';
+import { LunarDateProvider } from '../main/ets/infrastructure/time/LunarDateProvider';
 
 class FixedTimeProvider implements TimeProvider {
   calls: number = 0;
@@ -77,9 +78,16 @@ class FakeActionHandlers implements ProtocolActionHandlers {
   }
 }
 
+class FakeLunarDateProvider implements LunarDateProvider {
+  format(_snapshot: Date): string {
+    return '农历马年七月初七七夕';
+  }
+}
+
 function dateAction(
   formatId: 'DATE_ISO' | 'DATE_LOCAL' | 'DATE_LOCAL_UNPADDED' | 'TIME_HM' | 'TIME_HMS' |
-    'TIME_LOCAL_HMS' | 'DATETIME_LOCAL' | 'UNIX_TIMESTAMP'
+    'TIME_LOCAL_HMS' | 'TIME_WEEKDAY' | 'TIME_LOCAL_HM' | 'LUNAR_DATE_FESTIVAL' |
+    'DATETIME_LOCAL' | 'UNIX_TIMESTAMP'
 ): ProtocolAction {
   return { type: 'DATE_TIME_TEXT', formatId, text: '', cursorOffsetUtf16: 0 };
 }
@@ -98,6 +106,8 @@ export default function protocolActionExecutorTest() {
       const hm = await executor.execute(dateAction('TIME_HM'), 1);
       const hms = await executor.execute(dateAction('TIME_HMS'), 1);
       const localHms = await executor.execute(dateAction('TIME_LOCAL_HMS'), 1);
+      const weekday = await executor.execute(dateAction('TIME_WEEKDAY'), 1);
+      const localHm = await executor.execute(dateAction('TIME_LOCAL_HM'), 1);
       const datetime = await executor.execute(dateAction('DATETIME_LOCAL'), 1);
       const timestamp = await executor.execute(dateAction('UNIX_TIMESTAMP'), 1);
 
@@ -107,13 +117,30 @@ export default function protocolActionExecutorTest() {
       expect(hm.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
       expect(hms.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
       expect(localHms.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
+      expect(weekday.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
+      expect(localHm.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
       expect(datetime.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
       expect(timestamp.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
       expect(service.committed.join('|')).assertEqual(
         '2024-02-29|2024年02月29日|2024年2月29日|07:05|07:05:59|07时05分59秒|' +
+          '07:05 周四|7点5分|' +
           `2024年02月29日 07:05|${Math.floor(snapshot.getTime() / 1000)}`
       );
-      expect(time.calls).assertEqual(8);
+      expect(time.calls).assertEqual(10);
+    });
+
+    it('formats the approved lunar date through the platform calendar provider', 0, async () => {
+      const service = new FakeActionImeService();
+      const executor = new ProtocolActionExecutor(
+        service,
+        new FixedTimeProvider(new Date(2026, 7, 19, 13, 29)),
+        (_generation: number): boolean => true,
+        new FakeActionHandlers(),
+        new FakeLunarDateProvider()
+      );
+      const result = await executor.execute(dateAction('LUNAR_DATE_FESTIVAL'), 1);
+      expect(result.status).assertEqual(ProtocolActionExecutionStatus.SUCCESS);
+      expect(service.committed.join('')).assertEqual('农历马年七月初七七夕');
     });
 
     it('does not submit when time acquisition is invalid', 0, async () => {

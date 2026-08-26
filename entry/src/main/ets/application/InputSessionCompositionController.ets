@@ -7,7 +7,12 @@ import {
   EDITOR_KIND_EXTRA_CONFIG_KEY
 } from '../domain/editor/EditorContext';
 import { KeyboardMode, isSingleAsciiLetter, isT9PinyinDigit } from '../domain/keyboard/KeyboardAction';
-import { ImeSettings, PINYIN_9_SCHEME_ID, XIAOHE_YINXING_SCHEME_ID } from '../domain/settings/ImeSettings';
+import {
+  ImeSettings,
+  PINYIN_9_SCHEME_ID,
+  PunctuationMode,
+  XIAOHE_YINXING_SCHEME_ID
+} from '../domain/settings/ImeSettings';
 import { EditorAttributeMapper } from '../infrastructure/ime/EditorAttributeMapper';
 import { ImeConnectionService } from '../infrastructure/ime/ImeConnectionService';
 import {
@@ -546,7 +551,45 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     }
 
     const action = inputAction ?? this.beginInputAction();
-    const timeoutMs = this.settingsController.getSettings().smartPeriodTimeoutMs;
+    const settings = this.settingsController.getSettings();
+    if (settings.punctuationMode === PunctuationMode.ENGLISH) {
+      this.smartPeriodController.clear();
+      return this.insertText('。', reason, generation);
+    }
+    const timeoutMs = settings.smartPeriodTimeoutMs;
+    if (settings.numericPeriodEnabled && timeoutMs > 0 &&
+      this.smartPeriodController.shouldReplace(action, generation, timeoutMs)) {
+      const deleted = this.imeService.deleteBackwardIfMatches !== undefined &&
+        await this.imeService.deleteBackwardIfMatches('.');
+      if (!this.isInputSessionGenerationCurrent(generation)) {
+        this.smartPeriodController.clear();
+        return this.staleInputAction('numeric smart period verification');
+      }
+      if (deleted) {
+        const replaced = await this.insertText('。', 'numeric smart period replacement', generation);
+        this.smartPeriodController.clear();
+        if (!replaced.success && this.isInputSessionGenerationCurrent(generation)) {
+          await this.imeService.insertText('.');
+        }
+        return replaced;
+      }
+    }
+    if (settings.numericPeriodEnabled && this.imeService.getTextBeforeCursor !== undefined) {
+      const before = await this.imeService.getTextBeforeCursor(1);
+      if (!this.isInputSessionGenerationCurrent(generation)) {
+        this.smartPeriodController.clear();
+        return this.staleInputAction('numeric period verification');
+      }
+      if (before !== undefined && /^[0-9０-９]$/.test(before)) {
+        const inserted = await this.insertText('.', reason, generation);
+        if (inserted.success && timeoutMs > 0) {
+          this.smartPeriodController.recordPeriod(action, generation);
+        } else {
+          this.smartPeriodController.clear();
+        }
+        return inserted;
+      }
+    }
     if (timeoutMs <= 0) {
       this.smartPeriodController.clear();
       return this.insertText('。', reason, generation);

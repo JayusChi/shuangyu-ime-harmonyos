@@ -11,6 +11,7 @@ import {
   normalizeXiaoheYinxingCategoryIds,
   QUANPIN_FUZZY_OPTIONS,
   QuanpinFuzzyOption,
+  PunctuationMode,
   SettingsRaw,
   ThemeMode,
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION
@@ -71,6 +72,26 @@ export class SettingsValidator {
       ),
       fuzzyOptions: this.fuzzyOptions(raw.fuzzyOptions),
       smartPeriodTimeoutMs: this.smartPeriodTimeout(raw.smartPeriodTimeoutMs),
+      punctuationMode: raw.punctuationMode === PunctuationMode.ENGLISH ?
+        PunctuationMode.ENGLISH : PunctuationMode.CHINESE,
+      fullWidthEnabled: this.booleanValue(raw.fullWidthEnabled, DEFAULT_IME_SETTINGS.fullWidthEnabled),
+      numericPeriodEnabled: this.booleanValue(
+        raw.numericPeriodEnabled,
+        DEFAULT_IME_SETTINGS.numericPeriodEnabled
+      ),
+      traditionalOutputEnabled: this.booleanValue(
+        raw.traditionalOutputEnabled,
+        DEFAULT_IME_SETTINGS.traditionalOutputEnabled
+      ),
+      codeTableEmptyClearLength: this.approvedInteger(
+        raw.codeTableEmptyClearLength,
+        [4, 12],
+        DEFAULT_IME_SETTINGS.codeTableEmptyClearLength
+      ),
+      codeTableAutoCommitEnabled: this.booleanValue(
+        raw.codeTableAutoCommitEnabled,
+        DEFAULT_IME_SETTINGS.codeTableAutoCommitEnabled
+      ),
       inputPresentationPreference: this.inputPresentationPreference(raw.inputPresentationPreference),
       candidatePresentationMode: this.candidatePresentation(raw.candidatePresentationMode),
       xiaoheYinxingCategorySchemaVersion: XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
@@ -128,6 +149,11 @@ export class SettingsValidator {
     }
     const parsed = Number(value);
     return Number.isInteger(parsed) && parsed >= 0 ? parsed : defaultValue;
+  }
+
+  private approvedInteger(value: string | undefined, approved: number[], defaultValue: number): number {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && approved.indexOf(parsed) >= 0 ? parsed : defaultValue;
   }
 
   private inputPresentationPreference(value?: string): InputPresentationPreference {

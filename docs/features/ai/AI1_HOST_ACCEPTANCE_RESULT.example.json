@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "phase": "AI-1",
+  "overallStatus": "NOT_RUN",
+  "build": {
+    "hapPath": "",
+    "hapSha256": ""
+  },
+  "executedAt": "",
+  "environments": [
+    {
+      "id": "phone-arkui",
+      "status": "NOT_RUN",
+      "deviceModel": "",
+      "systemVersion": "",
+      "hostName": "ArkUI acceptance host",
+      "hostVersion": "",
+      "results": { "ordinaryInput": "NOT_RUN", "localAssociation": "NOT_RUN", "cloudActions": "NOT_RUN", "lifecycleReplacement": "NOT_RUN", "securityFallback": "NOT_RUN" },
+      "evidence": [],
+      "notes": "Requires a physical Phone and approved cloud configuration."
+    },
+    {
+      "id": "pad-arkui",
+      "status": "NOT_RUN",
+      "deviceModel": "",
+      "systemVersion": "",
+      "hostName": "ArkUI acceptance host",
+      "hostVersion": "",
+      "results": { "ordinaryInput": "NOT_RUN", "localAssociation": "NOT_RUN", "cloudActions": "NOT_RUN", "lifecycleReplacement": "NOT_RUN", "securityFallback": "NOT_RUN" },
+      "evidence": [],
+      "notes": "Requires a physical Pad and approved cloud configuration."
+    },
+    {
+      "id": "2in1-arkui",
+      "status": "NOT_RUN",
+      "deviceModel": "",
+      "systemVersion": "",
+      "hostName": "ArkUI acceptance host",
+      "hostVersion": "",
+      "results": { "ordinaryInput": "NOT_RUN", "localAssociation": "NOT_RUN", "cloudActions": "NOT_RUN", "lifecycleReplacement": "NOT_RUN", "securityFallback": "NOT_RUN" },
+      "evidence": [],
+      "notes": "Requires touch and physical-keyboard coverage plus approved cloud configuration."
+    },
+    {
+      "id": "system-browser",
+      "status": "NOT_RUN",
+      "deviceModel": "",
+      "systemVersion": "",
+      "hostName": "System browser",
+      "hostVersion": "",
+      "results": { "ordinaryInput": "NOT_RUN", "localAssociation": "NOT_RUN", "cloudActions": "NOT_RUN", "lifecycleReplacement": "NOT_RUN", "securityFallback": "NOT_RUN" },
+      "evidence": [],
+      "notes": "Requires an installed Release HAP and approved cloud configuration."
+    },
+    {
+      "id": "third-party-chat",
+      "status": "NOT_RUN",
+      "deviceModel": "",
+      "systemVersion": "",
+      "hostName": "",
+      "hostVersion": "",
+      "results": { "ordinaryInput": "NOT_RUN", "localAssociation": "NOT_RUN", "cloudActions": "NOT_RUN", "lifecycleReplacement": "NOT_RUN", "securityFallback": "NOT_RUN" },
+      "evidence": [],
+      "notes": "Host product and version must be selected by QA."
+    },
+    {
+      "id": "third-party-document",
+      "status": "NOT_RUN",
+      "deviceModel": "",
+      "systemVersion": "",
+      "hostName": "",
+      "hostVersion": "",
+      "results": { "ordinaryInput": "NOT_RUN", "localAssociation": "NOT_RUN", "cloudActions": "NOT_RUN", "lifecycleReplacement": "NOT_RUN", "securityFallback": "NOT_RUN" },
+      "evidence": [],
+      "notes": "Host product and version must be selected by QA."
+    },
+    {
+      "id": "sensitive-editors",
+      "status": "NOT_RUN",
+      "deviceModel": "",
+      "systemVersion": "",
+      "hostName": "Password/number/phone/Email/URL/unknown editors",
+      "hostVersion": "",
+      "results": { "ordinaryInput": "NOT_RUN", "localAssociation": "NOT_RUN", "cloudActions": "NOT_RUN", "lifecycleReplacement": "NOT_RUN", "securityFallback": "NOT_RUN" },
+      "evidence": [],
+      "notes": "Expected behavior is fail-closed; execution evidence is still required."
+    }
+  ]
+}

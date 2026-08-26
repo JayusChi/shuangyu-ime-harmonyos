@@ -44,6 +44,12 @@ interface SettingsPreferenceKeys {
   SPELLING_CORRECTION_ENABLED: string;
   FUZZY_OPTIONS: string;
   SMART_PERIOD_TIMEOUT_MS: string;
+  PUNCTUATION_MODE: string;
+  FULL_WIDTH_ENABLED: string;
+  NUMERIC_PERIOD_ENABLED: string;
+  TRADITIONAL_OUTPUT_ENABLED: string;
+  CODE_TABLE_EMPTY_CLEAR_LENGTH: string;
+  CODE_TABLE_AUTO_COMMIT_ENABLED: string;
   INPUT_PRESENTATION_PREFERENCE: string;
   CANDIDATE_PRESENTATION_MODE: string;
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: string;
@@ -78,6 +84,12 @@ const KEYS: SettingsPreferenceKeys = {
   SPELLING_CORRECTION_ENABLED: 'quanpin_spelling_correction_enabled',
   FUZZY_OPTIONS: 'quanpin_fuzzy_options',
   SMART_PERIOD_TIMEOUT_MS: 'smart_period_timeout_ms',
+  PUNCTUATION_MODE: 'punctuation_mode',
+  FULL_WIDTH_ENABLED: 'full_width_enabled',
+  NUMERIC_PERIOD_ENABLED: 'numeric_period_enabled',
+  TRADITIONAL_OUTPUT_ENABLED: 'traditional_output_enabled',
+  CODE_TABLE_EMPTY_CLEAR_LENGTH: 'code_table_empty_clear_length',
+  CODE_TABLE_AUTO_COMMIT_ENABLED: 'code_table_auto_commit_enabled',
   INPUT_PRESENTATION_PREFERENCE: 'input_presentation_preference',
   CANDIDATE_PRESENTATION_MODE: 'candidate_presentation_mode',
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: 'xiaohe_yinxing_category_schema_version',
@@ -251,6 +263,12 @@ export class SettingsRepository implements SettingsRepositoryContract {
       spellingCorrectionEnabled: await this.readString(storage, KEYS.SPELLING_CORRECTION_ENABLED),
       fuzzyOptions: await this.readString(storage, KEYS.FUZZY_OPTIONS),
       smartPeriodTimeoutMs: await this.readString(storage, KEYS.SMART_PERIOD_TIMEOUT_MS),
+      punctuationMode: await this.readString(storage, KEYS.PUNCTUATION_MODE),
+      fullWidthEnabled: await this.readString(storage, KEYS.FULL_WIDTH_ENABLED),
+      numericPeriodEnabled: await this.readString(storage, KEYS.NUMERIC_PERIOD_ENABLED),
+      traditionalOutputEnabled: await this.readString(storage, KEYS.TRADITIONAL_OUTPUT_ENABLED),
+      codeTableEmptyClearLength: await this.readString(storage, KEYS.CODE_TABLE_EMPTY_CLEAR_LENGTH),
+      codeTableAutoCommitEnabled: await this.readString(storage, KEYS.CODE_TABLE_AUTO_COMMIT_ENABLED),
       inputPresentationPreference: await this.readString(storage, KEYS.INPUT_PRESENTATION_PREFERENCE),
       candidatePresentationMode: await this.readString(storage, KEYS.CANDIDATE_PRESENTATION_MODE),
       xiaoheYinxingCategorySchemaVersion: await this.readString(
@@ -292,6 +310,12 @@ export class SettingsRepository implements SettingsRepositoryContract {
     await storage.put(KEYS.SPELLING_CORRECTION_ENABLED, raw.spellingCorrectionEnabled ?? '');
     await storage.put(KEYS.FUZZY_OPTIONS, raw.fuzzyOptions ?? '');
     await storage.put(KEYS.SMART_PERIOD_TIMEOUT_MS, raw.smartPeriodTimeoutMs ?? '');
+    await storage.put(KEYS.PUNCTUATION_MODE, raw.punctuationMode ?? '');
+    await storage.put(KEYS.FULL_WIDTH_ENABLED, raw.fullWidthEnabled ?? '');
+    await storage.put(KEYS.NUMERIC_PERIOD_ENABLED, raw.numericPeriodEnabled ?? '');
+    await storage.put(KEYS.TRADITIONAL_OUTPUT_ENABLED, raw.traditionalOutputEnabled ?? '');
+    await storage.put(KEYS.CODE_TABLE_EMPTY_CLEAR_LENGTH, raw.codeTableEmptyClearLength ?? '');
+    await storage.put(KEYS.CODE_TABLE_AUTO_COMMIT_ENABLED, raw.codeTableAutoCommitEnabled ?? '');
     await storage.put(KEYS.INPUT_PRESENTATION_PREFERENCE, raw.inputPresentationPreference ?? '');
     await storage.put(KEYS.CANDIDATE_PRESENTATION_MODE, raw.candidatePresentationMode ?? '');
     await storage.put(

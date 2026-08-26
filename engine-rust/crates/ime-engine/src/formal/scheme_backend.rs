@@ -17,33 +17,13 @@ impl ImeEngine {
         query_config.default_page_size = query_config
             .normalize_page_size(config.candidate_page_size)
             .map_err(|_| EngineCreateError::InvalidConfig)?;
-        let decode_limits = match config.scheme_id.as_str() {
-            "quanpin" => DecodeLimits {
-                // Full-pinyin composition has no input-length cliff. Search
-                // work remains bounded by max_edges, beam_width and the
-                // output limits inherited below.
-                max_raw_len: usize::MAX,
-                max_syllables: usize::MAX,
-                ..DecodeLimits::default()
-            },
-            "pinyin-9" => DecodeLimits {
-                // Compatibility recall covers all 32 published pinyin paths,
-                // but each path contributes only a compact Top-4. The direct
-                // digit index and joint beam own wider candidate recall.
-                max_edges: 128,
-                beam_width: 4,
-                max_output_paths: 4,
-                max_entries_per_key: 4,
-                max_output_candidates: 4,
-                ..DecodeLimits::default()
-            },
-            _ => DecodeLimits::default(),
-        };
+        let decode_limits = decoder_limits_for_scheme(&config.scheme_id);
         let (query_engine, sentence_decoder) = match config.lexicon_path.as_deref() {
             Some(path) if !path.trim().is_empty() => {
-                let lexicon = load_lexicon(path)?;
-                let query_engine = CandidateQueryEngine::new(lexicon.clone(), query_config.clone());
-                let sentence_decoder = SentenceDecoder::new(lexicon, decode_limits)
+                let lexicon = Arc::new(load_lexicon(path)?);
+                let query_engine =
+                    CandidateQueryEngine::new_shared(Arc::clone(&lexicon), query_config.clone());
+                let sentence_decoder = SentenceDecoder::new_shared(lexicon, decode_limits)
                     .map_err(|error| EngineCreateError::LexiconLoadFailed(error.to_string()))?;
                 (Some(query_engine), Some(sentence_decoder))
             }
@@ -154,6 +134,11 @@ impl ImeEngine {
                 decoder.prepare_t9_joint();
             }
         }
+        if config.scheme_id == "quanpin" {
+            if let Some(query_engine) = &query_engine {
+                query_engine.prepare_quanpin_indexes();
+            }
+        }
         Ok(Self {
             parser,
             scheme_id: config.scheme_id,
@@ -175,6 +160,7 @@ impl ImeEngine {
             last_quanpin_reranking_stats: RerankStats::default(),
             t9_joint_limits: T9JointLimits::default(),
             t9_joint_session: T9JointSession::default(),
+            t9_compatibility_decode_cache: VecDeque::new(),
             last_t9_joint_stats: T9JointDecoderStats::default(),
         })
     }
@@ -318,6 +304,39 @@ impl ImeEngine {
         Ok(code_table_result(machine))
     }
 
+    pub fn set_code_table_commit_policy(
+        &mut self,
+        auto_commit_length: usize,
+        empty_code_clear_length: usize,
+    ) -> Result<CompositionResult, EngineOperationError> {
+        let EngineBackend::CodeTable(machine) = &mut self.backend else {
+            return Err(EngineOperationError::UnsupportedOperation);
+        };
+        let policy = match CodeTableCommitPolicy::new(
+            auto_commit_length,
+            CodeTableCommitPolicy::FROZEN_DEFAULT_LENGTH,
+            empty_code_clear_length,
+            64,
+        ) {
+            Ok(value) => value,
+            Err(_) => {
+                return Ok(code_table_failure(
+                    machine,
+                    ImeErrorCode::InvalidArgument,
+                    "commit policy update rejected",
+                ));
+            }
+        };
+        if machine.set_commit_policy(policy).is_err() {
+            return Ok(code_table_failure(
+                machine,
+                ImeErrorCode::InvalidArgument,
+                "commit policy update rejected",
+            ));
+        }
+        Ok(code_table_result(machine))
+    }
+
     pub fn change_scheme(
         &mut self,
         scheme_id: &str,
@@ -390,14 +409,25 @@ impl ImeEngine {
         self.parser = parser;
         self.backend = backend;
         self.scheme_id = scheme_id.to_owned();
+        if let Some(decoder) = &mut self.sentence_decoder {
+            decoder
+                .set_limits(decoder_limits_for_scheme(scheme_id))
+                .expect("built-in scheme decoder limits must remain valid");
+        }
         if scheme_id == "pinyin-9" {
             if let Some(decoder) = &self.sentence_decoder {
                 decoder.prepare_t9_joint();
             }
         }
+        if scheme_id == "quanpin" {
+            if let Some(query_engine) = &self.query_engine {
+                query_engine.prepare_quanpin_indexes();
+            }
+        }
         self.session.clear();
         self.last_t9_joint_stats = T9JointDecoderStats::default();
         self.t9_joint_session.clear();
+        self.t9_compatibility_decode_cache.clear();
         self.quanpin_context_reranker.clear_context();
         if let Some(query_engine) = &mut self.query_engine {
             query_engine.clear_cache();
@@ -985,6 +1015,7 @@ impl ImeEngine {
             .take(fallback_path_limit)
             .collect::<Vec<_>>();
         for (combination_rank, combination) in fallback_combinations.into_iter().enumerate() {
+            let cache_combination = combination.clone();
             let mut syllables = combination
                 .split('\'')
                 .filter(|value| !value.is_empty())
@@ -1059,15 +1090,57 @@ impl ImeEngine {
                 continue;
             }
 
-            let decoder = self.sentence_decoder.as_ref().expect("checked above");
-            let lexicon_version = decoder.lexicon_version();
-            if let Ok(decoded) = decoder.decode_with_user_scores(
-                &result.raw_input,
-                &syllables,
-                &pending,
-                |candidate| self.user_score_for_sentence(candidate, lexicon_version),
-            ) {
-                scored.extend(decoded.candidates.into_iter().map(|candidate| {
+            let lexicon_version = self
+                .sentence_decoder
+                .as_ref()
+                .expect("checked above")
+                .lexicon_version();
+            let cache_position = self
+                .t9_compatibility_decode_cache
+                .iter()
+                .position(|entry| {
+                    entry.incomplete == incomplete && entry.combination == cache_combination
+                });
+            let decoded_candidates = if let Some(position) = cache_position {
+                // Keep recently reused paths at the back so an unusually long
+                // composition evicts stale prefixes first.
+                let entry = self
+                    .t9_compatibility_decode_cache
+                    .remove(position)
+                    .expect("cache position came from the same deque");
+                let candidates = entry.candidates.clone();
+                self.t9_compatibility_decode_cache.push_back(entry);
+                Some(candidates)
+            } else {
+                let decoded = self
+                    .sentence_decoder
+                    .as_ref()
+                    .expect("checked above")
+                    .decode_with_user_scores(
+                        &result.raw_input,
+                        &syllables,
+                        &pending,
+                        |candidate| self.user_score_for_sentence(candidate, lexicon_version),
+                    )
+                    .ok();
+                decoded.map(|decoded| {
+                    let candidates = decoded.candidates;
+                    if self.t9_compatibility_decode_cache.len()
+                        >= T9_COMPATIBILITY_DECODE_CACHE_CAPACITY
+                    {
+                        self.t9_compatibility_decode_cache.pop_front();
+                    }
+                    self.t9_compatibility_decode_cache
+                        .push_back(T9CompatibilityDecodeCacheEntry {
+                            combination: cache_combination,
+                            incomplete,
+                            candidates: candidates.clone(),
+                        });
+                    candidates
+                })
+            };
+            if let Some(decoded_candidates) = decoded_candidates {
+                scored.extend(decoded_candidates.into_iter().map(|candidate| {
                     let score = candidate
                         .score
                         .saturating_sub(t9_sentence_candidate_penalty(&candidate))
@@ -1493,6 +1566,30 @@ impl ImeEngine {
         } else {
             rank_candidates_with_user_scores(candidates, user_score)
         }
+    }
+}
+
+fn decoder_limits_for_scheme(scheme_id: &str) -> DecodeLimits {
+    match scheme_id {
+        "quanpin" => DecodeLimits {
+            // Full-pinyin composition has no input-length cliff. Search work
+            // remains bounded by the inherited graph and beam ceilings.
+            max_raw_len: usize::MAX,
+            max_syllables: usize::MAX,
+            ..DecodeLimits::default()
+        },
+        "pinyin-9" => DecodeLimits {
+            // Compatibility recall covers all 32 published pinyin paths, but
+            // each contributes only a compact Top-4. The direct digit index
+            // and joint beam own wider candidate recall.
+            max_edges: 128,
+            beam_width: 4,
+            max_output_paths: 4,
+            max_entries_per_key: 4,
+            max_output_candidates: 4,
+            ..DecodeLimits::default()
+        },
+        _ => DecodeLimits::default(),
     }
 }
 

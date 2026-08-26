@@ -1,4 +1,4 @@
-META	bundle_sha256	e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad
+META	bundle_sha256	0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942
 HEADER	case_id	raw_code	match_type	before_dedup	expected_total_count	expected_category_id	expected_source_order	expected_candidate_id	expected_first_candidates	expected_categories	selection_reason
 CASE	exact_1	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest sorted exact code
 CASE	exact_2	aa	Exact	1	1	core	5	ct:xiaohe-yinxing-production:core:5	阿	core	smallest sorted exact code
@@ -9,17 +9,29 @@ CASE	prefix_fallback	aab	Prefix	4	4	core	152	ct:xiaohe-yinxing-production:core:1
 CASE	no_result	aaaa	Prefix	0	0						smallest four-letter code with no exact or prefix record
 CASE	cross_two	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact code spanning at least two categories
 CASE	cross_three	bcbn	Exact	3	3	core	1454	ct:xiaohe-yinxing-production:core:1454	报表|保镖|鸨	category-secondary|core|full-code-character	smallest exact code spanning at least three categories
-CASE	cross_duplicate	gzx	Prefix	10	9	core	15912	ct:xiaohe-yinxing-production:core:15912	勾选|构想|购销|构陷|构型|狗血|狗熊|工作需要	core	smallest exact-or-prefix query with cross-record duplicate text
+CASE	cross_duplicate	gzx	Prefix	10	9	core	15929	ct:xiaohe-yinxing-production:core:15929	勾选|构想|购销|构陷|构型|狗血|狗熊|工作需要	core	smallest exact-or-prefix query with cross-record duplicate text
 CASE	same_category_multi	bibb	Exact	4	4	core	961	ct:xiaohe-yinxing-production:core:961	毖|皕|比|毙	core|full-code-character|rare-character	smallest exact code with adjacent same-category candidates
 CASE	category_core	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact query exposing this category
+CASE	category_prefix_core	aab	Prefix	4	4	core	152	ct:xiaohe-yinxing-production:core:152	阿爸|阿伯|傲岸不群|皑皑白雪	core	smallest non-exact prefix exposing this category
 CASE	category_category-secondary	ahqi	Exact	2	2	core	258	ct:xiaohe-yinxing-production:core:258	昂起|爱恨情仇	category-secondary|core	smallest exact query exposing this category
+CASE	category_prefix_category-secondary	ahq	Prefix	2	2	core	258	ct:xiaohe-yinxing-production:core:258	昂起|爱恨情仇	category-secondary|core	smallest non-exact prefix exposing this category
 CASE	category_one-key-secondary	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact query exposing this category
 CASE	category_two-key-secondary	bc	Exact	2	2	core	702	ct:xiaohe-yinxing-production:core:702	报|宝	core|two-key-secondary	smallest exact query exposing this category
 CASE	category_out-of-table-character	aift	Exact	1	1	out-of-table-character	3	ct:xiaohe-yinxing-production:out-of-table-character:3	捱	out-of-table-character	smallest exact query exposing this category
+CASE	category_prefix_out-of-table-character	aoq	Prefix	3	3	core	563	ct:xiaohe-yinxing-production:core:563	傲气|獒犬|鿫	core|out-of-table-character	smallest non-exact prefix exposing this category
 CASE	category_full-code-word	anjm	Exact	2	2	core	458	ct:xiaohe-yinxing-production:core:458	案件|按键	core|full-code-word	smallest exact query exposing this category
+CASE	category_prefix_full-code-word	anl	Prefix	9	9	core	466	ct:xiaohe-yinxing-production:core:466	案例|安拉|安乐|按铃|暗恋|暗流|暗绿|氨纶	core|full-code-word	smallest non-exact prefix exposing this category
+CASE	category_symbol	oa	Exact	1	1	symbol	5	ct:xiaohe-yinxing-production:symbol:5	&	symbol	smallest exact query exposing this category
+CASE	category_prefix_symbol	oia	Prefix	6	6	symbol	260	ct:xiaohe-yinxing-production:symbol:260	🫶|🤟|😤|😌|👩‍❤️‍👨|💞	symbol	smallest non-exact prefix exposing this category
+CASE	category_symbol-group	ofbd	Exact	22	22	symbol-group	0	ct:xiaohe-yinxing-production:symbol-group:0	．|。|，|、|；|：|？|！	symbol-group	smallest exact query exposing this category
+CASE	category_prefix_symbol-group	ofb	Prefix	22	22	symbol-group	0	ct:xiaohe-yinxing-production:symbol-group:0	．|。|，|、|；|：|？|！	symbol-group	smallest non-exact prefix exposing this category
 CASE	category_rare-character	aofe	Exact	2	2	core	67	ct:xiaohe-yinxing-production:core:67	聱|嶅	core|rare-character	smallest exact query exposing this category
+CASE	category_prefix_rare-character	ihj	Prefix	11	11	core	20843	ct:xiaohe-yinxing-production:core:20843	常见|场景|长江|长街|长久|长卷|猖獗|长句	core|rare-character	smallest non-exact prefix exposing this category
 CASE	category_full-code-character	aifu	Exact	2	2	core	281	ct:xiaohe-yinxing-production:core:281	爱抚|挨	core|full-code-character	smallest exact query exposing this category
+CASE	category_prefix_full-code-character	deb	Prefix	8	8	core	7397	ct:xiaohe-yinxing-production:core:7397	第二遍|第二步|第二波|当耳边风|得病|嘚吧|大恩不言谢|的	core|full-code-character	smallest non-exact prefix exposing this category
+CASE	category_ok-spelling	okaald	Exact	1	1	ok-spelling	53860	ct:xiaohe-yinxing-production:ok-spelling:53860	𬯩	ok-spelling	smallest exact query exposing this category
+CASE	category_prefix_ok-spelling	oka	Prefix	92	92	ok-spelling	702	ct:xiaohe-yinxing-production:ok-spelling:702	兕|嗸|娿|嫯|嶅|嶴|摮|案	ok-spelling	smallest non-exact prefix exposing this category
 CASE	unicode_extension	ana	Exact	1	1	core	79	ct:xiaohe-yinxing-production:core:79	𩽾	core	smallest exact query exposing a supplementary-plane scalar
 CASE	special_symbol	aavi	Exact	1	1	core	176	ct:xiaohe-yinxing-production:core:176	AA制	core	smallest exact query exposing a non-CJK symbol or ASCII scalar
-CASE	max_exact	jumk	Exact	5	5	core	22589	ct:xiaohe-yinxing-production:core:22589	驹|枸|椐|桔|橘	core|full-code-character|rare-character	largest deduplicated exact collision; lexical tie-break
-CASE	max_prefix	un	Prefix	40	39	core	50348	ct:xiaohe-yinxing-production:core:50348	熟能生巧|伤脑筋|施耐庵|史努比|十拿九稳|上年结转|受虐狂|少年郎	core	largest deduplicated non-exact prefix fallback; lexical tie-break
+CASE	max_exact	ofrd	Exact	89	89	symbol-group	149	ct:xiaohe-yinxing-production:symbol-group:149	ァ|ア|ィ|イ|ゥ|ウ|ェ|エ	symbol-group	largest deduplicated exact collision; lexical tie-break
+CASE	max_prefix	oku	Prefix	11330	11321	ok-spelling	3	ct:xiaohe-yinxing-production:ok-spelling:3	丄|上|业|丯|乢|乭|乱|乷	ok-spelling	largest deduplicated non-exact prefix fallback; lexical tie-break

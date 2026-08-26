@@ -5,6 +5,7 @@ pub struct SyntaxStats {
     pub ordinary: u64,
     pub user_delete: u64,
     pub user_pin: u64,
+    pub direct_add: u64,
     pub user_position: u64,
     pub user_mixed: u64,
     pub cmd: u64,

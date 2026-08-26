@@ -149,14 +149,7 @@ fn production_guide_prefix_candidate_and_double_semicolon_follow_the_table() {
 
     let prefix = engine.process_key(';');
     assert_eq!(prefix.raw_input, ";");
-    assert_eq!(
-        prefix
-            .candidates
-            .iter()
-            .map(|candidate| (candidate.text.as_str(), candidate.reading.as_str()))
-            .collect::<Vec<_>>(),
-        [("：", "_")]
-    );
+    assert!(prefix.candidates.is_empty());
 
     let repeated = engine.process_key(';');
     assert_eq!(repeated.commit_text, "：");
@@ -175,7 +168,7 @@ fn production_quick_symbols_and_symbols_follow_category_switches() {
         .iter()
         .any(|candidate| candidate.text == "：“"));
     assert!(texts_for_code(&mut engine, "oi").contains(&"😊".to_owned()));
-    assert!(texts_for_code(&mut engine, "obd").contains(&"．".to_owned()));
+    assert!(texts_for_code(&mut engine, "ofbd").contains(&"．".to_owned()));
 
     engine
         .set_code_table_categories(vec![
@@ -194,7 +187,7 @@ fn production_quick_symbols_and_symbols_follow_category_switches() {
     let quick_disabled = enter(&mut engine, ";q");
     assert!(quick_disabled.candidates.is_empty());
     assert!(!texts_for_code(&mut engine, "oi").contains(&"😊".to_owned()));
-    assert!(!texts_for_code(&mut engine, "obd").contains(&"．".to_owned()));
+    assert!(!texts_for_code(&mut engine, "ofbd").contains(&"．".to_owned()));
 }
 
 #[test]

@@ -95,6 +95,7 @@ pub struct T9JointDecodeResult {
 pub struct T9JointSession {
     raw_digits: String,
     explicit_boundaries: Vec<usize>,
+    arena: JointArena,
     beams: Vec<Vec<JointState>>,
     direct_paths: Vec<SentencePath>,
     last_pruned_paths: Vec<String>,
@@ -105,6 +106,7 @@ impl Default for T9JointSession {
         Self {
             raw_digits: String::new(),
             explicit_boundaries: Vec::new(),
+            arena: JointArena::default(),
             beams: vec![vec![JointState::default()]],
             direct_paths: Vec::new(),
             last_pruned_paths: Vec::new(),
@@ -223,7 +225,8 @@ impl T9LexiconIndex {
 
         let raw_len = raw_digits.len();
         let mut stats = T9JointStats::default();
-        let mut edges_by_start = vec![Vec::<WordEdge>::new(); raw_len + 1];
+        let mut arena = JointArena::default();
+        let mut edges_by_start = vec![Vec::<usize>::new(); raw_len + 1];
         let mut reachable_paths = BTreeSet::<String>::new();
 
         for start in 0..raw_len {
@@ -255,11 +258,14 @@ impl T9LexiconIndex {
                     {
                         break 'ends;
                     }
-                    edges_by_start[start].push(word_edge(lexicon, entry, start, end));
+                    let edge = word_edge(lexicon, entry, start, end);
+                    edges_by_start[start].push(arena.push_edge(edge));
                     stats.graph_edges += 1;
                 }
             }
             edges_by_start[start].sort_by(|left, right| {
+                let left = arena.edge(*left);
+                let right = arena.edge(*right);
                 right
                     .end
                     .cmp(&left.end)
@@ -275,7 +281,13 @@ impl T9LexiconIndex {
         beams[0].push(JointState::default());
         let mut pruned_paths = BTreeSet::<String>::new();
         for position in 0..raw_len {
-            trim_states(&mut beams[position], limits, &mut stats, &mut pruned_paths);
+            trim_states(
+                &mut beams[position],
+                &arena,
+                limits,
+                &mut stats,
+                &mut pruned_paths,
+            );
             stats.max_beam_states = stats.max_beam_states.max(beams[position].len());
             let states = beams[position].clone();
             if states.is_empty() {
@@ -284,29 +296,36 @@ impl T9LexiconIndex {
             for state in states {
                 let mut expanded = false;
                 for edge in &edges_by_start[position] {
-                    if state.edges.len() >= limits.max_sentence_words {
+                    if state.edge_count >= limits.max_sentence_words {
                         stats.joint_score_prunes += 1;
                         continue;
                     }
                     expanded = true;
-                    let mut next = state.extend(edge.clone(), context_model);
-                    if edge.end == raw_len {
-                        next.score += SentenceScorer::terminal_score(next.edges.len(), true, false);
+                    let edge_end = arena.edge(*edge).end;
+                    let mut next = arena.extend(state, *edge, context_model);
+                    if edge_end == raw_len {
+                        next.score += SentenceScorer::terminal_score(next.edge_count, true, false);
                     }
                     stats.explored_pinyin_hypotheses += 1;
-                    beams[edge.end].push(next);
+                    beams[edge_end].push(next);
                 }
                 if !expanded {
                     stats.lexicon_prefix_unreachable_prunes += 1;
                 }
             }
         }
-        trim_states(&mut beams[raw_len], limits, &mut stats, &mut pruned_paths);
+        trim_states(
+            &mut beams[raw_len],
+            &arena,
+            limits,
+            &mut stats,
+            &mut pruned_paths,
+        );
         stats.max_beam_states = stats.max_beam_states.max(beams[raw_len].len());
 
         let mut complete_paths =
             self.direct_paths_for_signature(lexicon, raw_digits, explicit_boundaries, limits);
-        complete_paths.extend(beams[raw_len].iter().map(JointState::as_path));
+        complete_paths.extend(beams[raw_len].iter().map(|state| arena.as_path(*state)));
         complete_paths.sort_by(compare_path);
         let mut ranked_paths = Vec::new();
         let mut seen_paths = BTreeSet::new();
@@ -342,6 +361,12 @@ impl T9LexiconIndex {
         stats.peak_estimated_bytes = stats
             .graph_edges
             .saturating_mul(std::mem::size_of::<WordEdge>())
+            .saturating_add(
+                arena
+                    .nodes
+                    .len()
+                    .saturating_mul(std::mem::size_of::<JointNode>()),
+            )
             .saturating_add(
                 stats
                     .max_beam_states
@@ -451,7 +476,7 @@ impl T9LexiconIndex {
                 stats.lexicon_prefix_unreachable_prunes += states.len();
                 continue;
             };
-            let mut edges = Vec::<WordEdge>::new();
+            let mut edges = Vec::<usize>::new();
             for indexed in &indexed_signature.search_entries {
                 let entry = &lexicon.entries[indexed.entry_index];
                 if !boundaries_compatible(
@@ -470,7 +495,8 @@ impl T9LexiconIndex {
                 {
                     break;
                 }
-                edges.push(word_edge(lexicon, entry, start, end));
+                let edge = word_edge(lexicon, entry, start, end);
+                edges.push(session.arena.push_edge(edge));
                 stats.graph_edges += 1;
             }
             if edges.is_empty() {
@@ -486,23 +512,34 @@ impl T9LexiconIndex {
                 );
             }
             for state in states {
-                if state.edges.len() >= limits.max_sentence_words {
+                if state.edge_count >= limits.max_sentence_words {
                     stats.joint_score_prunes += edges.len();
                     continue;
                 }
                 incoming.extend(
                     edges
                         .iter()
-                        .cloned()
-                        .map(|edge| state.extend(edge, context_model)),
+                        .map(|edge| session.arena.extend(*state, *edge, context_model)),
                 );
                 stats.explored_pinyin_hypotheses += edges.len();
             }
             if incoming.len() > limits.max_states_per_position.saturating_mul(4) {
-                trim_states(&mut incoming, limits, &mut stats, &mut pruned_paths);
+                trim_states(
+                    &mut incoming,
+                    &session.arena,
+                    limits,
+                    &mut stats,
+                    &mut pruned_paths,
+                );
             }
         }
-        trim_states(&mut incoming, limits, &mut stats, &mut pruned_paths);
+        trim_states(
+            &mut incoming,
+            &session.arena,
+            limits,
+            &mut stats,
+            &mut pruned_paths,
+        );
         stats.max_beam_states = incoming.len();
         session.raw_digits = new_raw_digits.to_owned();
         session.beams.push(incoming);
@@ -517,6 +554,20 @@ impl T9LexiconIndex {
             .map(Vec::len)
             .sum::<usize>()
             .saturating_mul(std::mem::size_of::<JointState>())
+            .saturating_add(
+                session
+                    .arena
+                    .edges
+                    .len()
+                    .saturating_mul(std::mem::size_of::<WordEdge>()),
+            )
+            .saturating_add(
+                session
+                    .arena
+                    .nodes
+                    .len()
+                    .saturating_mul(std::mem::size_of::<JointNode>()),
+            )
             .saturating_add(
                 session
                     .direct_paths
@@ -577,7 +628,7 @@ fn incremental_result(
     }
     let mut complete_paths = session.direct_paths.clone();
     complete_paths.extend(session.beams[raw_len].iter().map(|state| {
-        let mut path = state.as_path();
+        let mut path = session.arena.as_path(*state);
         path.score += SentenceScorer::terminal_score(path.edges.len(), true, false);
         path
     }));
@@ -617,39 +668,143 @@ fn incremental_result(
     }
 }
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 struct JointState {
-    edges: Vec<WordEdge>,
+    tail: Option<usize>,
     score: i64,
+    edge_count: usize,
+    fallback_count: usize,
 }
 
-impl JointState {
-    fn extend(&self, edge: WordEdge, context_model: &CharacterBigramModel) -> Self {
-        let transition = self
-            .edges
-            .last()
-            .map(|previous| {
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+struct JointArena {
+    edges: Vec<WordEdge>,
+    nodes: Vec<JointNode>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct JointNode {
+    parent: Option<usize>,
+    edge: usize,
+}
+
+impl JointArena {
+    fn push_edge(&mut self, edge: WordEdge) -> usize {
+        let index = self.edges.len();
+        self.edges.push(edge);
+        index
+    }
+
+    fn edge(&self, index: usize) -> &WordEdge {
+        &self.edges[index]
+    }
+
+    fn extend(
+        &mut self,
+        state: JointState,
+        edge_index: usize,
+        context_model: &CharacterBigramModel,
+    ) -> JointState {
+        let edge = &self.edges[edge_index];
+        let transition = state
+            .tail
+            .map(|tail| {
+                let previous = &self.edges[self.nodes[tail].edge];
                 context_model
                     .transition_score(&previous.text, &edge.text)
                     .min(T9_MAX_CROSS_WORD_CONTEXT_SCORE)
             })
             .unwrap_or(0);
-        let mut edges = self.edges.clone();
-        let score = self.score + t9_edge_score(&edge) + transition;
-        edges.push(edge);
-        Self { edges, score }
+        let score = state.score + t9_edge_score(edge) + transition;
+        let fallback_count = state.fallback_count + usize::from(edge.fallback);
+        let node = self.nodes.len();
+        self.nodes.push(JointNode {
+            parent: state.tail,
+            edge: edge_index,
+        });
+        JointState {
+            tail: Some(node),
+            score,
+            edge_count: state.edge_count + 1,
+            fallback_count,
+        }
     }
 
-    fn as_path(&self) -> SentencePath {
+    fn edge_indexes(&self, state: JointState) -> Vec<usize> {
+        let mut indexes = Vec::with_capacity(state.edge_count);
+        let mut node = state.tail;
+        while let Some(index) = node {
+            let current = &self.nodes[index];
+            indexes.push(current.edge);
+            node = current.parent;
+        }
+        indexes.reverse();
+        indexes
+    }
+
+    fn as_path(&self, state: JointState) -> SentencePath {
         SentencePath {
-            edges: self.edges.clone(),
-            score: self.score,
+            edges: self
+                .edge_indexes(state)
+                .into_iter()
+                .map(|index| self.edges[index].clone())
+                .collect(),
+            score: state.score,
         }
     }
 }
 
+#[derive(Debug)]
+struct JointSortKey {
+    text: String,
+    reading: String,
+    path_key: String,
+    combination: String,
+}
+
+impl JointSortKey {
+    fn new(state: JointState, arena: &JointArena) -> Self {
+        use std::fmt::Write as _;
+
+        let indexes = arena.edge_indexes(state);
+        let mut text = String::new();
+        let mut reading = String::new();
+        let mut path_key = String::new();
+        for (position, index) in indexes.into_iter().enumerate() {
+            let edge = arena.edge(index);
+            text.push_str(&edge.text);
+            if position > 0 {
+                reading.push(' ');
+                path_key.push('>');
+            }
+            reading.push_str(&edge.reading);
+            write!(&mut path_key, "{}:{}:", edge.start, edge.end)
+                .expect("writing to String cannot fail");
+            for character in edge.reading.chars() {
+                path_key.push(if character == ' ' { '_' } else { character });
+            }
+            path_key.push(':');
+            path_key.push_str(&edge.text);
+        }
+        let combination = reading_combination(&reading);
+        Self {
+            text,
+            reading,
+            path_key,
+            combination,
+        }
+    }
+}
+
+#[derive(Debug)]
+struct RankedJointState {
+    state: JointState,
+    key: JointSortKey,
+}
+
 fn trim_states(
     states: &mut Vec<JointState>,
+    arena: &JointArena,
     limits: &T9JointLimits,
     stats: &mut T9JointStats,
     pruned_paths: &mut BTreeSet<String>,
@@ -657,32 +812,53 @@ fn trim_states(
     if states.is_empty() {
         return;
     }
-    states.sort_by(|left, right| compare_path(&left.as_path(), &right.as_path()));
-    let best_score = states[0].score;
+    // Materialize compact scalar/string keys once per state. The old
+    // comparator cloned the complete WordEdge path, then rebuilt text,
+    // reading and path-key Strings on every comparison.
+    let mut ranked = std::mem::take(states)
+        .into_iter()
+        .map(|state| RankedJointState {
+            key: JointSortKey::new(state, arena),
+            state,
+        })
+        .collect::<Vec<_>>();
+    ranked.sort_by(|left, right| {
+        right
+            .state
+            .score
+            .cmp(&left.state.score)
+            .then_with(|| left.state.fallback_count.cmp(&right.state.fallback_count))
+            .then_with(|| left.state.edge_count.cmp(&right.state.edge_count))
+            .then_with(|| left.key.text.cmp(&right.key.text))
+            .then_with(|| left.key.reading.cmp(&right.key.reading))
+            .then_with(|| left.key.path_key.cmp(&right.key.path_key))
+    });
+    let best_score = ranked[0].state.score;
     let score_cutoff = best_score.saturating_sub(limits.score_prune_delta);
-    let score_keep = states.partition_point(|state| state.score >= score_cutoff);
-    for state in &states[score_keep..] {
-        pruned_paths.insert(state_combination(state));
+    let score_keep = ranked.partition_point(|item| item.state.score >= score_cutoff);
+    for item in &ranked[score_keep..] {
+        pruned_paths.insert(item.key.combination.clone());
     }
-    stats.joint_score_prunes += states.len().saturating_sub(score_keep);
-    states.truncate(score_keep);
+    stats.joint_score_prunes += ranked.len().saturating_sub(score_keep);
+    ranked.truncate(score_keep);
 
     // A homophone-rich reading can otherwise consume the entire beam with
     // different text realizations of the same pinyin. Candidate alternatives
     // are retained by the separate direct-output pool and bounded
     // compatibility decoder; the joint search reserves one state per reading.
-    let before_diversity = states.len();
+    let before_diversity = ranked.len();
     let mut seen_combinations = BTreeSet::new();
-    states.retain(|state| seen_combinations.insert(state_combination(state)));
-    stats.beam_capacity_prunes += before_diversity.saturating_sub(states.len());
+    ranked.retain(|item| seen_combinations.insert(item.key.combination.clone()));
+    stats.beam_capacity_prunes += before_diversity.saturating_sub(ranked.len());
     let capacity = limits.beam_width.min(limits.max_states_per_position);
-    if states.len() > capacity {
-        for state in &states[capacity..] {
-            pruned_paths.insert(state_combination(state));
+    if ranked.len() > capacity {
+        for item in &ranked[capacity..] {
+            pruned_paths.insert(item.key.combination.clone());
         }
-        stats.beam_capacity_prunes += states.len() - capacity;
-        states.truncate(capacity);
+        stats.beam_capacity_prunes += ranked.len() - capacity;
+        ranked.truncate(capacity);
     }
+    states.extend(ranked.into_iter().map(|item| item.state));
 }
 
 fn entry_signature(entry: &LexiconEntry) -> Option<(String, Vec<usize>)> {
@@ -778,15 +954,6 @@ fn reading_combination(reading: &str) -> String {
 
 fn path_combination(path: &SentencePath) -> String {
     reading_combination(&path.reading())
-}
-
-fn state_combination(state: &JointState) -> String {
-    state
-        .edges
-        .iter()
-        .flat_map(|edge| edge.reading.split_whitespace())
-        .collect::<Vec<_>>()
-        .join("'")
 }
 
 #[cfg(test)]

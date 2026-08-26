@@ -44,7 +44,7 @@
   "findings": [
     {
       "source_file": "小鹤音形/0.0.小鹤.txt",
-      "physical_line": 68509,
+      "physical_line": 68571,
       "finding_type": "url",
       "summary_sha256": "1aa43a3bfc4de4d7c505daec260646734ad7617fe1f8757b5980753115710321",
       "decision": "REJECTED",
@@ -155,178 +155,66 @@
       "reason_code": "REJECT_UNSAFE_PATH_ACCESS"
     },
     {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 52,
-      "finding_type": "windows_absolute_path",
-      "summary_sha256": "701d20001b8fa8b66f80d0a2cc81e987c163a8c8709d06ae3ce41acb87198511",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_UNSAFE_PATH_ACCESS"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 215,
-      "finding_type": "ip_address",
-      "summary_sha256": "005a302611749771085081003f90f7e2419f370d44b66e211a820933160eca11",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 556,
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 510,
       "finding_type": "url",
-      "summary_sha256": "a86a1c3fff0cf9e825ee8f7ca135372b6b753130158fc4659ae782c6823d3068",
+      "summary_sha256": "8ce1c1cb59d0cdf830908b7cdc72abbf087c3f2b2ecdb97c94ab7b29bafabc2c",
       "decision": "REJECTED",
       "reason_code": "REJECT_NETWORK_ACTION"
     },
     {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 562,
-      "finding_type": "credential",
-      "summary_sha256": "a233b707f51ee94dad8a0642fc850870dadd720c4e0a31f1cf7b1f470a15224b",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_EMBEDDED_CREDENTIAL"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 570,
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 511,
       "finding_type": "url",
-      "summary_sha256": "1e593434dc6934a39c8cdb9c650a3696d8329c6ab94fd5a52715c8e50070e36f",
+      "summary_sha256": "3df2916266b71682bdd621959717bace4059243ae5c494689ec460b720625186",
       "decision": "REJECTED",
       "reason_code": "REJECT_NETWORK_ACTION"
     },
     {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 578,
-      "finding_type": "credential",
-      "summary_sha256": "a233b707f51ee94dad8a0642fc850870dadd720c4e0a31f1cf7b1f470a15224b",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_EMBEDDED_CREDENTIAL"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 581,
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 512,
       "finding_type": "url",
-      "summary_sha256": "6bba6eb5c0969a08faef5d9851b5c0507a8aa292f1f8e6248724f4d0e53de8e6",
+      "summary_sha256": "d7a60e103d0ac4522f91e05e341163a003e684cf78f4796df9df79343d85ba80",
       "decision": "REJECTED",
       "reason_code": "REJECT_NETWORK_ACTION"
     },
     {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 583,
-      "finding_type": "credential",
-      "summary_sha256": "ffa70dead834e3abe802d2fb12242b2cf6c5fea2f0855ba669e9b419413c4e6b",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_EMBEDDED_CREDENTIAL"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 590,
-      "finding_type": "credential",
-      "summary_sha256": "d2d529a7e25fc61dc92882eade14edbbaa835560b704be9f3675ae81e115e0d2",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_EMBEDDED_CREDENTIAL"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 599,
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 513,
       "finding_type": "url",
-      "summary_sha256": "37de2c3cb115ef64bbe4605f74e7bea655eadb19d7f9f4a08acc1f8bd6c784ed",
+      "summary_sha256": "4d4f2d6243623d64416a56872653c392b7bb185a0295a1217203653d74a65cda",
       "decision": "REJECTED",
       "reason_code": "REJECT_NETWORK_ACTION"
     },
     {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 603,
-      "finding_type": "webdav",
-      "summary_sha256": "56973358f69ba1b7d994023e054de01863bbe07d457cf0b4a85256d35a5f5ea3",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 604,
-      "finding_type": "webdav",
-      "summary_sha256": "e1cd2af54f9f8c3728fba137745515a635704a9d040add4c0c533703267309eb",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 605,
-      "finding_type": "webdav",
-      "summary_sha256": "f6f2d1e62128295124422ee7d3921376eeec46f9170b81e916d5c5938ce1a447",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 608,
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 514,
       "finding_type": "url",
-      "summary_sha256": "0c4ba3b1f09cea9b88b6ea5b1303947d7400fb7a2a3e85a1d832809042bdfc95",
+      "summary_sha256": "105567b43b8c24eb3a2fdf58ba49be84bd69987317a720a83548619eb839cc20",
       "decision": "REJECTED",
       "reason_code": "REJECT_NETWORK_ACTION"
     },
     {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 610,
-      "finding_type": "email",
-      "summary_sha256": "28f4a5c397e3261e779d09c9bfa643d8a9b702ee9444c4d58ef50f91de5cb5fb",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_EMBEDDED_ACCOUNT"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 612,
-      "finding_type": "credential",
-      "summary_sha256": "927be5ec8baec9f085f26224744c4c7454cc6febc714c51ab4063f353e695898",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_EMBEDDED_CREDENTIAL"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 638,
-      "finding_type": "webdav",
-      "summary_sha256": "4da71c7e0eac1ffd93e949e3c2da9fd1b34836215cd3a00884293a5be514d876",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 639,
-      "finding_type": "webdav",
-      "summary_sha256": "b652dc9ee93c393716b7aeed7f87415f890c75d38a46b471000bc369f838d94a",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 641,
-      "finding_type": "webdav",
-      "summary_sha256": "6b1f32c147305fd14a8f26fdc99288613b6b5babece67b9c2099b810e5fb422e",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 642,
-      "finding_type": "webdav",
-      "summary_sha256": "5afb19fd1f58794608a53510937000a5851866601494697f0aeeb6dfb90385c6",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 643,
-      "finding_type": "credential",
-      "summary_sha256": "0b44aa811a27391759ab5f8694b155f0bc236aa3a05911c8ec3570785eb2875b",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_EMBEDDED_CREDENTIAL"
-    },
-    {
-      "source_file": "小鹤音形/ime.android.ini",
-      "physical_line": 643,
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 535,
       "finding_type": "url",
-      "summary_sha256": "0b44aa811a27391759ab5f8694b155f0bc236aa3a05911c8ec3570785eb2875b",
+      "summary_sha256": "ca6598398c1d2721e5e0667cb32a573309f619d21322188499be4fe9c6ae4062",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_NETWORK_ACTION"
+    },
+    {
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 536,
+      "finding_type": "url",
+      "summary_sha256": "2a9806ce430511c69109cbfbf9f264b523a43e8998f3809f700fa3bd2e85d9d2",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_NETWORK_ACTION"
+    },
+    {
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 537,
+      "finding_type": "url",
+      "summary_sha256": "21a9cd0166285745b876674fc6f7fef4731b5b26c0995fedb29de62cdf928846",
       "decision": "REJECTED",
       "reason_code": "REJECT_NETWORK_ACTION"
     },
@@ -452,7 +340,7 @@
     },
     {
       "source_file": "小鹤音形/0.0.小鹤.txt",
-      "physical_line": 15550,
+      "physical_line": 15566,
       "finding_type": "cmd",
       "summary_sha256": "babac705cb1f0f83f536cd0fc960e5d7f7de965b2249f1eaebdffc5daebaec65",
       "decision": "REJECTED",
@@ -460,15 +348,15 @@
     },
     {
       "source_file": "小鹤音形/1.0.分类.txt",
-      "physical_line": 1674,
+      "physical_line": 1672,
       "finding_type": "cmd",
-      "summary_sha256": "3454cd71fac1efe42dc5950a6a28af82fac72fdf82df6884bd43ba1259808bf3",
+      "summary_sha256": "f0614266952f6542cc58ced18145b35933e8e93f3336b59e6fdf91f984a66e45",
       "decision": "REJECTED",
       "reason_code": "REJECT_UNSUPPORTED_COMMAND"
     },
     {
       "source_file": "小鹤音形/1.2.快符-外接.txt",
-      "physical_line": 10,
+      "physical_line": 7,
       "finding_type": "cmd",
       "summary_sha256": "0b0eee4a0ae10f3cf43131ba5078cdae72bba62a05bd58f09427a4e06debc99f",
       "decision": "REJECTED",
@@ -483,6 +371,14 @@
       "reason_code": "REJECT_UNSUPPORTED_COMMAND"
     },
     {
+      "source_file": "小鹤音形/2.5.全码词.txt",
+      "physical_line": 504,
+      "finding_type": "cmd",
+      "summary_sha256": "0eafc02abdf5ebfc21fa074e73cdd3e3c2c43ae9d79e3817122412925df6ab2a",
+      "decision": "REJECTED",
+      "reason_code": "REJECT_UNSUPPORTED_COMMAND"
+    },
+    {
       "source_file": "小鹤音形/2.6.符号-安卓.txt",
       "physical_line": 3,
       "finding_type": "cmd",
@@ -492,7 +388,7 @@
     },
     {
       "source_file": "小鹤音形/2.6.符号.txt",
-      "physical_line": 22,
+      "physical_line": 19,
       "finding_type": "cmd",
       "summary_sha256": "c3bf9330213d0f3297dc2e981949850b64a21c07ea2b6eea79f8dfbeb6694538",
       "decision": "REJECTED",
@@ -508,9 +404,9 @@
     },
     {
       "source_file": "小鹤音形/2.7.符号组.txt",
-      "physical_line": 749,
+      "physical_line": 2,
       "finding_type": "cmd",
-      "summary_sha256": "92122c64485ca1fafd4272881ae48eb0edd2bc472cfbe262228fec3d219cbc4e",
+      "summary_sha256": "661becc1813f1508fc0c2980b3828a445a58c0ff658910a4dd55e1f5b186533a",
       "decision": "REJECTED",
       "reason_code": "REJECT_UNSUPPORTED_COMMAND"
     },

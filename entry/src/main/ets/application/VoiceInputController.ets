@@ -323,6 +323,9 @@ export class VoiceInputController {
 
   private cancelActive(showCanceled: boolean): void {
     const request = this.activeRequest;
+    if (request === undefined && this.timeoutId === undefined && this.store.isVoicePresentationIdle()) {
+      return;
+    }
     if (request) {
       this.provider.cancel(request.voiceSessionId);
     }

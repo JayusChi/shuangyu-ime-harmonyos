@@ -40,11 +40,11 @@ fn stage0_machine_baselines_are_committed_path_clean_and_tied_to_frozen_bundle()
     }
     for expected in [
         "\"bundle_byte_size\"",
-        "56144463",
+        "56183822",
         "\"bundle_sha256\"",
-        "e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad",
+        "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942",
         "\"ordinary_record_count\"",
-        "162666",
+        "162694",
         "\"embedded_fixed_rule_count\"",
         "\"core_required\"",
         "\"archive_allowlist_complete\"",
@@ -62,7 +62,7 @@ fn stage0_machine_baselines_are_committed_path_clean_and_tied_to_frozen_bundle()
         std::fs::metadata(bundle_path())
             .expect("formal bundle")
             .len(),
-        56_144_463
+        56_183_822
     );
     let bundle = CodeTableBundle::load_frozen_production_file(bundle_path())
         .expect("strict frozen loader verifies format, allowlist, hashes, and content");
@@ -112,8 +112,8 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                 "你",
                 "ni",
                 "core",
-                34_865,
-                "ct:xiaohe-yinxing-production:core:34865",
+                34_897,
+                "ct:xiaohe-yinxing-production:core:34897",
             )],
         ),
         (
@@ -122,8 +122,8 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                 "好",
                 "hc",
                 "core",
-                15_944,
-                "ct:xiaohe-yinxing-production:core:15944",
+                15_961,
+                "ct:xiaohe-yinxing-production:core:15961",
             )],
         ),
         (
@@ -147,8 +147,8 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "事",
                     "ui",
                     "core",
-                    48_045,
-                    "ct:xiaohe-yinxing-production:core:48045",
+                    48_102,
+                    "ct:xiaohe-yinxing-production:core:48102",
                 ),
             ],
         ),
@@ -187,8 +187,8 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "只",
                     "vi",
                     "core",
-                    51_772,
-                    "ct:xiaohe-yinxing-production:core:51772",
+                    51_834,
+                    "ct:xiaohe-yinxing-production:core:51834",
                 ),
                 (
                     "支持",
@@ -205,8 +205,8 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                 "我",
                 "wo",
                 "core",
-                55_266,
-                "ct:xiaohe-yinxing-production:core:55266",
+                55_331,
+                "ct:xiaohe-yinxing-production:core:55331",
             )],
         ),
         (
@@ -223,8 +223,8 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "先",
                     "xm",
                     "core",
-                    57_459,
-                    "ct:xiaohe-yinxing-production:core:57459",
+                    57_526,
+                    "ct:xiaohe-yinxing-production:core:57526",
                 ),
                 (
                     "下面",
@@ -249,8 +249,8 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "修",
                     "xq",
                     "core",
-                    57_487,
-                    "ct:xiaohe-yinxing-production:core:57487",
+                    57_554,
+                    "ct:xiaohe-yinxing-production:core:57554",
                 ),
             ],
         ),

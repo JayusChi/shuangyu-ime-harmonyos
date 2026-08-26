@@ -1,6 +1,4 @@
-----syntax=cn, code
--- 附属词库：次选、随心
--- 次选
+## 次选字词
 簟	dmv
 镞	zuj
 焰	yjhj
@@ -398,7 +396,7 @@
 一句话	yjh
 郁金香	yjx
 艺术性	yux
-以致于	yvy
+以至于	yvy
 座右铭	zym
 呼之欲出	hvy
 姗姗来迟	uul
@@ -576,6 +574,7 @@
 奉公守法	fguf
 凤冠霞帔	fgxp
 反戈一击	fgyj
+非黑即白	fhjb
 纺织	fhvi
 防患于未然	fhyr
 分久必合	fjbh
@@ -733,7 +732,6 @@
 承建	igjm
 出乖露丑	igli
 承销	igxn
-冲冠一怒为红颜	igyy
 晨昏颠倒	ihdd
 长话短说	ihdu
 春华秋实	ihqu
@@ -1670,31 +1668,30 @@
 载誉归来	zygl
 自怨自艾	zyzy
 
--- 随心
-$cmd(智,智)	viud
-$cmd(计,计)	jiyd
+## 随心
 $cmd(辨,辨)	bmld
 $cmd(辫,辫)	bmls
+$cmd(智,智)	viud
+$cmd(计,计)	jiyd
+刻意	kyd
 单元	dye
-回忆	hyx
+觉得	jdi
 简洁	jjd
 精力	jlv
-距离	jlw
 基于	jya
 截至	jva
-记忆	jyx
 梳理	ulw
-事实	uub
 哲理	vlw
+事实	uub
 置顶	vdd
 指示	vue
-指挥	vhf
 想想	xxm
 音形	yxk
-觉得	jdi
-刻意	kys
+回忆	hyx
+记忆	jyx
+指挥	vhf
+距离	jlw
 整句	vjb
 便宜	pyb
 回改	hgj
 词频	cpv
-

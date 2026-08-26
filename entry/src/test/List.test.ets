@@ -26,11 +26,15 @@ import computerCapabilityProbePolicyTest from './ComputerCapabilityProbePolicy.t
 import computerStage2LifecycleTest from './ComputerStage2Lifecycle.test';
 import computerStage3PhysicalKeyboardTest from './ComputerStage3PhysicalKeyboard.test';
 import computerStage5Test from './ComputerStage5.test';
+import pcHostInputCompatibilityTest from './PcHostInputCompatibility.test';
 import directControlUserLexiconTest from './DirectControlUserLexicon.test';
+import currentLineRangeTest from './CurrentLineRange.test';
+import directTextTransformerTest from './DirectTextTransformer.test';
 import pinyin9Stage4Test from './Pinyin9Stage4.test';
 import keyboardAlternateGestureTest from './KeyboardAlternateGesture.test';
 import ai0FoundationTest from './Ai0Foundation.test';
 import ai1InputTest from './Ai1Input.test';
+import ai1ProxyReadinessTest from './Ai1ProxyReadiness.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -61,9 +65,13 @@ export default function testsuite() {
   computerStage2LifecycleTest();
   computerStage3PhysicalKeyboardTest();
   computerStage5Test();
+  pcHostInputCompatibilityTest();
   directControlUserLexiconTest();
+  currentLineRangeTest();
+  directTextTransformerTest();
   pinyin9Stage4Test();
   keyboardAlternateGestureTest();
   ai0FoundationTest();
   ai1InputTest();
+  ai1ProxyReadinessTest();
 }

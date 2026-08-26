@@ -13,7 +13,7 @@ AI-1 继续复用 AI-0 的集中能力状态、request/session ID、generation �
 
 本地关联使用现有会话内 n-gram，默认关闭、最多 3 条，不改变原始候选。云请求只携带最近一次仍属输入法所有的上屏文本和必要协议字段；8 秒硬超时，取消、乱序、迟到、旧 generation 或所有权丢失都会丢弃结果。云 Provider 只允许配置注入的批准 HTTPS 代理，模型输出全程仅为普通文本。
 
-当前没有批准的生产代理材料，因此默认运行时使用不可用 Provider，Release 不声明 INTERNET 权限。边界、测试和放行条件见 `features/ai/AI1_FIRST_INPUT.md` 与 `features/ai/AI1_CLOUD_PROXY_READINESS.md`。
+仓库包含 `services/ai-proxy/` 供应商无关参考代理和客户端仅内存短期令牌边界，但当前没有批准的生产域名、身份签发、供应链合同或最终隐私文案。因此默认运行时仍使用不可用 Provider，Release 不声明 INTERNET 权限。边界、测试和放行条件见 `features/ai/AI1_FIRST_INPUT.md`、`features/ai/AI1_PROXY_CONTRACT_DRAFT.md` 与 `features/ai/AI1_CLOUD_PROXY_READINESS.md`。
 
 ## AI 输入法第 0 阶段
 

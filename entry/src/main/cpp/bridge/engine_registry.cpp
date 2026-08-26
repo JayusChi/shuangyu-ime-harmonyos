@@ -34,7 +34,7 @@ RustCallResult EngineRegistry::ProcessKey(uint32_t id, const std::string& key) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.ProcessKey(key);
 }
@@ -43,7 +43,7 @@ RustCallResult EngineRegistry::InsertSegmentBoundary(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.InsertSegmentBoundary();
 }
@@ -52,7 +52,7 @@ RustCallResult EngineRegistry::Backspace(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.Backspace();
 }
@@ -61,7 +61,7 @@ RustCallResult EngineRegistry::Reset(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.Reset();
 }
@@ -70,7 +70,7 @@ RustCallResult EngineRegistry::ChangeScheme(uint32_t id, const std::string& sche
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.ChangeScheme(schemeId);
 }
@@ -79,7 +79,7 @@ RustCallResult EngineRegistry::SelectCandidate(uint32_t id, size_t candidateInde
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.SelectCandidate(candidateIndex);
 }
@@ -88,7 +88,7 @@ RustCallResult EngineRegistry::SelectPinyinCombination(uint32_t id, size_t combi
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.SelectPinyinCombination(combinationIndex);
 }
@@ -97,7 +97,7 @@ RustCallResult EngineRegistry::NextCandidatePage(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.NextCandidatePage();
 }
@@ -106,7 +106,7 @@ RustCallResult EngineRegistry::PreviousCandidatePage(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.PreviousCandidatePage();
 }
@@ -115,7 +115,7 @@ RustCallResult EngineRegistry::GetLocalAssociations(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.GetLocalAssociations();
 }
@@ -124,7 +124,7 @@ RustCallResult EngineRegistry::GetCodeTableCategoryConfig(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.GetCodeTableCategoryConfig();
 }
@@ -133,16 +133,25 @@ RustCallResult EngineRegistry::SetCodeTableCategories(uint32_t id, const std::st
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.SetCodeTableCategories(categoryIdsJson);
+}
+
+RustCallResult EngineRegistry::SetCodeTableCommitPolicy(uint32_t id, const std::string& policyJson) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto found = engines_.find(id);
+    if (found == engines_.end()) {
+        return {IME_INVALID_HANDLE, RustBuffer()};
+    }
+    return found->second.SetCodeTableCommitPolicy(policyJson);
 }
 
 RustCallResult EngineRegistry::ReloadUserLexicon(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.ReloadUserLexicon();
 }
@@ -151,7 +160,7 @@ RustCallResult EngineRegistry::SetUserModelPath(uint32_t id, const std::string& 
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.SetUserModelPath(path);
 }
@@ -160,7 +169,7 @@ RustCallResult EngineRegistry::LoadUserModel(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.LoadUserModel();
 }
@@ -169,7 +178,7 @@ RustCallResult EngineRegistry::FlushUserModel(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.FlushUserModel();
 }
@@ -178,7 +187,7 @@ RustCallResult EngineRegistry::ClearUserModel(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.ClearUserModel();
 }
@@ -187,7 +196,7 @@ RustCallResult EngineRegistry::SetUserLearningEnabled(uint32_t id, bool enabled)
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.SetUserLearningEnabled(enabled);
 }
@@ -196,7 +205,7 @@ RustCallResult EngineRegistry::SetSessionLearningAllowed(uint32_t id, bool allow
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);
     if (found == engines_.end()) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     return found->second.SetSessionLearningAllowed(allowed);
 }

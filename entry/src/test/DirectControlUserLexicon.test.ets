@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@ohos/hypium';
 import { UserLexiconDocumentEditor } from '../main/ets/application/UserLexiconController';
+import { resolveCategoryPresetIds } from '../main/ets/application/DirectControlService';
 import {
   parseDirectControlCommand,
   resolveDirectControlHotkey
@@ -24,6 +25,10 @@ export default function directControlUserLexiconTest() {
       expect(categorySet.success).assertTrue();
       expect(categorySet.command?.target).assertEqual('core,one-key-secondary,rare-character');
       expect(parseDirectControlCommand('category.set', 'core,unknown').success).assertFalse();
+      expect(parseDirectControlCommand('category.preset', 'experienced').success).assertTrue();
+      expect(parseDirectControlCommand('category.preset', 'everything').success).assertFalse();
+      expect(parseDirectControlCommand('settings.smart-period', '600').success).assertTrue();
+      expect(parseDirectControlCommand('settings.smart-period', '500').success).assertFalse();
     });
 
     it('maps strict ctrl alt digit hotkeys and rejects loose modifiers', 0, () => {
@@ -32,6 +37,16 @@ export default function directControlUserLexiconTest() {
       expect(command?.target).assertEqual('xiaohe-yinxing');
       expect(resolveDirectControlHotkey(2002, true, false, false)).assertUndefined();
       expect(resolveDirectControlHotkey(2002, true, true, true)).assertUndefined();
+    });
+
+    it('changes only the three customer-approved preset categories', 0, () => {
+      const current = ['core', 'quick-symbol', 'two-key-secondary', 'full-code-character'];
+      expect(resolveCategoryPresetIds(current, 'experienced').join(','))
+        .assertEqual('core,quick-symbol,two-key-secondary');
+      expect(resolveCategoryPresetIds(current, 'standard').join(','))
+        .assertEqual('core,quick-symbol,two-key-secondary,full-code-word');
+      expect(resolveCategoryPresetIds(current, 'beginner').join(','))
+        .assertEqual('core,quick-symbol,two-key-secondary,full-code-word,full-code-character,rare-character');
     });
 
     it('serializes fixed and exact position actions without ambiguity', 0, () => {

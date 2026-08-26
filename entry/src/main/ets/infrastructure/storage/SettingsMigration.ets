@@ -92,6 +92,24 @@ export class SettingsMigration {
     if (!migrated.smartPeriodTimeoutMs) {
       migrated.smartPeriodTimeoutMs = `${DEFAULT_SMART_PERIOD_TIMEOUT_MS}`;
     }
+    if (!migrated.punctuationMode) {
+      migrated.punctuationMode = 'chinese';
+    }
+    if (!migrated.fullWidthEnabled) {
+      migrated.fullWidthEnabled = 'false';
+    }
+    if (!migrated.numericPeriodEnabled) {
+      migrated.numericPeriodEnabled = 'false';
+    }
+    if (!migrated.traditionalOutputEnabled) {
+      migrated.traditionalOutputEnabled = 'false';
+    }
+    if (!migrated.codeTableEmptyClearLength) {
+      migrated.codeTableEmptyClearLength = '4';
+    }
+    if (!migrated.codeTableAutoCommitEnabled) {
+      migrated.codeTableAutoCommitEnabled = 'true';
+    }
     migrated.xiaoheYinxingCategorySchemaVersion = `${XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION}`;
     migrated.schemaVersion = `${CURRENT_SETTINGS_SCHEMA_VERSION}`;
     return migrated;
@@ -217,6 +235,12 @@ export class SettingsMigration {
       spellingCorrectionEnabled: raw.spellingCorrectionEnabled,
       fuzzyOptions: raw.fuzzyOptions,
       smartPeriodTimeoutMs: raw.smartPeriodTimeoutMs,
+      punctuationMode: raw.punctuationMode,
+      fullWidthEnabled: raw.fullWidthEnabled,
+      numericPeriodEnabled: raw.numericPeriodEnabled,
+      traditionalOutputEnabled: raw.traditionalOutputEnabled,
+      codeTableEmptyClearLength: raw.codeTableEmptyClearLength,
+      codeTableAutoCommitEnabled: raw.codeTableAutoCommitEnabled,
       inputPresentationPreference: raw.inputPresentationPreference,
       candidatePresentationMode: raw.candidatePresentationMode,
       xiaoheYinxingCategorySchemaVersion: raw.xiaoheYinxingCategorySchemaVersion,

@@ -28,11 +28,12 @@ ImeBuffer* RustBuffer::Out() {
     return &buffer_;
 }
 
-std::string RustBuffer::ToString() const {
-    if (buffer_.data == nullptr || buffer_.len == 0) {
-        return "";
-    }
-    return std::string(reinterpret_cast<const char*>(buffer_.data), buffer_.len);
+const char* RustBuffer::Data() const {
+    return reinterpret_cast<const char*>(buffer_.data);
+}
+
+size_t RustBuffer::Size() const {
+    return buffer_.len;
 }
 
 bool RustBuffer::Empty() const {

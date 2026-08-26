@@ -16,9 +16,9 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
-      "notes": "Only numbered core source enters the first release."
+      "notes": "Customer-confirmed numbered core source enters production."
     },
     {
       "category_id": "category-secondary",
@@ -37,9 +37,30 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
-      "notes": "The overlapping export remains audit-only and is not merged."
+      "notes": "The UI groups this source with 表外字 as 分类（次选、表外、随心）."
+    },
+    {
+      "category_id": "quick-symbol",
+      "display_name": "快符",
+      "role": "quick_symbol",
+      "authoritative_source": "小鹤音形/1.2.快符-外接.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - 快符.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/1.2.快符-外接.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
+      "requires_manual_confirmation": false,
+      "notes": "Semicolon-guided rows use the customer-confirmed order."
     },
     {
       "category_id": "one-key-secondary",
@@ -56,7 +77,7 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
       "notes": "Unique numbered source enters the first release."
     },
@@ -77,7 +98,7 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
       "notes": "The alternate export remains audit-only and is not merged."
     },
@@ -98,7 +119,7 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
       "notes": "The alternate export remains audit-only and is not merged."
     },
@@ -119,9 +140,49 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
       "notes": "The alternate export remains audit-only and is not merged."
+    },
+    {
+      "category_id": "symbol",
+      "display_name": "符号",
+      "role": "symbol_table",
+      "authoritative_source": "小鹤音形/2.6.符号.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [
+        "码表/导出 - 主码 - Ｏ符.txt"
+      ],
+      "merge_order": [
+        "小鹤音形/2.6.符号.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
+      "requires_manual_confirmation": false,
+      "notes": "The customer-confirmed o-guided symbol source enters production."
+    },
+    {
+      "category_id": "symbol-group",
+      "display_name": "符号组",
+      "role": "symbol_group",
+      "authoritative_source": "小鹤音形/2.7.符号组.txt",
+      "supplemental_sources": [],
+      "audit_only_sources": [],
+      "merge_order": [
+        "小鹤音形/2.7.符号组.txt"
+      ],
+      "default_enabled": true,
+      "first_release_scope": "authoritative_source_only",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
+      "duplicate_policy": "stable_first_within_authoritative_source_order",
+      "unsupported_record_policy": "reject_with_source_line",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
+      "requires_manual_confirmation": false,
+      "notes": "The source omits the external o prefix, which the converter adds."
     },
     {
       "category_id": "rare-character",
@@ -138,7 +199,7 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
       "notes": "Unique numbered source enters the first release."
     },
@@ -159,70 +220,9 @@
       "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-07-22",
+      "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
       "notes": "The alternate export remains audit-only and is not merged."
-    },
-    {
-      "category_id": "quick-symbol",
-      "display_name": "快符",
-      "role": "quick_symbol",
-      "authoritative_source": "小鹤音形/1.2.快符-外接.txt",
-      "supplemental_sources": [],
-      "audit_only_sources": [
-        "码表/导出 - 主码 - 快符.txt"
-      ],
-      "merge_order": [
-        "小鹤音形/1.2.快符-外接.txt"
-      ],
-      "default_enabled": true,
-      "first_release_scope": "authoritative_source_only",
-      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
-      "duplicate_policy": "stable_first_within_authoritative_source_order",
-      "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-08-12",
-      "requires_manual_confirmation": false,
-      "notes": "Semicolon-led quick symbols for faster input."
-    },
-    {
-      "category_id": "symbol",
-      "display_name": "符号",
-      "role": "symbol_table",
-      "authoritative_source": "小鹤音形/2.6.符号.txt",
-      "supplemental_sources": [],
-      "audit_only_sources": [
-        "码表/导出 - 主码 - Ｏ符.txt"
-      ],
-      "merge_order": [
-        "小鹤音形/2.6.符号.txt"
-      ],
-      "default_enabled": true,
-      "first_release_scope": "authoritative_source_only",
-      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
-      "duplicate_policy": "stable_first_within_authoritative_source_order",
-      "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "frozen_by_user_authorization_2026-08-12",
-      "requires_manual_confirmation": false,
-      "notes": "Symbol tables including special characters and emojis; grouped with symbol-group in the UI."
-    },
-    {
-      "category_id": "symbol-group",
-      "display_name": "符号组",
-      "role": "symbol_group",
-      "authoritative_source": "小鹤音形/2.7.符号组.txt",
-      "supplemental_sources": [],
-      "audit_only_sources": [],
-      "merge_order": [
-        "小鹤音形/2.7.符号组.txt"
-      ],
-      "default_enabled": true,
-      "first_release_scope": "authoritative_source_only",
-      "conflict_policy": "no cross-source merge",
-      "duplicate_policy": "stable_first_within_authoritative_source_order",
-      "unsupported_record_policy": "reject_with_source_line",
-      "confirmation_status": "authorized_by_user_2026-08-13",
-      "requires_manual_confirmation": false,
-      "notes": "Grouped with symbol in the UI."
     },
     {
       "category_id": "ok-spelling",
@@ -238,12 +238,12 @@
       ],
       "default_enabled": true,
       "first_release_scope": "authoritative_source_only",
-      "conflict_policy": "audit-only alternative is excluded; no cross-source merge",
+      "conflict_policy": "audit-only alternatives are excluded; no cross-source merge",
       "duplicate_policy": "stable_first_within_authoritative_source_order",
       "unsupported_record_policy": "reject_with_source_line",
       "confirmation_status": "authorized_by_customer_2026-08-24",
       "requires_manual_confirmation": false,
-      "notes": "Strict six- or eight-letter ok-prefixed spelling records."
+      "notes": "All records use a customer-confirmed ok prefix and six or eight letters."
     }
   ]
 }

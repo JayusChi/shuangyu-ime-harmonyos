@@ -637,6 +637,21 @@ impl CodeTableStateMachine {
         self.commit_policy
     }
 
+    pub fn set_commit_policy(
+        &mut self,
+        policy: CodeTableCommitPolicy,
+    ) -> Result<(), CodeTableError> {
+        policy.validate()?;
+        if !self.raw_code.is_empty() {
+            return Err(CodeTableError::new(
+                CodeTableErrorKind::InvalidCommitPolicy,
+                "commit policy can change only at a composition boundary",
+            ));
+        }
+        self.commit_policy = policy;
+        Ok(())
+    }
+
     pub const fn query_strategy(&self) -> CodeTableQueryStrategy {
         self.query_strategy
     }

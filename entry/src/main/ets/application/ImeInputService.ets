@@ -24,6 +24,7 @@ export interface ImeInputService extends ProtocolActionImeService {
   deleteBackwardIfMatches?(text: string): Promise<boolean>;
   textBeforeCursorMatches?(text: string): Promise<boolean>;
   getCursorIndex?(): Promise<number | undefined>;
+  getTextBeforeCursor?(maxUnits: number): Promise<string | undefined>;
   replaceTextBeforeCursorIfMatches?(
     sourceText: string,
     replacementText: string,
@@ -34,6 +35,7 @@ export interface ImeInputService extends ProtocolActionImeService {
   jumpOutPair?(generation?: number): Promise<boolean>;
   clearPairState?(): void;
   moveToLineEnd?(): Promise<boolean>;
+  deleteCurrentLine?(): Promise<boolean>;
   sendExtendAction?(action: EditorExtendAction): Promise<boolean>;
   sendEnter(action?: EnterAction): Promise<boolean>;
   hideKeyboard(): Promise<boolean>;

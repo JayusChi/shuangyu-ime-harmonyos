@@ -5,15 +5,17 @@
 #include "native_error.h"
 #include "rust_buffer.h"
 
+#include <utility>
+
 namespace {
 RustCallResult CopyRustBuffer(int32_t code, RustBuffer& buffer) {
     if (code != IME_SUCCESS) {
-        return {code, ""};
+        return {code, RustBuffer()};
     }
     if (buffer.Empty()) {
-        return {IME_BUFFER_ALLOCATION_FAILED, ""};
+        return {IME_BUFFER_ALLOCATION_FAILED, RustBuffer()};
     }
-    return {code, buffer.ToString()};
+    return {code, std::move(buffer)};
 }
 } // namespace
 
@@ -82,6 +84,10 @@ RustCallResult GetRegisteredEngineCodeTableCategoryConfig(uint32_t id) {
 
 RustCallResult SetRegisteredEngineCodeTableCategories(uint32_t id, const std::string& categoryIdsJson) {
     return EngineRegistry::Instance().SetCodeTableCategories(id, categoryIdsJson);
+}
+
+RustCallResult SetRegisteredEngineCodeTableCommitPolicy(uint32_t id, const std::string& policyJson) {
+    return EngineRegistry::Instance().SetCodeTableCommitPolicy(id, policyJson);
 }
 
 RustCallResult ReloadRegisteredEngineUserLexicon(uint32_t id) {

@@ -4,14 +4,13 @@ import {
   CloudAiTransportRequest,
   CloudAiTransportResponse
 } from './CloudAiTransport';
+import { CloudAiRequestHeaderProvider } from './CloudAiRequestHeaders';
 
-export interface CloudAiRequestHeaders {
-  authorization?: string;
-  clientAttestation?: string;
-}
-
-export interface CloudAiRequestHeaderProvider {
-  getHeaders(requestId: string): Promise<CloudAiRequestHeaders>;
+interface CloudAiHttpHeaders {
+  'Content-Type': string;
+  'Accept': string;
+  'Authorization'?: string;
+  'X-Client-Attestation'?: string;
 }
 
 /**
@@ -34,23 +33,24 @@ export class HarmonyHttpAiTransport implements CloudAiTransport {
       const headers = await this.headerProvider.getHeaders(request.requestId);
       const authorization = headers.authorization ?? '';
       const attestation = headers.clientAttestation ?? '';
-      const header: Object = authorization.length > 0
-        ? (attestation.length > 0
-          ? {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': authorization,
-            'X-Client-Attestation': attestation
-          }
-          : {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': authorization
-          })
-        : {
+      let header: CloudAiHttpHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      if (authorization.length > 0 && attestation.length > 0) {
+        header = {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Authorization': authorization,
+          'X-Client-Attestation': attestation
         };
+      } else if (authorization.length > 0) {
+        header = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': authorization
+        };
+      }
       const response = await task.request(request.endpoint, {
         method: http.RequestMethod.POST,
         header,

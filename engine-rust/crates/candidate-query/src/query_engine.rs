@@ -5,6 +5,7 @@ use candidate_ranking::{
 use lexicon_core::{runtime_index, BinaryLexicon, LexiconEntry};
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BinaryHeap};
+use std::sync::{Arc, OnceLock};
 
 use crate::cache::{BoundedQueryCache, CacheKey, QueryCacheStats};
 use crate::error::QueryError;
@@ -15,7 +16,14 @@ use crate::model::{
 /// Reusable runtime query engine for one loaded binary lexicon.
 #[derive(Clone, Debug)]
 pub struct CandidateQueryEngine {
-    lexicon: BinaryLexicon,
+    lexicon: Arc<BinaryLexicon>,
+    quanpin_indexes: Arc<OnceLock<QuanpinIndexes>>,
+    config: QueryConfig,
+    cache: BoundedQueryCache,
+}
+
+#[derive(Debug)]
+struct QuanpinIndexes {
     /// Compact full-pinyin lookup for long audited phrases. Keeping only
     /// entries of five or more syllables bounds memory while preventing a
     /// correct long word from depending on the parser's limited segmentation
@@ -29,70 +37,32 @@ pub struct CandidateQueryEngine {
     /// Building these with the immutable lexicon prevents every reset/session
     /// from rescanning the complete production prefix range.
     single_letter_prefix: BTreeMap<char, Vec<RankingCandidate>>,
-    config: QueryConfig,
-    cache: BoundedQueryCache,
 }
 
 impl CandidateQueryEngine {
     pub fn new(lexicon: BinaryLexicon, config: QueryConfig) -> Self {
+        Self::new_shared(Arc::new(lexicon), config)
+    }
+
+    pub fn new_shared(lexicon: Arc<BinaryLexicon>, config: QueryConfig) -> Self {
         let cache = BoundedQueryCache::new(config.cache_capacity);
-        let mut quanpin_long_exact = BTreeMap::<String, Vec<usize>>::new();
-        let mut quanpin_lattice_prefix = BTreeMap::<String, Vec<usize>>::new();
-        let mut single_letter_pools = BTreeMap::<char, BoundedPrefixTopK>::new();
-        let lexicon_version = lexicon.header.lexicon_version;
-        for (index, entry) in lexicon.entries.iter().enumerate() {
-            if entry.syllables.len() >= 5 {
-                quanpin_long_exact
-                    .entry(entry.syllables.concat())
-                    .or_default()
-                    .push(index);
-            }
-            for prefix in quanpin_lattice_prefixes(&entry.syllables) {
-                quanpin_lattice_prefix
-                    .entry(prefix)
-                    .or_default()
-                    .push(index);
-            }
-            if let Some(initial) = entry
-                .pinyin_key
-                .chars()
-                .next()
-                .filter(char::is_ascii_lowercase)
-            {
-                let initial_reading = initial.to_string();
-                let match_type = if entry.pinyin_key == initial_reading {
-                    CandidateMatchType::Exact
-                } else {
-                    CandidateMatchType::Prefix
-                };
-                single_letter_pools
-                    .entry(initial)
-                    .or_insert_with(|| BoundedPrefixTopK::new(config.prefix_recall_limit))
-                    .push(
-                        RankingCandidate::new(
-                            stable_candidate_id(lexicon_version, &entry.pinyin_key, &entry.word),
-                            entry.word.clone(),
-                            entry.pinyin_key.clone(),
-                            entry.source_key(),
-                            entry.frequency,
-                            match_type,
-                        )
-                        .with_source_order(entry.source_order),
-                    );
-            }
-        }
-        let single_letter_prefix = single_letter_pools
-            .into_iter()
-            .map(|(initial, pool)| (initial, pool.into_candidates()))
-            .collect();
         Self {
             lexicon,
-            quanpin_long_exact,
-            quanpin_lattice_prefix,
-            single_letter_prefix,
+            quanpin_indexes: Arc::new(OnceLock::new()),
             config,
             cache,
         }
+    }
+
+    fn quanpin_indexes(&self) -> &QuanpinIndexes {
+        self.quanpin_indexes
+            .get_or_init(|| QuanpinIndexes::build(&self.lexicon, self.config.prefix_recall_limit))
+    }
+
+    /// Builds the full-pinyin-only indexes when the owning engine activates
+    /// Quanpin, keeping the default Xiaohe startup path free of this work.
+    pub fn prepare_quanpin_indexes(&self) {
+        let _ = self.quanpin_indexes();
     }
 
     pub fn lexicon_version(&self) -> u32 {
@@ -130,6 +100,7 @@ impl CandidateQueryEngine {
 
         let prefix = raw[..2].to_owned();
         let mut matches = self
+            .quanpin_indexes()
             .quanpin_lattice_prefix
             .get(&prefix)
             .into_iter()
@@ -178,6 +149,7 @@ impl CandidateQueryEngine {
             return Vec::new();
         }
         let mut candidates = self
+            .quanpin_indexes()
             .quanpin_long_exact
             .get(&raw)
             .into_iter()
@@ -320,7 +292,8 @@ impl CandidateQueryEngine {
         if characters.next().is_some() {
             return self.collect_lexical_prefix(reading);
         }
-        self.single_letter_prefix
+        self.quanpin_indexes()
+            .single_letter_prefix
             .get(&initial)
             .cloned()
             .unwrap_or_default()
@@ -392,6 +365,65 @@ impl CandidateQueryEngine {
                     QueryKind::Prefix
                 }
             }
+        }
+    }
+}
+
+impl QuanpinIndexes {
+    fn build(lexicon: &BinaryLexicon, prefix_recall_limit: usize) -> Self {
+        let mut quanpin_long_exact = BTreeMap::<String, Vec<usize>>::new();
+        let mut quanpin_lattice_prefix = BTreeMap::<String, Vec<usize>>::new();
+        let mut single_letter_pools = BTreeMap::<char, BoundedPrefixTopK>::new();
+        let lexicon_version = lexicon.header.lexicon_version;
+        for (index, entry) in lexicon.entries.iter().enumerate() {
+            if entry.syllables.len() >= 5 {
+                quanpin_long_exact
+                    .entry(entry.syllables.concat())
+                    .or_default()
+                    .push(index);
+            }
+            for prefix in quanpin_lattice_prefixes(&entry.syllables) {
+                quanpin_lattice_prefix
+                    .entry(prefix)
+                    .or_default()
+                    .push(index);
+            }
+            if let Some(initial) = entry
+                .pinyin_key
+                .chars()
+                .next()
+                .filter(char::is_ascii_lowercase)
+            {
+                let initial_reading = initial.to_string();
+                let match_type = if entry.pinyin_key == initial_reading {
+                    CandidateMatchType::Exact
+                } else {
+                    CandidateMatchType::Prefix
+                };
+                single_letter_pools
+                    .entry(initial)
+                    .or_insert_with(|| BoundedPrefixTopK::new(prefix_recall_limit))
+                    .push(
+                        RankingCandidate::new(
+                            stable_candidate_id(lexicon_version, &entry.pinyin_key, &entry.word),
+                            entry.word.clone(),
+                            entry.pinyin_key.clone(),
+                            entry.source_key(),
+                            entry.frequency,
+                            match_type,
+                        )
+                        .with_source_order(entry.source_order),
+                    );
+            }
+        }
+        let single_letter_prefix = single_letter_pools
+            .into_iter()
+            .map(|(initial, pool)| (initial, pool.into_candidates()))
+            .collect();
+        Self {
+            quanpin_long_exact,
+            quanpin_lattice_prefix,
+            single_letter_prefix,
         }
     }
 }
@@ -708,6 +740,27 @@ mod tests {
                 cache_capacity: 2,
             },
         )
+    }
+
+    #[test]
+    fn quanpin_indexes_are_built_only_after_a_quanpin_query() {
+        let mut engine = sample_engine();
+        let clone = engine.clone();
+        assert!(Arc::ptr_eq(&engine.lexicon, &clone.lexicon));
+        assert!(Arc::ptr_eq(&engine.quanpin_indexes, &clone.quanpin_indexes));
+        assert!(engine.quanpin_indexes.get().is_none());
+
+        engine
+            .query(QueryRequest::new("xiaohe", "ni", QueryMode::Exact, 2))
+            .unwrap();
+        engine
+            .query(QueryRequest::new("xiaohe", "n", QueryMode::Prefix, 2))
+            .unwrap();
+        assert!(engine.quanpin_indexes.get().is_none());
+
+        engine.prepare_quanpin_indexes();
+        assert!(engine.quanpin_indexes.get().is_some());
+        assert!(clone.quanpin_indexes.get().is_some());
     }
 
     fn source_order_engine() -> CandidateQueryEngine {

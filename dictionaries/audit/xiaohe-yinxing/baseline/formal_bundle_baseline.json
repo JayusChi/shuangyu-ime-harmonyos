@@ -4,9 +4,9 @@
     "bundle_id":  "xiaohe-yinxing-production",
     "bundle_path":  "dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx",
     "bundle_file_name":  "xiaohe-yinxing-production.hsyx",
-    "bundle_byte_size":  56144463,
-    "bundle_mib":  53.543532,
-    "bundle_sha256":  "e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad",
+    "bundle_byte_size":  56183822,
+    "bundle_mib":  53.581068,
+    "bundle_sha256":  "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942",
     "bundle_magic":  "HSPYXP01",
     "bundle_format_version":  "1.0",
     "nested_lexicon_format_version":  "HSPLEX01 1.1",
@@ -20,11 +20,11 @@
                            "category_id":  "core",
                            "display_name":  "首选",
                            "order":  0,
-                           "entry_count":  68505,
+                           "entry_count":  68568,
                            "default_enabled":  true,
                            "required":  true,
                            "file":  "categories/core.lex",
-                           "sha256":  "cdc37681700f173f7a9e1abe5315cf5f3c1b5ea33a6b6cbcb52c2069991eb5fb"
+                           "sha256":  "b46d48f4b44068afadbbfe62c3a2fe6a4c894b3856b3dc9af8ccdd757521e0cf"
                        },
                        {
                            "category_id":  "category-secondary",
@@ -34,17 +34,17 @@
                            "default_enabled":  true,
                            "required":  false,
                            "file":  "categories/category-secondary.lex",
-                           "sha256":  "e0676343dd756c23556a80eb929e853cdd57b651ddc7588845effe1fc3bed537"
+                           "sha256":  "4320d725c968d5639956c3d023ef40c91e61809f0ada30e8ea8aec9578725995"
                        },
                        {
                            "category_id":  "quick-symbol",
                            "display_name":  "快符",
                            "order":  2,
-                           "entry_count":  17,
+                           "entry_count":  16,
                            "default_enabled":  true,
                            "required":  false,
                            "file":  "categories/quick-symbol.lex",
-                           "sha256":  "5fbf66b10404c083e5b5bdb7ff6822f10b7b1e9435f972bc0e7c2387493e7ec7"
+                           "sha256":  "7b0d69e3c53198651ce86834af5e78b5ba4b66ee6f634aad58b8bd33d850a9c6"
                        },
                        {
                            "category_id":  "one-key-secondary",
@@ -84,7 +84,7 @@
                            "default_enabled":  false,
                            "required":  false,
                            "file":  "categories/full-code-word.lex",
-                           "sha256":  "ea8aed7b4d2aa6280f531ab48b7b25b8ac3e26ffbaa2165403f32c2b5246874c"
+                           "sha256":  "e41b7939626075db6044505cc38ee6eef9a752e163a022e3358f9b2ee9b05f53"
                        },
                        {
                            "category_id":  "symbol",
@@ -94,17 +94,17 @@
                            "default_enabled":  true,
                            "required":  false,
                            "file":  "categories/symbol.lex",
-                           "sha256":  "40f0534ce88d4343472824b5c829565a3ccd6113a304759a00d5d3980bf55c18"
+                           "sha256":  "2988e13ddd33d5fafd80c27a1ac9e878dc94945cafa8c83d7bd4b2de785f25fd"
                        },
                        {
                            "category_id":  "symbol-group",
                            "display_name":  "符号组",
                            "order":  8,
-                           "entry_count":  743,
+                           "entry_count":  707,
                            "default_enabled":  true,
                            "required":  false,
                            "file":  "categories/symbol-group.lex",
-                           "sha256":  "d52a1b765e29dcef6568807481a5b61e4db9377616255d098754cce97d12b8bb"
+                           "sha256":  "25c8f5faf66c307bdb972df405b790ab0f43e1b039e2f0f8c63a574882e3b666"
                        },
                        {
                            "category_id":  "rare-character",
@@ -120,11 +120,11 @@
                            "category_id":  "full-code-character",
                            "display_name":  "全码字",
                            "order":  10,
-                           "entry_count":  1652,
+                           "entry_count":  1654,
                            "default_enabled":  false,
                            "required":  false,
                            "file":  "categories/full-code-character.lex",
-                           "sha256":  "9969dc88b88620a8e82bab28bb8a52e2fe1bb182eafe78a6875dff344b241f57"
+                           "sha256":  "445ed1dfe8637ae971326439be3b93e7f1949f8af348e32af288695f43db99e5"
                        },
                        {
                            "category_id":  "ok-spelling",
@@ -134,11 +134,11 @@
                            "default_enabled":  true,
                            "required":  false,
                            "file":  "categories/ok-spelling.lex",
-                           "sha256":  "c8c9bf081abb4023623d0ab8e1b15de0c94c7cb23337ec713e81f03ed38816ed"
+                           "sha256":  "68b11dc0c9a7c65418a8f8f5fb2ff69bfdaa7dd1256bd12458b3fd2bb6bac1e7"
                        }
                    ],
-    "ordinary_record_count":  162666,
-    "embedded_rule_count":  779,
+    "ordinary_record_count":  162694,
+    "embedded_rule_count":  743,
     "embedded_fixed_rule_count":  36,
     "core_required":  true,
     "default_enabled_category_ids":  [

@@ -304,17 +304,14 @@ struct KeyboardRoot {
 
   private async dispatchAction(action: KeyboardAction): Promise<void> {
     await this.controller.handleAction(action);
-    this.refreshState();
   }
 
   private async commitCandidate(index: number): Promise<void> {
     await this.controller.commitCandidate(index);
-    this.refreshState();
   }
 
   private async selectPinyinCombination(index: number): Promise<void> {
     await this.controller.selectPinyinCombination(index);
-    this.refreshState();
   }
 
   private isPinyin9Chinese(): boolean {
@@ -331,7 +328,6 @@ struct KeyboardRoot {
       return;
     }
     this.controller.setCandidatePanelExpanded(expanded);
-    this.refreshState();
   }
 
   private async navigateCandidatePage(next: boolean): Promise<void> {
@@ -343,7 +339,6 @@ struct KeyboardRoot {
     } else {
       await this.controller.previousCandidatePage();
     }
-    this.refreshState();
   }
 
   private candidateExpansionLayout(): CandidateExpansionLayout {

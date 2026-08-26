@@ -37,6 +37,7 @@ pub fn classify(
         syntax.ordinary
             + syntax.user_delete
             + syntax.user_pin
+            + syntax.direct_add
             + syntax.user_position
             + syntax.user_mixed
             + syntax.cmd
@@ -86,26 +87,27 @@ pub fn decision(
     match role {
         "core_code_table"
         | "category_table"
+        | "quick_symbol"
         | "one_key_secondary_table"
         | "two_key_secondary_table"
         | "out_of_table_character"
         | "full_code_word"
+        | "symbol_table"
+        | "symbol_group"
         | "rare_character"
-        | "full_code_character" => {
+        | "full_code_character"
+        | "spelling_resource" => {
             if has_bom || newline != "LF" {
                 ("TRANSFORM","approved table role requires deterministic BOM/newline/header normalization in 11.6.2C")
             } else {
                 ("ACCEPTED", "approved table role and byte format")
             }
         }
-        "secondary_candidate_table" | "user_addition" | "user_mixed_rule" | "symbol_table" => (
+        "secondary_candidate_table" | "user_addition" | "user_mixed_rule" => (
             "TRANSFORM",
             "eligible content requires explicit merge or record transformation",
         ),
-        "spelling_resource"
-        | "simplified_traditional_resource"
-        | "symbol_group"
-        | "quick_symbol" => (
+        "simplified_traditional_resource" => (
             "DEFERRED",
             "feature is retained but outside the first conversion scope",
         ),
@@ -126,6 +128,9 @@ pub fn is_first_release_audit_only(source_root: &str, path: &str) -> bool {
                 | "导出 - 主码 - 表外字.txt"
                 | "导出 - 主码 - 全码词.txt"
                 | "导出 - 次显 - 「全码字」.txt"
+                | "导出 - 主码 - 快符.txt"
+                | "导出 - 主码 - 拼字.txt"
+                | "导出 - 主码 - Ｏ符.txt"
         )
 }
 
@@ -133,7 +138,7 @@ pub fn categories() -> Vec<Category> {
     vec![
         category(
             "core",
-            "核心主表",
+            "首选",
             "core_code_table",
             (
                 Some("小鹤音形/0.0.小鹤.txt"),
@@ -141,11 +146,11 @@ pub fn categories() -> Vec<Category> {
                 &[],
                 &["小鹤音形/0.0.小鹤.txt"],
             ),
-            "Only numbered core source enters the first release.",
+            "Customer-confirmed numbered core source enters production.",
         ),
         category(
             "category-secondary",
-            "分类/次选",
+            "分类",
             "category_table",
             (
                 Some("小鹤音形/1.0.分类.txt"),
@@ -153,7 +158,19 @@ pub fn categories() -> Vec<Category> {
                 &["码表/导出 - 主码 - 次选字词.txt"],
                 &["小鹤音形/1.0.分类.txt"],
             ),
-            "The overlapping export remains audit-only and is not merged.",
+            "The UI groups this source with 表外字 as 分类（次选、表外、随心）.",
+        ),
+        category(
+            "quick-symbol",
+            "快符",
+            "quick_symbol",
+            (
+                Some("小鹤音形/1.2.快符-外接.txt"),
+                &[],
+                &["码表/导出 - 主码 - 快符.txt"],
+                &["小鹤音形/1.2.快符-外接.txt"],
+            ),
+            "Semicolon-guided rows use the customer-confirmed order.",
         ),
         category(
             "one-key-secondary",
@@ -204,6 +221,30 @@ pub fn categories() -> Vec<Category> {
             "The alternate export remains audit-only and is not merged.",
         ),
         category(
+            "symbol",
+            "符号",
+            "symbol_table",
+            (
+                Some("小鹤音形/2.6.符号.txt"),
+                &[],
+                &["码表/导出 - 主码 - Ｏ符.txt"],
+                &["小鹤音形/2.6.符号.txt"],
+            ),
+            "The customer-confirmed o-guided symbol source enters production.",
+        ),
+        category(
+            "symbol-group",
+            "符号组",
+            "symbol_group",
+            (
+                Some("小鹤音形/2.7.符号组.txt"),
+                &[],
+                &[],
+                &["小鹤音形/2.7.符号组.txt"],
+            ),
+            "The source omits the external o prefix, which the converter adds.",
+        ),
+        category(
             "rare-character",
             "生僻字",
             "rare_character",
@@ -226,6 +267,18 @@ pub fn categories() -> Vec<Category> {
                 &["小鹤音形/2.9.全码字.txt"],
             ),
             "The alternate export remains audit-only and is not merged.",
+        ),
+        category(
+            "ok-spelling",
+            "ok拼字",
+            "spelling_resource",
+            (
+                Some("小鹤音形/0.2.拼字.txt"),
+                &[],
+                &["码表/导出 - 主码 - 拼字.txt"],
+                &["小鹤音形/0.2.拼字.txt"],
+            ),
+            "All records use a customer-confirmed ok prefix and six or eight letters.",
         ),
     ]
 }
@@ -251,12 +304,15 @@ fn category(
         supplemental_sources,
         audit_only_sources,
         merge_order,
-        default_enabled: true,
+        default_enabled: !matches!(
+            category_id,
+            "two-key-secondary" | "full-code-word" | "rare-character" | "full-code-character"
+        ),
         first_release_scope: "authoritative_source_only",
         conflict_policy: "audit-only alternatives are excluded; no cross-source merge",
         duplicate_policy: "stable_first_within_authoritative_source_order",
         unsupported_record_policy: "reject_with_source_line",
-        confirmation_status: "frozen_by_user_authorization_2026-07-22",
+        confirmation_status: "authorized_by_customer_2026-08-24",
         requires_manual_confirmation: false,
         notes,
     }
@@ -268,7 +324,7 @@ mod tests {
     #[test]
     fn all_categories_have_at_most_one_authority_and_stable_order() {
         let values = categories();
-        assert_eq!(values.len(), 8);
+        assert_eq!(values.len(), 12);
         assert!(values
             .iter()
             .all(|c| c.authoritative_source.is_some() && !c.merge_order.is_empty()));

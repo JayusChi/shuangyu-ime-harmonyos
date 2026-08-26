@@ -8,7 +8,6 @@ import {
   CompositionResult,
   EngineConfig,
   NativeEngineGatewayContract,
-  ParserState,
   ProtocolAction,
   UserLexiconDocument,
   UserLexiconEntryRecord,
@@ -63,6 +62,19 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     }
 
     const handle: number = imeBridge.createEngine(config);
+    if (!Number.isInteger(handle) || handle <= 0) {
+      throw new Error('Native returned invalid engine handle');
+    }
+    return handle;
+  }
+
+  async createEngineAsync(config: EngineConfig): Promise<number> {
+    const nativeVersion = this.getInterfaceVersion();
+    if (nativeVersion !== EXPECTED_INTERFACE_VERSION || config.interfaceVersion !== EXPECTED_INTERFACE_VERSION) {
+      throw new Error('Native interface version mismatch');
+    }
+
+    const handle: number = await imeBridge.createEngineAsync(config);
     if (!Number.isInteger(handle) || handle <= 0) {
       throw new Error('Native returned invalid engine handle');
     }
@@ -213,6 +225,30 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     }
   }
 
+  setCodeTableCommitPolicy(
+    handle: number,
+    autoCommitEnabled: boolean,
+    emptyClearLength: number
+  ): CompositionResult {
+    if ((emptyClearLength !== 4 && emptyClearLength !== 12)) {
+      return this.createCompositionFailure(ImeErrorCode.INVALID_ARGUMENT, 'Commit policy is invalid');
+    }
+    try {
+      const policyJson = JSON.stringify({
+        autoCommitLength: autoCommitEnabled ? 4 : 64,
+        emptyClearLength
+      });
+      const nativeResult = imeBridge.setCodeTableCommitPolicy(handle, policyJson) as CompositionResult;
+      return this.normalizeCompositionResult(nativeResult);
+    } catch (err) {
+      LOGGER.error(`setCodeTableCommitPolicy failed: ${JSON.stringify(err)}`);
+      return this.createCompositionFailure(
+        ImeErrorCode.NATIVE_BRIDGE_ERROR,
+        'Native commit policy update failed'
+      );
+    }
+  }
+
   reloadUserLexicon(handle: number): CompositionResult {
     try {
       const nativeResult = imeBridge.reloadUserLexicon(handle) as CompositionResult;
@@ -323,6 +359,13 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
       typeof nativeResult.compositionFinished !== 'boolean') {
       return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR, 'Native composition fields are invalid');
     }
+    if (!Array.isArray(nativeResult.parsedSyllables) ||
+      !Array.isArray(nativeResult.displaySegments) ||
+      !Array.isArray(nativeResult.segmentBoundaries) ||
+      !Array.isArray(nativeResult.pinyinCombinations) ||
+      !Array.isArray(nativeResult.candidates)) {
+      return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR, 'Native composition arrays are invalid');
+    }
     if (!this.isParserState(nativeResult.parserState)) {
       return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR, 'Native parserState is invalid');
     }
@@ -338,73 +381,51 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
       return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR, 'Native commitText and action conflict');
     }
 
-    const parsedSyllables: string[] = [];
-    nativeResult.parsedSyllables.forEach((syllable: string) => {
-      if (typeof syllable === 'string') {
-        parsedSyllables.push(syllable);
+    for (let index: number = 0; index < nativeResult.parsedSyllables.length; index += 1) {
+      if (typeof nativeResult.parsedSyllables[index] !== 'string') {
+        return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR,
+          'Native parsedSyllables are invalid');
       }
-    });
-
-    const displaySegments: string[] = [];
-    nativeResult.displaySegments?.forEach((segment: string) => {
-      if (typeof segment === 'string' && segment.length > 0) {
-        displaySegments.push(segment);
+    }
+    for (let index: number = 0; index < nativeResult.displaySegments.length; index += 1) {
+      const segment: string = nativeResult.displaySegments[index];
+      if (typeof segment !== 'string' || segment.length === 0) {
+        return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR,
+          'Native displaySegments are invalid');
       }
-    });
-
-    const pinyinCombinations: string[] = [];
-    nativeResult.pinyinCombinations?.forEach((combination: string) => {
-      if (typeof combination === 'string' && combination.length > 0) {
-        pinyinCombinations.push(combination);
+    }
+    for (let index: number = 0; index < nativeResult.pinyinCombinations.length; index += 1) {
+      const combination: string = nativeResult.pinyinCombinations[index];
+      if (typeof combination !== 'string' || combination.length === 0) {
+        return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR,
+          'Native pinyinCombinations are invalid');
       }
-    });
-
-    const candidates: Candidate[] = [];
-    nativeResult.candidates.forEach((candidate: Candidate) => {
-      if (typeof candidate.id === 'string' &&
-        typeof candidate.text === 'string' &&
-        typeof candidate.reading === 'string' &&
-        typeof candidate.source === 'string') {
-        candidates.push({
-          id: candidate.id,
-          text: candidate.text,
-          reading: candidate.reading,
-          source: candidate.source,
-          consumedRawLen: Number.isInteger(candidate.consumedRawLen) &&
-            (candidate.consumedRawLen ?? 0) >= 0 ? candidate.consumedRawLen : 0
-        });
+    }
+    for (let index: number = 0; index < nativeResult.candidates.length; index += 1) {
+      const candidate: Candidate = nativeResult.candidates[index];
+      if (candidate === null || typeof candidate !== 'object' ||
+        typeof candidate.id !== 'string' ||
+        typeof candidate.text !== 'string' ||
+        typeof candidate.reading !== 'string' ||
+        typeof candidate.source !== 'string') {
+        return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR, 'Native candidates are invalid');
       }
-    });
-
-    const segmentBoundaries: number[] = [];
-    nativeResult.segmentBoundaries?.forEach((boundary: number) => {
-      if (Number.isInteger(boundary) && boundary >= 0) {
-        segmentBoundaries.push(boundary);
+      if (candidate.consumedRawLen === undefined) {
+        candidate.consumedRawLen = 0;
+      } else if (!Number.isInteger(candidate.consumedRawLen) || candidate.consumedRawLen < 0) {
+        return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR,
+          'Native candidate consumedRawLen is invalid');
       }
-    });
+    }
+    for (let index: number = 0; index < nativeResult.segmentBoundaries.length; index += 1) {
+      const boundary: number = nativeResult.segmentBoundaries[index];
+      if (!Number.isInteger(boundary) || boundary < 0) {
+        return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR,
+          'Native segmentBoundaries are invalid');
+      }
+    }
 
-    return {
-      success: nativeResult.success,
-      errorCode: nativeResult.errorCode,
-      errorMessage: nativeResult.errorMessage,
-      rawInput: nativeResult.rawInput,
-      preeditText: nativeResult.preeditText,
-      parsedSyllables,
-      pendingCode: nativeResult.pendingCode,
-      displaySegments,
-      segmentBoundaries,
-      currentPinyin: nativeResult.currentPinyin,
-      pinyinCombinations,
-      parserState: nativeResult.parserState as ParserState,
-      candidates,
-      highlightedIndex: nativeResult.highlightedIndex,
-      hasNextPage: nativeResult.hasNextPage,
-      hasPreviousPage: nativeResult.hasPreviousPage,
-      candidatePage: nativeResult.candidatePage,
-      commitText: nativeResult.commitText,
-      action,
-      compositionFinished: nativeResult.compositionFinished
-    };
+    return nativeResult;
   }
 
   private normalizeProtocolAction(value: ProtocolAction | null): ProtocolAction | null {
@@ -415,7 +436,9 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
       if ((value.formatId === 'DATE_ISO' || value.formatId === 'DATE_LOCAL' ||
         value.formatId === 'DATE_LOCAL_UNPADDED' ||
         value.formatId === 'TIME_HM' || value.formatId === 'TIME_HMS' ||
-        value.formatId === 'TIME_LOCAL_HMS' || value.formatId === 'DATETIME_LOCAL' ||
+        value.formatId === 'TIME_LOCAL_HMS' || value.formatId === 'TIME_WEEKDAY' ||
+        value.formatId === 'TIME_LOCAL_HM' || value.formatId === 'LUNAR_DATE_FESTIVAL' ||
+        value.formatId === 'DATETIME_LOCAL' ||
         value.formatId === 'UNIX_TIMESTAMP') &&
         value.text === '' && value.cursorOffsetUtf16 === 0) {
         return {
@@ -451,8 +474,15 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     if (value.type === 'DIRECT_CONTROL' && value.cursorOffsetUtf16 === 0 &&
       (value.formatId === 'category.enable' || value.formatId === 'category.disable' ||
         value.formatId === 'category.toggle' || value.formatId === 'category.set' ||
-        value.formatId === 'category.all' || value.formatId === 'category.core') &&
-      typeof value.text === 'string' && value.text.length <= 512 && /^[a-z0-9,-]*$/.test(value.text)) {
+        value.formatId === 'category.all' || value.formatId === 'category.core' ||
+        value.formatId === 'category.preset' || value.formatId === 'settings.smart-period' ||
+        value.formatId === 'settings.punctuation' || value.formatId === 'settings.fullwidth' ||
+        value.formatId === 'settings.traditional' || value.formatId === 'settings.numeric-period' ||
+        value.formatId === 'settings.empty-clear' || value.formatId === 'settings.commit-policy' ||
+        value.formatId === 'url.open' || value.formatId === 'app.open' ||
+        value.formatId === 'editor.delete-line') &&
+      typeof value.text === 'string' && value.text.length <= 512 && /^[a-z0-9,-]*$/.test(value.text) &&
+      this.isTrustedDirectControl(value.formatId, value.text)) {
       return {
         type: 'DIRECT_CONTROL',
         formatId: value.formatId,
@@ -470,6 +500,39 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
       };
     }
     return null;
+  }
+
+  private isTrustedDirectControl(action: string, target: string): boolean {
+    if (action === 'category.enable' || action === 'category.disable' || action === 'category.toggle' ||
+      action === 'category.set' || action === 'category.all' || action === 'category.core') {
+      return true;
+    }
+    if (action === 'category.preset') {
+      return target === 'experienced' || target === 'standard' || target === 'beginner';
+    }
+    if (action === 'settings.smart-period') {
+      return target === '0' || target === '600';
+    }
+    if (action === 'settings.punctuation' || action === 'settings.fullwidth' ||
+      action === 'settings.traditional') {
+      return target === 'toggle';
+    }
+    if (action === 'settings.numeric-period') {
+      return target === 'enabled' || target === 'disabled';
+    }
+    if (action === 'settings.empty-clear') {
+      return target === '4' || target === '12';
+    }
+    if (action === 'settings.commit-policy') {
+      return target === 'top-screen' || target === 'auto-commit';
+    }
+    if (action === 'url.open') {
+      return target === 'flypy-home' || target === 'flypy-help' || target === 'flypy-help-mobile';
+    }
+    if (action === 'app.open') {
+      return target === 'settings' || target === 'user-lexicon';
+    }
+    return action === 'editor.delete-line' && target.length === 0;
   }
 
   private isParserState(value: string): boolean {

@@ -5,37 +5,37 @@
     "files":  [
                   {
                       "file":  "environment.json",
-                      "sha256":  "31a9daef2927483b08f5c3d624e74b2ff9ebca1f61db650effb5f7bf2568ee7c",
+                      "sha256":  "69c71e79faafe9949eb65012e7b60c259336ad94605d9fcc933e060baa31de45",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "flypy-shape-h.json",
-                      "sha256":  "d4a4ec852647c9bfcf2482959b0fee13dafcf7d6aa064c44d3a2cc6d1db3c708",
+                      "sha256":  "25dd4b82fed745121b86691d7903e5cb5eec1059eaae1cdfcd2641f9ad9f1c83",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "flypy-double-pinyin-h.json",
-                      "sha256":  "6e9a3b51003243e60cb5dbaf409765a3c621eb51ab0de482956ffa1f39f5aaaa",
+                      "sha256":  "63a2eb2372f36021661b8aa8e37a5a2d289e15e017b403a8e0feb0f1b4975cad",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "single-key-baseline.json",
-                      "sha256":  "1e0517a113f876241c0957f1d8eece02a9cb6dcb9bd52cbb97f34ed664428692",
+                      "sha256":  "4c4b72fc971acd47a3a7ac4b0ce56fd2c0f46571aa5668e14e46a1527ab14ae9",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "double-key-baseline.json",
-                      "sha256":  "7332ef6e7d4eff50731b32735061f5d389cb293144e5095f6b41ab0b8deeffbb",
+                      "sha256":  "addd5a0e8edae5aaeff4492a7005a8e88b0e8689f95b4e9495b51783fb534702",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "sentence-baseline.json",
-                      "sha256":  "f0b4c54fe731d8f3a767e09b47976c6ada92407c3d1994fc7ebaf0361682082b",
+                      "sha256":  "175f3222f30e8aa4de5e62c9fa8b3414e9e071652e7760175cbd02e585b8b0a0",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "interaction-baseline.json",
-                      "sha256":  "da3a7683fe2b089816aa605093770731a01ad896cc01920abbef8784fb83671e",
+                      "sha256":  "cf9dfe68535b6e515cee8b3aa350015890fdfe16aa9035e52fd33a711edf2994",
                       "byte_identical_across_two_runs":  true
                   }
               ]

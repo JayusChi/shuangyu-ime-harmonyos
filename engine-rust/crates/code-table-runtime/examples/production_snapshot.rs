@@ -36,8 +36,19 @@ fn main() {
         .validate_scheme_identity("xiaohe-yinxing")
         .expect("formal identity");
     let index = build_index(&bundle);
+    let exact_categories = index
+        .exact
+        .keys()
+        .map(|code| (code.clone(), result_categories(&reference(&index, code))))
+        .collect::<BTreeMap<_, _>>();
+    let prefix_categories = index
+        .prefixes
+        .keys()
+        .filter(|code| !index.exact.contains_key(*code))
+        .map(|code| (code.clone(), result_categories(&reference(&index, code))))
+        .collect::<BTreeMap<_, _>>();
     println!(
-        "META\tbundle_sha256\t00c7d5a9d6b74a079a7434df23f510aa348fe8fee5bf1eaf72e691d68bcd1e30"
+        "META\tbundle_sha256\t0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942"
     );
     println!("HEADER\tcase_id\traw_code\tmatch_type\tbefore_dedup\texpected_total_count\texpected_category_id\texpected_source_order\texpected_candidate_id\texpected_first_candidates\texpected_categories\tselection_reason");
 
@@ -94,11 +105,7 @@ fn main() {
     let mut same_category_multi = None;
     for code in index.exact.keys() {
         let result = reference(&index, code);
-        let categories = result
-            .candidates
-            .iter()
-            .map(|candidate| candidate.category_id.as_str())
-            .collect::<BTreeSet<_>>();
+        let categories = &exact_categories[code];
         if cross_two.is_none() && categories.len() >= 2 {
             cross_two = Some(code.clone());
         }
@@ -160,15 +167,13 @@ fn main() {
     );
 
     for category in &bundle.categories {
+        if category.id == "quick-symbol" {
+            continue;
+        }
         let code = index
             .exact
             .keys()
-            .find(|code| {
-                reference(&index, code)
-                    .candidates
-                    .iter()
-                    .any(|candidate| candidate.category_id == category.id)
-            })
+            .find(|code| exact_categories[*code].contains(category.id.as_str()))
             .expect("category representative");
         print_case(
             &index,
@@ -180,10 +185,9 @@ fn main() {
             (1..code.len()).find_map(|length| {
                 let prefix = &code[..length];
                 (!index.exact.contains_key(prefix)
-                    && reference(&index, prefix)
-                        .candidates
-                        .iter()
-                        .any(|candidate| candidate.category_id == category.id))
+                    && prefix_categories
+                        .get(prefix)
+                        .is_some_and(|categories| categories.contains(category.id.as_str())))
                 .then(|| prefix.to_owned())
             })
         }) {
@@ -247,11 +251,22 @@ fn main() {
     );
 }
 
+fn result_categories(result: &ReferenceResult) -> BTreeSet<String> {
+    result
+        .candidates
+        .iter()
+        .map(|candidate| candidate.category_id.clone())
+        .collect()
+}
+
 fn build_index(bundle: &CodeTableBundle) -> ReferenceIndex {
     let mut records = Vec::new();
     let mut exact = BTreeMap::<String, Vec<usize>>::new();
     let mut prefixes = BTreeMap::<String, Vec<usize>>::new();
     for category in &bundle.categories {
+        if category.id == "quick-symbol" {
+            continue;
+        }
         let mut entries = category.lexicon.entries.iter().collect::<Vec<_>>();
         entries.sort_by_key(|entry| entry.source_order);
         for entry in entries {

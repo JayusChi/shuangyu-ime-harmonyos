@@ -23,26 +23,26 @@ const EXPECTED_AUDIT_MANIFEST_VERSION: &str = "1.1.0";
 const EXPECTED_AUDITOR: &str = "yinxing-source-auditor/1.1.0";
 const EXPECTED_CONTRACT_VERSION: &str = "1.1.0";
 const EXPECTED_SOURCE_MANIFEST_HASH: &str =
-    "bb39015d3e4cd2998a4e14b904f277171951ea459d1b24b42d264cac4b0f2ffa";
+    "b59c7cf78096a86e99f5162107c7486623449efeda70631015e2bf39b0818459";
 const EXPECTED_CONTRACT_HASH: &str =
-    "2db0ef42190d3058f2404e9848185f6e4d85734bba1c6e18acc6c85fdf3380b6";
+    "94bc2aa06d10723ffd82b7919627005e44f31215b7ba958f295375adbbc5cae1";
 const EXPECTED_CONTENT_HASH: &str =
-    "9a89607b4525f85a3e62192ebd5066706945b0b17f260fe027aa3f93069a1681";
+    "9c6fe5f8214c2560572a7f09c4d3228527c961f47507d3d8567c2f94b14023a7";
 const EXPECTED_ARCHIVE_HASH: &str =
-    "e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad";
+    "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942";
 const EXPECTED_ARCHIVE_FILE_COUNT: usize = 17;
 const EXPECTED_CATEGORIES: [(&str, usize, bool); 12] = [
-    ("core", 68_505, true),
+    ("core", 68_568, true),
     ("category-secondary", 1_690, true),
-    ("quick-symbol", 17, true),
+    ("quick-symbol", 16, true),
     ("one-key-secondary", 26, true),
     ("two-key-secondary", 66, false),
     ("out-of-table-character", 362, true),
     ("full-code-word", 464, false),
     ("symbol", 623, true),
-    ("symbol-group", 743, true),
+    ("symbol-group", 707, true),
     ("rare-character", 498, false),
-    ("full-code-character", 1_652, false),
+    ("full-code-character", 1_654, false),
     ("ok-spelling", 88_020, true),
 ];
 const FLAG_MANIFEST: u16 = 1;

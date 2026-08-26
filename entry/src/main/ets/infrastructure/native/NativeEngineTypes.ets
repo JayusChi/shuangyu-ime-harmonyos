@@ -58,7 +58,8 @@ export interface CompositionResult {
 }
 
 export type DateTimeFormatId = 'DATE_ISO' | 'DATE_LOCAL' | 'DATE_LOCAL_UNPADDED' | 'TIME_HM' | 'TIME_HMS' |
-  'TIME_LOCAL_HMS' | 'DATETIME_LOCAL' | 'UNIX_TIMESTAMP';
+  'TIME_LOCAL_HMS' | 'TIME_WEEKDAY' | 'TIME_LOCAL_HM' | 'LUNAR_DATE_FESTIVAL' |
+  'DATETIME_LOCAL' | 'UNIX_TIMESTAMP';
 
 export interface DateTimeTextAction {
   type: 'DATE_TIME_TEXT';
@@ -186,6 +187,7 @@ export interface NativeEngineGatewayContract {
   getEngineVersion(): string;
   getNativeBuildInfo(): string;
   createEngine(config: EngineConfig): number;
+  createEngineAsync?(config: EngineConfig): Promise<number>;
   destroyEngine(handle: number): void;
   processKey(handle: number, key: string): CompositionResult;
   insertSegmentBoundary(handle: number): CompositionResult;
@@ -199,6 +201,11 @@ export interface NativeEngineGatewayContract {
   getLocalAssociations?(handle: number): string[];
   getCodeTableCategoryConfig(handle: number): CodeTableCategoryConfig;
   setCodeTableCategories(handle: number, enabledCategoryIds: string[]): CompositionResult;
+  setCodeTableCommitPolicy?(
+    handle: number,
+    autoCommitEnabled: boolean,
+    emptyClearLength: number
+  ): CompositionResult;
   reloadUserLexicon(handle: number): CompositionResult;
   loadUserLexicon(path: string): UserLexiconDocument;
   saveUserLexicon(path: string, expectedRevision: string, content: string): UserLexiconDocument;

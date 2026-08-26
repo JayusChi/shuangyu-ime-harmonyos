@@ -1,32 +1,32 @@
 {
-    "accepted_record_count":  162702,
+    "accepted_record_count":  162730,
     "action_metadata_file":  {
-                                 "byte_size":  91060,
+                                 "byte_size":  105591,
                                  "path":  "action-metadata.json",
-                                 "sha256":  "13a21d39c869df8f54ab4bf1f147f003370d5d4879d75ddf1c66bcfd9c8ad49e"
+                                 "sha256":  "fa70d899e7a44ce1d626269e0c56027a92b743e64b20effeb7b97412c5714af4"
                              },
     "audit_manifest_version":  "1.1.0",
     "auditor_version":  "yinxing-source-auditor/1.1.0",
     "build_timestamp_policy":  "omitted",
-    "bundle_content_sha256":  "9a89607b4525f85a3e62192ebd5066706945b0b17f260fe027aa3f93069a1681",
+    "bundle_content_sha256":  "9c6fe5f8214c2560572a7f09c4d3228527c961f47507d3d8567c2f94b14023a7",
     "bundle_id":  "xiaohe-yinxing-production",
     "category_count":  12,
     "category_files":  [
                            {
-                               "byte_size":  4591497,
+                               "byte_size":  4595869,
                                "category_id":  "core",
                                "default_enabled":  true,
                                "display_name":  "首选",
-                               "entry_count":  68505,
+                               "entry_count":  68568,
                                "file":  "categories/core.lex",
                                "order":  0,
                                "role":  "core_code_table",
-                               "sha256":  "cdc37681700f173f7a9e1abe5315cf5f3c1b5ea33a6b6cbcb52c2069991eb5fb",
+                               "sha256":  "b46d48f4b44068afadbbfe62c3a2fe6a4c894b3856b3dc9af8ccdd757521e0cf",
                                "source_file_id":  "src-00",
-                               "source_sha256":  "13c56147d7a57a52a49995a1740a2bf39036668dc98d3699e358095a3ddf1587"
+                               "source_sha256":  "7b69e10a19c83988dce9bebff4ee4c5d88b91c5d251ea551a94f0e0668d89dc7"
                            },
                            {
-                               "byte_size":  115959,
+                               "byte_size":  115950,
                                "category_id":  "category-secondary",
                                "default_enabled":  true,
                                "display_name":  "分类",
@@ -34,22 +34,22 @@
                                "file":  "categories/category-secondary.lex",
                                "order":  1,
                                "role":  "category_table",
-                               "sha256":  "e0676343dd756c23556a80eb929e853cdd57b651ddc7588845effe1fc3bed537",
+                               "sha256":  "4320d725c968d5639956c3d023ef40c91e61809f0ada30e8ea8aec9578725995",
                                "source_file_id":  "src-01",
-                               "source_sha256":  "e4be5f6cac3241e32d78ada9a3832d4c8c1a6280efd371c02f4018ff9c388d64"
+                               "source_sha256":  "b0b58bec90b26b99b011aa042810804763f4953602140357113f37b04239ed8c"
                            },
                            {
-                               "byte_size":  1134,
+                               "byte_size":  1074,
                                "category_id":  "quick-symbol",
                                "default_enabled":  true,
                                "display_name":  "快符",
-                               "entry_count":  17,
+                               "entry_count":  16,
                                "file":  "categories/quick-symbol.lex",
                                "order":  2,
                                "role":  "quick_symbol",
-                               "sha256":  "5fbf66b10404c083e5b5bdb7ff6822f10b7b1e9435f972bc0e7c2387493e7ec7",
+                               "sha256":  "7b0d69e3c53198651ce86834af5e78b5ba4b66ee6f634aad58b8bd33d850a9c6",
                                "source_file_id":  "src-02",
-                               "source_sha256":  "fa74b00a7e5193fb538622d8bdb2ba05317df42b5cbf8b7bd8285a20056c91b9"
+                               "source_sha256":  "fffc036f616af3ff7e4e86337c835527f94dae3182e7ace0888416a670f49020"
                            },
                            {
                                "byte_size":  1730,
@@ -62,7 +62,7 @@
                                "role":  "one_key_secondary_table",
                                "sha256":  "27eb79f3703a68b18af949e1249ed266772f377841be08cb50bb415919492670",
                                "source_file_id":  "src-03",
-                               "source_sha256":  "b94a493950865c2a50ac183d720cb780e461e9e96fcc66af1c640436777166e2"
+                               "source_sha256":  "c40eacfc7bcd8043a8c44b73d9454cde1e03c68bdd18ea9bd7206ebbc90bf1a5"
                            },
                            {
                                "byte_size":  4139,
@@ -75,7 +75,7 @@
                                "role":  "two_key_secondary_table",
                                "sha256":  "4d103737f6c6a40b86a2a4c89616d31a772dcc78f7f2e78db2092956c12df9a1",
                                "source_file_id":  "src-04",
-                               "source_sha256":  "bb4de08f46c0de37c1453de58284c4983bacb94ad49c42a3bfea1945ac91ecb9"
+                               "source_sha256":  "a0c9999a2002d5e810ce8177f164ca03bcb835af3c4bb0302180c2f1fa1513b6"
                            },
                            {
                                "byte_size":  22721,
@@ -88,7 +88,7 @@
                                "role":  "out_of_table_character",
                                "sha256":  "61328b2357562618cc277fcc1ed93c55f73be3e5bbdb4ab9f3f3b777d057c9c8",
                                "source_file_id":  "src-05",
-                               "source_sha256":  "3745660392bce41cd63b6ce7ee5a2860c173b8bb22957b16a05c5dcd2a05eed4"
+                               "source_sha256":  "636a67e21ec101c20e758d37d8f826a34378a6ec1d41ca39b6f63c61d24e1dc8"
                            },
                            {
                                "byte_size":  31148,
@@ -99,12 +99,12 @@
                                "file":  "categories/full-code-word.lex",
                                "order":  6,
                                "role":  "full_code_word",
-                               "sha256":  "ea8aed7b4d2aa6280f531ab48b7b25b8ac3e26ffbaa2165403f32c2b5246874c",
+                               "sha256":  "e41b7939626075db6044505cc38ee6eef9a752e163a022e3358f9b2ee9b05f53",
                                "source_file_id":  "src-06",
-                               "source_sha256":  "93f1e500ae0ecb10e7f8d750d39a662365c822ef225391c1fdcb94c3eb942257"
+                               "source_sha256":  "dd2d4c41800c0f5b03712c2b84864450bb754479211dc79cb9383786875f85e2"
                            },
                            {
-                               "byte_size":  36221,
+                               "byte_size":  36219,
                                "category_id":  "symbol",
                                "default_enabled":  true,
                                "display_name":  "符号",
@@ -112,22 +112,22 @@
                                "file":  "categories/symbol.lex",
                                "order":  7,
                                "role":  "symbol_table",
-                               "sha256":  "40f0534ce88d4343472824b5c829565a3ccd6113a304759a00d5d3980bf55c18",
+                               "sha256":  "2988e13ddd33d5fafd80c27a1ac9e878dc94945cafa8c83d7bd4b2de785f25fd",
                                "source_file_id":  "src-07",
-                               "source_sha256":  "fc16fc10fcd79fece83889ef81620ac0b7c0b8d6464e650e967586445a153dcc"
+                               "source_sha256":  "d416ece34a02a88cd4e7e7794c1909272adb35eb389561c1d7187fbca3e75cfe"
                            },
                            {
-                               "byte_size":  32793,
+                               "byte_size":  30850,
                                "category_id":  "symbol-group",
                                "default_enabled":  true,
                                "display_name":  "符号组",
-                               "entry_count":  743,
+                               "entry_count":  707,
                                "file":  "categories/symbol-group.lex",
                                "order":  8,
                                "role":  "symbol_group",
-                               "sha256":  "d52a1b765e29dcef6568807481a5b61e4db9377616255d098754cce97d12b8bb",
+                               "sha256":  "25c8f5faf66c307bdb972df405b790ab0f43e1b039e2f0f8c63a574882e3b666",
                                "source_file_id":  "src-08",
-                               "source_sha256":  "2a665b6d1eff4af5ff6368f3f8bb79b513e08864ff472e9add7c47870eb171a7"
+                               "source_sha256":  "c85e5854ee1170acbb2ef7e713a9d909e6c68c5ac15c7852cb01ede9f076acb8"
                            },
                            {
                                "byte_size":  31131,
@@ -140,20 +140,20 @@
                                "role":  "rare_character",
                                "sha256":  "76b32ea8967cba66892fe44c5db884251af7e243e5e52bf507072ead727df874",
                                "source_file_id":  "src-09",
-                               "source_sha256":  "04bdd5aed3bef1de822ede15473698bf3657a5df82ed498eff5d92e8b4b45023"
+                               "source_sha256":  "ed8eb5b6781a1cad06a8c54020af3eaa3634e47b9235ed44e6c67ce6b1818018"
                            },
                            {
-                               "byte_size":  103270,
+                               "byte_size":  103397,
                                "category_id":  "full-code-character",
                                "default_enabled":  false,
                                "display_name":  "全码字",
-                               "entry_count":  1652,
+                               "entry_count":  1654,
                                "file":  "categories/full-code-character.lex",
                                "order":  10,
                                "role":  "full_code_character",
-                               "sha256":  "9969dc88b88620a8e82bab28bb8a52e2fe1bb182eafe78a6875dff344b241f57",
+                               "sha256":  "445ed1dfe8637ae971326439be3b93e7f1949f8af348e32af288695f43db99e5",
                                "source_file_id":  "src-10",
-                               "source_sha256":  "a3f4054bdcacac6427355b246dd86496fe09025a5b5058d0f8185a8f4cbee722"
+                               "source_sha256":  "1b2a1d3c64a4e7a0124cea4d0ff2a91e8806618821b063abf7f8e857b010bc14"
                            },
                            {
                                "byte_size":  4951682,
@@ -164,9 +164,9 @@
                                "file":  "categories/ok-spelling.lex",
                                "order":  11,
                                "role":  "spelling_resource",
-                               "sha256":  "c8c9bf081abb4023623d0ab8e1b15de0c94c7cb23337ec713e81f03ed38816ed",
+                               "sha256":  "68b11dc0c9a7c65418a8f8f5fb2ff69bfdaa7dd1256bd12458b3fd2bb6bac1e7",
                                "source_file_id":  "src-11",
-                               "source_sha256":  "7a34921c867d87ffcd05ce21350247af08d3633142d24f962944464389cd0879"
+                               "source_sha256":  "6419b404a19274f164733b604bc1fc43dea379fa5216a98e961a3d0fb17ca43b"
                            }
                        ],
     "category_order":  [
@@ -183,9 +183,9 @@
                            "full-code-character",
                            "ok-spelling"
                        ],
-    "command_policy_sha256":  "586e916afdb82bf1c2a170da7ddae384f966a7d2b8e7b3606bd0d17e4b330727",
-    "conflict_record_count":  1,
-    "conversion_contract_sha256":  "2db0ef42190d3058f2404e9848185f6e4d85734bba1c6e18acc6c85fdf3380b6",
+    "command_policy_sha256":  "d1d30afd7d24e018e913d234931374e72c17f0632edcea7f612a6964acaa98e6",
+    "conflict_record_count":  0,
+    "conversion_contract_sha256":  "94bc2aa06d10723ffd82b7919627005e44f31215b7ba958f295375adbbc5cae1",
     "conversion_contract_version":  "1.1.0",
     "converter_version":  "yinxing-converter/1.0.0",
     "data_version":  "source-receipt-1",
@@ -194,130 +194,130 @@
     "format_version":  "1.0",
     "input_file_count":  12,
     "manifest_version":  1,
-    "rejected_record_count":  337,
+    "rejected_record_count":  391,
     "scheme_id":  "xiaohe-yinxing",
     "source_files":  [
                          {
-                             "byte_size":  906107,
+                             "byte_size":  907036,
                              "category_id":  "core",
                              "decision":  "TRANSFORM",
                              "order":  0,
                              "relative_path":  "小鹤音形/0.0.小鹤.txt",
-                             "sha256":  "13c56147d7a57a52a49995a1740a2bf39036668dc98d3699e358095a3ddf1587",
+                             "sha256":  "7b69e10a19c83988dce9bebff4ee4c5d88b91c5d251ea551a94f0e0668d89dc7",
                              "source_file_id":  "src-00"
                          },
                          {
-                             "byte_size":  24743,
+                             "byte_size":  24685,
                              "category_id":  "category-secondary",
                              "decision":  "ACCEPTED",
                              "order":  1,
                              "relative_path":  "小鹤音形/1.0.分类.txt",
-                             "sha256":  "e4be5f6cac3241e32d78ada9a3832d4c8c1a6280efd371c02f4018ff9c388d64",
+                             "sha256":  "b0b58bec90b26b99b011aa042810804763f4953602140357113f37b04239ed8c",
                              "source_file_id":  "src-01"
                          },
                          {
-                             "byte_size":  539,
+                             "byte_size":  501,
                              "category_id":  "quick-symbol",
                              "decision":  "ACCEPTED",
                              "order":  2,
                              "relative_path":  "小鹤音形/1.2.快符-外接.txt",
-                             "sha256":  "fa74b00a7e5193fb538622d8bdb2ba05317df42b5cbf8b7bd8285a20056c91b9",
+                             "sha256":  "fffc036f616af3ff7e4e86337c835527f94dae3182e7ace0888416a670f49020",
                              "source_file_id":  "src-02"
                          },
                          {
-                             "byte_size":  239,
+                             "byte_size":  229,
                              "category_id":  "one-key-secondary",
-                             "decision":  "TRANSFORM",
+                             "decision":  "ACCEPTED",
                              "order":  3,
                              "relative_path":  "小鹤音形/2.1.一简次选.txt",
-                             "sha256":  "b94a493950865c2a50ac183d720cb780e461e9e96fcc66af1c640436777166e2",
+                             "sha256":  "c40eacfc7bcd8043a8c44b73d9454cde1e03c68bdd18ea9bd7206ebbc90bf1a5",
                              "source_file_id":  "src-03"
                          },
                          {
-                             "byte_size":  526,
+                             "byte_size":  478,
                              "category_id":  "two-key-secondary",
-                             "decision":  "TRANSFORM",
+                             "decision":  "ACCEPTED",
                              "order":  4,
                              "relative_path":  "小鹤音形/2.2.二简次选.txt",
-                             "sha256":  "bb4de08f46c0de37c1453de58284c4983bacb94ad49c42a3bfea1945ac91ecb9",
+                             "sha256":  "a0c9999a2002d5e810ce8177f164ca03bcb835af3c4bb0302180c2f1fa1513b6",
                              "source_file_id":  "src-04"
                          },
                          {
-                             "byte_size":  3214,
+                             "byte_size":  3282,
                              "category_id":  "out-of-table-character",
-                             "decision":  "TRANSFORM",
+                             "decision":  "ACCEPTED",
                              "order":  5,
                              "relative_path":  "小鹤音形/2.4.表外字.txt",
-                             "sha256":  "3745660392bce41cd63b6ce7ee5a2860c173b8bb22957b16a05c5dcd2a05eed4",
+                             "sha256":  "636a67e21ec101c20e758d37d8f826a34378a6ec1d41ca39b6f63c61d24e1dc8",
                              "source_file_id":  "src-05"
                          },
                          {
-                             "byte_size":  7062,
+                             "byte_size":  9065,
                              "category_id":  "full-code-word",
                              "decision":  "TRANSFORM",
                              "order":  6,
                              "relative_path":  "小鹤音形/2.5.全码词.txt",
-                             "sha256":  "93f1e500ae0ecb10e7f8d750d39a662365c822ef225391c1fdcb94c3eb942257",
+                             "sha256":  "dd2d4c41800c0f5b03712c2b84864450bb754479211dc79cb9383786875f85e2",
                              "source_file_id":  "src-06"
                          },
                          {
-                             "byte_size":  13320,
+                             "byte_size":  12157,
                              "category_id":  "symbol",
                              "decision":  "ACCEPTED",
                              "order":  7,
                              "relative_path":  "小鹤音形/2.6.符号.txt",
-                             "sha256":  "fc16fc10fcd79fece83889ef81620ac0b7c0b8d6464e650e967586445a153dcc",
+                             "sha256":  "d416ece34a02a88cd4e7e7794c1909272adb35eb389561c1d7187fbca3e75cfe",
                              "source_file_id":  "src-07"
                          },
                          {
-                             "byte_size":  5134,
+                             "byte_size":  5981,
                              "category_id":  "symbol-group",
-                             "decision":  "TRANSFORM",
+                             "decision":  "ACCEPTED",
                              "order":  8,
                              "relative_path":  "小鹤音形/2.7.符号组.txt",
-                             "sha256":  "2a665b6d1eff4af5ff6368f3f8bb79b513e08864ff472e9add7c47870eb171a7",
+                             "sha256":  "c85e5854ee1170acbb2ef7e713a9d909e6c68c5ac15c7852cb01ede9f076acb8",
                              "source_file_id":  "src-08"
                          },
                          {
-                             "byte_size":  5082,
+                             "byte_size":  4540,
                              "category_id":  "rare-character",
-                             "decision":  "TRANSFORM",
+                             "decision":  "ACCEPTED",
                              "order":  9,
                              "relative_path":  "小鹤音形/2.8.生僻字.txt",
-                             "sha256":  "04bdd5aed3bef1de822ede15473698bf3657a5df82ed498eff5d92e8b4b45023",
+                             "sha256":  "ed8eb5b6781a1cad06a8c54020af3eaa3634e47b9235ed44e6c67ce6b1818018",
                              "source_file_id":  "src-09"
                          },
                          {
-                             "byte_size":  16582,
+                             "byte_size":  14909,
                              "category_id":  "full-code-character",
-                             "decision":  "TRANSFORM",
+                             "decision":  "ACCEPTED",
                              "order":  10,
                              "relative_path":  "小鹤音形/2.9.全码字.txt",
-                             "sha256":  "a3f4054bdcacac6427355b246dd86496fe09025a5b5058d0f8185a8f4cbee722",
+                             "sha256":  "1b2a1d3c64a4e7a0124cea4d0ff2a91e8806618821b063abf7f8e857b010bc14",
                              "source_file_id":  "src-10"
                          },
                          {
-                             "byte_size":  1086223,
+                             "byte_size":  1086236,
                              "category_id":  "ok-spelling",
-                             "decision":  "TRANSFORM",
+                             "decision":  "ACCEPTED",
                              "order":  11,
                              "relative_path":  "小鹤音形/0.2.拼字.txt",
-                             "sha256":  "7a34921c867d87ffcd05ce21350247af08d3633142d24f962944464389cd0879",
+                             "sha256":  "6419b404a19274f164733b604bc1fc43dea379fa5216a98e961a3d0fb17ca43b",
                              "source_file_id":  "src-11"
                          }
                      ],
-    "source_manifest_sha256":  "bb39015d3e4cd2998a4e14b904f277171951ea459d1b24b42d264cac4b0f2ffa",
+    "source_manifest_sha256":  "b59c7cf78096a86e99f5162107c7486623449efeda70631015e2bf39b0818459",
     "statistics_file":  {
-                            "byte_size":  101326,
+                            "byte_size":  115983,
                             "path":  "build-report.json",
-                            "sha256":  "931692d3639271a8201f35631c2badfe4b0d5da5c28f963f9b43e39b98a2562a"
+                            "sha256":  "c8f94476d26246c6f138e938c308f7cbb4c2edea390a95f26e0fcbd373cfa72a"
                         },
     "trace_metadata_file":  {
-                                "byte_size":  46015337,
+                                "byte_size":  46023029,
                                 "path":  "trace-index.jsonl",
-                                "sha256":  "eed8a504c26386bf0171e1fa01be85f5178f3d5088ba2880f27b3b2493e0b2bb"
+                                "sha256":  "62300a1908bda114dbeb927990a345c9696db3b2f1154ef5483fd6d7e1996769"
                             },
-    "transformed_record_count":  779,
+    "transformed_record_count":  743,
     "user_rule_file":  {
                            "byte_size":  582,
                            "path":  "user-rules.txt",

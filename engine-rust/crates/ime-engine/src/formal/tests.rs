@@ -229,6 +229,51 @@ mod tests {
     }
 
     #[test]
+    fn scheme_switch_updates_sentence_decoder_limits_deterministically() {
+        let mut engine = create_engine();
+        assert_eq!(
+            engine.sentence_decoder.as_ref().unwrap().limits(),
+            &decoder_limits_for_scheme("xiaohe")
+        );
+
+        engine.change_scheme("pinyin-9").unwrap();
+        assert_eq!(
+            engine.sentence_decoder.as_ref().unwrap().limits(),
+            &decoder_limits_for_scheme("pinyin-9")
+        );
+
+        engine.change_scheme("quanpin").unwrap();
+        assert_eq!(
+            engine.sentence_decoder.as_ref().unwrap().limits(),
+            &decoder_limits_for_scheme("quanpin")
+        );
+
+        engine.change_scheme("xiaohe").unwrap();
+        assert_eq!(
+            engine.sentence_decoder.as_ref().unwrap().limits(),
+            &decoder_limits_for_scheme("xiaohe")
+        );
+    }
+
+    #[test]
+    fn pinyin9_compatibility_cache_is_bounded_and_invalidated_with_user_scores() {
+        let mut engine = create_stage8_engine(5);
+        engine.change_scheme("pinyin-9").unwrap();
+        for digit in "64426".chars() {
+            engine.process_key(digit);
+        }
+
+        assert!(!engine.t9_compatibility_decode_cache.is_empty());
+        assert!(
+            engine.t9_compatibility_decode_cache.len()
+                <= T9_COMPATIBILITY_DECODE_CACHE_CAPACITY
+        );
+
+        engine.set_user_learning_enabled(false);
+        assert!(engine.t9_compatibility_decode_cache.is_empty());
+    }
+
+    #[test]
     fn pinyin9_candidate_selection_reuses_the_existing_user_model() {
         let mut engine = create_close_ni_learning_engine();
         engine.change_scheme("pinyin-9").unwrap();

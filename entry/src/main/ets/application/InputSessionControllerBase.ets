@@ -8,6 +8,7 @@ import {
   EDITOR_KIND_EXTRA_CONFIG_KEY
 } from '../domain/editor/EditorContext';
 import { KeyboardMode, isSingleAsciiLetter, isT9PinyinDigit } from '../domain/keyboard/KeyboardAction';
+import { transformDirectText } from '../domain/keyboard/DirectTextTransformer';
 import { ImeSettings, PINYIN_9_SCHEME_ID, XIAOHE_YINXING_SCHEME_ID } from '../domain/settings/ImeSettings';
 import { EditorAttributeMapper } from '../infrastructure/ime/EditorAttributeMapper';
 import { ImeConnectionService } from '../infrastructure/ime/ImeConnectionService';
@@ -55,6 +56,10 @@ import { CommitHistoryManager } from './CommitHistoryManager';
 import { UndoCommitManager } from './UndoCommitManager';
 import { UserLexiconDocumentEditor } from './UserLexiconController';
 import { DirectControlService } from './DirectControlService';
+import {
+  DirectSessionActionResult,
+  DirectSessionActionService
+} from './DirectSessionActionService';
 
 import { ImeInputService } from './ImeInputService';
 import { SmartPeriodController, SmartPeriodInputAction } from './SmartPeriodController';
@@ -142,6 +147,7 @@ export class InputSessionControllerBase {
   protected undoCommitManager?: UndoCommitManager;
   protected readonly lexiconImportManager: UserLexiconImportManager = new UserLexiconImportManager();
   protected readonly directControlService: DirectControlService;
+  protected readonly directSessionActionService: DirectSessionActionService;
   protected readonly onEditorAttributeChanged = (attribute: inputMethodEngine.EditorAttribute): void => {
     this.handleEditorAttributeChanged(attribute);
   };
@@ -177,12 +183,21 @@ export class InputSessionControllerBase {
     this.quanpinContextModelInstaller = quanpinContextModelInstaller;
     this.smartPeriodController = smartPeriodController;
     this.directControlService = new DirectControlService(settingsController);
+    this.directSessionActionService = new DirectSessionActionService(
+      (): InputMethodExtensionContext | undefined => this.abilityContext,
+      this.imeService
+    );
     const actionHandlers: ProtocolActionHandlers = new SessionProtocolActionHandlers(
       (generation: number): Promise<boolean> => this.repeatLastCommit(generation),
       (generation: number): Promise<boolean> => this.undoLastCommit(generation),
       async (action: string, target: string, generation: number): Promise<boolean> => {
         if (!this.isInputSessionGenerationCurrent(generation)) {
           return false;
+        }
+        const sessionResult: DirectSessionActionResult =
+          await this.directSessionActionService.execute(action, target);
+        if (sessionResult.handled) {
+          return this.isInputSessionGenerationCurrent(generation) && sessionResult.success;
         }
         const result = await this.directControlService.executeRaw(action, target);
         return this.isInputSessionGenerationCurrent(generation) && result.success;
@@ -356,7 +371,7 @@ export class InputSessionControllerBase {
       }
     }
     this.store.updateComposition(
-      this.engineCoordinator.initialize(
+      await this.engineCoordinator.initializeAsync(
         initialSchemeId,
         lexiconPath,
         initializationOverride?.userLexiconPath ?? userLexiconPath,
@@ -719,16 +734,27 @@ export class InputSessionControllerBase {
       return sessionCheck;
     }
 
-    const inserted = await this.imeService.insertText(text);
+    const settings = this.settingsController.getSettings();
+    const userDirectReasons: string[] = [
+      'letter',
+      'chinese uppercase letter',
+      'direct character',
+      'punctuation after explicit composition action',
+      'physical punctuation suffix',
+      'space'
+    ];
+    const committedText = userDirectReasons.indexOf(reason) >= 0 ?
+      transformDirectText(text, settings.punctuationMode, settings.fullWidthEnabled) : text;
+    const inserted = await this.imeService.insertText(committedText);
     if (!this.isInputSessionGenerationCurrent(generation)) {
       return this.staleInputAction(`${reason} completion`);
     }
     if (inserted) {
       // Record commit history (except for repeat action to avoid infinite loop)
       if (reason !== 'repeat last commit') {
-        this.commitHistoryManager.addCommit(text);
+        this.commitHistoryManager.addCommit(committedText);
         if (this.undoCommitManager) {
-          this.undoCommitManager.recordCommit(text);
+          this.undoCommitManager.recordCommit(committedText);
         }
       }
       this.store.clearError();

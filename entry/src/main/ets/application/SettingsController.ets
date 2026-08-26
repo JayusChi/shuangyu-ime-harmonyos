@@ -9,6 +9,7 @@ import {
   ImeSettings,
   isAvailableScheme,
   KeyboardHeightMode,
+  PunctuationMode,
   LexiconSourceConfig,
   normalizeXiaoheYinxingCategoryIds,
   QUANPIN_FUZZY_OPTIONS,
@@ -184,6 +185,18 @@ export class SettingsController {
             }
             this.sessionStore.updateComposition(categoryResult);
           }
+          if (previous.codeTableAutoCommitEnabled !== next.codeTableAutoCommitEnabled ||
+            previous.codeTableEmptyClearLength !== next.codeTableEmptyClearLength) {
+            const policyResult = this.engine.setCodeTableCommitPolicy(
+              next.codeTableAutoCommitEnabled,
+              next.codeTableEmptyClearLength
+            );
+            if (!policyResult.success || policyResult.commitText.length > 0) {
+              LOGGER.warn('synchronized code table commit policy could not be applied');
+              return;
+            }
+            this.sessionStore.updateComposition(policyResult);
+          }
         }
         this.store.replace(next);
         this.applyCurrentSettingsToEngine(!categoryHandled);
@@ -236,6 +249,65 @@ export class SettingsController {
     }
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.smartPeriodTimeoutMs = timeoutMs;
+    });
+  }
+
+  async togglePunctuationMode(): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.punctuationMode = settings.punctuationMode === PunctuationMode.CHINESE ?
+        PunctuationMode.ENGLISH : PunctuationMode.CHINESE;
+    });
+  }
+
+  async toggleFullWidthEnabled(): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.fullWidthEnabled = !settings.fullWidthEnabled;
+    });
+  }
+
+  async setNumericPeriodEnabled(enabled: boolean): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.numericPeriodEnabled = enabled;
+    });
+  }
+
+  async toggleTraditionalOutputEnabled(): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.traditionalOutputEnabled = !settings.traditionalOutputEnabled;
+    });
+  }
+
+  async setCodeTableCommitPolicy(
+    autoCommitEnabled: boolean,
+    emptyClearLength: number
+  ): Promise<SettingsOperationResult> {
+    if (emptyClearLength !== 4 && emptyClearLength !== 12) {
+      return { success: false, message: '音形清码阈值无效' };
+    }
+    return this.enqueueSettingsMutationTask(async (previous: ImeSettings): Promise<SettingsOperationResult> => {
+      let applied = false;
+      if (this.engine.isInitialized() && this.engine.getActiveSchemeId() === XIAOHE_YINXING_SCHEME_ID) {
+        const result = this.engine.setCodeTableCommitPolicy(autoCommitEnabled, emptyClearLength);
+        if (!result.success || result.commitText.length > 0) {
+          return { success: false, message: '音形顶屏策略应用失败' };
+        }
+        applied = true;
+        this.sessionStore.updateComposition(result);
+      }
+      const next = copyImeSettings(previous);
+      next.codeTableAutoCommitEnabled = autoCommitEnabled;
+      next.codeTableEmptyClearLength = emptyClearLength;
+      const saved = await this.persist(next);
+      if (saved.success) {
+        return saved;
+      }
+      if (applied) {
+        this.engine.setCodeTableCommitPolicy(
+          previous.codeTableAutoCommitEnabled,
+          previous.codeTableEmptyClearLength
+        );
+      }
+      return saved;
     });
   }
 
@@ -580,10 +652,11 @@ export class SettingsController {
   }
 
   applyCurrentSettingsToEngine(applyCategories: boolean = true): void {
+    const settings = this.getSettings();
+    this.engine.setTraditionalOutputEnabled(settings.traditionalOutputEnabled);
     if (!this.engine.isInitialized()) {
       return;
     }
-    const settings = this.getSettings();
     const currentSession = this.sessionStore.getSnapshot();
     this.engine.setUserLearningEnabled(settings.userLearningEnabled);
     this.engine.setSessionLearningAllowed(
@@ -598,6 +671,13 @@ export class SettingsController {
       );
       if (categoryResult.success && categoryResult.commitText.length === 0) {
         this.sessionStore.updateComposition(categoryResult);
+      }
+      const policyResult = this.engine.setCodeTableCommitPolicy(
+        settings.codeTableAutoCommitEnabled,
+        settings.codeTableEmptyClearLength
+      );
+      if (!policyResult.success) {
+        LOGGER.warn('persisted code table commit policy could not be applied');
       }
     }
   }
@@ -663,6 +743,7 @@ export class SettingsController {
       return { success: false, message: '设置保存失败' };
     }
     this.store.replace(settings);
+    this.engine.setTraditionalOutputEnabled(settings.traditionalOutputEnabled);
     this.publishSettings(settings);
     return { success: true, message: '' };
   }

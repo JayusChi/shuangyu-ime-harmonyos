@@ -11,8 +11,8 @@ use candidate_ranking::{
     rank_prefix_candidates_with_user_scores, CandidateMatchType, RankingCandidate,
 };
 use code_table_runtime::{
-    CategorySelectionSnapshot, CodeTableBundle, CodeTableErrorKind, CodeTableInputState,
-    CodeTableQueryStrategy, CodeTableSelection, CodeTableStateMachine,
+    CategorySelectionSnapshot, CodeTableBundle, CodeTableCommitPolicy, CodeTableErrorKind,
+    CodeTableInputState, CodeTableQueryStrategy, CodeTableSelection, CodeTableStateMachine,
     DateTimeFormatId as RuntimeDateTimeFormatId, FunctionalAction, FunctionalActionTable,
     FIXTURE_SCHEME_ID, PRODUCTION_SCHEME_ID,
 };
@@ -57,6 +57,7 @@ const SHUANGPIN_MAX_AMBIGUOUS_READING_PATHS: usize = 8;
 const QUANPIN_MAX_DECODE_PATHS: usize = 4;
 const QUANPIN_MAX_EXACT_PHRASE_CANDIDATES: usize = 8;
 const T9_MAX_CANDIDATE_SNAPSHOT: usize = 256;
+const T9_COMPATIBILITY_DECODE_CACHE_CAPACITY: usize = 128;
 const T9_COMPLETE_COVERAGE_SCORE_BONUS: i64 = 2_000_000;
 const T9_COMPATIBILITY_TIER: u8 = 2;
 // Joint and compatibility sentences use the same calibrated decoder score.
@@ -101,6 +102,13 @@ enum EngineBackend {
     CodeTable(CodeTableStateMachine),
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct T9CompatibilityDecodeCacheEntry {
+    combination: String,
+    incomplete: bool,
+    candidates: Vec<SentenceCandidate>,
+}
+
 #[derive(Clone, Debug)]
 pub struct ImeEngine {
     parser: Option<PhoneticParserKind>,
@@ -128,6 +136,7 @@ pub struct ImeEngine {
     last_quanpin_reranking_stats: RerankStats,
     t9_joint_limits: T9JointLimits,
     t9_joint_session: T9JointSession,
+    t9_compatibility_decode_cache: VecDeque<T9CompatibilityDecodeCacheEntry>,
     last_t9_joint_stats: T9JointDecoderStats,
 }
 

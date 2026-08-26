@@ -118,6 +118,13 @@ export default function pinyin9Stage4Test() {
         expect(pinyin9Height > qwertyHeight).assertTrue();
         expect(pinyin9Height <= screen.heightPx).assertTrue();
       });
+      const padLandscape = screens[3];
+      expect(panelHeightForMode(KeyboardHeightMode.STANDARD, padLandscape, true)).assertEqual(1152);
+      const twoInOneLandscape = createScreenMetrics(
+        { widthPx: 3120, heightPx: 2080, densityPixels: 1.9 },
+        true
+      );
+      expect(panelHeightForMode(KeyboardHeightMode.STANDARD, twoInOneLandscape, true)).assertEqual(1248);
     });
   });
 }

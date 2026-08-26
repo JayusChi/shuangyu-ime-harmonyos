@@ -20,6 +20,27 @@ function Assert-SourceContains([string]$Path, [string]$Pattern, [string]$Descrip
 }
 
 Assert-SourceContains 'entry\src\main\module.json5' '"2in1"' 'formal module declares 2in1'
+Assert-SourceContains 'entry\src\main\module.json5' `
+    '"name"\s*:\s*"ohos\.extension\.input_method"' `
+    'input-method extension declares the standard subtype metadata'
+Assert-SourceContains 'entry\src\main\module.json5' `
+    '"resource"\s*:\s*"\$profile:stage0_input_method"' `
+    'input-method extension references the subtype profile'
+Assert-SourceContains 'entry\src\main\ets\inputmethod\Stage0InputMethodAbilityBase.ets' `
+    "keyboardDelegate\.on\('keyEvent'" 'IME subscribes to the modern physical-key channel'
+Assert-SourceContains 'entry\src\main\ets\inputmethod\Stage0InputMethodAbilityBase.ets' `
+    "keyboardDelegate\.on\('keyDown'" 'IME subscribes to the PC-compatible keyDown channel'
+Assert-SourceContains 'entry\src\main\ets\inputmethod\Stage0InputMethodAbilityBase.ets' `
+    "keyboardDelegate\.on\('keyUp'" 'IME subscribes to the PC-compatible keyUp channel'
+$subtypeProfilePath = Join-Path $repoRoot 'entry\src\main\resources\base\profile\stage0_input_method.json'
+$subtypeProfile = Get-Content -LiteralPath $subtypeProfilePath -Raw -Encoding UTF8 | ConvertFrom-Json
+$zhCnSubtypes = @($subtypeProfile.subtypes | Where-Object {
+    [string]$_.id -eq 'shuangyu_zh_cn' -and [string]$_.locale -eq 'zh-CN'
+})
+if ($zhCnSubtypes.Count -ne 1) {
+    throw 'Source gate failed: subtype profile must declare exactly one shuangyu_zh_cn / zh-CN subtype'
+}
+Write-Host 'PASS: subtype profile declares shuangyu_zh_cn / zh-CN'
 Assert-SourceContains 'entry\src\main\ets\domain\display\InputPresentationMode.ets' `
     "normalizedDeviceType === 'tablet' && physicalKeyboardPresent" `
     'AUTO routes connected-keyboard Tablet to hardware mode'

@@ -11,12 +11,12 @@ The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipp
 | Data version | `source-receipt-1` |
 | Converter | `yinxing-converter/1.0.0` |
 | Categories | 12 internal / 10 customer-visible switches |
-| Accepted records | 162,702 |
-| Bundle bytes | 56,144,463 |
-| Bundle SHA-256 | `e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad` |
-| Content SHA-256 | `9a89607b4525f85a3e62192ebd5066706945b0b17f260fe027aa3f93069a1681` |
+| Accepted records | 162,730 |
+| Bundle bytes | 56,183,822 |
+| Bundle SHA-256 | `0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942` |
+| Content SHA-256 | `9c6fe5f8214c2560572a7f09c4d3228527c961f47507d3d8567c2f94b14023a7` |
 
-The raw resource installer uses a v3 installed filename and receipt, so a previously verified 11-category resource cannot mask this build after an application upgrade.
+The raw resource installer uses a v4 installed filename and receipt, so a previously verified customer-category resource cannot mask this build after an application upgrade.
 
 ## Categories
 
@@ -24,17 +24,17 @@ The manifest freezes category order, entry counts and defaults:
 
 | order | id | display | entries | default |
 | ---: | --- | --- | ---: | --- |
-| 0 | `core` | 首选 | 68,505 | on, required |
+| 0 | `core` | 首选 | 68,568 | on, required |
 | 1 | `category-secondary` | 分类 | 1,690 | on |
-| 2 | `quick-symbol` | 快符 | 17 | on |
+| 2 | `quick-symbol` | 快符 | 16 | on |
 | 3 | `one-key-secondary` | 一简次选 | 26 | on |
 | 4 | `two-key-secondary` | 二简次选 | 66 | off |
 | 5 | `out-of-table-character` | 表外字 | 362 | on |
 | 6 | `full-code-word` | 全码词 | 464 | off |
 | 7 | `symbol` | 符号 | 623 | on |
-| 8 | `symbol-group` | 符号组 | 743 | on |
+| 8 | `symbol-group` | 符号组 | 707 | on |
 | 9 | `rare-character` | 生僻字 | 498 | off |
-| 10 | `full-code-character` | 全码字 | 1,652 | off |
+| 10 | `full-code-character` | 全码字 | 1,654 | off |
 | 11 | `ok-spelling` | ok拼字 | 88,020 | on |
 
 The settings UI merges `category-secondary` plus `out-of-table-character` into the customer-visible “分类” switch and merges `symbol` plus `symbol-group` into “符号”. “直通” is a full-code-word record property, and “用户” is the separate user lexicon layer; neither creates a system switch.

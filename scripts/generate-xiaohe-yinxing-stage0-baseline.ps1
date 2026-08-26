@@ -11,7 +11,7 @@ $bundlePath = Join-Path $repoRoot 'dictionaries\generated\xiaohe-yinxing-product
 $manifestPath = Join-Path $repoRoot 'dictionaries\generated\xiaohe-yinxing-production\manifest.json'
 $outputDir = Join-Path $repoRoot 'dictionaries\audit\xiaohe-yinxing\baseline'
 $relativeBundlePath = 'dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx'
-$expectedBundleSha256 = 'e9eb4b3bb1968e29738d257c0d9904eaa5fbf7ce1b69b0905128edc80e365aad'
+$expectedBundleSha256 = '0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942'
 
 New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 

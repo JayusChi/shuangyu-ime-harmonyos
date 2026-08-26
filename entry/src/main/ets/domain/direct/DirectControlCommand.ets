@@ -44,6 +44,44 @@ export function parseDirectControlCommand(action: string, target: string): Direc
     }
     return { success: true, message: '', command: { action: normalizedAction, target: ids.join(',') } };
   }
+  if (normalizedAction === 'category.preset') {
+    if (normalizedTarget !== 'experienced' && normalizedTarget !== 'standard' &&
+      normalizedTarget !== 'beginner') {
+      return { success: false, message: '分类预设无效' };
+    }
+    return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
+  }
+  if (normalizedAction === 'settings.smart-period') {
+    if (normalizedTarget !== '0' && normalizedTarget !== '600') {
+      return { success: false, message: '智能标点参数无效' };
+    }
+    return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
+  }
+  if (normalizedAction === 'settings.punctuation' || normalizedAction === 'settings.fullwidth' ||
+    normalizedAction === 'settings.traditional') {
+    if (normalizedTarget !== 'toggle') {
+      return { success: false, message: '设置切换参数无效' };
+    }
+    return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
+  }
+  if (normalizedAction === 'settings.numeric-period') {
+    if (normalizedTarget !== 'enabled' && normalizedTarget !== 'disabled') {
+      return { success: false, message: '数字标点参数无效' };
+    }
+    return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
+  }
+  if (normalizedAction === 'settings.empty-clear') {
+    if (normalizedTarget !== '4' && normalizedTarget !== '12') {
+      return { success: false, message: '清码阈值无效' };
+    }
+    return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
+  }
+  if (normalizedAction === 'settings.commit-policy') {
+    if (normalizedTarget !== 'top-screen' && normalizedTarget !== 'auto-commit') {
+      return { success: false, message: '顶屏策略无效' };
+    }
+    return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
+  }
   if (normalizedAction === 'category.all' || normalizedAction === 'category.core' ||
     normalizedAction === 'status.get') {
     if (normalizedTarget.length > 0) {

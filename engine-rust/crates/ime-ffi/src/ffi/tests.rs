@@ -717,7 +717,8 @@ mod tests {
         );
         let category_action = take_buffer(out);
         assert!(category_action.contains("\"type\":\"DIRECT_CONTROL\""));
-        assert!(category_action.contains("\"formatId\":\"category.core\""));
+        assert!(category_action.contains("\"formatId\":\"category.preset\""));
+        assert!(category_action.contains("\"text\":\"experienced\""));
 
         assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
     }
@@ -894,6 +895,10 @@ mod tests {
         let mut out = ImeBuffer::empty();
         assert_eq!(
             ime_engine_process_key(handle, [0xff].as_ptr(), 1, &mut out),
+            ImeErrorCode::InvalidUtf8.as_i32()
+        );
+        assert_eq!(
+            ime_engine_process_key(handle, [0xff, 0xff].as_ptr(), 2, &mut out),
             ImeErrorCode::InvalidUtf8.as_i32()
         );
         assert_eq!(

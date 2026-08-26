@@ -561,6 +561,7 @@ export class InputPanelController {
     }
     this.scheduledResizeGeneration = generation;
     this.enqueue(`resize:${source}`, generation, async (): Promise<void> => {
+      let resizeCompleted = false;
       try {
         if (!this.isCurrentShow(generation) || !this.panel) {
           return;
@@ -570,11 +571,15 @@ export class InputPanelController {
           return;
         }
         await this.resizeToCurrent(this.panel, generation, source);
+        resizeCompleted = true;
       } finally {
         if (this.scheduledResizeGeneration === generation) {
           this.scheduledResizeGeneration = undefined;
         }
-        if (this.isCurrentShow(generation) && this.panel &&
+        // Only coalesce changes that arrived during a successful resize. A
+        // rejected platform resize leaves lastAppliedPanelSize unchanged; an
+        // unconditional retry here otherwise creates an unbounded error loop.
+        if (resizeCompleted && this.isCurrentShow(generation) && this.panel &&
           !panelSizeEqual(this.lastAppliedPanelSize, this.currentPanelSize())) {
           this.queueResize('coalesced');
         }

@@ -229,7 +229,7 @@ export class InputMethodLifecycleDispatcher {
     }
   }
 
-  private handlePhysicalKeySnapshot(key: PhysicalKeySnapshot): boolean {
+  handlePhysicalKeySnapshot(key: PhysicalKeySnapshot): boolean {
     if (!key.isDown) {
       return this.physicalKeyConsumption.consumeRelease(key.keyCode);
     }
@@ -254,6 +254,7 @@ export class InputMethodLifecycleDispatcher {
     }
     const state = this.sessionController.getState();
     const rapidPhysicalContinuation = this.pendingPhysicalOperationCount > 0;
+    const keyTimestampMs = Date.now();
     if (state.rawInput.length === 0 && this.pendingPhysicalOperationCount === 0) {
       this.physicalEditorSuffix.reset();
     }
@@ -266,7 +267,8 @@ export class InputMethodLifecycleDispatcher {
       rawInput: state.rawInput,
       candidateCount: state.candidates.length,
       compositionPending: rapidPhysicalContinuation,
-      pairJumpAvailable: this.sessionController.canJumpOutPair()
+      pairJumpAvailable: this.sessionController.canJumpOutPair(),
+      smartPeriodContinuation: this.canContinuePhysicalChinesePeriod(keyTimestampMs)
     });
 
     if (command.type === PhysicalKeyCommandType.NONE) {
@@ -276,7 +278,7 @@ export class InputMethodLifecycleDispatcher {
       return false;
     }
     const physicalPeriodWillReplace = command.type === PhysicalKeyCommandType.PUNCTUATION
-      ? this.willReplacePhysicalChinesePeriod(command.character ?? '', Date.now())
+      ? this.willReplacePhysicalChinesePeriod(command.character ?? '', keyTimestampMs)
       : false;
     if (command.type !== PhysicalKeyCommandType.PUNCTUATION) {
       this.lastPhysicalChinesePeriodTimestampMs = undefined;
@@ -447,6 +449,13 @@ export class InputMethodLifecycleDispatcher {
     }
     this.lastPhysicalChinesePeriodTimestampMs = timestampMs;
     return false;
+  }
+
+  private canContinuePhysicalChinesePeriod(timestampMs: number): boolean {
+    const previous = this.lastPhysicalChinesePeriodTimestampMs;
+    const timeoutMs = this.settingsStore.getSnapshot().smartPeriodTimeoutMs;
+    return previous !== undefined && timeoutMs > 0 && timestampMs >= previous &&
+      timestampMs - previous <= timeoutMs;
   }
 
   private resolvePresentationMode(): InputPresentationMode {

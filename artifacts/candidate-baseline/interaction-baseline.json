@@ -71,31 +71,13 @@
           "parsed_syllables": [],
           "pending_code": "",
           "parser_state": "complete",
-          "candidate_count": 4,
+          "candidate_count": 1,
           "candidates": [
             {
               "text": "阿爸",
               "reading": "aaba",
               "source": "core",
               "stable_id": "ct:xiaohe-yinxing-production:core:152"
-            },
-            {
-              "text": "阿伯",
-              "reading": "aabo",
-              "source": "core",
-              "stable_id": "ct:xiaohe-yinxing-production:core:153"
-            },
-            {
-              "text": "傲岸不群",
-              "reading": "aabq",
-              "source": "core",
-              "stable_id": "ct:xiaohe-yinxing-production:core:154"
-            },
-            {
-              "text": "皑皑白雪",
-              "reading": "aabx",
-              "source": "core",
-              "stable_id": "ct:xiaohe-yinxing-production:core:155"
             }
           ],
           "candidate_page": 0,
@@ -103,7 +85,7 @@
           "has_next_page": false,
           "commit_text": "",
           "composition_finished": false,
-          "json_utf8_bytes": 863
+          "json_utf8_bytes": 506
         }
       },
       {
@@ -198,19 +180,13 @@
           "parsed_syllables": [],
           "pending_code": "",
           "parser_state": "complete",
-          "candidate_count": 2,
+          "candidate_count": 1,
           "candidates": [
             {
               "text": "昂起",
               "reading": "ahqi",
               "source": "core",
               "stable_id": "ct:xiaohe-yinxing-production:core:258"
-            },
-            {
-              "text": "爱恨情仇",
-              "reading": "ahqi",
-              "source": "category-secondary",
-              "stable_id": "ct:xiaohe-yinxing-production:category-secondary:401"
             }
           ],
           "candidate_page": 0,
@@ -218,7 +194,7 @@
           "has_next_page": false,
           "commit_text": "",
           "composition_finished": false,
-          "json_utf8_bytes": 655
+          "json_utf8_bytes": 506
         }
       },
       {
@@ -271,7 +247,7 @@
           "text": "和",
           "reading": "h",
           "source": "core",
-          "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+          "stable_id": "ct:xiaohe-yinxing-production:core:15955"
         },
         {
           "text": "忽略",
@@ -525,7 +501,7 @@
           "text": "和",
           "reading": "h",
           "source": "core",
-          "stable_id": "ct:xiaohe-yinxing-production:core:15938"
+          "stable_id": "ct:xiaohe-yinxing-production:core:15955"
         },
         {
           "text": "忽略",

@@ -19,6 +19,9 @@ pub enum DateTimeFormatId {
     TimeHm,
     TimeHms,
     TimeLocalHms,
+    TimeWeekday,
+    TimeLocalHm,
+    LunarDateFestival,
     DateTimeLocal,
     UnixTimestamp,
 }
@@ -32,6 +35,9 @@ impl DateTimeFormatId {
             Self::TimeHm => "TIME_HM",
             Self::TimeHms => "TIME_HMS",
             Self::TimeLocalHms => "TIME_LOCAL_HMS",
+            Self::TimeWeekday => "TIME_WEEKDAY",
+            Self::TimeLocalHm => "TIME_LOCAL_HM",
+            Self::LunarDateFestival => "LUNAR_DATE_FESTIVAL",
             Self::DateTimeLocal => "DATETIME_LOCAL",
             Self::UnixTimestamp => "UNIX_TIMESTAMP",
         }
@@ -45,6 +51,9 @@ impl DateTimeFormatId {
             "TIME_HM" => Some(Self::TimeHm),
             "TIME_HMS" => Some(Self::TimeHms),
             "TIME_LOCAL_HMS" => Some(Self::TimeLocalHms),
+            "TIME_WEEKDAY" => Some(Self::TimeWeekday),
+            "TIME_LOCAL_HM" => Some(Self::TimeLocalHm),
+            "LUNAR_DATE_FESTIVAL" => Some(Self::LunarDateFestival),
             "DATETIME_LOCAL" => Some(Self::DateTimeLocal),
             "UNIX_TIMESTAMP" => Some(Self::UnixTimestamp),
             _ => None,
@@ -332,17 +341,17 @@ impl FunctionalActionTable {
                 2,
             ),
             direct_record(
-                "time-hms",
+                "time-weekday",
                 "ouj",
-                "时间 HH:mm:ss",
-                FunctionalAction::DateTimeText(DateTimeFormatId::TimeHms),
+                "时间与星期",
+                FunctionalAction::DateTimeText(DateTimeFormatId::TimeWeekday),
                 3,
             ),
             direct_record(
-                "time-local-hms",
+                "time-local-hm",
                 "ouj",
-                "时间 HH时mm分ss秒",
-                FunctionalAction::DateTimeText(DateTimeFormatId::TimeLocalHms),
+                "中文时间",
+                FunctionalAction::DateTimeText(DateTimeFormatId::TimeLocalHm),
                 4,
             ),
             direct_record(
@@ -357,7 +366,8 @@ impl FunctionalActionTable {
                 "jysi",
                 "「静夜思」",
                 FunctionalAction::StaticText(
-                    "　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n".to_owned(),
+                    "　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n"
+                        .to_owned(),
                 ),
                 6,
             ),
@@ -366,8 +376,8 @@ impl FunctionalActionTable {
                 "ojj",
                 "<熟手词库>",
                 FunctionalAction::DirectControl {
-                    action: "category.core".to_owned(),
-                    target: String::new(),
+                    action: "category.preset".to_owned(),
+                    target: "experienced".to_owned(),
                 },
                 7,
             ),
@@ -376,8 +386,8 @@ impl FunctionalActionTable {
                 "ojj",
                 "<常规词库>",
                 FunctionalAction::DirectControl {
-                    action: "category.set".to_owned(),
-                    target: "core,category-secondary,quick-symbol,one-key-secondary,out-of-table-character,symbol,symbol-group,ok-spelling".to_owned(),
+                    action: "category.preset".to_owned(),
+                    target: "standard".to_owned(),
                 },
                 8,
             ),
@@ -386,8 +396,8 @@ impl FunctionalActionTable {
                 "ojj",
                 "<初学词库>",
                 FunctionalAction::DirectControl {
-                    action: "category.all".to_owned(),
-                    target: String::new(),
+                    action: "category.preset".to_owned(),
+                    target: "beginner".to_owned(),
                 },
                 9,
             ),
@@ -418,11 +428,205 @@ impl FunctionalActionTable {
                 FunctionalAction::ImportUserLexicon,
                 12,
             ),
+            direct_record(
+                "lunar-date-festival",
+                "onl",
+                "农历日期",
+                FunctionalAction::DateTimeText(DateTimeFormatId::LunarDateFestival),
+                13,
+            ),
+            direct_record(
+                "flypy-home-open",
+                "xhgw",
+                "「小鹤官网」",
+                FunctionalAction::DirectControl {
+                    action: "url.open".to_owned(),
+                    target: "flypy-home".to_owned(),
+                },
+                14,
+            ),
+            direct_record(
+                "flypy-home-text",
+                "xhg",
+                "https://flypy.cc",
+                FunctionalAction::StaticText("https://flypy.cc".to_owned()),
+                15,
+            ),
+            direct_record(
+                "flypy-help-open",
+                "xhrm",
+                "「小鹤入门」",
+                FunctionalAction::DirectControl {
+                    action: "url.open".to_owned(),
+                    target: "flypy-help".to_owned(),
+                },
+                16,
+            ),
+            direct_record(
+                "flypy-help-mobile-open",
+                "orm",
+                "「手机入门」",
+                FunctionalAction::DirectControl {
+                    action: "url.open".to_owned(),
+                    target: "flypy-help-mobile".to_owned(),
+                },
+                17,
+            ),
+            direct_record(
+                "settings-open",
+                "ocd",
+                "「设置菜单」",
+                FunctionalAction::DirectControl {
+                    action: "app.open".to_owned(),
+                    target: "settings".to_owned(),
+                },
+                18,
+            ),
+            direct_record(
+                "user-lexicon-open",
+                "oyh",
+                "「用户词库」",
+                FunctionalAction::DirectControl {
+                    action: "app.open".to_owned(),
+                    target: "user-lexicon".to_owned(),
+                },
+                19,
+            ),
+            direct_record(
+                "delete-current-line",
+                "oui",
+                "[删行]",
+                FunctionalAction::DirectControl {
+                    action: "editor.delete-line".to_owned(),
+                    target: String::new(),
+                },
+                20,
+            ),
+            direct_record(
+                "delete-current-line-alias",
+                "oiu",
+                "[删行]",
+                FunctionalAction::DirectControl {
+                    action: "editor.delete-line".to_owned(),
+                    target: String::new(),
+                },
+                21,
+            ),
+            direct_record(
+                "smart-punctuation-enable",
+                "ovn",
+                "[智能标点 600ms]",
+                FunctionalAction::DirectControl {
+                    action: "settings.smart-period".to_owned(),
+                    target: "600".to_owned(),
+                },
+                22,
+            ),
+            direct_record(
+                "smart-punctuation-disable",
+                "ovn",
+                "[关闭智能标点]",
+                FunctionalAction::DirectControl {
+                    action: "settings.smart-period".to_owned(),
+                    target: "0".to_owned(),
+                },
+                23,
+            ),
+            direct_record(
+                "traditional-toggle",
+                "ojf",
+                "[简繁切换]",
+                FunctionalAction::DirectControl {
+                    action: "settings.traditional".to_owned(),
+                    target: "toggle".to_owned(),
+                },
+                24,
+            ),
+            direct_record(
+                "punctuation-toggle",
+                "ovy",
+                "[中英标点切换]",
+                FunctionalAction::DirectControl {
+                    action: "settings.punctuation".to_owned(),
+                    target: "toggle".to_owned(),
+                },
+                25,
+            ),
+            direct_record(
+                "fullwidth-toggle",
+                "oqb",
+                "[全半角切换]",
+                FunctionalAction::DirectControl {
+                    action: "settings.fullwidth".to_owned(),
+                    target: "toggle".to_owned(),
+                },
+                26,
+            ),
+            direct_record(
+                "numeric-period-enable",
+                "osz",
+                "[数字标点]",
+                FunctionalAction::DirectControl {
+                    action: "settings.numeric-period".to_owned(),
+                    target: "enabled".to_owned(),
+                },
+                27,
+            ),
+            direct_record(
+                "numeric-period-disable",
+                "osz",
+                "[关闭数字标点]",
+                FunctionalAction::DirectControl {
+                    action: "settings.numeric-period".to_owned(),
+                    target: "disabled".to_owned(),
+                },
+                28,
+            ),
+            direct_record(
+                "empty-clear-four",
+                "oqma",
+                "[4码空码自动清]",
+                FunctionalAction::DirectControl {
+                    action: "settings.empty-clear".to_owned(),
+                    target: "4".to_owned(),
+                },
+                29,
+            ),
+            direct_record(
+                "empty-clear-twelve",
+                "oqma",
+                "[12码空码自动清]",
+                FunctionalAction::DirectControl {
+                    action: "settings.empty-clear".to_owned(),
+                    target: "12".to_owned(),
+                },
+                30,
+            ),
+            direct_record(
+                "top-screen-four",
+                "odp",
+                "[四码后顶]",
+                FunctionalAction::DirectControl {
+                    action: "settings.commit-policy".to_owned(),
+                    target: "top-screen".to_owned(),
+                },
+                31,
+            ),
+            direct_record(
+                "auto-commit-four",
+                "odp",
+                "[四码唯一自动上屏]",
+                FunctionalAction::DirectControl {
+                    action: "settings.commit-policy".to_owned(),
+                    target: "auto-commit".to_owned(),
+                },
+                32,
+            ),
         ];
         Self {
             fixture_only: false,
             records,
-            file_sha256: "built-in-production-actions-v2".to_owned(),
+            file_sha256: "built-in-production-actions-v3".to_owned(),
         }
     }
 
@@ -844,6 +1048,16 @@ mod tests {
         assert!(matches!(
             direct[0].action,
             FunctionalAction::StaticText(ref text) if text == "一"
+        ));
+        assert!(matches!(
+            table.query_direct_exact_or_prefix("xhgw")[0].action,
+            FunctionalAction::DirectControl { ref action, ref target }
+                if action == "url.open" && target == "flypy-home"
+        ));
+        assert!(matches!(
+            table.query_direct_exact_or_prefix("oui")[0].action,
+            FunctionalAction::DirectControl { ref action, ref target }
+                if action == "editor.delete-line" && target.is_empty()
         ));
     }
 

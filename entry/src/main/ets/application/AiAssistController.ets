@@ -371,6 +371,10 @@ export class AiAssistController {
   private cancelActive(showCanceled: boolean): void {
     this.operationSequence += 1;
     const request = this.activeRequest;
+    if (request === undefined && this.activeSourceCursorUtf16 === undefined &&
+      this.timeoutId === undefined && this.store.isAiPresentationIdle()) {
+      return;
+    }
     if (request) {
       this.provider.cancel(request.requestId);
     }

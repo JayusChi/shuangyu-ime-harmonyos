@@ -1,13 +1,15 @@
 #ifndef RUST_ENGINE_BRIDGE_H
 #define RUST_ENGINE_BRIDGE_H
 
+#include "rust_buffer.h"
+
 #include <cstdint>
 #include <cstddef>
 #include <string>
 
 struct RustCallResult {
     int32_t code;
-    std::string payload;
+    RustBuffer payload;
 };
 
 constexpr uint32_t CURRENT_INTERFACE_VERSION = 10;
@@ -38,6 +40,7 @@ RustCallResult PreviousRegisteredEngineCandidatePage(uint32_t id);
 RustCallResult GetRegisteredEngineLocalAssociations(uint32_t id);
 RustCallResult GetRegisteredEngineCodeTableCategoryConfig(uint32_t id);
 RustCallResult SetRegisteredEngineCodeTableCategories(uint32_t id, const std::string& categoryIdsJson);
+RustCallResult SetRegisteredEngineCodeTableCommitPolicy(uint32_t id, const std::string& policyJson);
 RustCallResult ReloadRegisteredEngineUserLexicon(uint32_t id);
 RustCallResult LoadUserLexiconDocument(const std::string& path);
 RustCallResult SaveUserLexiconDocument(

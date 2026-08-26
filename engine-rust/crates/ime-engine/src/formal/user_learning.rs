@@ -6,16 +6,20 @@ impl ImeEngine {
         if path.trim().is_empty() {
             return Err(EngineOperationError::InvalidArgument);
         }
-        self.user_model
+        let status = self.user_model
             .set_path(path)
-            .map_err(EngineOperationError::UserModel)
+            .map_err(EngineOperationError::UserModel)?;
+        self.t9_compatibility_decode_cache.clear();
+        Ok(status)
     }
 
     pub fn load_user_model(&mut self) -> Result<UserModelStatus, EngineOperationError> {
-        self.user_model
+        let status = self.user_model
             .load()
             .map(|_| self.user_model.status())
-            .map_err(EngineOperationError::UserModel)
+            .map_err(EngineOperationError::UserModel)?;
+        self.t9_compatibility_decode_cache.clear();
+        Ok(status)
     }
 
     pub fn flush_user_model(&mut self) -> Result<UserModelStatus, EngineOperationError> {
@@ -25,18 +29,24 @@ impl ImeEngine {
     }
 
     pub fn clear_user_model(&mut self) -> Result<UserModelStatus, EngineOperationError> {
-        self.user_model
+        let status = self.user_model
             .clear()
-            .map_err(EngineOperationError::UserModel)
+            .map_err(EngineOperationError::UserModel)?;
+        self.t9_compatibility_decode_cache.clear();
+        Ok(status)
     }
 
     pub fn set_user_learning_enabled(&mut self, enabled: bool) -> UserModelStatus {
-        self.user_model.set_user_learning_enabled(enabled)
+        let status = self.user_model.set_user_learning_enabled(enabled);
+        self.t9_compatibility_decode_cache.clear();
+        status
     }
 
     pub fn set_session_learning_allowed(&mut self, allowed: bool) -> UserModelStatus {
         self.quanpin_context_reranker.set_context_allowed(allowed);
-        self.user_model.set_session_learning_allowed(allowed)
+        let status = self.user_model.set_session_learning_allowed(allowed);
+        self.t9_compatibility_decode_cache.clear();
+        status
     }
 
     /// Reloads the external user overlay without exposing a partially parsed
@@ -172,5 +182,4 @@ fn load_user_lexicon(path: &str) -> UserLexiconSnapshot {
         .map(|report| report.snapshot)
         .unwrap_or_default()
 }
-
 

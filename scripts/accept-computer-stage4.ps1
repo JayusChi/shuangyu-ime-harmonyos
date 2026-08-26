@@ -264,8 +264,20 @@ Assert-True ($resizedPosition.Field.Y1 -ne $afterPosition.Field.Y1 -or
 Capture-Screen 'resize_after'
 
 Invoke-Hdc @('shell', 'aa', 'start', '-b', 'com.huawei.hmos.browser', '-a', 'MainAbility') | Out-Null
-Start-Sleep -Seconds 3
-$browser = Dump-Layout 'browser_after_switch'
+$browser = ''
+$browserRoot = $null
+for ($attempt = 0; $attempt -lt 12; $attempt += 1) {
+    Start-Sleep -Seconds 1
+    $browser = Dump-Layout 'browser_after_switch'
+    $browserRoot = Get-Nodes $browser | Where-Object {
+        [string]$_.attributes.bundleName -eq 'com.huawei.hmos.browser' -and
+        [string]$_.attributes.visible -eq 'true'
+    } | Select-Object -First 1
+    if ($null -ne $browserRoot -and $null -eq (Find-Text $browser $firstCandidate)) {
+        break
+    }
+}
+Assert-True ($null -ne $browserRoot) 'system browser reached a visible foreground window'
 Assert-True ($null -eq (Find-Text $browser $firstCandidate)) 'application switch removes the old candidate window'
 Capture-Screen 'browser_after_switch'
 

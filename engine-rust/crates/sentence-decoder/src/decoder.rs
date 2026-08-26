@@ -4,7 +4,9 @@ use lexicon_core::BinaryLexicon;
 
 use crate::context::CharacterBigramModel;
 use crate::graph::{SyllableGraph, WordEdge};
-use crate::path::{compare_path, deduplicate_candidates, SentenceCandidate, SentencePath};
+use crate::path::{
+    compare_path, compare_path_parts, deduplicate_candidates, SentenceCandidate, SentencePath,
+};
 use crate::scorer::SentenceScorer;
 use crate::t9_joint::{T9JointDecodeResult, T9JointLimits, T9JointSession, T9LexiconIndex};
 use crate::{DecodeError, DecodeLimits};
@@ -19,7 +21,7 @@ pub struct DecodeResult {
 /// Reusable decoder bound to one already loaded binary lexicon.
 #[derive(Clone, Debug)]
 pub struct SentenceDecoder {
-    lexicon: BinaryLexicon,
+    lexicon: Arc<BinaryLexicon>,
     context_model: CharacterBigramModel,
     limits: DecodeLimits,
     t9_index: Arc<OnceLock<T9LexiconIndex>>,
@@ -27,6 +29,13 @@ pub struct SentenceDecoder {
 
 impl SentenceDecoder {
     pub fn new(lexicon: BinaryLexicon, limits: DecodeLimits) -> Result<Self, DecodeError> {
+        Self::new_shared(Arc::new(lexicon), limits)
+    }
+
+    pub fn new_shared(
+        lexicon: Arc<BinaryLexicon>,
+        limits: DecodeLimits,
+    ) -> Result<Self, DecodeError> {
         limits.validate()?;
         let context_model = CharacterBigramModel::from_lexicon(&lexicon);
         Ok(Self {
@@ -39,6 +48,15 @@ impl SentenceDecoder {
 
     pub fn limits(&self) -> &DecodeLimits {
         &self.limits
+    }
+
+    /// Reconfigures the bounded search without rebuilding the lexicon-backed
+    /// decoder. Scheme switches use this to keep their work ceilings
+    /// independent from the scheme that originally created the engine.
+    pub fn set_limits(&mut self, limits: DecodeLimits) -> Result<(), DecodeError> {
+        limits.validate()?;
+        self.limits = limits;
+        Ok(())
     }
 
     pub fn lexicon_version(&self) -> u32 {
@@ -249,13 +267,6 @@ impl PathState {
         edges.push(edge);
         Self { edges, score }
     }
-
-    fn as_path(&self) -> SentencePath {
-        SentencePath {
-            edges: self.edges.clone(),
-            score: self.score,
-        }
-    }
 }
 
 fn trim_beams(beams: &mut [Vec<PathState>], beam_width: usize) {
@@ -263,7 +274,9 @@ fn trim_beams(beams: &mut [Vec<PathState>], beam_width: usize) {
         if states.len() <= beam_width {
             continue;
         }
-        states.sort_by(|left, right| compare_path(&left.as_path(), &right.as_path()));
+        states.sort_by(|left, right| {
+            compare_path_parts(left.score, &left.edges, right.score, &right.edges)
+        });
         states.truncate(beam_width);
     }
 }
@@ -562,6 +575,28 @@ mod tests {
                 field: "beam_width"
             })
         ));
+    }
+
+    #[test]
+    fn reconfiguring_limits_is_validated_before_mutation() {
+        let mut decoder = sample_decoder();
+        let original = decoder.limits().clone();
+        let invalid = DecodeLimits {
+            beam_width: 0,
+            ..original.clone()
+        };
+
+        assert!(decoder.set_limits(invalid).is_err());
+        assert_eq!(decoder.limits(), &original);
+
+        let compact = DecodeLimits {
+            beam_width: 4,
+            max_output_paths: 4,
+            max_output_candidates: 4,
+            ..original
+        };
+        decoder.set_limits(compact.clone()).unwrap();
+        assert_eq!(decoder.limits(), &compact);
     }
 
     fn sample_decoder() -> SentenceDecoder {

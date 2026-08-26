@@ -289,7 +289,17 @@ export function panelHeightForMode(
   }, screenMetrics.isLandscape);
   const metrics = calculateDynamicMetrics(validMetrics, mode);
   const panelHeightVp = calculateTotalKeyboardHeight(metrics, pinyin9ChineseLayout) + 6;
-  const panelHeightPx = vpToPx(panelHeightVp, validMetrics);
+  let panelHeightPx = vpToPx(panelHeightVp, validMetrics);
+  if (pinyin9ChineseLayout && validMetrics.isLandscape) {
+    // A fixed IME panel above roughly 60% of a landscape display is rejected by
+    // some Pad/2-in-1 runtimes (12800008). T9 has one more key row and a pinyin
+    // bar, but every rendered row uses layoutWeight, so it can safely share this
+    // bounded panel and distribute the available height instead of overflowing.
+    const qwertyHeightPx = vpToPx(calculateTotalKeyboardHeight(metrics, false) + 6, validMetrics);
+    const usableHeightPx = validMetrics.heightPx - (validMetrics.bottomSystemInsetPx ?? 0);
+    const landscapeT9LimitPx = Math.round(usableHeightPx * 0.6);
+    panelHeightPx = Math.min(panelHeightPx, Math.max(qwertyHeightPx, landscapeT9LimitPx));
+  }
   return clamp(panelHeightPx, 1, Math.round(validMetrics.heightPx));
 }
 

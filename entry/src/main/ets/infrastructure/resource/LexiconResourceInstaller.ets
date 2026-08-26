@@ -14,6 +14,8 @@ const EXPECTED_PRODUCTION_LEXICON_BYTES = 3751923;
 const EXPECTED_PRODUCTION_LEXICON_SHA256 =
   'e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365';
 const HASH_BUFFER_BYTES = 64 * 1024;
+const VALIDATION_RECEIPT_SUFFIX = '.verified-v1';
+const VALIDATION_RECEIPT_VERSION = 'production-lexicon-receipt/1';
 
 export interface LexiconInstallResult {
   success: boolean;
@@ -25,8 +27,10 @@ export class LexiconResourceInstaller {
   installDefaultLexicon(context: InputMethodExtensionContext): LexiconInstallResult {
     const targetPath: string = `${context.filesDir}/${INSTALLED_LEXICON_NAME}`;
     const tempPath: string = `${targetPath}.tmp`;
+    const receiptPath: string = `${targetPath}${VALIDATION_RECEIPT_SUFFIX}`;
+    const receiptTempPath: string = `${receiptPath}.tmp`;
     try {
-      if (this.isInstalled(targetPath)) {
+      if (this.isInstalled(targetPath, receiptPath)) {
         LOGGER.info('production lexicon already installed and valid');
         return this.success(targetPath);
       }
@@ -59,37 +63,73 @@ export class LexiconResourceInstaller {
         fs.closeSync(file);
       }
 
-      if (!this.isInstalled(tempPath)) {
+      if (!this.isExpectedFile(tempPath)) {
         this.removeIfPresent(tempPath);
         return this.failure('temporary lexicon verification failed');
       }
 
+      this.removeIfPresent(receiptPath);
       this.removeIfPresent(targetPath);
       fs.renameSync(tempPath, targetPath);
+      try {
+        this.writeValidationReceipt(targetPath, receiptPath);
+      } catch (err) {
+        LOGGER.warn(`unable to write lexicon validation receipt: ${JSON.stringify(err)}`);
+      }
 
       LOGGER.info('production lexicon installed after SHA-256 verification');
       return this.success(targetPath);
     } catch (err) {
       LOGGER.error(`install production lexicon failed: ${JSON.stringify(err)}`);
       this.removeIfPresent(tempPath);
+      this.removeIfPresent(receiptTempPath);
       return this.failure('production lexicon resource install failed');
     }
   }
 
-  private isInstalled(path: string): boolean {
+  private isInstalled(path: string, receiptPath: string): boolean {
     try {
       if (!fs.accessSync(path)) {
         return false;
       }
       const stat: fs.Stat = fs.statSync(path);
       if (stat.size !== EXPECTED_PRODUCTION_LEXICON_BYTES) {
+        this.removeIfPresent(receiptPath);
         return false;
       }
-      return this.hashFile(path) === EXPECTED_PRODUCTION_LEXICON_SHA256;
+      if (fs.accessSync(receiptPath)) {
+        try {
+          if (fs.readTextSync(receiptPath) === this.validationReceipt(stat)) {
+            return true;
+          }
+        } catch (err) {
+          LOGGER.warn(`unable to read lexicon validation receipt: ${JSON.stringify(err)}`);
+          this.removeIfPresent(receiptPath);
+        }
+      }
+      if (!this.isExpectedFile(path)) {
+        this.removeIfPresent(receiptPath);
+        return false;
+      }
+      try {
+        this.writeValidationReceipt(path, receiptPath);
+      } catch (err) {
+        LOGGER.warn(`unable to refresh lexicon validation receipt: ${JSON.stringify(err)}`);
+      }
+      return true;
     } catch (err) {
       LOGGER.warn(`production lexicon validation failed: ${JSON.stringify(err)}`);
       return false;
     }
+  }
+
+  private isExpectedFile(path: string): boolean {
+    if (!fs.accessSync(path)) {
+      return false;
+    }
+    const stat: fs.Stat = fs.statSync(path);
+    return stat.size === EXPECTED_PRODUCTION_LEXICON_BYTES &&
+      this.hashFile(path) === EXPECTED_PRODUCTION_LEXICON_SHA256;
   }
 
   private hashBytes(content: Uint8Array): string {
@@ -113,6 +153,28 @@ export class LexiconResourceInstaller {
       fs.closeSync(file);
     }
     return hashStream.digest().toLowerCase();
+  }
+
+  private validationReceipt(stat: fs.Stat): string {
+    return `${VALIDATION_RECEIPT_VERSION}\n${EXPECTED_PRODUCTION_LEXICON_SHA256}\n${stat.ino.toString()}\n` +
+      `${stat.size}\n${stat.mtime}\n${stat.ctime}\n`;
+  }
+
+  private writeValidationReceipt(lexiconPath: string, receiptPath: string): void {
+    const receiptTempPath: string = `${receiptPath}.tmp`;
+    const content: string = this.validationReceipt(fs.statSync(lexiconPath));
+    const file: fs.File = fs.openSync(
+      receiptTempPath,
+      fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC
+    );
+    try {
+      fs.writeSync(file.fd, content);
+      fs.fsyncSync(file.fd);
+    } finally {
+      fs.closeSync(file);
+    }
+    this.removeIfPresent(receiptPath);
+    fs.renameSync(receiptTempPath, receiptPath);
   }
 
   private removeIfPresent(path: string): void {

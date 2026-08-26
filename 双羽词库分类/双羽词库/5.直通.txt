@@ -1,0 +1,59 @@
+## 直通词库
+$cmd(querycode,[复制反查])	ofi
+$cmd({time}:yyyy年M月d日,{time}:yyyy年M月d日)	orq
+$cmd({time}:yyyy-MM-dd,{time}:yyyy-MM-dd)	orq
+$cmd({cttg}:yMdHm,{cttg}:yMdHm)	onl
+$cmd({time}:HH:mm ddd,{time}:HH:mm ddd)	ouj
+$cmd({time}:H点m分,{time}:H点m分)	ouj
+
+$cmd(run(https://flypy.cc),「小鹤官网」)	xhgw
+https://flypy.cc	xhg
+$cmd(run(http://flypy.ysepan.com),「小鹤网盘」)	xhwp
+$cmd(run(https://flypy.cc/help),「入门」)	xhrm
+$cmd(run(https://flypy.cc/help/#/sj),「入门」)	orm
+
+$cmd(show(设置),「设置菜单」)	ocd
+$cmd(set(reload),[重载])	oiz
+$cmd(set(reload),[重载])	ouz
+$cmd(keyboard(<164>),[静音])	ojy
+
+$cmd(show(配置目录),「安装目录」)	oav
+$cmd(open($userpath$/小鹤用户词库.txt),「打开用户词库」)	oyh
+$cmd(add($userpath$/小鹤用户词库.txt),「导入用户词库」)	odr
+
+$cmd(set(ime-hans2hant=?), [简繁切换])	ojf
+$cmd(set(ime-cnuseensymbol=?), [中英标点切换])	ovy
+$cmd(set(ime-quanjiao=?), [全半角切换])	oqb
+
+$cmd(deleteline,[删行])	oui
+$cmd(deleteline,[删行])	oiu
+
+$cmd(set(ime-embedmode=1),[嵌入编码])	oqr
+$cmd(set(ime-embedmode=0),[关闭])	oqr
+
+$cmd(addword,[加词])	ojc
+
+
+$cmd(set(ime-adjustsymboldelay=600),[智能标点])	ovn
+$cmd(set(ime-adjustsymboldelay=0),[关闭])	ovn
+$cmd(set(ime-numsymbol=.),[数字标点])	osz
+$cmd(set(ime-numsymbol=0),[关闭])	osz
+
+$cmd(autosearch,「浏览器」)	oss
+$cmd(autosearch(https://www.baidu.com/s?wd={word},large),「百度」)	oss
+$cmd(run(https://www.zdic.net/hans/{cursorbefore}{clip}),「汉典」)	ozd
+$cmd(run(https://zi.tools/zi/{cursorbefore}{clip}),「字统」)	ozd
+
+$cmd(set(ime-maxcleancount=4),[4码空码自动清])	oqma
+$cmd(set(ime-maxcleancount=12),[12])	oqma
+$cmd(set(ime-dinglen=4),[四码后顶])	odp
+$cmd(set(ime-dinglen=4;ime-aotu=4),[四码唯一自动上屏])	odp
+
+$cmd(set(ime-usedassisttype=-全码词-全码字-生僻字),[熟手])	ojj
+$cmd(set(ime-usedassisttype=+全码词-全码字-生僻字),[常规])	ojj
+$cmd(set(ime-usedassisttype=+全码词+全码字+生僻字,[初学])	ojj
+$cmd(set(ime-usedassisttype=+二简次选),启用<二简次选>)	oej
+$cmd(set(ime-usedassisttype=-二简次选),[关闭])	oej
+
+$cmd(　　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n,『静夜思』)	jysi
+

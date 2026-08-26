@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $engineManifest = Join-Path $repoRoot 'engine-rust\Cargo.toml'
-$lexiconPath = Join-Path $repoRoot 'entry\src\main\resources\rawfile\production.lex'
+$lexiconPath = Join-Path $repoRoot 'dictionaries\generated\production.lex'
 $bundlePath = Join-Path $repoRoot 'dictionaries\generated\xiaohe-yinxing-production\xiaohe-yinxing-production.hsyx'
 $outputDir = Join-Path $repoRoot 'artifacts\candidate-baseline'
 $docsPath = Join-Path $repoRoot 'docs\candidate-baseline.md'
@@ -80,8 +80,8 @@ function Write-EnvironmentSnapshot {
         }
         resources = @(
             [ordered]@{
-                id = 'production-double-pinyin-lexicon'
-                path = 'entry/src/main/resources/rawfile/production.lex'
+                id = 'archived-v115-double-pinyin-lexicon'
+                path = 'dictionaries/generated/production.lex'
                 byte_size = (Get-Item -LiteralPath $lexiconPath).Length
                 sha256 = (Get-FileHash -LiteralPath $lexiconPath -Algorithm SHA256).Hash.ToLowerInvariant()
             },
@@ -133,7 +133,7 @@ function Write-EnvironmentSnapshot {
 }
 
 if (-not (Test-Path -LiteralPath $lexiconPath -PathType Leaf)) {
-    throw "Production double-pinyin lexicon is missing: $lexiconPath"
+    throw "Archived V115 double-pinyin lexicon is missing: $lexiconPath"
 }
 if (-not (Test-Path -LiteralPath $bundlePath -PathType Leaf)) {
     throw "Production flypy-shape bundle is missing: $bundlePath"

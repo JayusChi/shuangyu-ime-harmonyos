@@ -3,15 +3,17 @@
 #include "native_error.h"
 #include "rust_buffer.h"
 
+#include <utility>
+
 namespace {
 RustCallResult CopyResult(int32_t code, RustBuffer& buffer) {
     if (code != IME_SUCCESS) {
-        return {code, ""};
+        return {code, RustBuffer()};
     }
     if (buffer.Empty()) {
-        return {IME_BUFFER_ALLOCATION_FAILED, ""};
+        return {IME_BUFFER_ALLOCATION_FAILED, RustBuffer()};
     }
-    return {code, buffer.ToString()};
+    return {code, std::move(buffer)};
 }
 } // namespace
 
@@ -41,13 +43,13 @@ RustCallResult RustEngineHandle::Create(const std::string& config, RustEngineHan
     auto* bytes = reinterpret_cast<const uint8_t*>(config.data());
     int32_t code = ime_engine_create(bytes, config.length(), &rawHandle);
     if (code != IME_SUCCESS) {
-        return {code, ""};
+        return {code, RustBuffer()};
     }
     if (rawHandle == nullptr) {
-        return {IME_INVALID_HANDLE, ""};
+        return {IME_INVALID_HANDLE, RustBuffer()};
     }
     out = RustEngineHandle(rawHandle);
-    return {IME_SUCCESS, ""};
+    return {IME_SUCCESS, RustBuffer()};
 }
 
 RustCallResult RustEngineHandle::ProcessKey(const std::string& key) {
@@ -123,6 +125,14 @@ RustCallResult RustEngineHandle::SetCodeTableCategories(const std::string& categ
     auto* bytes = reinterpret_cast<const uint8_t*>(categoryIdsJson.data());
     int32_t code = ime_engine_set_code_table_categories(
         handle_, bytes, categoryIdsJson.length(), buffer.Out());
+    return CopyResult(code, buffer);
+}
+
+RustCallResult RustEngineHandle::SetCodeTableCommitPolicy(const std::string& policyJson) {
+    RustBuffer buffer;
+    auto* bytes = reinterpret_cast<const uint8_t*>(policyJson.data());
+    int32_t code = ime_engine_set_code_table_commit_policy(
+        handle_, bytes, policyJson.length(), buffer.Out());
     return CopyResult(code, buffer);
 }
 
