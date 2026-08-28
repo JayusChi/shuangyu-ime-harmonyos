@@ -175,19 +175,24 @@ export class UserLexiconSyncBus {
   private async readManifest(
     handle: dataShare.DataProxyHandle
   ): Promise<UserLexiconManifest | undefined> {
-    const results = await handle.get([USER_LEXICON_MANIFEST_URI], SHARED_CONFIG);
-    if (results.length !== 1 || results[0].result !== dataShare.DataProxyErrorCode.SUCCESS ||
-      typeof results[0].value !== 'string') {
+    try {
+      const results = await handle.get([USER_LEXICON_MANIFEST_URI], SHARED_CONFIG);
+      if (results.length !== 1 || results[0].result !== dataShare.DataProxyErrorCode.SUCCESS ||
+        typeof results[0].value !== 'string') {
+        return undefined;
+      }
+      const manifest = JSON.parse(results[0].value) as UserLexiconManifest;
+      if (typeof manifest.version !== 'string' || manifest.version.length <= 0 ||
+        !Number.isInteger(manifest.chunkCount) || manifest.chunkCount < 0 ||
+        manifest.chunkCount > MAX_CHUNKS) {
+        LOGGER.warn('user lexicon shared manifest is invalid');
+        return undefined;
+      }
+      return manifest;
+    } catch (err) {
+      LOGGER.warn(`user lexicon shared manifest read failed: ${JSON.stringify(err)}`);
       return undefined;
     }
-    const manifest = JSON.parse(results[0].value) as UserLexiconManifest;
-    if (typeof manifest.version !== 'string' || manifest.version.length <= 0 ||
-      !Number.isInteger(manifest.chunkCount) || manifest.chunkCount < 0 ||
-      manifest.chunkCount > MAX_CHUNKS) {
-      LOGGER.warn('user lexicon shared manifest is invalid');
-      return undefined;
-    }
-    return manifest;
   }
 
   private async deleteChunks(

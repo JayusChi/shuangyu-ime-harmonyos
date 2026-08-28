@@ -206,6 +206,12 @@ class Stage10GuideRepeatEngineCoordinator extends Stage10FakeEngineCoordinator {
   }
 }
 
+class Stage10YinxingEngineCoordinator extends Stage10FakeEngineCoordinator {
+  getActiveSchemeId(): string {
+    return 'xiaohe-yinxing';
+  }
+}
+
 class Stage10FakeImeService implements ImeInputService {
   insertedTexts: string[] = [];
   editorText: string = '';
@@ -599,6 +605,56 @@ export default function stage10Test() {
       expect(ime.editorText).assertEqual('.');
     });
 
+    it('replaces each configured Chinese punctuation with its matching ASCII symbol', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new Stage10FakeImeService();
+      const controller = new InputSessionController(store, ime, new Stage10FakeEngineCoordinator());
+      store.markSessionStarted();
+      controller.applyEditorContext(mapper().mapValues(CATALOG.patternText, CATALOG.enterDone));
+
+      await controller.insertCharacter('，', controller.getInputSessionGeneration(),
+        controller.beginInputAction(2400));
+      await controller.insertCharacter('，', controller.getInputSessionGeneration(),
+        controller.beginInputAction(2700));
+      await controller.insertCharacter('？', controller.getInputSessionGeneration(),
+        controller.beginInputAction(3000));
+      await controller.insertCharacter('？', controller.getInputSessionGeneration(),
+        controller.beginInputAction(3300));
+
+      expect(ime.editorText).assertEqual(',?');
+    });
+
+    it('does not merge two different smart punctuation targets', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new Stage10FakeImeService();
+      const controller = new InputSessionController(store, ime, new Stage10FakeEngineCoordinator());
+      store.markSessionStarted();
+      controller.applyEditorContext(mapper().mapValues(CATALOG.patternText, CATALOG.enterDone));
+
+      await controller.insertCharacter('，', controller.getInputSessionGeneration(),
+        controller.beginInputAction(3400));
+      await controller.insertCharacter('。', controller.getInputSessionGeneration(),
+        controller.beginInputAction(3600));
+
+      expect(ime.editorText).assertEqual('，。');
+    });
+
+    it('maps ASCII keys from the Chinese symbol page before smart punctuation replacement', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new Stage10FakeImeService();
+      const controller = new InputSessionController(store, ime, new Stage10FakeEngineCoordinator());
+      store.markSessionStarted();
+      controller.applyEditorContext(mapper().mapValues(CATALOG.patternText, CATALOG.enterDone));
+      await controller.toggleSymbolMode();
+
+      await controller.insertCharacter('?', controller.getInputSessionGeneration(),
+        controller.beginInputAction(3700));
+      await controller.insertCharacter('?', controller.getInputSessionGeneration(),
+        controller.beginInputAction(3900));
+
+      expect(ime.editorText).assertEqual('?');
+    });
+
     it('keeps both Chinese periods when the second press exceeds the configured window', 0, async () => {
       const store = new InputSessionStore();
       const ime = new Stage10FakeImeService();
@@ -630,7 +686,7 @@ export default function stage10Test() {
 
       expect(engine.processedKeys.join('')).assertEqual(';');
       expect(ime.insertedTexts.length).assertEqual(0);
-      expect(ime.previewTexts[0]).assertEqual(';');
+      expect(ime.compatibleTexts[0]).assertEqual(';');
     });
 
     it('commitsTheQuickSymbolRepeatTriggerOnTheSecondSemicolon', 0, async () => {
@@ -650,6 +706,42 @@ export default function stage10Test() {
       expect(ime.insertedTexts.join('')).assertEqual('；');
       expect(store.getSnapshot().rawInput).assertEqual('');
       expect(store.getSnapshot().candidates.length).assertEqual(0);
+    });
+
+    it('outputs upper-deck punctuation exactly as printed instead of converting it', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new Stage10FakeImeService();
+      const engine = new Stage10FakeEngineCoordinator();
+      const controller = new InputSessionController(store, ime, engine);
+      store.markSessionStarted();
+      controller.applyEditorContext(mapper().mapValues(CATALOG.patternText, CATALOG.enterDone));
+      store.switchKeyboardMode(KeyboardMode.CHINESE);
+
+      expect((await controller.insertLiteralCharacter('/')).success).assertTrue();
+      expect((await controller.insertLiteralCharacter(';')).success).assertTrue();
+      expect((await controller.insertLiteralCharacter('!')).success).assertTrue();
+
+      expect(ime.insertedTexts.join('')).assertEqual('/;!');
+      expect(engine.processedKeys.length).assertEqual(0);
+      expect(store.getSnapshot().rawInput).assertEqual('');
+    });
+
+    it('routes the skin universal key through the Xiaohe Yinxing wildcard engine', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new Stage10FakeImeService();
+      const engine = new Stage10YinxingEngineCoordinator();
+      const controller = new InputSessionController(store, ime, engine);
+      store.markSessionStarted();
+      controller.applyEditorContext(mapper().mapValues(CATALOG.patternText, CATALOG.enterDone));
+      store.switchKeyboardMode(KeyboardMode.CHINESE);
+
+      expect((await controller.insertLetter('u')).success).assertTrue();
+      expect((await controller.insertUniversalKey()).success).assertTrue();
+
+      expect(engine.processedKeys.join('')).assertEqual('u`');
+      expect(store.getSnapshot().rawInput).assertEqual('u`');
+      expect(store.getSnapshot().candidates.length > 0).assertTrue();
+      expect(ime.insertedTexts.length).assertEqual(0);
     });
 
     it('togglesChineseCapsAndCommitsUppercaseWithoutComposition', 0, async () => {
@@ -715,7 +807,7 @@ export default function stage10Test() {
       expect(store.getSnapshot().segmentBoundaries.join(',')).assertEqual('2');
       expect(store.getSnapshot().candidatePage).assertEqual(0);
       expect(ime.insertedTexts.length).assertEqual(0);
-      expect(ime.previewTexts[ime.previewTexts.length - 1]).assertEqual("ni'");
+      expect(ime.compatibleTexts[ime.compatibleTexts.length - 1]).assertEqual("ni'");
 
       await controller.deleteBackward();
       expect(store.getSnapshot().rawInput).assertEqual('ni');
@@ -839,6 +931,21 @@ export default function stage10Test() {
         expect(item.longPressAction?.type).assertEqual(upperActions[index]);
         expect(item.swipeUpAction?.type).assertEqual(upperActions[index]);
       });
+
+      const literalUpperDeck: KeyboardKeySpec[] = [];
+      layout.rows.forEach((row): void => {
+        row.keys.forEach((item: KeyboardKeySpec): void => {
+          if (item.longPressAction?.type === KeyboardActionType.CHARACTER) {
+            literalUpperDeck.push(item);
+          }
+        });
+      });
+      expect(literalUpperDeck.length > 0).assertTrue();
+      literalUpperDeck.forEach((item: KeyboardKeySpec): void => {
+        expect(item.longPressAction?.literal === true).assertTrue();
+        expect(item.swipeUpAction?.literal === true).assertTrue();
+        expect(item.longPressAction?.character).assertEqual(item.upperLabel);
+      });
     });
 
     it('keepsAllChineseLetterLabelsUppercaseAndActionsLowercaseInEveryChineseState', 0, () => {
@@ -878,7 +985,7 @@ export default function stage10Test() {
       expect(result.success).assertTrue();
       expect(engine.processedKeys.join('')).assertEqual('n');
       expect(store.getSnapshot().rawInput).assertEqual('n');
-      expect(ime.previewTexts[0]).assertEqual('n');
+      expect(ime.compatibleTexts[0]).assertEqual('n');
     });
 
     it('keepsTheChineseEscKeyStableWhileComposing', 0, () => {
@@ -946,7 +1053,7 @@ export default function stage10Test() {
       expect(layout.rows[2].keys[0].action.type).assertEqual(KeyboardActionType.CANCEL_COMPOSITION);
       expect(layout.rows[2].keys[6].action.type).assertEqual(KeyboardActionType.DELETE);
       expect(layout.rows[3].keys.map((item) => item.id).join(','))
-        .assertEqual('symbol,number,space,punctuation-comma-period,enter');
+        .assertEqual('number,punctuation-comma,space,punctuation-period,enter');
       expect(layout.rows[3].keys[2].longPressAction?.type)
         .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
       expect(layout.rows[3].keys[2].swipeUpAction?.type)
@@ -969,14 +1076,16 @@ export default function stage10Test() {
         const layout = createStage10KeyboardLayout(mode, context, ShiftState.LOWERCASE);
         const bottom = layout.rows[layout.rows.length - 1].keys;
         expect(bottom.map((item) => item.id).join(','))
-          .assertEqual('symbol,number,space,punctuation-comma-period,enter');
+          .assertEqual('number,punctuation-comma,space,punctuation-period,enter');
         expect(bottom.map((item) => item.action.type).join(','))
           .assertEqual([
-            KeyboardActionType.TOGGLE_SYMBOL,
             KeyboardActionType.TOGGLE_NUMBER,
+            mode === KeyboardMode.CHINESE
+              ? KeyboardActionType.THIRD_CANDIDATE_OR_COMMA
+              : KeyboardActionType.CHARACTER,
             KeyboardActionType.SPACE,
             mode === KeyboardMode.CHINESE
-              ? KeyboardActionType.SECOND_CANDIDATE_OR_COMMA
+              ? KeyboardActionType.SECOND_CANDIDATE_OR_PERIOD
               : KeyboardActionType.CHARACTER,
             KeyboardActionType.ENTER
           ].join(','));
@@ -1134,13 +1243,13 @@ export default function stage10Test() {
         expect(row.keys.length).assertEqual(5);
       });
       expect(emailNumberLayout.rows[0].keys.map((item) => item.label).join(','))
-        .assertEqual('+,1,2,3,返回');
+        .assertEqual('+,1,2,3,/');
       expect(emailNumberLayout.rows[1].keys.map((item) => item.label).join(','))
-        .assertEqual('-,4,5,6,符号');
+        .assertEqual('-,4,5,6,=');
       expect(emailNumberLayout.rows[2].keys.map((item) => item.label).join(','))
         .assertEqual('*,7,8,9,删除');
       expect(emailNumberLayout.rows[3].keys.map((item) => item.label).join(','))
-        .assertEqual('/,,,0,.,完成');
+        .assertEqual('返回,,,0,.,完成');
       expect(emailNumberLayout.rows[0].keys[0].upperLabel).assertEqual('@');
       expect(emailNumberLayout.rows[3].keys[2].upperLabel).assertEqual('$');
     });
@@ -1282,6 +1391,7 @@ export default function stage10Test() {
       expect(ime.compatibleTexts[0]).assertEqual('n');
       expect(ime.compatibleTexts[1]).assertEqual('ni');
       expect(store.getSnapshot().rawInput).assertEqual('ni');
+      expect(store.getSnapshot().cursorPreeditVisible === true).assertFalse();
       expect(store.getSnapshot().candidates.length > 0).assertTrue();
 
       const committed = await controller.commitCandidate(0);
@@ -1292,7 +1402,7 @@ export default function stage10Test() {
       expect(store.getSnapshot().rawInput).assertEqual('');
     });
 
-    it('updatesEveryLetterAndDeletesThroughPreviewWithoutCommittedLetters', 0, async () => {
+    it('updatesEveryLetterAndDeletesInCandidateBarWithoutCommittedLetters', 0, async () => {
       const store = new InputSessionStore();
       const ime = new Stage10FakeImeService();
       const controller = new InputSessionController(store, ime, new Stage10FakeEngineCoordinator());
@@ -1301,18 +1411,20 @@ export default function stage10Test() {
 
       await controller.insertLetter('n');
       await controller.insertLetter('i');
-      expect(ime.previewTexts[0]).assertEqual('n');
-      expect(ime.previewTexts[1]).assertEqual('ni');
+      expect(ime.compatibleTexts[0]).assertEqual('n');
+      expect(ime.compatibleTexts[1]).assertEqual('ni');
       expect(ime.insertedTexts.length).assertEqual(0);
       expect(store.getSnapshot().rawInput).assertEqual('ni');
+      expect(store.getSnapshot().cursorPreeditVisible === true).assertFalse();
       expect(store.getSnapshot().candidateBarVisible).assertTrue();
 
       await controller.deleteBackward();
-      expect(ime.previewTexts[2]).assertEqual('n');
+      expect(ime.compatibleTexts[2]).assertEqual('n');
       expect(store.getSnapshot().rawInput).assertEqual('n');
       await controller.deleteBackward();
-      expect(ime.previewTexts[3]).assertEqual('');
+      expect(ime.compatibleTexts[3]).assertEqual('');
       expect(store.getSnapshot().rawInput).assertEqual('');
+      expect(store.getSnapshot().cursorPreeditVisible === true).assertFalse();
       expect(store.getSnapshot().candidateBarVisible).assertTrue();
       expect(ime.deleteCount).assertEqual(0);
       await controller.deleteBackward();
@@ -1467,7 +1579,7 @@ export default function stage10Test() {
       expect(ime.insertedTexts.length).assertEqual(0);
     });
 
-    it('previewFailureHasNoInsertOrDeleteFallback', 0, async () => {
+    it('candidateBarUpdateFailureHasNoInsertOrDeleteFallback', 0, async () => {
       const store = new InputSessionStore();
       const ime = new Stage10FakeImeService();
       const controller = new InputSessionController(store, ime, new Stage10FakeEngineCoordinator());
@@ -1477,7 +1589,7 @@ export default function stage10Test() {
 
       const result = await controller.insertLetter('n');
       expect(result.success).assertFalse();
-      expect(ime.previewTexts.length).assertEqual(1);
+      expect(ime.compatibleTexts.length).assertEqual(1);
       expect(ime.insertedTexts.length).assertEqual(0);
       expect(ime.deleteCount).assertEqual(0);
       expect(store.getSnapshot().rawInput).assertEqual('');

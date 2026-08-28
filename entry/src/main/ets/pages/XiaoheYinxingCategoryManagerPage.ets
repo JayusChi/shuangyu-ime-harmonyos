@@ -18,8 +18,6 @@ import {
 import { Logger } from '../common/logging/Logger';
 import { SettingsStateListener } from '../state/SettingsStore';
 import { resolveSettingsTheme, SettingsThemeTokens } from '../presentation/settings/SettingsTheme';
-import promptAction from '@ohos.promptAction';
-import router from '@ohos.router';
 
 const LOGGER = new Logger('XiaoheYinxingCategoryManagerPage');
 
@@ -198,22 +196,36 @@ struct XiaoheYinxingCategoryManagerPage {
   }
 
   private showToast(message: string): void {
-    promptAction.showToast({ message, duration: 2000 });
+    try {
+      this.getUIContext().getPromptAction().showToast({ message, duration: 2000 });
+    } catch (_) {}
+  }
+
+  private back(): void {
+    try {
+      this.getUIContext().getRouter().back();
+    } catch (err) {
+      LOGGER.warn(`返回分类设置失败: ${JSON.stringify(err)}`);
+    }
   }
 
   private goBack(): void {
     if (this.hasChanges) {
-      promptAction.showDialog({
-        title: '提示',
-        message: '有未保存的更改，确定要退出吗？',
-        buttons: [{ text: '取消', color: '#666666' }, { text: '退出', color: '#FF6B6B' }]
-      }).then((result) => {
-        if (result.index === 1) {
-          router.back();
-        }
-      });
+      try {
+        this.getUIContext().getPromptAction().showDialog({
+          title: '提示',
+          message: '有未保存的更改，确定要退出吗？',
+          buttons: [{ text: '取消', color: '#666666' }, { text: '退出', color: '#FF6B6B' }]
+        }).then((result) => {
+          if (result.index === 1) {
+            this.back();
+          }
+        });
+      } catch (err) {
+        LOGGER.warn(`退出确认框打开失败: ${JSON.stringify(err)}`);
+      }
     } else {
-      router.back();
+      this.back();
     }
   }
 

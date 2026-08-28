@@ -3,6 +3,18 @@ import {
   DEFAULT_KEYBOARD_PROFILE_ID,
   keyboardProfileEngineSchemeId
 } from '../keyboard/KeyboardProfile';
+import {
+  BUILTIN_KEYBOARD_SKIN_ID,
+  BUILTIN_KEYBOARD_STRUCTURE_ID
+} from '../customization/KeyboardCustomization';
+import {
+  DEFAULT_SMART_PUNCTUATION_SYMBOLS,
+  normalizeSmartPunctuationSymbols
+} from '../keyboard/SmartPunctuation';
+import {
+  DEFAULT_LETTER_SWIPE_SYMBOLS,
+  normalizeLetterSwipeSymbols
+} from '../keyboard/LetterSwipeSymbols';
 
 export enum ThemeMode {
   FOLLOW_SYSTEM = 'followSystem',
@@ -72,7 +84,10 @@ export interface ImeSettings {
   keyboardProfileId: string;
   schemeId: string;
   themeMode: ThemeMode;
+  keyboardStructureId: string;
+  keyboardSkinId: string;
   keyboardHeightMode: KeyboardHeightMode;
+  keyboardLiftLayerEnabled: boolean;
   candidateFontSizeMode: CandidateFontSizeMode;
   hapticLevel: HapticLevel;
   keySoundEnabled: boolean;
@@ -90,6 +105,9 @@ export interface ImeSettings {
   spellingCorrectionEnabled: boolean;
   fuzzyOptions: QuanpinFuzzyOption[];
   smartPeriodTimeoutMs: number;
+  smartPunctuationSymbols: string;
+  chineseLetterSwipeSymbols: string;
+  englishLetterSwipeSymbols: string;
   punctuationMode: PunctuationMode;
   fullWidthEnabled: boolean;
   numericPeriodEnabled: boolean;
@@ -109,7 +127,10 @@ export interface SettingsRaw {
   schemeId?: string;
   legacyKeyboardLayout?: string;
   themeMode?: string;
+  keyboardStructureId?: string;
+  keyboardSkinId?: string;
   keyboardHeightMode?: string;
+  keyboardLiftLayerEnabled?: string;
   candidateFontSizeMode?: string;
   hapticLevel?: string;
   keySoundEnabled?: string;
@@ -127,6 +148,9 @@ export interface SettingsRaw {
   spellingCorrectionEnabled?: string;
   fuzzyOptions?: string;
   smartPeriodTimeoutMs?: string;
+  smartPunctuationSymbols?: string;
+  chineseLetterSwipeSymbols?: string;
+  englishLetterSwipeSymbols?: string;
   punctuationMode?: string;
   fullWidthEnabled?: string;
   numericPeriodEnabled?: string;
@@ -149,7 +173,7 @@ export interface ShuangpinSchemeOption {
   displayName: string;
 }
 
-export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 10;
+export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 14;
 export const DEFAULT_AI_ACTIONS: string[] = ['continue', 'concise', 'polite', 'formal', 'translate'];
 export const DEFAULT_SMART_PERIOD_TIMEOUT_MS: number = 500;
 export const SMART_PERIOD_TIMEOUT_OPTIONS_MS: number[] = [0, 300, 500, 800, 1000];
@@ -205,7 +229,10 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   keyboardProfileId: DEFAULT_KEYBOARD_PROFILE_ID,
   schemeId: keyboardProfileEngineSchemeId(DEFAULT_KEYBOARD_PROFILE_ID),
   themeMode: ThemeMode.FOLLOW_SYSTEM,
+  keyboardStructureId: BUILTIN_KEYBOARD_STRUCTURE_ID,
+  keyboardSkinId: BUILTIN_KEYBOARD_SKIN_ID,
   keyboardHeightMode: KeyboardHeightMode.STANDARD,
+  keyboardLiftLayerEnabled: true,
   candidateFontSizeMode: CandidateFontSizeMode.STANDARD,
   hapticLevel: HapticLevel.LIGHT,
   keySoundEnabled: false,
@@ -223,6 +250,9 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   spellingCorrectionEnabled: false,
   fuzzyOptions: [],
   smartPeriodTimeoutMs: DEFAULT_SMART_PERIOD_TIMEOUT_MS,
+  smartPunctuationSymbols: DEFAULT_SMART_PUNCTUATION_SYMBOLS,
+  chineseLetterSwipeSymbols: DEFAULT_LETTER_SWIPE_SYMBOLS,
+  englishLetterSwipeSymbols: DEFAULT_LETTER_SWIPE_SYMBOLS,
   punctuationMode: PunctuationMode.CHINESE,
   fullWidthEnabled: false,
   numericPeriodEnabled: false,
@@ -262,7 +292,10 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     keyboardProfileId: settings.keyboardProfileId,
     schemeId: settings.schemeId,
     themeMode: settings.themeMode,
+    keyboardStructureId: settings.keyboardStructureId,
+    keyboardSkinId: settings.keyboardSkinId,
     keyboardHeightMode: settings.keyboardHeightMode,
+    keyboardLiftLayerEnabled: settings.keyboardLiftLayerEnabled,
     candidateFontSizeMode: settings.candidateFontSizeMode,
     hapticLevel: settings.hapticLevel,
     keySoundEnabled: settings.keySoundEnabled,
@@ -280,6 +313,9 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled,
     fuzzyOptions: settings.fuzzyOptions.slice(),
     smartPeriodTimeoutMs: settings.smartPeriodTimeoutMs,
+    smartPunctuationSymbols: settings.smartPunctuationSymbols,
+    chineseLetterSwipeSymbols: settings.chineseLetterSwipeSymbols,
+    englishLetterSwipeSymbols: settings.englishLetterSwipeSymbols,
     punctuationMode: settings.punctuationMode,
     fullWidthEnabled: settings.fullWidthEnabled,
     numericPeriodEnabled: settings.numericPeriodEnabled,
@@ -306,7 +342,10 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.keyboardProfileId === right.keyboardProfileId &&
     left.schemeId === right.schemeId &&
     left.themeMode === right.themeMode &&
+    left.keyboardStructureId === right.keyboardStructureId &&
+    left.keyboardSkinId === right.keyboardSkinId &&
     left.keyboardHeightMode === right.keyboardHeightMode &&
+    left.keyboardLiftLayerEnabled === right.keyboardLiftLayerEnabled &&
     left.candidateFontSizeMode === right.candidateFontSizeMode &&
     left.hapticLevel === right.hapticLevel &&
     left.keySoundEnabled === right.keySoundEnabled &&
@@ -325,6 +364,9 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.voicePunctuationEnabled === right.voicePunctuationEnabled &&
     left.spellingCorrectionEnabled === right.spellingCorrectionEnabled &&
     left.smartPeriodTimeoutMs === right.smartPeriodTimeoutMs &&
+    left.smartPunctuationSymbols === right.smartPunctuationSymbols &&
+    left.chineseLetterSwipeSymbols === right.chineseLetterSwipeSymbols &&
+    left.englishLetterSwipeSymbols === right.englishLetterSwipeSymbols &&
     left.punctuationMode === right.punctuationMode &&
     left.fullWidthEnabled === right.fullWidthEnabled &&
     left.numericPeriodEnabled === right.numericPeriodEnabled &&
@@ -362,7 +404,10 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     keyboardProfileId: settings.keyboardProfileId,
     schemeId: settings.schemeId,
     themeMode: settings.themeMode,
+    keyboardStructureId: settings.keyboardStructureId,
+    keyboardSkinId: settings.keyboardSkinId,
     keyboardHeightMode: settings.keyboardHeightMode,
+    keyboardLiftLayerEnabled: settings.keyboardLiftLayerEnabled ? 'true' : 'false',
     candidateFontSizeMode: settings.candidateFontSizeMode,
     hapticLevel: settings.hapticLevel,
     keySoundEnabled: settings.keySoundEnabled ? 'true' : 'false',
@@ -380,6 +425,11 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled ? 'true' : 'false',
     fuzzyOptions: JSON.stringify(settings.fuzzyOptions),
     smartPeriodTimeoutMs: `${settings.smartPeriodTimeoutMs}`,
+    smartPunctuationSymbols: JSON.stringify(
+      normalizeSmartPunctuationSymbols(settings.smartPunctuationSymbols)
+    ),
+    chineseLetterSwipeSymbols: normalizeLetterSwipeSymbols(settings.chineseLetterSwipeSymbols),
+    englishLetterSwipeSymbols: normalizeLetterSwipeSymbols(settings.englishLetterSwipeSymbols),
     punctuationMode: settings.punctuationMode,
     fullWidthEnabled: settings.fullWidthEnabled ? 'true' : 'false',
     numericPeriodEnabled: settings.numericPeriodEnabled ? 'true' : 'false',

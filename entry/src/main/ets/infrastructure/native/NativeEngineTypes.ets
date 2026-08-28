@@ -29,6 +29,8 @@ export type FuzzyOptionId = 'n_l' | 'z_zh' | 'c_ch' | 's_sh' |
 export interface Candidate {
   id: string;
   text: string;
+  /** Candidate-only label; selecting still commits `text`. */
+  displayText?: string;
   reading: string;
   source: string;
   consumedRawLen?: number;
@@ -139,11 +141,12 @@ export interface CodeTableCategoryConfig {
   enabledCategoryIds: string[];
 }
 
-export type UserLexiconActionType = 'ADD' | 'DELETE' | 'FIXED' | 'POSITION';
+export type UserLexiconActionType = 'ADD' | 'DIRECT' | 'DELETE' | 'FIXED' | 'POSITION';
 
 export interface UserLexiconEntryRecord {
   id: string;
   text: string;
+  displayText: string;
   code: string;
   action: UserLexiconActionType;
   position: number;

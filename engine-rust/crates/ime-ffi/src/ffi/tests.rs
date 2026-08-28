@@ -306,12 +306,12 @@ mod tests {
     #[test]
     fn quanpin_features_default_off_and_parse_all_supported_options() {
         let defaults =
-            parse_engine_config(r#"{"interfaceVersion":10,"schemeId":"quanpin"}"#).unwrap();
+            parse_engine_config(r#"{"interfaceVersion":11,"schemeId":"quanpin"}"#).unwrap();
         assert!(!defaults.quanpin_features.spelling_correction_enabled);
         assert!(defaults.quanpin_features.fuzzy_options.is_empty());
 
         let configured = parse_engine_config(
-            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinConfigVersion":1,"spellingCorrectionEnabled":true,"fuzzyOptions":["n_l","z_zh","c_ch","s_sh","in_ing","en_eng","an_ang","ian_iang"]}"#,
+            r#"{"interfaceVersion":11,"schemeId":"quanpin","quanpinConfigVersion":1,"spellingCorrectionEnabled":true,"fuzzyOptions":["n_l","z_zh","c_ch","s_sh","in_ing","en_eng","an_ang","ian_iang"]}"#,
         )
         .unwrap();
         assert!(configured.quanpin_features.spelling_correction_enabled);
@@ -321,11 +321,11 @@ mod tests {
     #[test]
     fn quanpin_features_reject_unknown_options_and_versions() {
         assert!(parse_engine_config(
-            r#"{"interfaceVersion":10,"schemeId":"quanpin","fuzzyOptions":["unknown"]}"#
+            r#"{"interfaceVersion":11,"schemeId":"quanpin","fuzzyOptions":["unknown"]}"#
         )
         .is_err());
         assert!(parse_engine_config(
-            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinConfigVersion":2}"#
+            r#"{"interfaceVersion":11,"schemeId":"quanpin","quanpinConfigVersion":2}"#
         )
         .is_err());
     }
@@ -333,13 +333,13 @@ mod tests {
     #[test]
     fn quanpin_context_reranking_config_crosses_ffi_parser_and_defaults_off() {
         let defaults =
-            parse_engine_config(r#"{"interfaceVersion":10,"schemeId":"quanpin"}"#).unwrap();
+            parse_engine_config(r#"{"interfaceVersion":11,"schemeId":"quanpin"}"#).unwrap();
         assert!(!defaults.quanpin_context_reranking.enabled);
         assert_eq!(defaults.quanpin_context_reranking.model_path, None);
         assert_eq!(defaults.quanpin_context_reranking.model_sha256, None);
 
         let configured = parse_engine_config(
-            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":2,"quanpinContextRerankingEnabled":true,"quanpinContextModelPath":"data/context.qng","quanpinContextModelSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"#,
+            r#"{"interfaceVersion":11,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":2,"quanpinContextRerankingEnabled":true,"quanpinContextModelPath":"data/context.qng","quanpinContextModelSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"#,
         )
         .unwrap();
         assert!(configured.quanpin_context_reranking.enabled);
@@ -356,7 +356,7 @@ mod tests {
     #[test]
     fn quanpin_context_reranking_rejects_wrong_config_version() {
         assert!(parse_engine_config(
-            r#"{"interfaceVersion":10,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":3}"#
+            r#"{"interfaceVersion":11,"schemeId":"quanpin","quanpinContextRerankingConfigVersion":3}"#
         )
         .is_err());
     }
@@ -421,6 +421,33 @@ mod tests {
         let json = take_buffer(out);
         assert!(json.contains("\"success\":true"), "{json}");
         assert!(json.contains("\"rawInput\":\"`\""), "{json}");
+        assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
+    }
+
+    #[test]
+    fn production_universal_key_returns_visible_candidates_across_ffi() {
+        let formal = formal_bundle_path().to_string_lossy().replace('\\', "\\\\");
+        let config = format!(
+            "{{\"interfaceVersion\":11,\"schemeId\":\"xiaohe-yinxing\",\"codeTableBundlePath\":\"{formal}\",\"candidatePageSize\":7}}"
+        );
+        let mut handle = ptr::null_mut();
+        assert_eq!(
+            ffi_create(config.as_ptr(), config.len(), &mut handle),
+            ImeErrorCode::Success.as_i32()
+        );
+
+        let mut json = String::new();
+        for key in [b'j', b'u', b'`'] {
+            let mut out = ImeBuffer::empty();
+            assert_eq!(
+                ime_engine_process_key(handle, &key, 1, &mut out),
+                ImeErrorCode::Success.as_i32()
+            );
+            json = take_buffer(out);
+        }
+        assert!(json.contains("\"success\":true"), "{json}");
+        assert!(json.contains("\"rawInput\":\"ju`\""), "{json}");
+        assert!(json.matches("\"id\":").count() > 0, "{json}");
         assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
     }
 
@@ -651,7 +678,7 @@ mod tests {
     fn production_direct_actions_cross_ffi_as_closed_protocol_actions() {
         let formal = formal_bundle_path().to_string_lossy().replace('\\', "\\\\");
         let config = format!(
-            "{{\"interfaceVersion\":10,\"schemeId\":\"xiaohe-yinxing\",\"codeTableBundlePath\":\"{formal}\",\"candidatePageSize\":5}}"
+            "{{\"interfaceVersion\":11,\"schemeId\":\"xiaohe-yinxing\",\"codeTableBundlePath\":\"{formal}\",\"candidatePageSize\":5}}"
         );
         let mut handle = ptr::null_mut();
         assert_eq!(
@@ -789,7 +816,10 @@ mod tests {
             );
             built_in_json = take_buffer(out);
         }
-        assert!(built_in_json.contains(&format!("\"text\":\"{}\"", rule.text)));
+        // A complete direct code commits immediately and intentionally leaves
+        // no ordinary candidate row in the result. The FFI contract must
+        // preserve that clean commit text across the ABI.
+        assert!(built_in_json.contains(&format!("\"commitText\":\"{}\"", rule.text)));
         assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
 
         let user_path = std::env::temp_dir().join(format!(
@@ -1305,7 +1335,7 @@ mod tests {
         assert!(initial.contains("\"success\":true"));
         let initial_revision = extract_json_string(&initial, "revision").unwrap().unwrap();
 
-        let first = "直通词\tzzzz#固\n";
+        let first = "直通词,候选提示\tzzzz#直\n";
         let mut out = ImeBuffer::empty();
         assert_eq!(
             ime_user_lexicon_save(
@@ -1320,7 +1350,8 @@ mod tests {
             ImeErrorCode::Success.as_i32()
         );
         let saved = take_buffer(out);
-        assert!(saved.contains("\"action\":\"FIXED\""));
+        assert!(saved.contains("\"action\":\"DIRECT\""));
+        assert!(saved.contains("\"displayText\":\"候选提示\""));
         let saved_revision = extract_json_string(&saved, "revision").unwrap().unwrap();
 
         let bundle = code_table_bundle_path()

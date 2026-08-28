@@ -88,7 +88,7 @@
           "text": "按时",
           "complete_code": "anui",
           "source_category": "user-lexicon",
-          "source_order": 9,
+          "source_order": 10,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-0e678f52bf07c8b8"
@@ -97,7 +97,7 @@
           "text": "按到",
           "complete_code": "andc",
           "source_category": "user-lexicon",
-          "source_order": 32,
+          "source_order": 33,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-e8eb21db1b7e774d"
@@ -117,7 +117,7 @@
           "text": "按时",
           "complete_code": "anui",
           "source_category": "user-lexicon",
-          "source_order": 9,
+          "source_order": 10,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-0e678f52bf07c8b8"
@@ -126,7 +126,7 @@
           "text": "按到",
           "complete_code": "andc",
           "source_category": "user-lexicon",
-          "source_order": 32,
+          "source_order": 33,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-e8eb21db1b7e774d"
@@ -226,7 +226,7 @@
           "text": "时间",
           "complete_code": "uijm",
           "source_category": "user-lexicon",
-          "source_order": 15,
+          "source_order": 16,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-82fb3de0a4e7340b"
@@ -235,7 +235,7 @@
           "text": "试试",
           "complete_code": "uiui",
           "source_category": "user-lexicon",
-          "source_order": 17,
+          "source_order": 18,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-8e108f684f027787"
@@ -255,7 +255,7 @@
           "text": "时间",
           "complete_code": "uijm",
           "source_category": "user-lexicon",
-          "source_order": 15,
+          "source_order": 16,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-82fb3de0a4e7340b"
@@ -264,7 +264,7 @@
           "text": "试试",
           "complete_code": "uiui",
           "source_category": "user-lexicon",
-          "source_order": 17,
+          "source_order": 18,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-8e108f684f027787"
@@ -296,7 +296,7 @@
           "text": "知道",
           "complete_code": "vidc",
           "source_category": "user-lexicon",
-          "source_order": 2,
+          "source_order": 3,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-e61a289af9b75d6f"
@@ -305,7 +305,7 @@
           "text": "只能",
           "complete_code": "ving",
           "source_category": "user-lexicon",
-          "source_order": 3,
+          "source_order": 4,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-ea6ff1d051418793"
@@ -314,7 +314,7 @@
           "text": "只是",
           "complete_code": "viui",
           "source_category": "user-lexicon",
-          "source_order": 8,
+          "source_order": 9,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-da195c3ad7218efb"
@@ -323,7 +323,7 @@
           "text": "只会",
           "complete_code": "vihv",
           "source_category": "user-lexicon",
-          "source_order": 28,
+          "source_order": 29,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-49b58bbe2cc171be"
@@ -352,7 +352,7 @@
           "text": "知道",
           "complete_code": "vidc",
           "source_category": "user-lexicon",
-          "source_order": 2,
+          "source_order": 3,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-e61a289af9b75d6f"
@@ -361,7 +361,7 @@
           "text": "只能",
           "complete_code": "ving",
           "source_category": "user-lexicon",
-          "source_order": 3,
+          "source_order": 4,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-ea6ff1d051418793"
@@ -370,7 +370,7 @@
           "text": "只是",
           "complete_code": "viui",
           "source_category": "user-lexicon",
-          "source_order": 8,
+          "source_order": 9,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-da195c3ad7218efb"
@@ -379,7 +379,7 @@
           "text": "只会",
           "complete_code": "vihv",
           "source_category": "user-lexicon",
-          "source_order": 28,
+          "source_order": 29,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-49b58bbe2cc171be"
@@ -454,7 +454,7 @@
           "text": "现金",
           "complete_code": "xmjb",
           "source_category": "user-lexicon",
-          "source_order": 24,
+          "source_order": 25,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-b54819968e7f1570"
@@ -483,7 +483,7 @@
           "text": "现金",
           "complete_code": "xmjb",
           "source_category": "user-lexicon",
-          "source_order": 24,
+          "source_order": 25,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-b54819968e7f1570"
@@ -524,7 +524,7 @@
           "text": "修正",
           "complete_code": "xqvg",
           "source_category": "user-lexicon",
-          "source_order": 0,
+          "source_order": 1,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-5731f97642e9301a"
@@ -544,7 +544,7 @@
           "text": "修正",
           "complete_code": "xqvg",
           "source_category": "user-lexicon",
-          "source_order": 0,
+          "source_order": 1,
           "is_exact": false,
           "is_user_rule": true,
           "stable_id": "user-lexicon-5731f97642e9301a"
@@ -659,7 +659,7 @@
             "text": "按到",
             "complete_code": "andc",
             "source_category": "user-lexicon",
-            "source_order": 32,
+            "source_order": 33,
             "is_exact": true,
             "is_user_rule": true,
             "stable_id": "user-lexicon-e8eb21db1b7e774d"

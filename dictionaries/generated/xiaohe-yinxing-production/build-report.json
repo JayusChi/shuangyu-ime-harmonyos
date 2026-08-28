@@ -1,11 +1,11 @@
 {
-  "accepted_records": 162730,
+  "accepted_records": 162731,
   "categories": [
     {
       "accepted_system_records": 68568,
       "category_id": "core",
       "cjk_extension_records": 256,
-      "commands": 1,
+      "commands": 0,
       "comments": 1,
       "configuration_headers": 0,
       "conflict_records": 0,
@@ -14,7 +14,7 @@
       "duplicate_records": 0,
       "emoji_or_special_records": 200,
       "empty_lines": 0,
-      "input_bytes": 907036,
+      "input_bytes": 907034,
       "max_code_length": 4,
       "max_word_length": 15,
       "mixed_rules": 0,
@@ -22,8 +22,8 @@
       "order": 0,
       "ordinary_records": 68568,
       "physical_lines": 68571,
-      "rejected_records": 2,
-      "user_additions": 0,
+      "rejected_records": 1,
+      "user_additions": 1,
       "user_deletions": 0,
       "user_fixed": 0,
       "user_positions": 0
@@ -327,7 +327,7 @@
     }
   ],
   "cjk_extension_records": 67343,
-  "commands": 389,
+  "commands": 388,
   "comments": 14,
   "configuration_headers": 0,
   "conflict_records": 0,
@@ -336,20 +336,13 @@
   "duplicate_records": 0,
   "emoji_or_special_records": 1488,
   "empty_lines": 2,
-  "input_bytes": 2069099,
+  "input_bytes": 2069097,
   "input_file_count": 12,
   "mixed_rules": 0,
   "ordinary_records": 162694,
   "physical_lines": 163137,
-  "rejected_records": 391,
+  "rejected_records": 390,
   "rejections": [
-    {
-      "line_digest": "babac705cb1f0f83f536cd0fc960e5d7f7de965b2249f1eaebdffc5daebaec65",
-      "physical_line": 15566,
-      "reason_code": "REJECT_UNSUPPORTED_COMMAND",
-      "safe_summary": "cmd excluded by command policy",
-      "source_file_id": "src-00"
-    },
     {
       "line_digest": "1aa43a3bfc4de4d7c505daec260646734ad7617fe1f8757b5980753115710321",
       "physical_line": 68571,
@@ -3083,8 +3076,8 @@
   ],
   "report_version": "1.0.0",
   "statistics_scope": "one deterministic production build",
-  "transformed_records": 743,
-  "user_additions": 0,
+  "transformed_records": 744,
+  "user_additions": 1,
   "user_deletions": 0,
   "user_fixed": 36,
   "user_positions": 0

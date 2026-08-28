@@ -8,6 +8,8 @@ import {
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION
 } from '../../domain/settings/ImeSettings';
 import { keyboardProfileForLegacy } from '../../domain/keyboard/KeyboardProfile';
+import { DEFAULT_SMART_PUNCTUATION_SYMBOLS } from '../../domain/keyboard/SmartPunctuation';
+import { DEFAULT_LETTER_SWIPE_SYMBOLS } from '../../domain/keyboard/LetterSwipeSymbols';
 
 export class SettingsMigration {
   migrate(raw: SettingsRaw): SettingsRaw {
@@ -91,6 +93,18 @@ export class SettingsMigration {
     }
     if (!migrated.smartPeriodTimeoutMs) {
       migrated.smartPeriodTimeoutMs = `${DEFAULT_SMART_PERIOD_TIMEOUT_MS}`;
+    }
+    if (migrated.smartPunctuationSymbols === undefined) {
+      migrated.smartPunctuationSymbols = JSON.stringify(DEFAULT_SMART_PUNCTUATION_SYMBOLS);
+    }
+    if (migrated.chineseLetterSwipeSymbols === undefined) {
+      migrated.chineseLetterSwipeSymbols = DEFAULT_LETTER_SWIPE_SYMBOLS;
+    }
+    if (migrated.englishLetterSwipeSymbols === undefined) {
+      migrated.englishLetterSwipeSymbols = DEFAULT_LETTER_SWIPE_SYMBOLS;
+    }
+    if (migrated.keyboardLiftLayerEnabled === undefined) {
+      migrated.keyboardLiftLayerEnabled = 'true';
     }
     if (!migrated.punctuationMode) {
       migrated.punctuationMode = 'chinese';
@@ -217,7 +231,10 @@ export class SettingsMigration {
       schemeId: raw.schemeId,
       legacyKeyboardLayout: raw.legacyKeyboardLayout,
       themeMode: raw.themeMode,
+      keyboardStructureId: raw.keyboardStructureId,
+      keyboardSkinId: raw.keyboardSkinId,
       keyboardHeightMode: raw.keyboardHeightMode,
+      keyboardLiftLayerEnabled: raw.keyboardLiftLayerEnabled,
       candidateFontSizeMode: raw.candidateFontSizeMode,
       hapticLevel: raw.hapticLevel,
       keySoundEnabled: raw.keySoundEnabled,
@@ -235,6 +252,9 @@ export class SettingsMigration {
       spellingCorrectionEnabled: raw.spellingCorrectionEnabled,
       fuzzyOptions: raw.fuzzyOptions,
       smartPeriodTimeoutMs: raw.smartPeriodTimeoutMs,
+      smartPunctuationSymbols: raw.smartPunctuationSymbols,
+      chineseLetterSwipeSymbols: raw.chineseLetterSwipeSymbols,
+      englishLetterSwipeSymbols: raw.englishLetterSwipeSymbols,
       punctuationMode: raw.punctuationMode,
       fullWidthEnabled: raw.fullWidthEnabled,
       numericPeriodEnabled: raw.numericPeriodEnabled,

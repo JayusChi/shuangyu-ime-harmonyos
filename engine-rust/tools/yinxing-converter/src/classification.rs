@@ -80,6 +80,7 @@ mod tests {
     fn rule(category: &str, action: UserAction) -> UserRuleRecord {
         UserRuleRecord {
             text: "同词".into(),
+            display_text: None,
             code: "abcd".into(),
             action,
             source_file_id: category.into(),

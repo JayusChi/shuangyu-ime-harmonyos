@@ -16,7 +16,7 @@ import {
 
 const TAG = 'EngineCoordinator';
 const LOGGER = new Logger(TAG);
-const INTERFACE_VERSION = 10;
+const INTERFACE_VERSION = 11;
 const QUANPIN_CONFIG_VERSION = 1;
 const QUANPIN_CONTEXT_RERANKING_CONFIG_VERSION = 2;
 const DEFAULT_SCHEME_ID = 'xiaohe';
@@ -699,6 +699,9 @@ export class EngineCoordinator {
     result.candidates.forEach((candidate): void => {
       if (candidate.source !== 'functional') {
         candidate.text = this.chineseTextConverter.toTraditional(candidate.text);
+        if (candidate.displayText !== undefined && candidate.displayText.length > 0) {
+          candidate.displayText = this.chineseTextConverter.toTraditional(candidate.displayText);
+        }
       }
     });
     if (result.action === null && result.commitText.length > 0) {

@@ -23,8 +23,8 @@
                       {
                           "id":  "production-flypy-shape-bundle",
                           "path":  "dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx",
-                          "byte_size":  56183822,
-                          "sha256":  "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942"
+                          "byte_size":  56184164,
+                          "sha256":  "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7"
                       }
                   ],
     "page_size_contract":  {
@@ -63,13 +63,23 @@
     "native_libraries":  [
                              {
                                  "path":  "entry/build/default/intermediates/stripped_native_libs/default/arm64-v8a/libime_bridge.so",
-                                 "byte_size":  3399336,
-                                 "sha256":  "9d0fca1a5a0eed68af4a374555503baf12cf58d46741850da0524453f7bc3850"
+                                 "byte_size":  3451400,
+                                 "sha256":  "6361649114103b640e2d4b457de9a732e2d1f9ae7385ee29bf063062f8b46757"
                              },
                              {
                                  "path":  "entry/build/default/intermediates/stripped_native_libs/default/x86_64/libime_bridge.so",
-                                 "byte_size":  3822648,
-                                 "sha256":  "cc39c0e3afae23c2abc232ef865e41b814f6ab0c06f199e4e126527176fe74fd"
+                                 "byte_size":  3875256,
+                                 "sha256":  "a77896a2e2fd559fab9c90d6a5a9c04600325b7ab08e027afb60c8dfd6c5960d"
+                             },
+                             {
+                                 "path":  "entry/build/internalDebug/intermediates/stripped_native_libs/internalDebug/arm64-v8a/libime_bridge.so",
+                                 "byte_size":  3492168,
+                                 "sha256":  "18ab6f2ec2736c238a154a7fa2370c202106e8d46210594f5e9bec82e16b7204"
+                             },
+                             {
+                                 "path":  "entry/build/internalDebug/intermediates/stripped_native_libs/internalDebug/x86_64/libime_bridge.so",
+                                 "byte_size":  3907176,
+                                 "sha256":  "46717393a5aa179b15d57230ed1928ca5c066e8b855315ff0c36b7b2105b2530"
                              }
                          ],
     "native_library_status":  "HASHED_EXISTING_BUILD_ARTIFACTS",

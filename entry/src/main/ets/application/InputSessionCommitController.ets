@@ -159,6 +159,7 @@ export class InputSessionCommitController extends InputSessionControllerBase {
         this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'candidate commit insert failed');
         return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'candidate commit insert failed');
       }
+      this.syncCursorPreeditVisibility(predictedRemainingRaw);
 
       // Native selection consumes composition and records learning, so it is the
       // confirmation phase and must only run after the editor accepts the text.
@@ -185,7 +186,7 @@ export class InputSessionCommitController extends InputSessionControllerBase {
         // The native consumedRawLen contract and post-selection state should
         // agree. Reconcile defensively without re-inserting the committed
         // Chinese prefix if a future engine version returns a different tail.
-        const reconciled = await this.imeService.setPreviewText(
+        const reconciled = await this.updateCompositionText(
           result.rawInput,
           false,
           generation
@@ -199,12 +200,10 @@ export class InputSessionCommitController extends InputSessionControllerBase {
           return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'remaining text reconciliation failed');
         }
       } else if (!supportsAtomicPartialCommit && result.rawInput.length > 0) {
-        // HarmonyOS 6.1 can report finishTextPreview complete while the old
-        // editor preview range is still active. Reopening PREVIEW immediately
-        // for a partial candidate makes the following candidate append (for
-        // example, 输入fa法). Track the remaining raw input through the
-        // precise compatible replacement range until this composition ends.
-        const remainingPreviewUpdated = await this.imeService.setPreviewText(
+        // A legacy service without the atomic partial-commit method keeps the
+        // remaining code in the candidate-bar composition path. It must not
+        // reinsert that raw tail into the editor beside the committed prefix.
+        const remainingPreviewUpdated = await this.updateCompositionText(
           result.rawInput,
           false,
           generation,

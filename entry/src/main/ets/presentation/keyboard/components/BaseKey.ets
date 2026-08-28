@@ -52,7 +52,9 @@ export struct BaseKey {
     this.gestureController = new AlternateKeyGestureController(
       (): void => this.dispatchShortPress(),
       (): void => this.dispatchLongPress(),
-      (): void => this.dispatchSwipeUp()
+      (): void => this.dispatchSwipeUp(),
+      undefined,
+      (): void => this.dispatchSwipeDown()
     );
   }
 
@@ -63,7 +65,8 @@ export struct BaseKey {
 
   private supportsAlternateGesture(): boolean {
     return this.longPressEnabled &&
-      (this.spec.longPressAction !== undefined || this.spec.swipeUpAction !== undefined);
+      (this.spec.longPressAction !== undefined || this.spec.swipeUpAction !== undefined ||
+        this.spec.swipeDownAction !== undefined);
   }
 
   private dispatchShortPress(): void {
@@ -81,6 +84,12 @@ export struct BaseKey {
   private dispatchSwipeUp(): void {
     if (this.spec.swipeUpAction && this.onLongPressAction) {
       this.onLongPressAction(this.spec.swipeUpAction);
+    }
+  }
+
+  private dispatchSwipeDown(): void {
+    if (this.spec.swipeDownAction && this.onLongPressAction) {
+      this.onLongPressAction(this.spec.swipeDownAction);
     }
   }
 
@@ -132,6 +141,23 @@ export struct BaseKey {
         return this.palette.primaryFunctionPressedBackground;
       default:
         return this.palette.functionKeyPressedBackground;
+    }
+  }
+
+  private getBackgroundImage(): string {
+    if (this.isPressed) {
+      return '';
+    }
+    switch (this.spec.kind) {
+      case KeyboardKeyKind.LETTER:
+      case KeyboardKeyKind.T9_DIGIT:
+        return this.palette.letterKeyBackgroundImage;
+      case KeyboardKeyKind.SPACE:
+        return this.palette.spaceKeyBackgroundImage;
+      case KeyboardKeyKind.ENTER:
+        return this.palette.enterKeyBackgroundImage;
+      default:
+        return this.palette.functionKeyBackgroundImage;
     }
   }
 
@@ -253,6 +279,8 @@ export struct BaseKey {
     .justifyContent(FlexAlign.Center)
     .alignItems(VerticalAlign.Center)
     .backgroundColor(this.getBackgroundColor())
+    .backgroundImage(this.getBackgroundImage(), ImageRepeat.NoRepeat)
+    .backgroundImageSize({ width: '100%', height: '100%' })
     .border({ width: 1, color: this.palette.keyBorder })
     .borderRadius(this.metrics.keyBorderRadius)
     .accessibilityText(this.spec.accessibilityLabel)

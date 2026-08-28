@@ -77,6 +77,7 @@ impl UserAction {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UserRuleRecord {
     pub text: String,
+    pub display_text: Option<String>,
     pub code: String,
     pub action: UserAction,
     pub source_file_id: String,

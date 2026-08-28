@@ -6,7 +6,9 @@ pub enum UserLexiconField {
     File,
     Fields,
     Word,
+    DisplayText,
     Code,
+    Category,
     Marker,
     Position,
     SourceOrder,
@@ -19,7 +21,9 @@ impl UserLexiconField {
             Self::File => "file",
             Self::Fields => "fields",
             Self::Word => "word",
+            Self::DisplayText => "display_text",
             Self::Code => "code",
+            Self::Category => "category",
             Self::Marker => "marker",
             Self::Position => "position",
             Self::SourceOrder => "source_order",
@@ -36,6 +40,8 @@ pub enum UserLexiconReason {
     EmptyWord,
     WordTooLong { actual: usize, max: usize },
     UnsupportedWordCharacter { codepoint: u32 },
+    InvalidDisplayText,
+    InvalidCategory,
     EmptyCode,
     InvalidCode,
     UnknownMarker,
@@ -114,6 +120,13 @@ impl fmt::Display for UserLexiconReason {
             Self::UnsupportedWordCharacter { codepoint } => {
                 write!(f, "unsupported word character U+{codepoint:04X}")
             }
+            Self::InvalidDisplayText => {
+                write!(f, "display text must contain 1-64 non-control characters")
+            }
+            Self::InvalidCategory => write!(
+                f,
+                "category must contain 1-64 lowercase ASCII letters, digits, or hyphens"
+            ),
             Self::EmptyCode => write!(f, "code must not be empty"),
             Self::InvalidCode => write!(f, "code must contain 1-64 lowercase ASCII letters"),
             Self::UnknownMarker => write!(f, "unknown marker; expected #删, #固, or #N"),

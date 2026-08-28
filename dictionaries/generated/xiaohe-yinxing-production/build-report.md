@@ -1,21 +1,21 @@
 # 小鹤音形生产 bundle 构建报告
 
 - 构建时间策略：omitted
-- 总 bundle：56183822 bytes
-- 总 bundle SHA-256：`0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942`
-- 内容 SHA-256：`9c6fe5f8214c2560572a7f09c4d3228527c961f47507d3d8567c2f94b14023a7`
+- 总 bundle：56184164 bytes
+- 总 bundle SHA-256：`f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7`
+- 内容 SHA-256：`83fa186fb43acc045fac88ba74ea3db5d761bf8c7c901499c4b517d953eef2e3`
 - 输入文件：12
 - 普通记录：162694
-- 用户新增/删除/固顶/位置：0/0/36/0
-- 接受/转换/延期/拒绝：162730/743/0/391
+- 用户新增/删除/固顶/位置：1/0/36/0
+- 接受/转换/延期/拒绝：162731/744/0/390
 - 重复/冲突：0/0
 
 ## 输出文件
 
 | 路径 | 字节 | SHA-256 |
 | --- | ---: | --- |
-| `action-metadata.json` | 105591 | `fa70d899e7a44ce1d626269e0c56027a92b743e64b20effeb7b97412c5714af4` |
-| `build-report.json` | 115983 | `c8f94476d26246c6f138e938c308f7cbb4c2edea390a95f26e0fcbd373cfa72a` |
+| `action-metadata.json` | 105319 | `2a9c239c0be7e7cd756a41789f3cab7dfdfbb315f5180af7ab1a6d24936604ac` |
+| `build-report.json` | 115711 | `3befc8af4f9436e8a80edcfe2b68c244dc3018004a211e13e71c4cfae521e657` |
 | `categories/category-secondary.lex` | 115950 | `4320d725c968d5639956c3d023ef40c91e61809f0ada30e8ea8aec9578725995` |
 | `categories/core.lex` | 4595869 | `b46d48f4b44068afadbbfe62c3a2fe6a4c894b3856b3dc9af8ccdd757521e0cf` |
 | `categories/full-code-character.lex` | 103397 | `445ed1dfe8637ae971326439be3b93e7f1949f8af348e32af288695f43db99e5` |
@@ -28,7 +28,7 @@
 | `categories/symbol-group.lex` | 30850 | `25c8f5faf66c307bdb972df405b790ab0f43e1b039e2f0f8c63a574882e3b666` |
 | `categories/symbol.lex` | 36219 | `2988e13ddd33d5fafd80c27a1ac9e878dc94945cafa8c83d7bd4b2de785f25fd` |
 | `categories/two-key-secondary.lex` | 4139 | `4d103737f6c6a40b86a2a4c89616d31a772dcc78f7f2e78db2092956c12df9a1` |
-| `manifest.json` | 11356 | `01201e04cb5bcef876823e614d8442f7e8664b6cd39b2c8d8e0d79bdafff4bcd` |
-| `trace-index.jsonl` | 46023029 | `62300a1908bda114dbeb927990a345c9696db3b2f1154ef5483fd6d7e1996769` |
-| `user-rules.txt` | 582 | `6167a97066c38cd19ba3d3ac88085da0f52fc635a98b0b8144889f148897d3ab` |
-| `xiaohe-yinxing-production.hsyx` | 56183822 | `0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942` |
+| `manifest.json` | 11357 | `5382c3804ee26bc8b9e5259e8c6d38a1a54093c97e27f45162315f82623614ae` |
+| `trace-index.jsonl` | 46023307 | `148db3049f00d3baf91462f7ffb997b9981be2a3e4999178797da6aef6b0463a` |
+| `user-rules.txt` | 1189 | `cc08627f32916447d9fa04812b915e8247dd10766ea0e97ab3a055fdf0a538ad` |
+| `xiaohe-yinxing-production.hsyx` | 56184164 | `f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7` |

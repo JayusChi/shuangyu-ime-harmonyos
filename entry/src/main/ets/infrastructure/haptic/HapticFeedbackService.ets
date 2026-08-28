@@ -11,10 +11,14 @@ export interface HapticBackend {
 
 export class HarmonyHapticBackend implements HapticBackend {
   async vibrate(durationMs: number): Promise<void> {
-    await vibrator.startVibration(
-      { type: 'time', duration: durationMs },
-      { usage: 'unknown' }
-    );
+    try {
+      await vibrator.startVibration(
+        { type: 'time', duration: durationMs },
+        { usage: 'unknown' }
+      );
+    } catch (err) {
+      throw new Error(`haptic request failed: ${JSON.stringify(err)}`);
+    }
   }
 }
 

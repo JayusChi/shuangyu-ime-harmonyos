@@ -1,4 +1,4 @@
-META	bundle_sha256	0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942
+META	bundle_sha256	f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7
 HEADER	case_id	raw_code	match_type	before_dedup	expected_total_count	expected_category_id	expected_source_order	expected_candidate_id	expected_first_candidates	expected_categories	selection_reason
 CASE	exact_1	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest sorted exact code
 CASE	exact_2	aa	Exact	1	1	core	5	ct:xiaohe-yinxing-production:core:5	阿	core	smallest sorted exact code

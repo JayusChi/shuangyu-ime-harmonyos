@@ -2,7 +2,11 @@ import { inputMethodEngine, InputMethodExtensionContext } from '@kit.IMEKit';
 import { Logger } from '../common/logging/Logger';
 import { InputPanelController } from './InputPanelController';
 import { InputSessionController } from './InputSessionController';
-import { ImeSettings, XIAOHE_YINXING_SCHEME_ID } from '../domain/settings/ImeSettings';
+import {
+  ImeSettings,
+  PunctuationMode,
+  XIAOHE_YINXING_SCHEME_ID
+} from '../domain/settings/ImeSettings';
 import {
   DeviceMetricsProvider,
   HarmonyDeviceMetricsProvider
@@ -44,6 +48,10 @@ import { getSharedSettingsStore, SettingsStore } from '../state/SettingsStore';
 import { DirectControlService, getSharedDirectControlService } from './DirectControlService';
 import { resolveDirectControlHotkey } from '../domain/direct/DirectControlCommand';
 import { InputMethodSecurityModeProvider } from '../infrastructure/security/InputMethodSecurityModeProvider';
+import {
+  isSmartPunctuationEnabled,
+  smartPunctuationTarget
+} from '../domain/keyboard/SmartPunctuation';
 
 const TAG = 'InputMethodLifecycle';
 const LOGGER = new Logger(TAG);
@@ -68,7 +76,8 @@ export class InputMethodLifecycleDispatcher {
   private physicalOperationGeneration: number = 0;
   private inputActive: boolean = false;
   private symbolGuideActive: boolean = false;
-  private lastPhysicalChinesePeriodTimestampMs?: number;
+  private lastPhysicalSmartPunctuationTarget?: string;
+  private lastPhysicalSmartPunctuationTimestampMs?: number;
   private readonly onSettingsChanged = (): void => this.reconcilePresentationMode('settings');
   private readonly onPhysicalKeyboardChanged = (_present: boolean): void => {
     this.reconcilePresentationMode('physicalKeyboard');
@@ -240,7 +249,7 @@ export class InputMethodLifecycleDispatcher {
       key.logoKey
     );
     if (directCommand !== undefined) {
-      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      this.clearPhysicalSmartPunctuation();
       this.physicalKeyboardController.noteExternalInputAction();
       this.physicalKeyConsumption.recordConsumedDown(key.keyCode);
       LOGGER.info(`direct hotkey consumed: action=${directCommand.action}, target=${directCommand.target}`);
@@ -268,20 +277,20 @@ export class InputMethodLifecycleDispatcher {
       candidateCount: state.candidates.length,
       compositionPending: rapidPhysicalContinuation,
       pairJumpAvailable: this.sessionController.canJumpOutPair(),
-      smartPeriodContinuation: this.canContinuePhysicalChinesePeriod(keyTimestampMs)
+      smartPunctuationContinuation: this.continuingPhysicalSmartPunctuation(keyTimestampMs)
     });
 
     if (command.type === PhysicalKeyCommandType.NONE) {
       this.symbolGuideActive = false;
-      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      this.clearPhysicalSmartPunctuation();
       this.physicalKeyboardController.noteExternalInputAction();
       return false;
     }
-    const physicalPeriodWillReplace = command.type === PhysicalKeyCommandType.PUNCTUATION
-      ? this.willReplacePhysicalChinesePeriod(command.character ?? '', keyTimestampMs)
+    const physicalPunctuationWillReplace = command.type === PhysicalKeyCommandType.PUNCTUATION
+      ? this.willReplacePhysicalSmartPunctuation(command.character ?? '', keyTimestampMs)
       : false;
     if (command.type !== PhysicalKeyCommandType.PUNCTUATION) {
-      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+      this.clearPhysicalSmartPunctuation();
     }
     if (command.type === PhysicalKeyCommandType.DELETE &&
       this.physicalEditorSuffix.consumePunctuationDelete()) {
@@ -370,7 +379,7 @@ export class InputMethodLifecycleDispatcher {
       return true;
     }
     if (command.type === PhysicalKeyCommandType.PUNCTUATION) {
-      if (!physicalPeriodWillReplace) {
+      if (!physicalPunctuationWillReplace) {
         this.physicalEditorSuffix.recordPunctuation();
       }
       this.observePhysicalOperation(
@@ -428,34 +437,46 @@ export class InputMethodLifecycleDispatcher {
     this.physicalOperationGeneration += 1;
     this.physicalKeyConsumption.reset();
     this.physicalEditorSuffix.reset();
-    this.lastPhysicalChinesePeriodTimestampMs = undefined;
+    this.clearPhysicalSmartPunctuation();
     this.pendingPhysicalOperationCount = 0;
   }
 
-  private willReplacePhysicalChinesePeriod(character: string, timestampMs: number): boolean {
-    if (character !== '。') {
-      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+  private willReplacePhysicalSmartPunctuation(character: string, timestampMs: number): boolean {
+    const settings = this.settingsStore.getSnapshot();
+    const target = smartPunctuationTarget(character);
+    if (target === undefined || settings.punctuationMode !== PunctuationMode.CHINESE ||
+      settings.smartPeriodTimeoutMs <= 0 ||
+      !isSmartPunctuationEnabled(settings.smartPunctuationSymbols, target)) {
+      this.clearPhysicalSmartPunctuation();
       return false;
     }
-    const timeoutMs = this.settingsStore.getSnapshot().smartPeriodTimeoutMs;
-    if (timeoutMs <= 0) {
-      this.lastPhysicalChinesePeriodTimestampMs = undefined;
-      return false;
-    }
-    const previous = this.lastPhysicalChinesePeriodTimestampMs;
-    if (previous !== undefined && timestampMs >= previous && timestampMs - previous <= timeoutMs) {
-      this.lastPhysicalChinesePeriodTimestampMs = undefined;
+    const previousTimestamp = this.lastPhysicalSmartPunctuationTimestampMs;
+    if (this.lastPhysicalSmartPunctuationTarget === target && previousTimestamp !== undefined &&
+      timestampMs >= previousTimestamp && timestampMs - previousTimestamp <= settings.smartPeriodTimeoutMs) {
+      this.clearPhysicalSmartPunctuation();
       return true;
     }
-    this.lastPhysicalChinesePeriodTimestampMs = timestampMs;
+    this.lastPhysicalSmartPunctuationTarget = target;
+    this.lastPhysicalSmartPunctuationTimestampMs = timestampMs;
     return false;
   }
 
-  private canContinuePhysicalChinesePeriod(timestampMs: number): boolean {
-    const previous = this.lastPhysicalChinesePeriodTimestampMs;
-    const timeoutMs = this.settingsStore.getSnapshot().smartPeriodTimeoutMs;
-    return previous !== undefined && timeoutMs > 0 && timestampMs >= previous &&
-      timestampMs - previous <= timeoutMs;
+  private continuingPhysicalSmartPunctuation(timestampMs: number): string | undefined {
+    const settings = this.settingsStore.getSnapshot();
+    const previousTimestamp = this.lastPhysicalSmartPunctuationTimestampMs;
+    const target = this.lastPhysicalSmartPunctuationTarget;
+    if (target === undefined || previousTimestamp === undefined ||
+      settings.punctuationMode !== PunctuationMode.CHINESE || settings.smartPeriodTimeoutMs <= 0 ||
+      !isSmartPunctuationEnabled(settings.smartPunctuationSymbols, target) ||
+      timestampMs < previousTimestamp || timestampMs - previousTimestamp > settings.smartPeriodTimeoutMs) {
+      return undefined;
+    }
+    return target;
+  }
+
+  private clearPhysicalSmartPunctuation(): void {
+    this.lastPhysicalSmartPunctuationTarget = undefined;
+    this.lastPhysicalSmartPunctuationTimestampMs = undefined;
   }
 
   private resolvePresentationMode(): InputPresentationMode {

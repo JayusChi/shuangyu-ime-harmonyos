@@ -24,6 +24,7 @@ import { InputSessionController } from './InputSessionController';
 import { InputPresentationMode } from '../domain/display/InputPresentationMode';
 import { Candidate } from '../infrastructure/native/NativeEngineTypes';
 import { toContextualCandidateDisplayItem } from '../domain/candidate/CandidateDisplayItem';
+import { resolveCompositionPreeditView } from '../domain/candidate/CompositionPreeditView';
 import {
   resolveCandidateUiMode,
   resolveVisibleCandidates
@@ -80,20 +81,28 @@ class HarmonyFloatingCandidatePanelBackend implements FloatingCandidatePanelBack
     if (!this.imeAbility || !this.context) {
       return undefined;
     }
-    if (kind === FloatingCandidatePanelKind.STATUS_BAR) {
+    try {
+      if (kind === FloatingCandidatePanelKind.STATUS_BAR) {
+        return this.imeAbility.createPanel(this.context, {
+          type: inputMethodEngine.PanelType.STATUS_BAR
+        });
+      }
       return this.imeAbility.createPanel(this.context, {
-        type: inputMethodEngine.PanelType.STATUS_BAR
+        type: inputMethodEngine.PanelType.SOFT_KEYBOARD,
+        flag: inputMethodEngine.PanelFlag.FLAG_CANDIDATE
       });
+    } catch (err) {
+      throw new Error(`candidate panel creation failed: ${JSON.stringify(err)}`);
     }
-    return this.imeAbility.createPanel(this.context, {
-      type: inputMethodEngine.PanelType.SOFT_KEYBOARD,
-      flag: inputMethodEngine.PanelFlag.FLAG_CANDIDATE
-    });
   }
 
   async destroyPanel(panel: ManagedFloatingCandidatePanel): Promise<void> {
     if (this.imeAbility) {
-      await this.imeAbility.destroyPanel(panel as inputMethodEngine.Panel);
+      try {
+        await this.imeAbility.destroyPanel(panel as inputMethodEngine.Panel);
+      } catch (err) {
+        throw new Error(`candidate panel destruction failed: ${JSON.stringify(err)}`);
+      }
     }
   }
 }
@@ -347,7 +356,7 @@ export class FloatingCandidateWindowController {
     const desiredWidthVp = this.estimateWindowWidthVp();
     const settings = this.settingsStore.getSnapshot();
     const touchKeyboardInset = this.presentationMode === InputPresentationMode.TOUCH
-      ? panelHeightForMode(settings.keyboardHeightMode, metrics)
+      ? panelHeightForMode(settings.keyboardHeightMode, metrics, false, settings.keyboardLiftLayerEnabled)
       : 0;
     return computeFloatingCandidatePosition({
       cursorRect: this.cursorRect,
@@ -385,6 +394,17 @@ export class FloatingCandidateWindowController {
       const item = toContextualCandidateDisplayItem(candidate, sourceIndex, uiMode, state.rawInput);
       return `${sourceIndex + 1}. ${item.displayText}`;
     });
+    const preedit = resolveCompositionPreeditView({
+      rawInput: state.rawInput,
+      preeditText: state.preeditText,
+      cursorPreeditVisible: state.cursorPreeditVisible,
+      displaySegments: state.displaySegments,
+      pendingCode: state.pendingCode,
+      segmentBoundaries: state.segmentBoundaries
+    });
+    if (preedit.visible) {
+      labels.unshift(preedit.displayText);
+    }
     let fontSize = 14;
     if (settings.candidateFontSizeMode === CandidateFontSizeMode.SMALL) {
       fontSize = 12;

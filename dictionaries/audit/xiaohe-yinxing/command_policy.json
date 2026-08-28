@@ -339,14 +339,6 @@
       "reason_code": "REJECT_NETWORK_ACTION"
     },
     {
-      "source_file": "小鹤音形/0.0.小鹤.txt",
-      "physical_line": 15566,
-      "finding_type": "cmd",
-      "summary_sha256": "babac705cb1f0f83f536cd0fc960e5d7f7de965b2249f1eaebdffc5daebaec65",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_UNSUPPORTED_COMMAND"
-    },
-    {
       "source_file": "小鹤音形/1.0.分类.txt",
       "physical_line": 1672,
       "finding_type": "cmd",

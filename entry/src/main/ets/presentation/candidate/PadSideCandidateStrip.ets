@@ -12,6 +12,7 @@ export struct PadSideCandidateStrip {
   @Prop palette: KeyboardColorPalette = LIGHT_PALETTE;
   @Prop rawInput: string = '';
   @Prop preeditText: string = '';
+  @Prop cursorPreeditVisible: boolean = false;
   @Prop displaySegments: string[] = [];
   @Prop pendingCode: string = '';
   @Prop segmentBoundaries: number[] = [];
@@ -25,6 +26,7 @@ export struct PadSideCandidateStrip {
     return resolveCompositionPreeditView({
       rawInput: this.rawInput,
       preeditText: this.preeditText,
+      cursorPreeditVisible: this.cursorPreeditVisible,
       displaySegments: this.displaySegments,
       pendingCode: this.pendingCode,
       segmentBoundaries: this.segmentBoundaries
@@ -33,7 +35,7 @@ export struct PadSideCandidateStrip {
 
   build() {
     Column({ space: 6 }) {
-      if (this.rawInput.length > 0) {
+      if (this.rawInput.length > 0 && !this.cursorPreeditVisible) {
         Text(this.preeditDisplayText())
           .width('100%')
           .fontSize(15)
@@ -73,7 +75,7 @@ export struct PadSideCandidateStrip {
                 this.candidateUiMode,
                 this.rawInput,
                 index,
-                candidate.text,
+                candidate.displayText && candidate.displayText.length > 0 ? candidate.displayText : candidate.text,
                 candidate.reading
               ))
               .onClick(() => this.onCandidateClick?.(candidate, index))

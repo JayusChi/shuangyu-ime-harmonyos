@@ -2,12 +2,12 @@
 
 ## 版本与边界
 
-- ArkTS interface version：`10`
-- Rust C ABI version：`10`
-- engine version：`0.0.1-direct-controls`
+- ArkTS interface version：`11`
+- Rust C ABI version：`11`
+- engine version：`0.0.1-direct-display`
 - 旧 interface `3` 创建请求必须拒绝。
 
-动作协议只保留一个必填但可为 `null` 的单动作字段，不增加动作数组；版本 10 加入经过白名单校验的分类控制和已授权用户词库源导入动作。
+动作协议只保留一个必填但可为 `null` 的单动作字段，不增加动作数组；版本 10 加入经过白名单校验的分类控制和已授权用户词库源导入动作，版本 11 为候选增加独立的 `displayText`，使直通提示与实际 `text` 上屏内容可以安全分离。
 
 ## CompositionResult
 
@@ -58,6 +58,12 @@ interface MoveLineEndAction {
   formatId: ''
   text: ''
   cursorOffsetUtf16: 0
+}
+
+interface Candidate {
+  text: string        // 选择后实际提交内容
+  displayText: string // 仅候选展示；空字符串表示使用 text
+  reading: string
 }
 
 interface DirectControlAction {

@@ -61,6 +61,11 @@ import { UserLexiconDocumentEditor } from './UserLexiconController';
 
 import { InputSessionCommitController } from './InputSessionCommitController';
 import { SmartPeriodInputAction } from './SmartPeriodController';
+import {
+  chinesePunctuationForEnglishTarget,
+  isSmartPunctuationEnabled,
+  smartPunctuationTarget
+} from '../domain/keyboard/SmartPunctuation';
 
 const TAG = 'InputSessionController';
 const LOGGER = new Logger(TAG);
@@ -87,9 +92,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       this.store.recordError(result.errorCode, result.errorMessage);
       return inputOperationFailed(result.errorCode, result.errorMessage);
     }
-    const previewUpdated = await this.imeService.setPreviewText(
+    const previewUpdated = await this.updateCompositionText(
       result.rawInput,
-      state.editorContext.textPreviewSupported,
+      false,
       generation
     );
     if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -216,13 +221,12 @@ export class InputSessionCompositionController extends InputSessionCommitControl
           return inputOperationOk();
         }
       }
-      // Full pinyin is an ordinary IME composition, just like Xiaohe. Keeping
-      // it in compatible replacement mode made every physical key perform
-      // cursor reads, range selection and a full insertText replacement. Use
-      // the editor's native preview range whenever it advertises support; the
-      // connection layer still falls back safely for unsupported editors.
-      const useNativeTextPreview = state.editorContext.textPreviewSupported &&
-        (activeSchemeId === 'xiaohe' || activeSchemeId === 'quanpin');
+      // HarmonyOS InputClient cannot style editor-owned preview text. Keep the
+      // raw code exclusively in the IME candidate region, where it is always
+      // rendered with an underline. This also avoids range-listener gaps in
+      // third-party/independent PC and touch editors and guarantees that raw
+      // code never leaks into committed application text.
+      const useNativeTextPreview = false;
 
       // Publish the synchronous engine result before waiting for the host
       // editor's asynchronous preview round-trip. Input actions remain
@@ -231,7 +235,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       // This keeps the candidate bar responsive on a slow emulator without
       // weakening editor-range ownership checks.
       this.store.updateComposition(result);
-      const previewUpdated = await this.imeService.setPreviewText(
+      const previewUpdated = await this.updateCompositionText(
         result.rawInput,
         useNativeTextPreview,
         generation,
@@ -303,7 +307,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return inputOperationFailed(errorCode, message);
     }
     this.store.updateComposition(result);
-    const previewUpdated = await this.imeService.setPreviewText(
+    const previewUpdated = await this.updateCompositionText(
       result.rawInput,
       false,
       generation
@@ -373,9 +377,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     }
 
     this.store.updateComposition(result);
-    const previewUpdated = await this.imeService.setPreviewText(
+    const previewUpdated = await this.updateCompositionText(
       result.rawInput,
-      state.editorContext.textPreviewSupported,
+      false,
       generation
     );
     if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -456,8 +460,8 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         this.engineCoordinator.reset();
         this.store.clearComposition();
       }
-      return this.insertSmartPeriodOrText(
-        input,
+      return this.insertSmartPunctuationOrText(
+        this.normalizeChinesePunctuationInput(input, state),
         'punctuation after explicit composition action',
         generation,
         inputAction
@@ -488,9 +492,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
           this.store.updateComposition(result);
           return inputOperationOk();
         }
-        const previewUpdated = await this.imeService.setPreviewText(
+        const previewUpdated = await this.updateCompositionText(
           result.rawInput,
-          state.editorContext.textPreviewSupported,
+          false,
           generation
         );
         if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -513,7 +517,65 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       this.engineCoordinator.reset();
       this.store.clearComposition();
     }
-    return this.insertSmartPeriodOrText(input, 'direct character', generation, inputAction);
+    return this.insertSmartPunctuationOrText(
+      this.normalizeChinesePunctuationInput(input, state),
+      'direct character',
+      generation,
+      inputAction
+    );
+  }
+
+  /**
+   * Inserts an upper-deck character exactly as printed on the key. These
+   * characters intentionally bypass Chinese punctuation, full-width and
+   * semicolon-guide conversion; an active composition is still confirmed or
+   * cleared first, just like an ordinary punctuation action.
+   */
+  async insertLiteralCharacter(
+    character: string | undefined,
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('literal upper-deck character');
+    }
+    const input = character ?? '';
+    if (input.length !== 1) {
+      this.store.recordError(ImeErrorCode.INVALID_ARGUMENT, 'literal character input requires one character');
+      return inputOperationFailed(ImeErrorCode.INVALID_ARGUMENT, 'literal character input requires one character');
+    }
+    const sessionCheck = this.ensureInputSession('literal upper-deck character');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+
+    const state = this.store.getSnapshot();
+    if (state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0) {
+      if (!state.rawInput.startsWith(';') && state.candidates.length > 0) {
+        const confirmed = await this.commitCandidate(0, generation);
+        if (!confirmed.success) {
+          return confirmed;
+        }
+        if (!this.isInputSessionGenerationCurrent(generation)) {
+          return this.staleInputAction('literal upper-deck character candidate commit');
+        }
+      } else {
+        const cleared = await this.imeService.clearPreviewText(generation);
+        if (!cleared) {
+          this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'literal character composition clear failed');
+          return inputOperationFailed(
+            ImeErrorCode.ENGINE_INTERNAL_ERROR,
+            'literal character composition clear failed'
+          );
+        }
+        if (!this.isInputSessionGenerationCurrent(generation)) {
+          return this.staleInputAction('literal upper-deck character composition clear');
+        }
+        this.engineCoordinator.reset();
+        this.store.clearComposition();
+      }
+    }
+    this.smartPeriodController.clear();
+    return this.insertText(input, 'literal upper-deck character', generation);
   }
 
   /** Appends physical-keyboard punctuation without ending the active composition. */
@@ -537,16 +599,27 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         return this.staleInputAction('punctuation candidate commit');
       }
     }
-    return this.insertSmartPeriodOrText(character, 'physical punctuation suffix', generation, inputAction);
+    return this.insertSmartPunctuationOrText(character, 'physical punctuation suffix', generation, inputAction);
   }
 
-  private async insertSmartPeriodOrText(
+  private normalizeChinesePunctuationInput(text: string, state: InputSessionState): string {
+    const settings = this.settingsController.getSettings();
+    const chineseMode = state.keyboardMode === KeyboardMode.CHINESE ||
+      ((state.keyboardMode === KeyboardMode.SYMBOL || state.keyboardMode === KeyboardMode.NUMBER) &&
+        state.modeBeforeTransient === KeyboardMode.CHINESE);
+    return chineseMode && settings.punctuationMode === PunctuationMode.CHINESE
+      ? chinesePunctuationForEnglishTarget(text)
+      : text;
+  }
+
+  private async insertSmartPunctuationOrText(
     text: string,
     reason: string,
     generation: number,
     inputAction?: SmartPeriodInputAction
   ): Promise<InputOperationResult> {
-    if (text !== '。') {
+    const targetText = smartPunctuationTarget(text);
+    if (targetText === undefined) {
       return this.insertText(text, reason, generation);
     }
 
@@ -554,27 +627,30 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     const settings = this.settingsController.getSettings();
     if (settings.punctuationMode === PunctuationMode.ENGLISH) {
       this.smartPeriodController.clear();
-      return this.insertText('。', reason, generation);
+      return this.insertText(text, reason, generation);
     }
     const timeoutMs = settings.smartPeriodTimeoutMs;
-    if (settings.numericPeriodEnabled && timeoutMs > 0 &&
-      this.smartPeriodController.shouldReplace(action, generation, timeoutMs)) {
+    const enabled = isSmartPunctuationEnabled(settings.smartPunctuationSymbols, targetText);
+    const previousSource = enabled
+      ? this.smartPeriodController.shouldReplace(action, generation, timeoutMs, targetText)
+      : undefined;
+    if (targetText === '.' && settings.numericPeriodEnabled && previousSource === '.') {
       const deleted = this.imeService.deleteBackwardIfMatches !== undefined &&
-        await this.imeService.deleteBackwardIfMatches('.');
+        await this.imeService.deleteBackwardIfMatches(previousSource);
       if (!this.isInputSessionGenerationCurrent(generation)) {
         this.smartPeriodController.clear();
-        return this.staleInputAction('numeric smart period verification');
+        return this.staleInputAction('numeric smart punctuation verification');
       }
       if (deleted) {
-        const replaced = await this.insertText('。', 'numeric smart period replacement', generation);
+        const replaced = await this.insertText(text, 'numeric smart punctuation replacement', generation);
         this.smartPeriodController.clear();
         if (!replaced.success && this.isInputSessionGenerationCurrent(generation)) {
-          await this.imeService.insertText('.');
+          await this.imeService.insertText(previousSource);
         }
         return replaced;
       }
     }
-    if (settings.numericPeriodEnabled && this.imeService.getTextBeforeCursor !== undefined) {
+    if (targetText === '.' && settings.numericPeriodEnabled && this.imeService.getTextBeforeCursor !== undefined) {
       const before = await this.imeService.getTextBeforeCursor(1);
       if (!this.isInputSessionGenerationCurrent(generation)) {
         this.smartPeriodController.clear();
@@ -582,46 +658,46 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       }
       if (before !== undefined && /^[0-9０-９]$/.test(before)) {
         const inserted = await this.insertText('.', reason, generation);
-        if (inserted.success && timeoutMs > 0) {
-          this.smartPeriodController.recordPeriod(action, generation);
+        if (inserted.success && timeoutMs > 0 && enabled) {
+          this.smartPeriodController.recordPunctuation(action, generation, '.', targetText);
         } else {
           this.smartPeriodController.clear();
         }
         return inserted;
       }
     }
-    if (timeoutMs <= 0) {
+    if (timeoutMs <= 0 || !enabled) {
       this.smartPeriodController.clear();
-      return this.insertText('。', reason, generation);
+      return this.insertText(text, reason, generation);
     }
-    if (this.smartPeriodController.shouldReplace(action, generation, timeoutMs)) {
+    if (previousSource !== undefined) {
       let deleted = false;
       try {
         deleted = this.imeService.deleteBackwardIfMatches
-          ? await this.imeService.deleteBackwardIfMatches('。')
+          ? await this.imeService.deleteBackwardIfMatches(previousSource)
           : false;
       } catch (_err) {
         deleted = false;
       }
       if (!this.isInputSessionGenerationCurrent(generation)) {
         this.smartPeriodController.clear();
-        return this.staleInputAction('smart period verification');
+        return this.staleInputAction('smart punctuation verification');
       }
       if (deleted) {
-        const replaced = await this.insertText('.', 'smart period replacement', generation);
+        const replaced = await this.insertText(targetText, 'smart punctuation replacement', generation);
         this.smartPeriodController.clear();
         if (!replaced.success && this.isInputSessionGenerationCurrent(generation)) {
-          // The verified Chinese period was removed but the replacement was
+          // The verified Chinese punctuation was removed but the replacement was
           // rejected. Best-effort restoration keeps the editor unchanged.
-          await this.imeService.insertText('。');
+          await this.imeService.insertText(previousSource);
         }
         return replaced;
       }
     }
 
-    const inserted = await this.insertText('。', reason, generation);
+    const inserted = await this.insertText(text, reason, generation);
     if (inserted.success && this.isInputSessionGenerationCurrent(generation)) {
-      this.smartPeriodController.recordPeriod(action, generation);
+      this.smartPeriodController.recordPunctuation(action, generation, text, targetText);
     } else {
       this.smartPeriodController.clear();
     }
@@ -828,9 +904,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         this.store.updateComposition(result);
         return inputOperationFailed(result.errorCode, result.errorMessage);
       }
-      const previewUpdated = await this.imeService.setPreviewText(
+      const previewUpdated = await this.updateCompositionText(
         result.rawInput,
-        state.editorContext.textPreviewSupported,
+        false,
         generation
       );
       if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -856,6 +932,75 @@ export class InputSessionCompositionController extends InputSessionCommitControl
 
     this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'delete verification failed');
     return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'delete verification failed');
+  }
+
+  async deleteCurrentLine(
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('delete current line');
+    }
+    const sessionCheck = this.ensureInputSession('delete current line');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+    if (this.imeService.deleteCurrentLine === undefined) {
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line is unavailable');
+    }
+    const state = this.store.getSnapshot();
+    if (state.rawInput.length > 0) {
+      const cleared = await this.imeService.clearPreviewText(generation);
+      if (!this.isInputSessionGenerationCurrent(generation)) {
+        return this.staleInputAction('delete current line preview cleanup');
+      }
+      if (!cleared) {
+        this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'delete current line preview cleanup failed');
+        return inputOperationFailed(
+          ImeErrorCode.ENGINE_INTERNAL_ERROR,
+          'delete current line preview cleanup failed'
+        );
+      }
+      this.imeService.resetPreviewState();
+      if (this.engineCoordinator.isInitialized()) {
+        this.engineCoordinator.reset();
+      }
+      this.store.clearComposition();
+    }
+    const deleted = await this.imeService.deleteCurrentLine();
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('delete current line completion');
+    }
+    if (deleted) {
+      this.store.clearError();
+      return inputOperationOk();
+    }
+    this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line failed');
+    return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line failed');
+  }
+
+  async restoreLastDeletion(
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('restore last deletion');
+    }
+    const sessionCheck = this.ensureInputSession('restore last deletion');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+    if (this.store.getSnapshot().rawInput.length > 0 || this.imeService.restoreLastDeletion === undefined) {
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'restore last deletion is unavailable');
+    }
+    const restored = await this.imeService.restoreLastDeletion();
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('restore last deletion completion');
+    }
+    if (restored) {
+      this.store.clearError();
+      return inputOperationOk();
+    }
+    this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'restore last deletion failed');
+    return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'restore last deletion failed');
   }
 
   private async resetCompositionDetachedByEditor(

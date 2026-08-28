@@ -31,6 +31,10 @@ import { SettingsValidator } from '../main/ets/infrastructure/storage/SettingsVa
 import { InputSessionStore } from '../main/ets/state/InputSessionStore';
 import { SettingsStore } from '../main/ets/state/SettingsStore';
 import {
+  DEFAULT_SMART_PUNCTUATION_SYMBOLS,
+  normalizeSmartPunctuationSymbols
+} from '../main/ets/domain/keyboard/SmartPunctuation';
+import {
   calculateDynamicMetrics,
   getMetricsForOrientation,
   KEYBOARD_BOTTOM_PADDING,
@@ -424,6 +428,8 @@ export default function stage11Test() {
       expect(DEFAULT_IME_SETTINGS.spellingCorrectionEnabled).assertFalse();
       expect(DEFAULT_IME_SETTINGS.fuzzyOptions.length).assertEqual(0);
       expect(DEFAULT_IME_SETTINGS.smartPeriodTimeoutMs).assertEqual(DEFAULT_SMART_PERIOD_TIMEOUT_MS);
+      expect(DEFAULT_IME_SETTINGS.smartPunctuationSymbols).assertEqual(DEFAULT_SMART_PUNCTUATION_SYMBOLS);
+      expect(DEFAULT_SMART_PUNCTUATION_SYMBOLS).assertEqual(',./;\\!:?"$()[]^_<>');
       expect(panelHeightForMode(KeyboardHeightMode.STANDARD)).assertEqual(894);
       expect(PORTRAIT_METRICS.statusBarActionWidth).assertEqual(48);
     });
@@ -494,6 +500,9 @@ export default function stage11Test() {
         .assertEqual(DEFAULT_SMART_PERIOD_TIMEOUT_MS);
       expect(new SettingsValidator().validate({ smartPeriodTimeoutMs: '800' }).smartPeriodTimeoutMs)
         .assertEqual(800);
+      expect(normalizeSmartPunctuationSymbols('?x?,')).assertEqual(',?');
+      expect(new SettingsValidator().validate({ smartPunctuationSymbols: '""' }).smartPunctuationSymbols)
+        .assertEqual('');
     });
 
     it('falls back unknown enums, booleans, scheme and future version safely', 0, () => {
@@ -1062,14 +1071,18 @@ export default function stage11Test() {
       expect(store.getSnapshot().keyboardHeightMode).assertEqual(KeyboardHeightMode.TALL);
     });
 
-    it('controller persists the smart period timeout and rejects out-of-range values', 0, async () => {
+    it('controller persists the smart punctuation timeout and selectable symbols', 0, async () => {
       const repo = new FakeSettingsRepository();
       const store = new SettingsStore();
       const controller = new SettingsController(repo, store, new FakeSettingsEngine(), new InputSessionStore());
       expect((await controller.setSmartPeriodTimeoutMs(800)).success).assertTrue();
       expect(store.getSnapshot().smartPeriodTimeoutMs).assertEqual(800);
+      expect((await controller.setSmartPunctuationSymbols('?.')).success).assertTrue();
+      expect(store.getSnapshot().smartPunctuationSymbols).assertEqual('.?');
+      expect((await controller.setSmartPunctuationSymbols('')).success).assertTrue();
+      expect(store.getSnapshot().smartPunctuationSymbols).assertEqual('');
       expect((await controller.setSmartPeriodTimeoutMs(2001)).success).assertFalse();
-      expect(repo.saveCount).assertEqual(1);
+      expect(repo.saveCount).assertEqual(3);
     });
 
     it('serializes delayed saves and bases a rapid second field change on the first', 0, async () => {

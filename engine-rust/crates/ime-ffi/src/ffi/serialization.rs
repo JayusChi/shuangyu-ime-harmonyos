@@ -58,14 +58,16 @@ fn user_lexicon_document_json(report: &UserLexiconLoadReport) -> String {
         .map(|entry| {
             let (action, position) = match entry.action {
                 UserLexiconAction::Add => ("ADD", 0),
+                UserLexiconAction::Direct => ("DIRECT", 0),
                 UserLexiconAction::Delete => ("DELETE", 0),
                 UserLexiconAction::Fixed => ("FIXED", 0),
                 UserLexiconAction::Position(position) => ("POSITION", position),
             };
             format!(
-                "{{\"id\":\"{}\",\"text\":\"{}\",\"code\":\"{}\",\"action\":\"{}\",\"position\":{},\"sourceOrder\":{}}}",
+                "{{\"id\":\"{}\",\"text\":\"{}\",\"displayText\":\"{}\",\"code\":\"{}\",\"action\":\"{}\",\"position\":{},\"sourceOrder\":{}}}",
                 entry.stable_id(),
                 escape_json(&entry.text),
+                escape_json(entry.display_text.as_deref().unwrap_or("")),
                 escape_json(&entry.code),
                 action,
                 position,

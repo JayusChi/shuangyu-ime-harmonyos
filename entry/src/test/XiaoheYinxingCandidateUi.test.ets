@@ -101,6 +101,31 @@ export default function xiaoheYinxingCandidateUiTest() {
       ).displayText).assertEqual('那么');
     });
 
+    it('renders a direct-word label with the remaining code but keeps clean commit text', 0, () => {
+      const direct: Candidate = {
+        id: 'direct-gwyu',
+        text: '给予',
+        displayText: '给ʲⁱ̌予',
+        reading: 'gwyu',
+        source: 'user-lexicon'
+      };
+
+      expect(toContextualCandidateDisplayItem(
+        direct,
+        0,
+        CandidateUiMode.PRECISE_MATCH,
+        'gwy'
+      ).displayText).assertEqual('给ʲⁱ̌予u');
+      expect(direct.text).assertEqual('给予');
+      expect(resolveCandidateAccessibilityText(
+        CandidateUiMode.PRECISE_MATCH,
+        'gwy',
+        0,
+        direct.displayText!,
+        direct.reading
+      )).assertEqual('精准匹配提示，第 1 个，给ʲⁱ̌予，后续编码 u');
+    });
+
     it('exact candidates remain complete while empty-code hints are fixed to one', 0, () => {
       const mixed: Candidate[] = [
         candidate('exact-1', '精确一', 'un'),
@@ -146,6 +171,21 @@ export default function xiaoheYinxingCandidateUiTest() {
       expect(resolveVisibleCandidates(
         CandidateUiMode.PRECISE_MATCH, ';', [guideDefault]
       )[0].text).assertEqual('：');
+    });
+
+    it('keeps every Rust-filtered universal-key candidate visible', 0, () => {
+      const wildcardCandidates: Candidate[] = [
+        candidate('universal-1', '驹', 'jumk'),
+        candidate('universal-2', '居', 'juko'),
+        candidate('universal-3', '句', 'juwj')
+      ];
+
+      expect(resolveVisibleCandidates(
+        CandidateUiMode.PRECISE_MATCH, 'ju`', wildcardCandidates
+      ).map((item: Candidate): string => item.text).join('|')).assertEqual('驹|居|句');
+      expect(resolveVisibleCandidates(
+        CandidateUiMode.PRECISE_MATCH, '``an', wildcardCandidates
+      ).length).assertEqual(3);
     });
   });
 }

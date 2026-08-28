@@ -1693,20 +1693,16 @@ fn code_table_rules(
     external: &Arc<UserLexiconSnapshot>,
     enabled_category_ids: &[String],
 ) -> Arc<UserLexiconSnapshot> {
-    // The frozen production bundle's embedded rules originate from the
-    // full-code-word source. Keep those fixed/direct records owned by that
-    // category so disabling the category cannot leak them as global user
-    // entries. External user rules remain independent of system categories.
-    if scheme_id == PRODUCTION_SCHEME_ID
-        && enabled_category_ids
-            .iter()
-            .any(|category| category == "full-code-word")
-    {
+    // Every embedded rule carries its authoritative source category. Filter
+    // that immutable layer by the active snapshot, then merge external user
+    // rules, which intentionally have no category scope.
+    if scheme_id == PRODUCTION_SCHEME_ID {
         let embedded = bundle
             .user_rules
             .as_ref()
             .expect("frozen production bundle includes validated user rules");
-        Arc::new(merge_user_lexicon_snapshots(embedded, external))
+        let enabled_embedded = embedded.for_enabled_categories(enabled_category_ids);
+        Arc::new(merge_user_lexicon_snapshots(&enabled_embedded, external))
     } else {
         Arc::clone(external)
     }
@@ -1884,6 +1880,7 @@ fn to_formal_candidate(candidate: &EngineCandidate) -> FormalCandidate {
     FormalCandidate {
         id: candidate.id.clone(),
         text: candidate.text.clone(),
+        display_text: String::new(),
         reading: candidate.reading.clone(),
         source: candidate.source.clone(),
         consumed_raw_len: candidate.consumed_raw_len.min(u32::MAX as usize) as u32,

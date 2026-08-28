@@ -112,9 +112,10 @@ where
 /// Applies longer-code user rules to source-ordered precise-match hints.
 ///
 /// Hint rows deliberately keep the code table's physical order. Delete rules
-/// still remove their exact `(code, text)` row, while add/fixed/position rules
-/// may contribute a missing user row only after the surviving system rows.
-/// They never promote one longer code ahead of another.
+/// still remove their exact `(code, text)` row. User-managed Direct rules and
+/// legacy bundle-embedded Add rules are source `#直` entries, so they reserve
+/// the visible prefix hint before the surviving system rows; ordinary additions
+/// and fixed/position rules remain after those rows. Ordering stays stable.
 pub fn merge_code_table_hint_candidates<T, Text, Code, Make>(
     snapshot: &UserLexiconSnapshot,
     raw_code: &str,
@@ -137,6 +138,14 @@ where
     let mut seen = BTreeSet::new();
     let mut output = Vec::new();
 
+    // Older bundles store source `#直` rows as category-scoped Add entries;
+    // external user files now preserve Direct explicitly. Put both first.
+    for entry in entries.iter().filter(|entry| is_direct_entry(entry)) {
+        if seen.insert(entry.text.clone()) {
+            output.push(make_user_candidate(entry));
+        }
+    }
+
     for candidate in base {
         let key = (code_of(&candidate), text_of(&candidate));
         if deleted.contains(&key) || !seen.insert(text_of(&candidate).to_owned()) {
@@ -146,12 +155,20 @@ where
     }
 
     for entry in entries {
-        if matches!(entry.action, UserLexiconAction::Delete) || !seen.insert(entry.text.clone()) {
+        if matches!(entry.action, UserLexiconAction::Delete)
+            || is_direct_entry(entry)
+            || !seen.insert(entry.text.clone())
+        {
             continue;
         }
         output.push(make_user_candidate(entry));
     }
     output
+}
+
+fn is_direct_entry(entry: &UserLexiconEntry) -> bool {
+    matches!(entry.action, UserLexiconAction::Direct)
+        || (matches!(entry.action, UserLexiconAction::Add) && entry.category_id.is_some())
 }
 
 /// Applies only complete-code rules. This is the code-table uniqueness primitive:
@@ -231,7 +248,7 @@ where
         let key = (entry.code.clone(), entry.text.clone());
         match entry.action {
             UserLexiconAction::Delete => {}
-            UserLexiconAction::Add => {
+            UserLexiconAction::Add | UserLexiconAction::Direct => {
                 let _ = existing.remove(&key);
                 added.push(make_user_candidate(entry));
             }
@@ -331,7 +348,7 @@ where
         let mut take_existing = || existing.remove(&entry.text);
         match entry.action {
             UserLexiconAction::Delete => {}
-            UserLexiconAction::Add => {
+            UserLexiconAction::Add | UserLexiconAction::Direct => {
                 // A normal user entry replaces an identical system candidate so
                 // its source remains visibly the user overlay.
                 let _ = take_existing();
@@ -379,7 +396,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parse_user_lexicon_bytes;
+    use crate::{parse_embedded_user_lexicon_bytes, parse_user_lexicon_bytes};
 
     #[derive(Clone, Debug, Eq, PartialEq)]
     struct Candidate {
@@ -466,6 +483,67 @@ mod tests {
         assert!(output[2..]
             .iter()
             .all(|candidate| candidate.source == "user"));
+    }
+
+    #[test]
+    fn embedded_direct_entry_reserves_the_precise_prefix_hint() {
+        let snapshot = parse_embedded_user_lexicon_bytes(
+            "embedded.txt",
+            "给予\tgwyu\t给ʲⁱ̌予\tcore\n".as_bytes(),
+        )
+        .unwrap()
+        .into_snapshot();
+        let output = merge_code_table_hint_candidates(
+            &snapshot,
+            "gwy",
+            vec![Candidate {
+                text: "系统提示".to_owned(),
+                code: "gwya".to_owned(),
+                source: "system",
+            }],
+            |item| item.text.as_str(),
+            |item| item.code.as_str(),
+            |entry| Candidate {
+                text: entry.text.clone(),
+                code: entry.code.clone(),
+                source: "user",
+            },
+        );
+
+        assert_eq!(texts(&output), vec!["给予", "系统提示"]);
+        assert_eq!(output[0].code, "gwyu");
+        assert_eq!(output[0].source, "user");
+    }
+
+    #[test]
+    fn external_direct_entry_reserves_prefix_hint_and_keeps_commit_text() {
+        let snapshot =
+            parse_user_lexicon_bytes("external.txt", "给予,给ʲⁱ̌予\tgwyu#直\n".as_bytes())
+                .unwrap()
+                .into_snapshot();
+        let output = merge_code_table_hint_candidates(
+            &snapshot,
+            "gwy",
+            vec![Candidate {
+                text: "系统提示".to_owned(),
+                code: "gwya".to_owned(),
+                source: "system",
+            }],
+            |item| item.text.as_str(),
+            |item| item.code.as_str(),
+            |entry| Candidate {
+                text: entry.text.clone(),
+                code: entry.code.clone(),
+                source: "user",
+            },
+        );
+
+        assert_eq!(texts(&output), vec!["给予", "系统提示"]);
+        assert_eq!(
+            snapshot.entries()[0].display_text.as_deref(),
+            Some("给ʲⁱ̌予")
+        );
+        assert_eq!(snapshot.entries()[0].action, UserLexiconAction::Direct);
     }
 
     #[test]

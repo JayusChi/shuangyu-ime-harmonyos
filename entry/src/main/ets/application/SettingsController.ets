@@ -30,6 +30,8 @@ import { EngineCoordinator, getSharedEngineCoordinator } from './EngineCoordinat
 import { SerialActionExecutor } from './SerialActionExecutor';
 import { YinxingBundleInstaller } from '../infrastructure/resource/YinxingBundleInstaller';
 import { InputPresentationPreference } from '../domain/display/InputPresentationMode';
+import { normalizeSmartPunctuationSymbols } from '../domain/keyboard/SmartPunctuation';
+import { normalizeLetterSwipeSymbols } from '../domain/keyboard/LetterSwipeSymbols';
 import {
   findKeyboardProfile,
   isEnabledKeyboardProfile,
@@ -219,9 +221,33 @@ export class SettingsController {
     });
   }
 
+  async setKeyboardStructureId(value: string): Promise<SettingsOperationResult> {
+    if (!this.isValidCustomizationId(value)) {
+      return { success: false, message: '键盘结构标识无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.keyboardStructureId = value;
+    });
+  }
+
+  async setKeyboardSkinId(value: string): Promise<SettingsOperationResult> {
+    if (!this.isValidCustomizationId(value)) {
+      return { success: false, message: '键盘皮肤标识无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.keyboardSkinId = value;
+    });
+  }
+
   async setKeyboardHeightMode(value: KeyboardHeightMode): Promise<SettingsOperationResult> {
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.keyboardHeightMode = value;
+    });
+  }
+
+  async setKeyboardLiftLayerEnabled(enabled: boolean): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.keyboardLiftLayerEnabled = enabled;
     });
   }
 
@@ -245,10 +271,29 @@ export class SettingsController {
 
   async setSmartPeriodTimeoutMs(timeoutMs: number): Promise<SettingsOperationResult> {
     if (!Number.isInteger(timeoutMs) || timeoutMs < 0 || timeoutMs > 2000) {
-      return { success: false, message: '智能句号时间参数无效' };
+      return { success: false, message: '智能标点时间参数无效' };
     }
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.smartPeriodTimeoutMs = timeoutMs;
+    });
+  }
+
+  async setSmartPunctuationSymbols(symbols: string): Promise<SettingsOperationResult> {
+    const normalized = normalizeSmartPunctuationSymbols(symbols);
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.smartPunctuationSymbols = normalized;
+    });
+  }
+
+  async setLetterSwipeSymbols(
+    chineseSymbols: string,
+    englishSymbols: string
+  ): Promise<SettingsOperationResult> {
+    const normalizedChinese = normalizeLetterSwipeSymbols(chineseSymbols);
+    const normalizedEnglish = normalizeLetterSwipeSymbols(englishSymbols);
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.chineseLetterSwipeSymbols = normalizedChinese;
+      settings.englishLetterSwipeSymbols = normalizedEnglish;
     });
   }
 
@@ -760,14 +805,20 @@ export class SettingsController {
 
   private describe(settings: ImeSettings): string {
     return `keyboardProfileId=${settings.keyboardProfileId}, schemeId=${settings.schemeId}, ` +
+      `keyboardStructureId=${settings.keyboardStructureId}, keyboardSkinId=${settings.keyboardSkinId}, ` +
       `keyboardHeightMode=${settings.keyboardHeightMode}, ` +
       `candidateFontSizeMode=${settings.candidateFontSizeMode}, hapticLevel=${settings.hapticLevel}, ` +
       `keySoundEnabled=${settings.keySoundEnabled}, userLearningEnabled=${settings.userLearningEnabled}, ` +
       `spellingCorrectionEnabled=${settings.spellingCorrectionEnabled}, ` +
       `smartPeriodTimeoutMs=${settings.smartPeriodTimeoutMs}, ` +
+      `smartPunctuationSymbols=${JSON.stringify(settings.smartPunctuationSymbols)}, ` +
       `fuzzyOptions=${settings.fuzzyOptions.join('|')}, ` +
       `inputPresentationPreference=${settings.inputPresentationPreference}, ` +
       `xiaoheYinxingEnabledCategoryCount=${settings.xiaoheYinxingEnabledCategoryIds.length}`;
+  }
+
+  private isValidCustomizationId(value: string): boolean {
+    return /^[a-z0-9][a-z0-9._-]{0,63}$/.test(value);
   }
 
   getLexiconSources(): LexiconSourceConfig[] {

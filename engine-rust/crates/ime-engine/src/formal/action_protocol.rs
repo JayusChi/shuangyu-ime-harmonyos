@@ -12,6 +12,7 @@ fn code_table_result_with_commit(
         .map(|candidate| FormalCandidate {
             id: candidate.id.clone(),
             text: candidate.text.clone(),
+            display_text: candidate.display_text.clone().unwrap_or_default(),
             reading: candidate.code.clone(),
             source: candidate.category_id.clone(),
             consumed_raw_len: machine.raw_code().chars().count().min(u32::MAX as usize) as u32,

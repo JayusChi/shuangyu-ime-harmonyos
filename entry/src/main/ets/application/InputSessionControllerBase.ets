@@ -305,6 +305,7 @@ export class InputSessionControllerBase {
     this.voiceInputController.cancel(false);
     this.commitHistoryManager.clear();
     this.undoCommitManager?.clearUndoState();
+    this.imeService.clearDeletionRecovery?.();
     this.inputMethodSwitcher.setSessionActive(false);
     this.abilityContext = context;
     this.store.resetAll();
@@ -430,6 +431,7 @@ export class InputSessionControllerBase {
     inputClient: inputMethodEngine.InputClient
   ): void {
     this.imeService.clearPairState?.();
+    this.imeService.clearDeletionRecovery?.();
     this.commitHistoryManager.clear();
     this.undoCommitManager?.clearUndoState();
     ImeConnectionService.bindSession(keyboardController, inputClient);
@@ -443,6 +445,7 @@ export class InputSessionControllerBase {
 
   handleInputStop(): void {
     this.imeService.clearPairState?.();
+    this.imeService.clearDeletionRecovery?.();
     this.aiAssistController.cancel(false);
     this.voiceInputController.cancel(false);
     this.inputMethodSwitcher.setSessionActive(false);
@@ -519,6 +522,7 @@ export class InputSessionControllerBase {
 
   handleAbilityDestroyed(): void {
     this.imeService.clearPairState?.();
+    this.imeService.clearDeletionRecovery?.();
     this.aiAssistController.cancel(false);
     this.voiceInputController.cancel(false);
     this.commitHistoryManager.clear();
@@ -545,6 +549,7 @@ export class InputSessionControllerBase {
 
   applyEditorContext(context: EditorContext): void {
     this.imeService.clearPairState?.();
+    this.imeService.clearDeletionRecovery?.();
     this.aiAssistController.cancel(false);
     this.voiceInputController.cancel(false);
     // Attribute changes can already refer to a newly focused editor. Drop the
@@ -721,6 +726,37 @@ export class InputSessionControllerBase {
       }
     }
   }
+
+  protected async updateCompositionText(
+    text: string,
+    previewSupported: boolean,
+    generation: number,
+    anchorAfterCandidateCommit: boolean = false,
+    serializedContinuation: boolean = false
+  ): Promise<boolean> {
+    const updated = await this.imeService.setPreviewText(
+      text,
+      previewSupported,
+      generation,
+      anchorAfterCandidateCommit,
+      serializedContinuation
+    );
+    if (updated && this.isInputSessionGenerationCurrent(generation)) {
+      const cursorPreviewActive = this.imeService.isCursorPreviewActive !== undefined
+        ? this.imeService.isCursorPreviewActive()
+        : previewSupported;
+      this.store.setCursorPreeditVisible(text.length > 0 && cursorPreviewActive);
+    }
+    return updated;
+  }
+
+  protected syncCursorPreeditVisibility(rawInput: string): void {
+    const cursorPreviewActive = this.imeService.isCursorPreviewActive !== undefined
+      ? this.imeService.isCursorPreviewActive()
+      : false;
+    this.store.setCursorPreeditVisible(rawInput.length > 0 && cursorPreviewActive);
+  }
+
   protected async insertText(
     text: string,
     reason: string,

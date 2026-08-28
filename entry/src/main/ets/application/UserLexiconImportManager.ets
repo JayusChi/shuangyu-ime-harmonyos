@@ -172,14 +172,18 @@ export class UserLexiconImportManager {
         left.sourceOrder - right.sourceOrder)
       .map((entry: UserLexiconEntryRecord): string => {
         let marker = '';
-        if (entry.action === 'DELETE') {
+        if (entry.action === 'DIRECT') {
+          marker = '#直';
+        } else if (entry.action === 'DELETE') {
           marker = '#删';
         } else if (entry.action === 'FIXED') {
           marker = '#固';
         } else if (entry.action === 'POSITION') {
           marker = `#${entry.position}`;
         }
-        return `${entry.text}\t${entry.code}${marker}\n`;
+        const word = entry.action === 'DIRECT' && entry.displayText.length > 0 ?
+          `${entry.text},${entry.displayText}` : entry.text;
+        return `${word}\t${entry.code}${marker}\n`;
       }).join('');
   }
 

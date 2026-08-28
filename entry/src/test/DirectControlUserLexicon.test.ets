@@ -8,7 +8,7 @@ import {
 import { UserLexiconEntryRecord } from '../main/ets/infrastructure/native/NativeEngineTypes';
 
 function entry(id: string, text: string, code: string, order: number): UserLexiconEntryRecord {
-  return { id, text, code, action: 'ADD', position: 0, sourceOrder: order };
+  return { id, text, displayText: '', code, action: 'ADD', position: 0, sourceOrder: order };
 }
 
 export default function directControlUserLexiconTest() {
@@ -62,6 +62,15 @@ export default function directControlUserLexiconTest() {
       entries = UserLexiconDocumentEditor.upsert(entries, '丙词', 'ijkl', 'DELETE', 0);
       expect(entries.length).assertEqual(2);
       expect(UserLexiconDocumentEditor.serialize(entries)).assertEqual('乙词\tefgh\n丙词\tijkl#删\n');
+    });
+
+    it('serializes user-managed direct entries with separate display and commit text', 0, () => {
+      let entries: UserLexiconEntryRecord[] = [];
+      entries = UserLexiconDocumentEditor.upsert(entries, '给予', 'gwyu', 'DIRECT', 0, '给ʲⁱ̌予');
+      expect(UserLexiconDocumentEditor.serialize(entries))
+        .assertEqual('给予,给ʲⁱ̌予\tgwyu#直\n');
+      entries = UserLexiconDocumentEditor.applyAction(entries, [''], 'ADD', 0);
+      expect(UserLexiconDocumentEditor.serialize(entries)).assertEqual('给予\tgwyu\n');
     });
   });
 }

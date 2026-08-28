@@ -3,20 +3,22 @@ export interface SmartPeriodInputAction {
   timestampMs: number;
 }
 
-interface RecordedPeriod {
+interface RecordedPunctuation {
   sequence: number;
   timestampMs: number;
   generation: number;
+  sourceText: string;
+  targetText: string;
 }
 
 /**
  * Tracks user input arrival order separately from the asynchronous editor
  * queue. This keeps the double-press window tied to the actual key presses,
- * even when committing a candidate delays the first period operation.
+ * even when committing a candidate delays the first punctuation operation.
  */
 export class SmartPeriodController {
   private nextSequence: number = 0;
-  private previousPeriod?: RecordedPeriod;
+  private previousPunctuation?: RecordedPunctuation;
 
   beginInput(timestampMs: number = Date.now()): SmartPeriodInputAction {
     this.nextSequence += 1;
@@ -29,26 +31,34 @@ export class SmartPeriodController {
   shouldReplace(
     action: SmartPeriodInputAction,
     generation: number,
-    timeoutMs: number
-  ): boolean {
-    const previous = this.previousPeriod;
+    timeoutMs: number,
+    targetText: string
+  ): string | undefined {
+    const previous = this.previousPunctuation;
     if (!previous || timeoutMs <= 0 || previous.generation !== generation ||
-      action.sequence !== previous.sequence + 1) {
-      return false;
+      action.sequence !== previous.sequence + 1 || previous.targetText !== targetText) {
+      return undefined;
     }
     const elapsed = action.timestampMs - previous.timestampMs;
-    return elapsed >= 0 && elapsed <= timeoutMs;
+    return elapsed >= 0 && elapsed <= timeoutMs ? previous.sourceText : undefined;
   }
 
-  recordPeriod(action: SmartPeriodInputAction, generation: number): void {
-    this.previousPeriod = {
+  recordPunctuation(
+    action: SmartPeriodInputAction,
+    generation: number,
+    sourceText: string,
+    targetText: string
+  ): void {
+    this.previousPunctuation = {
       sequence: action.sequence,
       timestampMs: action.timestampMs,
-      generation
+      generation,
+      sourceText,
+      targetText
     };
   }
 
   clear(): void {
-    this.previousPeriod = undefined;
+    this.previousPunctuation = undefined;
   }
 }

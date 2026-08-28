@@ -39,6 +39,8 @@ export enum PreviewUpdateResult {
 export enum CompositionTextMode {
   NONE = 'NONE',
   PREVIEW = 'PREVIEW',
+  /** 输入码仅由输入法候选区域自绘，不写入宿主编辑器。 */
+  CANDIDATE_BAR = 'CANDIDATE_BAR',
   COMPATIBLE = 'COMPATIBLE'
 }
 
@@ -50,6 +52,11 @@ export enum PreviewOwnershipState {
   COMMITTING = 'COMMITTING',
   FINISHING = 'FINISHING',
   CLOSED = 'CLOSED'
+}
+
+interface CandidateBarCommitResult {
+  success: boolean;
+  replacementStart?: number;
 }
 
 export abstract class CompositionInputClient extends TextPreviewInputClient {
@@ -293,6 +300,7 @@ export class CompositionTextManager {
   private generation: number = -1;
   private compatibleStart: number = -1;
   private compatibleText: string = '';
+  private candidateBarText: string = '';
   private lastCommittedEnd: number = -1;
   private readonly previewManager: TextPreviewManager = new TextPreviewManager();
   private ownershipState: PreviewOwnershipState = PreviewOwnershipState.CLEARED;
@@ -306,6 +314,9 @@ export class CompositionTextManager {
     if (this.mode === CompositionTextMode.PREVIEW) {
       return this.previewManager.getPreviewText().length;
     }
+    if (this.mode === CompositionTextMode.CANDIDATE_BAR) {
+      return this.candidateBarText.length;
+    }
     return this.compatibleText.length;
   }
 
@@ -318,6 +329,7 @@ export class CompositionTextManager {
     this.generation = -1;
     this.compatibleStart = -1;
     this.compatibleText = '';
+    this.candidateBarText = '';
     this.lastCommittedEnd = -1;
     this.previewManager.reset();
     this.ownershipState = PreviewOwnershipState.CLEARED;
@@ -357,6 +369,9 @@ export class CompositionTextManager {
       return true;
     }
     if (!this.isBoundTo(generation) || !isCurrent()) {
+      return true;
+    }
+    if (this.mode === CompositionTextMode.CANDIDATE_BAR) {
       return true;
     }
     const text = this.mode === CompositionTextMode.PREVIEW
@@ -473,7 +488,7 @@ export class CompositionTextManager {
         this.logResult('update-preview-indeterminate', generation, false);
         return false;
       }
-      LOGGER.warn(`composition preview unsupported; using compatible mode: generation=${generation}`);
+      LOGGER.warn(`composition preview unsupported; using candidate-bar mode: generation=${generation}`);
     }
 
     if (this.mode === CompositionTextMode.PREVIEW) {
@@ -489,6 +504,18 @@ export class CompositionTextManager {
         (updated ? PreviewOwnershipState.CLEARED : previousOwnership);
       this.logResult('update', generation, updated);
       return updated;
+    }
+
+    if (this.mode === CompositionTextMode.NONE || this.mode === CompositionTextMode.CANDIDATE_BAR) {
+      this.mode = CompositionTextMode.CANDIDATE_BAR;
+      this.candidateBarText = text;
+      if (text.length === 0) {
+        this.reset();
+      } else {
+        this.ownershipState = PreviewOwnershipState.OWNED;
+      }
+      this.logResult('update-candidate-bar', generation, true);
+      return true;
     }
 
     this.mode = CompositionTextMode.COMPATIBLE;
@@ -521,10 +548,9 @@ export class CompositionTextManager {
   }
 
   /**
-   * Replaces the old raw composition with the committed Chinese prefix and
-   * its unconsumed raw tail in one editor mutation. Only the tail remains
-   * owned by the IME. This avoids a second select/insert racing the first
-   * replacement in desktop editors whose promises resolve before repaint.
+   * Commits the selected Chinese prefix and keeps any unconsumed raw tail in
+   * the candidate bar. The remaining input code is never frozen into the
+   * editor as plain committed ASCII.
    */
   commitWithRemaining(
     inputClient: CompositionInputClient,
@@ -555,21 +581,35 @@ export class CompositionTextManager {
     }
 
     this.ownershipState = PreviewOwnershipState.COMMITTING;
-    const replacementText = committedText + remainingRawInput;
     let replacementStart = -1;
 
     if (this.mode === CompositionTextMode.PREVIEW) {
       replacementStart = this.previewManager.getPreviewStart();
-      const committed = await this.previewManager.commitReplacement(inputClient, replacementText);
+      const committed = await this.previewManager.commitReplacement(inputClient, committedText);
       if (!committed || !isCurrent()) {
         this.ownershipState = isCurrent() ? PreviewOwnershipState.OWNED : PreviewOwnershipState.CLOSED;
         this.logResult('commit-with-remaining', generation, false);
         return false;
       }
+    } else if (this.mode === CompositionTextMode.CANDIDATE_BAR) {
+      const commitResult = await this.commitCandidateBarText(
+        inputClient,
+        committedText,
+        generation,
+        isCurrent
+      );
+      if (!commitResult.success || !isCurrent()) {
+        this.ownershipState = isCurrent() ? PreviewOwnershipState.OWNED : PreviewOwnershipState.CLOSED;
+        this.logResult('commit-with-remaining', generation, false);
+        return false;
+      }
+      if (commitResult.replacementStart !== undefined) {
+        replacementStart = commitResult.replacementStart;
+      }
     } else if (this.mode === CompositionTextMode.COMPATIBLE) {
       const replaced = await this.replaceCompatible(
         inputClient,
-        replacementText,
+        committedText,
         generation,
         isCurrent
       );
@@ -581,7 +621,7 @@ export class CompositionTextManager {
       replacementStart = this.compatibleStart;
       const observedStart = await this.waitForCandidateReplacementStart(
         inputClient,
-        replacementText,
+        committedText,
         isCurrent
       );
       if (observedStart !== undefined) {
@@ -592,19 +632,24 @@ export class CompositionTextManager {
       return false;
     }
 
-    const committedEnd = replacementStart + committedText.length;
+    const committedEnd = replacementStart >= 0 ? replacementStart + committedText.length : -1;
     if (remainingRawInput.length === 0) {
       this.reset();
-      this.lastCommittedEnd = committedEnd;
+      if (committedEnd >= 0) {
+        this.lastCommittedEnd = committedEnd;
+      }
       this.logResult('commit-with-remaining', generation, true);
       return true;
     }
 
-    this.mode = CompositionTextMode.COMPATIBLE;
+    this.mode = CompositionTextMode.CANDIDATE_BAR;
     this.generation = generation;
-    this.compatibleStart = committedEnd;
-    this.compatibleText = remainingRawInput;
-    this.lastCommittedEnd = committedEnd;
+    this.compatibleStart = -1;
+    this.compatibleText = '';
+    this.candidateBarText = remainingRawInput;
+    if (committedEnd >= 0) {
+      this.lastCommittedEnd = committedEnd;
+    }
     this.ownershipState = PreviewOwnershipState.OWNED;
     this.logResult('commit-with-remaining', generation, true);
     return true;
@@ -637,6 +682,23 @@ export class CompositionTextManager {
       }
       this.logResult('commit', generation, committed);
       return committed;
+    }
+    if (this.mode === CompositionTextMode.CANDIDATE_BAR) {
+      const commitResult = await this.commitCandidateBarText(inputClient, text, generation, isCurrent);
+      if (!isCurrent()) {
+        this.ownershipState = PreviewOwnershipState.CLOSED;
+        return false;
+      }
+      if (commitResult.success) {
+        this.reset();
+        if (commitResult.replacementStart !== undefined) {
+          this.lastCommittedEnd = commitResult.replacementStart + text.length;
+        }
+      } else {
+        this.ownershipState = PreviewOwnershipState.OWNED;
+      }
+      this.logResult('commit-candidate-bar', generation, commitResult.success);
+      return commitResult.success;
     }
     if (this.mode !== CompositionTextMode.COMPATIBLE) {
       return false;
@@ -677,7 +739,7 @@ export class CompositionTextManager {
       return false;
     }
     this.ownershipState = PreviewOwnershipState.FINISHING;
-    if (this.mode === CompositionTextMode.COMPATIBLE) {
+    if (this.mode === CompositionTextMode.COMPATIBLE || this.mode === CompositionTextMode.CANDIDATE_BAR) {
       this.reset();
       this.logResult('finish', generation, true);
       return true;
@@ -718,6 +780,11 @@ export class CompositionTextManager {
       return false;
     }
     this.ownershipState = PreviewOwnershipState.CLEARING;
+    if (this.mode === CompositionTextMode.CANDIDATE_BAR) {
+      this.reset();
+      this.logResult('clear-candidate-bar', generation, true);
+      return true;
+    }
     if (this.mode === CompositionTextMode.PREVIEW) {
       const cleared = await this.previewManager.clear(inputClient);
       if (!isCurrent()) {
@@ -914,6 +981,75 @@ export class CompositionTextManager {
     return true;
   }
 
+  /**
+   * Commits candidate text without ever staging the raw input code in the
+   * editor. PC compatibility editors can require an explicit collapsed
+   * selection before accepting insertText, and some adapters report false
+   * even though the mutation has already reached the document. Anchor first,
+   * then use the observable text at the cursor as the final acknowledgement.
+   */
+  private async commitCandidateBarText(
+    inputClient: CompositionInputClient,
+    text: string,
+    generation: number,
+    isCurrent: () => boolean
+  ): Promise<CandidateBarCommitResult> {
+    if (text.length === 0 || !isCurrent()) {
+      return { success: false };
+    }
+
+    const cursorBeforeInsert = await this.readCursor(inputClient);
+    if (!isCurrent()) {
+      return { success: false };
+    }
+    if (cursorBeforeInsert !== undefined) {
+      try {
+        await inputClient.selectByRange({
+          start: cursorBeforeInsert,
+          end: cursorBeforeInsert
+        });
+      } catch (err) {
+        // Native Harmony editors accept insertion without an explicit anchor.
+        // Keep that standard path available when a host cannot select ranges.
+        LOGGER.warn(`candidate commit cursor anchor unavailable: generation=${generation}`);
+      }
+      if (!isCurrent()) {
+        return { success: false };
+      }
+    }
+
+    let acknowledged = false;
+    try {
+      acknowledged = await inputClient.insertText(text);
+    } catch (err) {
+      // A thrown IPC result is indeterminate: do not retry the write and risk
+      // duplicating text that may already have reached the host application.
+      LOGGER.warn(`candidate commit insert indeterminate: generation=${generation}`);
+      return { success: false };
+    }
+    if (!isCurrent()) {
+      return { success: false };
+    }
+
+    const observedStart = await this.waitForCandidateReplacementStart(inputClient, text, isCurrent);
+    if (!isCurrent()) {
+      return { success: false };
+    }
+    if (observedStart !== undefined) {
+      if (!acknowledged) {
+        LOGGER.warn(`candidate commit accepted from editor observation: generation=${generation}`);
+      }
+      return { success: true, replacementStart: observedStart };
+    }
+    if (!acknowledged) {
+      return { success: false };
+    }
+    return {
+      success: true,
+      replacementStart: cursorBeforeInsert
+    };
+  }
+
   private async resolveCompatibleRange(
     inputClient: CompositionInputClient,
     isCurrent: () => boolean
@@ -1022,4 +1158,3 @@ export class CompositionTextManager {
     );
   }
 }
-

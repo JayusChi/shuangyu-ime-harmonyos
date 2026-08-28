@@ -17,7 +17,7 @@
       "normalized_relative_path": "0.0.小鹤.txt",
       "file_name": "0.0.小鹤.txt",
       "extension": "txt",
-      "byte_size": 907036,
+      "byte_size": 907034,
       "physical_line_count": 68571,
       "non_empty_line_count": 68571,
       "comment_line_count": 1,
@@ -28,7 +28,7 @@
       "has_utf8_bom": false,
       "newline_style": "LF",
       "has_final_newline": true,
-      "sha256": "7b69e10a19c83988dce9bebff4ee4c5d88b91c5d251ea551a94f0e0668d89dc7",
+      "sha256": "e78c063a971a53bbf68112fa681ef99e624907690235b32ce9cd374f78ba810e",
       "file_role": "core_code_table",
       "role_evidence": "numbered delivery name plus matching content syntax",
       "security_classification": "findings_isolated",
@@ -38,10 +38,10 @@
         "ordinary": 68569,
         "user_deletion": 0,
         "user_pin": 0,
-        "direct_add": 0,
+        "direct_add": 1,
         "user_position": 0,
         "user_mixed_rule": 0,
-        "cmd": 1,
+        "cmd": 0,
         "ddcmd": 0,
         "configuration_header": 0,
         "configuration_item": 0,
@@ -50,18 +50,18 @@
         "unrecognized": 0,
         "first_occurrences": [
           {
-            "syntax": "cmd",
-            "physical_line": 15566,
-            "sample_sha256": "babac705cb1f0f83f536cd0fc960e5d7f7de965b2249f1eaebdffc5daebaec65",
-            "error_code": "REJECT_UNSUPPORTED_COMMAND",
-            "recommendation": "isolate and require explicit support"
-          },
-          {
             "syntax": "comment",
             "physical_line": 1,
             "sample_sha256": "e1b9b087294fe18e424b1fe4b830cda78dd93ff2edfd1a646d2cc40f6e9c93eb",
             "error_code": "IGNORE_NON_DATA_LINE",
             "recommendation": "exclude from candidate records"
+          },
+          {
+            "syntax": "direct_add",
+            "physical_line": 15566,
+            "sample_sha256": "b55e3ca701f98831d9fcb08054084ce0e99bcbfd7cd78147047006e82ff7f6b9",
+            "error_code": "TRANSFORM_DIRECT_ADD",
+            "recommendation": "convert through frozen user rule policy"
           },
           {
             "syntax": "ordinary",

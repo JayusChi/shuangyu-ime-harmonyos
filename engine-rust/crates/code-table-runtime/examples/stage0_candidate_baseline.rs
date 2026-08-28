@@ -140,6 +140,7 @@ fn query_with_rules(
         |entry: &UserLexiconEntry| CodeTableCandidate {
             id: entry.stable_id(),
             text: entry.text.clone(),
+            display_text: entry.display_text.clone(),
             code: entry.code.clone(),
             category_id: "user-lexicon".to_owned(),
             source_order: entry.source_order,

@@ -118,6 +118,26 @@ export default function stage41Test() {
       expect(view.visible).assertTrue();
       expect(view.decoration).assertEqual(CompositionPreeditDecoration.UNDERLINE);
     });
+
+    it('cursor preview and candidate bar never render the same input code together', 0, () => {
+      const cursorOwned = resolveCompositionPreeditView({
+        rawInput: 'ni',
+        preeditText: 'ni',
+        cursorPreeditVisible: true
+      });
+      expect(cursorOwned.visible).assertFalse();
+      expect(cursorOwned.displayText).assertEqual('');
+      expect(cursorOwned.decoration).assertEqual(CompositionPreeditDecoration.NONE);
+
+      const candidateFallback = resolveCompositionPreeditView({
+        rawInput: 'ni',
+        preeditText: 'ni',
+        cursorPreeditVisible: false
+      });
+      expect(candidateFallback.visible).assertTrue();
+      expect(candidateFallback.displayText).assertEqual('ni');
+      expect(candidateFallback.decoration).assertEqual(CompositionPreeditDecoration.UNDERLINE);
+    });
   });
 
   // ── 8.2 InputSessionStore 中 rawInput 正确清空 ────────────────────────────
@@ -143,6 +163,16 @@ export default function stage41Test() {
       expect(snap.rawInput).assertEqual('');
       const view = resolveCompositionPreeditView({ rawInput: snap.rawInput, preeditText: snap.preeditText });
       expect(view.visible).assertFalse();
+    });
+
+    it('store tracks cursor preview ownership and clears it with composition', 0, () => {
+      const store = new InputSessionStore();
+      store.applyEditorContext(createUnknownEditorContext());
+      store.updateComposition(makeResult('ni', 'ni', [makeCandidate('c1', '你')]));
+      store.setCursorPreeditVisible(true);
+      expect(store.getSnapshot().cursorPreeditVisible === true).assertTrue();
+      store.clearComposition();
+      expect(store.getSnapshot().cursorPreeditVisible === true).assertFalse();
     });
 
     it('markSessionStopped clears rawInput → preedit view not visible', 0, () => {

@@ -78,26 +78,34 @@ export class QuanpinContextModelResourceInstaller {
   }
 
   private hashBytes(content: Uint8Array): string {
-    const hashStream: hash.HashStream = hash.createHash('sha256');
-    const buffer: ArrayBuffer = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
-    hashStream.update(buffer);
-    return hashStream.digest().toLowerCase();
+    try {
+      const hashStream: hash.HashStream = hash.createHash('sha256');
+      const buffer: ArrayBuffer = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
+      hashStream.update(buffer);
+      return hashStream.digest().toLowerCase();
+    } catch (err) {
+      throw new Error(`quanpin context model byte hashing failed: ${JSON.stringify(err)}`);
+    }
   }
 
   private hashFile(path: string): string {
-    const hashStream: hash.HashStream = hash.createHash('sha256');
-    const file: fs.File = fs.openSync(path, fs.OpenMode.READ_ONLY);
     try {
-      const buffer: ArrayBuffer = new ArrayBuffer(HASH_BUFFER_BYTES);
-      let bytesRead: number = fs.readSync(file.fd, buffer);
-      while (bytesRead > 0) {
-        hashStream.update(bytesRead === buffer.byteLength ? buffer : buffer.slice(0, bytesRead));
-        bytesRead = fs.readSync(file.fd, buffer);
+      const hashStream: hash.HashStream = hash.createHash('sha256');
+      const file: fs.File = fs.openSync(path, fs.OpenMode.READ_ONLY);
+      try {
+        const buffer: ArrayBuffer = new ArrayBuffer(HASH_BUFFER_BYTES);
+        let bytesRead: number = fs.readSync(file.fd, buffer);
+        while (bytesRead > 0) {
+          hashStream.update(bytesRead === buffer.byteLength ? buffer : buffer.slice(0, bytesRead));
+          bytesRead = fs.readSync(file.fd, buffer);
+        }
+      } finally {
+        fs.closeSync(file);
       }
-    } finally {
-      fs.closeSync(file);
+      return hashStream.digest().toLowerCase();
+    } catch (err) {
+      throw new Error(`quanpin context model file hashing failed: ${JSON.stringify(err)}`);
     }
-    return hashStream.digest().toLowerCase();
   }
 
   private removeIfPresent(path: string): void {

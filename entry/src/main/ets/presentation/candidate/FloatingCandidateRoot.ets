@@ -9,6 +9,10 @@ import {
 } from '../../domain/candidate/CandidateUiPolicy';
 import { CandidateFontSizeMode } from '../../domain/settings/ImeSettings';
 import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
+import {
+  CompositionPreeditView,
+  resolveCompositionPreeditView
+} from '../../domain/candidate/CompositionPreeditView';
 import { getSharedSettingsStore, SettingsStore } from '../../state/SettingsStore';
 import { KeyboardColorPalette, LIGHT_PALETTE } from '../keyboard/design/KeyboardPalette';
 import { KeyboardThemeResolver } from '../keyboard/design/KeyboardThemeResolver';
@@ -30,6 +34,11 @@ struct FloatingCandidateRoot {
   private readonly scroller: Scroller = new Scroller();
 
   @State private rawInput: string = '';
+  @State private preeditText: string = '';
+  @State private displaySegments: string[] = [];
+  @State private pendingCode: string = '';
+  @State private segmentBoundaries: number[] = [];
+  @State private cursorPreeditVisible: boolean = false;
   @State private candidates: Candidate[] = [];
   @State private highlightedIndex: number = -1;
   @State private candidatePage: number = 0;
@@ -59,6 +68,11 @@ struct FloatingCandidateRoot {
   private refreshSession(): void {
     const state = this.controller.getState();
     this.rawInput = state.rawInput;
+    this.preeditText = state.preeditText;
+    this.displaySegments = state.displaySegments;
+    this.pendingCode = state.pendingCode;
+    this.segmentBoundaries = state.segmentBoundaries;
+    this.cursorPreeditVisible = state.cursorPreeditVisible === true;
     this.candidates = state.candidates;
     this.highlightedIndex = state.highlightedIndex;
     this.candidatePage = state.candidatePage;
@@ -124,10 +138,39 @@ struct FloatingCandidateRoot {
     return `第 ${this.candidatePage + 1} 页`;
   }
 
+  private preeditView(): CompositionPreeditView {
+    return resolveCompositionPreeditView({
+      rawInput: this.rawInput,
+      preeditText: this.preeditText,
+      cursorPreeditVisible: this.cursorPreeditVisible,
+      displaySegments: this.displaySegments,
+      pendingCode: this.pendingCode,
+      segmentBoundaries: this.segmentBoundaries
+    });
+  }
+
   build() {
     Row({ space: FLOATING_CANDIDATE_ITEM_GAP_VP }) {
       Scroll(this.scroller) {
         Row({ space: FLOATING_CANDIDATE_ITEM_GAP_VP }) {
+          if (this.preeditView().visible) {
+            Text(this.preeditView().displayText)
+              .fontSize(this.candidateFontSize)
+              .fontColor(this.palette.candidateText)
+              .fontWeight(FontWeight.Medium)
+              .decoration({
+                type: TextDecorationType.Underline,
+                color: this.palette.candidateText,
+                style: TextDecorationStyle.SOLID
+              })
+              .maxLines(1)
+              .padding({
+                left: FLOATING_CANDIDATE_ITEM_HORIZONTAL_PADDING_VP,
+                right: FLOATING_CANDIDATE_ITEM_HORIZONTAL_PADDING_VP,
+                top: 5,
+                bottom: 5
+              })
+          }
           ForEach(this.visibleCandidates(), (candidate: Candidate, index: number) => {
             Text(this.candidateText(candidate, this.sourceIndex(candidate)))
               .fontSize(this.candidateFontSize)
@@ -149,7 +192,7 @@ struct FloatingCandidateRoot {
                 this.candidateUiMode,
                 this.rawInput,
                 this.sourceIndex(candidate),
-                candidate.text,
+                candidate.displayText && candidate.displayText.length > 0 ? candidate.displayText : candidate.text,
                 candidate.reading
               ))
               .onClick(() => this.commitCandidate(this.sourceIndex(candidate)))

@@ -53,6 +53,8 @@ export struct InputMethodSwitchKey {
     .backgroundColor(this.isPressed
       ? this.palette.functionKeyPressedBackground
       : this.palette.functionKeyBackground)
+    .backgroundImage(this.isPressed ? '' : this.palette.functionKeyBackgroundImage, ImageRepeat.NoRepeat)
+    .backgroundImageSize({ width: '100%', height: '100%' })
     .border({ width: 1, color: this.palette.keyBorder })
     .borderRadius(this.metrics.keyBorderRadius)
     .accessibilityText(this.longPressEnabled

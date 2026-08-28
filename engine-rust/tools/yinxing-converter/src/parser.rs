@@ -177,7 +177,32 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             );
             continue;
         }
-        let features = match validate_word(text_field) {
+        let is_direct = code_field.ends_with("#直");
+        let (commit_text, display_text) = if is_direct {
+            match text_field.split_once(',') {
+                Some((commit_text, display_text))
+                    if !commit_text.is_empty() && !display_text.is_empty() =>
+                {
+                    (commit_text, Some(display_text))
+                }
+                Some(_) => {
+                    reject(
+                        &mut stats,
+                        &mut rejected,
+                        &input.spec.source_file_id,
+                        physical_line,
+                        "REJECT_DIRECT_TEXT_INVALID",
+                        "direct commit and display text must both be non-empty",
+                        &digest,
+                    );
+                    continue;
+                }
+                None => (text_field, None),
+            }
+        } else {
+            (text_field, None)
+        };
+        let features = match validate_word(commit_text) {
             Ok(value) => value,
             Err(error) => {
                 reject(
@@ -192,6 +217,20 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
                 continue;
             }
         };
+        if let Some(display_text) = display_text {
+            if let Err(error) = validate_word(display_text) {
+                reject(
+                    &mut stats,
+                    &mut rejected,
+                    &input.spec.source_file_id,
+                    physical_line,
+                    text_reason(error),
+                    "direct display text failed centralized Unicode policy",
+                    &digest,
+                );
+                continue;
+            }
+        }
         let (base_code, action) = match parse_code_and_action(code_field) {
             Ok(value) => value,
             Err(reason) => {
@@ -210,18 +249,6 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
                 continue;
             }
         };
-        if code_field.ends_with("#直") && input.spec.category_id != "full-code-word" {
-            reject(
-                &mut stats,
-                &mut rejected,
-                &input.spec.source_file_id,
-                physical_line,
-                "REJECT_DIRECT_OUTSIDE_FULL_CODE_WORD",
-                "direct marker is allowed only in the full-code-word category",
-                &digest,
-            );
-            continue;
-        }
         let symbol_group_code;
         let code_to_normalize = if input.spec.category_id == "symbol-group" {
             symbol_group_code = format!("o{base_code}");
@@ -247,7 +274,12 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             };
         let changed = normalized_changed || input.spec.category_id == "symbol-group";
         stats.max_code_length = stats.max_code_length.max(code.len() as u64);
-        stats.max_word_length = stats.max_word_length.max(text_field.chars().count() as u64);
+        stats.max_word_length = stats.max_word_length.max(
+            commit_text
+                .chars()
+                .count()
+                .max(display_text.map_or(0, |value| value.chars().count())) as u64,
+        );
         stats.cjk_extension_records += u64::from(features.cjk_extension);
         stats.emoji_or_special_records += u64::from(features.emoji_or_special);
         stats.normalized += u64::from(changed);
@@ -268,7 +300,8 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
                 ConverterError::new(ErrorCode::InvalidRecord, "user source_order overflow")
             })?;
             user_rules.push(UserRuleRecord {
-                text: text_field.to_owned(),
+                text: commit_text.to_owned(),
+                display_text: display_text.map(str::to_owned),
                 code,
                 action,
                 source_file_id: input.spec.source_file_id.clone(),
@@ -283,7 +316,7 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
         }
 
         stats.ordinary += 1;
-        let duplicate_key = (text_field.to_owned(), code.clone());
+        let duplicate_key = (commit_text.to_owned(), code.clone());
         if !duplicate_keys.insert(duplicate_key) {
             stats.duplicates += 1;
             continue;
@@ -293,7 +326,7 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
         })?;
         stats.accepted_system += 1;
         system_records.push(SystemRecord {
-            text: text_field.to_owned(),
+            text: commit_text.to_owned(),
             code,
             source_file_id: input.spec.source_file_id.clone(),
             source_file: input.spec.source_path.clone(),
@@ -578,7 +611,7 @@ mod tests {
     }
 
     #[test]
-    fn direct_marker_moves_a_full_code_row_to_the_wildcard_hidden_rule_layer() {
+    fn direct_marker_supports_distinct_commit_and_display_text_in_any_category() {
         let result = parse_category(
             &full_code_word_input("普通词\tabcd\n直通词\tefgh#直\n".as_bytes()),
             &contract(),
@@ -588,20 +621,29 @@ mod tests {
         assert_eq!(result.system_records[0].text, "普通词");
         assert_eq!(result.user_rules.len(), 1);
         assert_eq!(result.user_rules[0].text, "直通词");
+        assert_eq!(result.user_rules[0].display_text, None);
         assert_eq!(result.user_rules[0].action, UserAction::Add);
         assert_eq!(result.stats.user_add, 1);
 
-        let rejected = parse_category(
-            &input("普通词\tabcd\n越界直通词\tefgh#直\n".as_bytes()),
+        let core = parse_category(
+            &input("普通词\tabcd\n给予,给ʲⁱ̌予\tgwyu#直\n".as_bytes()),
             &contract(),
         )
         .unwrap();
-        assert!(rejected.user_rules.is_empty());
-        assert_eq!(rejected.stats.rejected, 1);
-        assert_eq!(
-            rejected.rejected[0].reason_code,
-            "REJECT_DIRECT_OUTSIDE_FULL_CODE_WORD"
-        );
+        assert_eq!(core.user_rules[0].text, "给予");
+        assert_eq!(core.user_rules[0].display_text.as_deref(), Some("给ʲⁱ̌予"));
+        assert_eq!(core.user_rules[0].category_id, "core");
+
+        let rejected = parse_category(
+            &input("普通词\tabcd\n,空上屏\tgwyu#直\n空提示,\tgwyv#直\n".as_bytes()),
+            &contract(),
+        )
+        .unwrap();
+        assert_eq!(rejected.stats.rejected, 2);
+        assert!(rejected
+            .rejected
+            .iter()
+            .all(|record| record.reason_code == "REJECT_DIRECT_TEXT_INVALID"));
     }
 
     #[test]

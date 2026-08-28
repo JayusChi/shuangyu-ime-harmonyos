@@ -1,10 +1,20 @@
 # 测试计划
 
+## 0.5.1 客户反馈闭环回归（2026-08-27）
+
+- 复制/粘贴：选择 `abc` 后触发皮肤复制，必须保留一个 500 ms 有界派发窗口供异步宿主读取选区，再调用原生右移命令收起选区；命令失败时才允许回退零宽范围选择。皮肤全选产生的文本还须保存为有界进程内副本，以便系统拒绝宿主扩展粘贴动作的环境仍可完成随后粘贴；未经过本键盘复制时仍使用原生粘贴回退。最终必须得到可见的第二份 `abc`，不能因过早收起导致剪贴板为空，也不能因原选区仍激活而等值覆盖。
+- 删行/恢复：在 `a\nb` 的当前行中执行回删下滑，必须按“光标右侧、光标左侧”顺序删除整行且不调用范围选择；左侧删除失败时必须恢复已经删除的右侧内容。成功后回车下滑须在会话、光标及两侧上下文仍匹配时恢复原行。
+- 输入码互斥与样式：普通中文、分号引导、显式分词、9 键、万能键及退格后的非空组合都只允许写入 `CANDIDATE_BAR`，固定/展开/浮动候选区域必须自绘实线下划线；编辑器文本与 `TextPreview` 均不得出现原始编码。
+- 万能键：正式小鹤音形 bundle 必须经 Rust FFI 对 `j`、`u`、反引号返回成功、保留 `rawInput=ju\`` 且候选数大于 0；音形精确码 UI 遇到任意含反引号的万能码时必须完整保留 Rust 已过滤的候选，不能再次按字面码过滤。ArkTS → Native 设备日志只能记录成功状态、编码长度和候选数，不记录原码或候选正文。
+- 发布资源测试夹具必须包含实际输入法资源、模块 Ability 声明和 Ability 基类；正向校验及逐项负向矩阵均须通过。
+
+2026-08-27 最终结果：完整 Rust workspace PASS（FFI `39/39`），发布资源正负门禁及 unsigned/signed Release HAP 实包审计 PASS。最新 ArkTS `567` 项源码和 Release 应用均编译通过；Windows Hypium Previewer 在用例执行前崩溃于 AMD OpenGL 驱动，故未生成也不宣称 `567/567`，最近一次完整报告为新增两项回归前的 `565/565 PASS`。2in1 Stage 4、Pad 万能键/输入码隔离/复制粘贴/删行恢复、ARM64 Phone 系统浏览器输入码隔离 smoke 均 PASS；包身份、哈希和证据索引见 `docs/evidence/2026-08-27-v0.5.1-customer-feedback/README.md`。
+
 ## 客户回传小鹤音形词库更新（2026-08-24）
 
 客户回传目录已执行严格 UTF-8/Tab/编码/重复校验、元数据清理、直通合并和符号组规范化；原件未改写。客户缺失的表外段保留项目既有 362 条，44 条直通命令或 URL 继续隔离。导入器重复运行前后，清理目录和正式源目录的逐文件 SHA-256 完全一致。
 
-实际结果：源审计 PASS；正式 bundle 构建与 `-VerifyOnly` PASS；候选基线、完整 Rust workspace、fmt、严格 Clippy、ArkTS `502/502`、x86_64/arm64-v8a OHOS Release Native、Release 正负资源门禁、default Release HAP 与实包内容审计全部 PASS。bundle 为 56,183,822 bytes、SHA-256 `0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942`；unsigned HAP 为 71,008,252 bytes、SHA-256 `0C1753EB17569F8478B50CE2475D709BA868756CF0575719DDF53C23B49BEA03`。真机安装与 Phone/Pad/2in1 输入验收为 `NOT_RUN`。
+2026-08-26 直通显示/上屏分离改动结果：源审计、正式 bundle 构建与 `-VerifyOnly`、候选基线、Rust workspace 全目标检查、相关单元/正式包/端到端回归、fmt、ArkTS `526/526` 和 x86_64/arm64-v8a OHOS Release Native 均 PASS。bundle 为 56,184,164 bytes、SHA-256 `F7BBFDF4473E9317D618C9AD02A792B47FF2DAB8BFD74FA23416579E01F9BDC7`。Release HAP 已完成 Native 编译，但被当前工作区内与本改动无关的键盘自定义/设置模型 ArkTS 编译错误阻断，未产出本轮 HAP；真机及 Phone/Pad/2in1 输入验收为 `NOT_RUN`。
 
 ## AI 输入法第 1 阶段
 

@@ -1,4 +1,5 @@
 import { KeyboardMode } from './KeyboardAction';
+import { chinesePunctuationForEnglishTarget } from './SmartPunctuation';
 
 export enum PhysicalKeyCommandType {
   NONE = 'none',
@@ -43,8 +44,8 @@ export interface PhysicalKeySessionSnapshot {
   compositionPending?: boolean;
   /** True while a verified pair insertion can still jump over its right delimiter. */
   pairJumpAvailable?: boolean;
-  /** True while a previous consumed Chinese period can still be replaced by a second period. */
-  smartPeriodContinuation?: boolean;
+  /** English key whose previous Chinese punctuation can still be replaced. */
+  smartPunctuationContinuation?: string;
 }
 
 export interface PhysicalKeyCommand {
@@ -132,22 +133,7 @@ function isPrintablePunctuation(character: string): boolean {
 }
 
 function normalizeChinesePunctuation(character: string): string {
-  switch (character) {
-    case ',':
-      return '，';
-    case '.':
-      return '。';
-    case ';':
-      return '；';
-    case ':':
-      return '：';
-    case '!':
-      return '！';
-    case '?':
-      return '？';
-    default:
-      return character;
-  }
+  return chinesePunctuationForEnglishTarget(character);
 }
 
 /** Pure routing contract for hardware keys while a Chinese IME session owns composition. */
@@ -186,6 +172,18 @@ export function resolvePhysicalKeyCommand(
     return { type: PhysicalKeyCommandType.LETTER, letter: character.toLowerCase() };
   }
 
+  const hasComposition = session.rawInput.length > 0 || session.compositionPending === true;
+  // The first punctuation may have committed the candidate and emptied the
+  // composition before the second DOWN event. Continue only the same selected
+  // intelligsymbol key so the replacement remains atomic in the IME.
+  if (!hasComposition && session.smartPunctuationContinuation !== undefined &&
+    character === session.smartPunctuationContinuation) {
+    return {
+      type: PhysicalKeyCommandType.PUNCTUATION,
+      character: normalizeChinesePunctuation(character)
+    };
+  }
+
   // Semicolon is the physical second-candidate key. When no second candidate
   // exists it arms the one-shot symbol guide instead of inserting punctuation.
   // With exactly one candidate it commits the first and arms the guide.
@@ -202,7 +200,6 @@ export function resolvePhysicalKeyCommand(
     return { type: PhysicalKeyCommandType.SYMBOL_GUIDE };
   }
 
-  const hasComposition = session.rawInput.length > 0 || session.compositionPending === true;
   const isTab = key.keyCode === KEYCODE_TAB || character === String.fromCharCode(9);
   if (isTab) {
     if (hasComposition) {
@@ -216,15 +213,6 @@ export function resolvePhysicalKeyCommand(
     character === String.fromCharCode(10) || character === String.fromCharCode(13);
   if (!hasComposition && isEnter && session.pairJumpAvailable === true) {
     return { type: PhysicalKeyCommandType.JUMP_OUT_PAIR };
-  }
-  // The first period may have committed the candidate and emptied composition
-  // before the second DOWN event arrives. Keep only that armed continuation in
-  // the IME so SmartPeriodController can replace `。` with `.` atomically.
-  if (!hasComposition && session.smartPeriodContinuation === true && character === '.') {
-    return {
-      type: PhysicalKeyCommandType.PUNCTUATION,
-      character: '。'
-    };
   }
   if (!hasComposition) {
     return NO_COMMAND;

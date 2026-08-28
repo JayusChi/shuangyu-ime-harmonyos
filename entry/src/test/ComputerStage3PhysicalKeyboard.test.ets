@@ -246,12 +246,18 @@ export default function computerStage3PhysicalKeyboardTest() {
         .assertEqual(PhysicalKeyCommandType.NONE);
 
       const smartPeriodContinuation = session('');
-      smartPeriodContinuation.smartPeriodContinuation = true;
+      smartPeriodContinuation.smartPunctuationContinuation = '.';
       const secondPeriod = resolvePhysicalKeyCommand(key(2044), smartPeriodContinuation);
       expect(secondPeriod.type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
       expect(secondPeriod.character).assertEqual('。');
       expect(resolvePhysicalKeyCommand(key(2043), smartPeriodContinuation).type)
         .assertEqual(PhysicalKeyCommandType.NONE);
+
+      const smartCommaContinuation = session('');
+      smartCommaContinuation.smartPunctuationContinuation = ',';
+      const secondComma = resolvePhysicalKeyCommand(key(2043), smartCommaContinuation);
+      expect(secondComma.type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
+      expect(secondComma.character).assertEqual('，');
     });
 
     it('consumes dependent controls while earlier rapid input is still queued', 0, () => {

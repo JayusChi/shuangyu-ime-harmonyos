@@ -5,6 +5,7 @@ use std::sync::Arc;
 use code_table_runtime::{
     query_exact_or_prefix, CodeTableBundle, CodeTableMatch, CodeTableStateMachine,
 };
+use user_lexicon::UserLexiconAction;
 
 fn bundle_path() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(
@@ -153,7 +154,8 @@ fn formal_bundle_supports_paging_user_overlay_and_tamper_detection() {
     let user_rules = bundle.user_rules.clone().expect("user rules");
     let fixed = user_rules
         .entries()
-        .first()
+        .iter()
+        .find(|entry| matches!(entry.action, UserLexiconAction::Fixed))
         .expect("fixed user rule")
         .clone();
     let mut overlay = CodeTableStateMachine::new_with_user_lexicon(

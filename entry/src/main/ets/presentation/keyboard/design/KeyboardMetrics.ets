@@ -74,6 +74,8 @@ export interface KeyPreviewConfig {
  * 该间距只由活动键盘根容器负责，具体布局和按键行不得重复添加。
  */
 export const KEYBOARD_BOTTOM_PADDING: number = 15;
+/** Optional system-style tool layer rendered below the key grid. */
+export const KEYBOARD_LIFT_LAYER_HEIGHT: number = 46;
 
 /**
  * 竖屏模式尺寸配置
@@ -279,7 +281,8 @@ export function calculateDynamicMetrics(
 export function panelHeightForMode(
   mode: KeyboardHeightMode,
   screenMetrics: ScreenMetricsPx = SAFE_FALLBACK_SCREEN_METRICS_PX,
-  pinyin9ChineseLayout: boolean = false
+  pinyin9ChineseLayout: boolean = false,
+  keyboardLiftLayerEnabled: boolean = false
 ): number {
   const validMetrics = createScreenMetrics({
     widthPx: screenMetrics.widthPx,
@@ -288,14 +291,21 @@ export function panelHeightForMode(
     bottomSystemInsetPx: screenMetrics.bottomSystemInsetPx
   }, screenMetrics.isLandscape);
   const metrics = calculateDynamicMetrics(validMetrics, mode);
-  const panelHeightVp = calculateTotalKeyboardHeight(metrics, pinyin9ChineseLayout) + 6;
+  const panelHeightVp = calculateTotalKeyboardHeight(
+    metrics,
+    pinyin9ChineseLayout,
+    keyboardLiftLayerEnabled
+  ) + 6;
   let panelHeightPx = vpToPx(panelHeightVp, validMetrics);
   if (pinyin9ChineseLayout && validMetrics.isLandscape) {
     // A fixed IME panel above roughly 60% of a landscape display is rejected by
     // some Pad/2-in-1 runtimes (12800008). T9 has one more key row and a pinyin
     // bar, but every rendered row uses layoutWeight, so it can safely share this
     // bounded panel and distribute the available height instead of overflowing.
-    const qwertyHeightPx = vpToPx(calculateTotalKeyboardHeight(metrics, false) + 6, validMetrics);
+    const qwertyHeightPx = vpToPx(
+      calculateTotalKeyboardHeight(metrics, false, keyboardLiftLayerEnabled) + 6,
+      validMetrics
+    );
     const usableHeightPx = validMetrics.heightPx - (validMetrics.bottomSystemInsetPx ?? 0);
     const landscapeT9LimitPx = Math.round(usableHeightPx * 0.6);
     panelHeightPx = Math.min(panelHeightPx, Math.max(qwertyHeightPx, landscapeT9LimitPx));
@@ -308,7 +318,8 @@ export function panelHeightForMode(
  */
 export function calculateTotalKeyboardHeight(
   metrics: OrientationMetrics,
-  pinyin9ChineseLayout: boolean = false
+  pinyin9ChineseLayout: boolean = false,
+  keyboardLiftLayerEnabled: boolean = false
 ): number {
   // 3.2 起顶部状态栏始终存在；候选内容可隐藏，但固定收起按钮不能消失。
   const candidateSection = metrics.candidateBarHeight;
@@ -320,7 +331,8 @@ export function calculateTotalKeyboardHeight(
     (metrics.rowSpacing * (keyboardRows - 1));
   const pinyinSection = pinyin9ChineseLayout ? metrics.pinyinCombinationBarHeight : 0;
 
-  return candidateSection + pinyinSection + keyboardHeight + metrics.bottomPadding;
+  const liftLayer = keyboardLiftLayerEnabled ? KEYBOARD_LIFT_LAYER_HEIGHT : 0;
+  return candidateSection + pinyinSection + keyboardHeight + liftLayer + metrics.bottomPadding;
 }
 
 function clamp(value: number, minimum: number, maximum: number): number {

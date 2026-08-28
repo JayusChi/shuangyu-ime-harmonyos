@@ -23,8 +23,8 @@ $expectedProductionLexiconSize = 3751923
 $expectedProductionLexiconSha256 = 'e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365'
 $expectedQuanpinContextModelSize = 37659
 $expectedQuanpinContextModelSha256 = '91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c'
-$expectedYinxingBundleSize = 56183822
-$expectedYinxingBundleSha256 = '0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942'
+$expectedYinxingBundleSize = 56184164
+$expectedYinxingBundleSha256 = 'f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7'
 $releaseForbiddenPermissions = @(
     'ohos.permission.INTERNET',
     'ohos.permission.MICROPHONE'

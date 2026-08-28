@@ -17,6 +17,8 @@ import {
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION
 } from '../../domain/settings/ImeSettings';
 import { InputPresentationPreference } from '../../domain/display/InputPresentationMode';
+import { normalizeSmartPunctuationSymbols } from '../../domain/keyboard/SmartPunctuation';
+import { normalizeLetterSwipeSymbols } from '../../domain/keyboard/LetterSwipeSymbols';
 import {
   keyboardProfileForLegacy,
   keyboardProfileEngineSchemeId,
@@ -33,7 +35,16 @@ export class SettingsValidator {
       keyboardProfileId,
       schemeId: keyboardProfileEngineSchemeId(keyboardProfileId),
       themeMode: this.theme(raw.themeMode),
+      keyboardStructureId: this.customizationId(
+        raw.keyboardStructureId,
+        DEFAULT_IME_SETTINGS.keyboardStructureId
+      ),
+      keyboardSkinId: this.customizationId(raw.keyboardSkinId, DEFAULT_IME_SETTINGS.keyboardSkinId),
       keyboardHeightMode: this.height(raw.keyboardHeightMode),
+      keyboardLiftLayerEnabled: this.booleanValue(
+        raw.keyboardLiftLayerEnabled,
+        DEFAULT_IME_SETTINGS.keyboardLiftLayerEnabled
+      ),
       candidateFontSizeMode: this.candidateFont(raw.candidateFontSizeMode),
       hapticLevel: this.haptic(raw.hapticLevel),
       keySoundEnabled: this.booleanValue(raw.keySoundEnabled, DEFAULT_IME_SETTINGS.keySoundEnabled),
@@ -72,6 +83,9 @@ export class SettingsValidator {
       ),
       fuzzyOptions: this.fuzzyOptions(raw.fuzzyOptions),
       smartPeriodTimeoutMs: this.smartPeriodTimeout(raw.smartPeriodTimeoutMs),
+      smartPunctuationSymbols: normalizeSmartPunctuationSymbols(raw.smartPunctuationSymbols),
+      chineseLetterSwipeSymbols: normalizeLetterSwipeSymbols(raw.chineseLetterSwipeSymbols),
+      englishLetterSwipeSymbols: normalizeLetterSwipeSymbols(raw.englishLetterSwipeSymbols),
       punctuationMode: raw.punctuationMode === PunctuationMode.ENGLISH ?
         PunctuationMode.ENGLISH : PunctuationMode.CHINESE,
       fullWidthEnabled: this.booleanValue(raw.fullWidthEnabled, DEFAULT_IME_SETTINGS.fullWidthEnabled),
@@ -211,6 +225,13 @@ export class SettingsValidator {
       return value as ThemeMode;
     }
     return DEFAULT_IME_SETTINGS.themeMode;
+  }
+
+  private customizationId(value: string | undefined, defaultValue: string): string {
+    if (value && /^[a-z0-9][a-z0-9._-]{0,63}$/.test(value)) {
+      return value;
+    }
+    return defaultValue;
   }
 
   private height(value?: string): KeyboardHeightMode {

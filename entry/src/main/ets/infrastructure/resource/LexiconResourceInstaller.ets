@@ -124,35 +124,48 @@ export class LexiconResourceInstaller {
   }
 
   private isExpectedFile(path: string): boolean {
-    if (!fs.accessSync(path)) {
+    try {
+      if (!fs.accessSync(path)) {
+        return false;
+      }
+      const stat: fs.Stat = fs.statSync(path);
+      return stat.size === EXPECTED_PRODUCTION_LEXICON_BYTES &&
+        this.hashFile(path) === EXPECTED_PRODUCTION_LEXICON_SHA256;
+    } catch (err) {
+      LOGGER.warn(`production lexicon identity check failed: ${JSON.stringify(err)}`);
       return false;
     }
-    const stat: fs.Stat = fs.statSync(path);
-    return stat.size === EXPECTED_PRODUCTION_LEXICON_BYTES &&
-      this.hashFile(path) === EXPECTED_PRODUCTION_LEXICON_SHA256;
   }
 
   private hashBytes(content: Uint8Array): string {
-    const hashStream: hash.HashStream = hash.createHash('sha256');
-    const buffer: ArrayBuffer = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
-    hashStream.update(buffer);
-    return hashStream.digest().toLowerCase();
+    try {
+      const hashStream: hash.HashStream = hash.createHash('sha256');
+      const buffer: ArrayBuffer = content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength);
+      hashStream.update(buffer);
+      return hashStream.digest().toLowerCase();
+    } catch (err) {
+      throw new Error(`production lexicon byte hashing failed: ${JSON.stringify(err)}`);
+    }
   }
 
   private hashFile(path: string): string {
-    const hashStream: hash.HashStream = hash.createHash('sha256');
-    const file: fs.File = fs.openSync(path, fs.OpenMode.READ_ONLY);
     try {
-      const buffer: ArrayBuffer = new ArrayBuffer(HASH_BUFFER_BYTES);
-      let bytesRead: number = fs.readSync(file.fd, buffer);
-      while (bytesRead > 0) {
-        hashStream.update(bytesRead === buffer.byteLength ? buffer : buffer.slice(0, bytesRead));
-        bytesRead = fs.readSync(file.fd, buffer);
+      const hashStream: hash.HashStream = hash.createHash('sha256');
+      const file: fs.File = fs.openSync(path, fs.OpenMode.READ_ONLY);
+      try {
+        const buffer: ArrayBuffer = new ArrayBuffer(HASH_BUFFER_BYTES);
+        let bytesRead: number = fs.readSync(file.fd, buffer);
+        while (bytesRead > 0) {
+          hashStream.update(bytesRead === buffer.byteLength ? buffer : buffer.slice(0, bytesRead));
+          bytesRead = fs.readSync(file.fd, buffer);
+        }
+      } finally {
+        fs.closeSync(file);
       }
-    } finally {
-      fs.closeSync(file);
+      return hashStream.digest().toLowerCase();
+    } catch (err) {
+      throw new Error(`production lexicon file hashing failed: ${JSON.stringify(err)}`);
     }
-    return hashStream.digest().toLowerCase();
   }
 
   private validationReceipt(stat: fs.Stat): string {
@@ -161,20 +174,24 @@ export class LexiconResourceInstaller {
   }
 
   private writeValidationReceipt(lexiconPath: string, receiptPath: string): void {
-    const receiptTempPath: string = `${receiptPath}.tmp`;
-    const content: string = this.validationReceipt(fs.statSync(lexiconPath));
-    const file: fs.File = fs.openSync(
-      receiptTempPath,
-      fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC
-    );
     try {
-      fs.writeSync(file.fd, content);
-      fs.fsyncSync(file.fd);
-    } finally {
-      fs.closeSync(file);
+      const receiptTempPath: string = `${receiptPath}.tmp`;
+      const content: string = this.validationReceipt(fs.statSync(lexiconPath));
+      const file: fs.File = fs.openSync(
+        receiptTempPath,
+        fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC
+      );
+      try {
+        fs.writeSync(file.fd, content);
+        fs.fsyncSync(file.fd);
+      } finally {
+        fs.closeSync(file);
+      }
+      this.removeIfPresent(receiptPath);
+      fs.renameSync(receiptTempPath, receiptPath);
+    } catch (err) {
+      throw new Error(`lexicon validation receipt write failed: ${JSON.stringify(err)}`);
     }
-    this.removeIfPresent(receiptPath);
-    fs.renameSync(receiptTempPath, receiptPath);
   }
 
   private removeIfPresent(path: string): void {

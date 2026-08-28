@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use code_table_runtime::CodeTableBundle;
 use lexicon_core::{build_binary_lexicon_with_source_order, load_binary_lexicon, LexiconEntry};
-use user_lexicon::parse_user_lexicon_bytes;
+use user_lexicon::parse_embedded_user_lexicon_bytes;
 
 use crate::error::{ConverterError, ErrorCode, Result};
 use crate::json::{self, JsonValue};
@@ -86,7 +86,7 @@ pub fn build_artifacts(
 
     let user_rules = collect_user_rules(categories);
     let user_rule_bytes = write_user_rules(&user_rules);
-    parse_user_lexicon_bytes("user-rules.txt", &user_rule_bytes).map_err(|error| {
+    parse_embedded_user_lexicon_bytes("user-rules.txt", &user_rule_bytes).map_err(|error| {
         ConverterError::new(
             ErrorCode::Integrity,
             format!("user_rule_round_trip:{error}"),
@@ -187,6 +187,10 @@ fn write_user_rules(rules: &[UserRuleRecord]) -> Vec<u8> {
         output.push('\t');
         output.push_str(&rule.code);
         output.push_str(&rule.action.marker());
+        output.push('\t');
+        output.push_str(rule.display_text.as_deref().unwrap_or(""));
+        output.push('\t');
+        output.push_str(&rule.category_id);
         output.push('\n');
     }
     output.into_bytes()
@@ -545,6 +549,7 @@ mod tests {
                 if category_index == 0 {
                     user_rules.push(UserRuleRecord {
                         text: "固定词".into(),
+                        display_text: None,
                         code: "abcd".into(),
                         action: UserAction::Fixed,
                         source_file_id: "src-00".into(),

@@ -45,14 +45,18 @@ export class UserLexiconDocumentEditor {
       left.sourceOrder - right.sourceOrder);
     return ordered.map((entry: UserLexiconEntryRecord) => {
       let marker = '';
-      if (entry.action === 'DELETE') {
+      if (entry.action === 'DIRECT') {
+        marker = '#直';
+      } else if (entry.action === 'DELETE') {
         marker = '#删';
       } else if (entry.action === 'FIXED') {
         marker = '#固';
       } else if (entry.action === 'POSITION') {
         marker = `#${entry.position}`;
       }
-      return `${entry.text}\t${entry.code}${marker}\n`;
+      const word = entry.action === 'DIRECT' && entry.displayText.length > 0 ?
+        `${entry.text},${entry.displayText}` : entry.text;
+      return `${word}\t${entry.code}${marker}\n`;
     }).join('');
   }
 
@@ -61,13 +65,15 @@ export class UserLexiconDocumentEditor {
     text: string,
     code: string,
     action: UserLexiconActionType,
-    position: number
+    position: number,
+    displayText: string = ''
   ): UserLexiconEntryRecord[] {
     const next = entries.filter((entry: UserLexiconEntryRecord) =>
       !(entry.text === text && entry.code === code));
     next.push({
       id: '',
       text,
+      displayText: action === 'DIRECT' ? displayText : '',
       code,
       action,
       position: action === 'POSITION' ? position : 0,
@@ -81,6 +87,7 @@ export class UserLexiconDocumentEditor {
       .map((entry: UserLexiconEntryRecord, index: number): UserLexiconEntryRecord => ({
         id: entry.id,
         text: entry.text,
+        displayText: entry.displayText,
         code: entry.code,
         action: entry.action,
         position: entry.position,
@@ -97,6 +104,7 @@ export class UserLexiconDocumentEditor {
     return entries.map((entry: UserLexiconEntryRecord): UserLexiconEntryRecord => ({
       id: entry.id,
       text: entry.text,
+      displayText: ids.indexOf(entry.id) >= 0 && action !== 'DIRECT' ? '' : entry.displayText,
       code: entry.code,
       action: ids.indexOf(entry.id) >= 0 ? action : entry.action,
       position: ids.indexOf(entry.id) >= 0 && action === 'POSITION' ? position :
@@ -172,6 +180,7 @@ export class UserLexiconController {
       entries: this.document.entries.map((entry: UserLexiconEntryRecord): UserLexiconEntryRecord => ({
         id: entry.id,
         text: entry.text,
+        displayText: entry.displayText,
         code: entry.code,
         action: entry.action,
         position: entry.position,
@@ -205,10 +214,11 @@ export class UserLexiconController {
     text: string,
     code: string,
     action: UserLexiconActionType,
-    position: number = 0
+    position: number = 0,
+    displayText: string = ''
   ): Promise<UserLexiconOperationResult> {
     return this.mutate(UserLexiconDocumentEditor.serialize(
-      UserLexiconDocumentEditor.upsert(this.document.entries, text, code, action, position)
+      UserLexiconDocumentEditor.upsert(this.document.entries, text, code, action, position, displayText)
     ));
   }
 

@@ -1,6 +1,5 @@
 import common from '@ohos.app.ability.common';
 import picker from '@ohos.file.picker';
-import { promptAction, router } from '@kit.ArkUI';
 import {
   getSharedUserLexiconController,
   UserLexiconController,
@@ -46,6 +45,7 @@ export struct UserLexiconPage {
   @State private busy: boolean = true;
   @State private searchText: string = '';
   @State private entryText: string = '';
+  @State private entryDisplayText: string = '';
   @State private entryCode: string = '';
   @State private action: UserLexiconActionType = 'ADD';
   @State private positionText: string = '1';
@@ -67,16 +67,16 @@ export struct UserLexiconPage {
     this.windowCoordinator?.subscribeSafeArea(this.onSafeAreaChanged);
     this.theme = resolveSettingsTheme(getSharedSettingsController().isDarkMode());
     this.reloadLexiconSources();
-    const context = getContext(this) as common.UIAbilityContext;
+    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
     this.controller.initialize(context).then((document: UserLexiconDocument): void => {
       this.document = document;
       this.busy = false;
       if (!document.success) {
-        promptAction.showToast({ message: document.message });
+        this.showToast(document.message);
       }
     }).catch((err: Object): void => {
       this.busy = false;
-      promptAction.showToast({ message: `用户词库加载失败：${JSON.stringify(err)}` });
+      this.showToast(`用户词库加载失败：${JSON.stringify(err)}`);
     });
   }
 
@@ -91,23 +91,39 @@ export struct UserLexiconPage {
     return Number.isInteger(parsed) && parsed > 0 ? parsed : 0;
   }
 
+  private showToast(message: string): void {
+    try {
+      this.getUIContext().getPromptAction().showToast({ message });
+    } catch (_) {}
+  }
+
+  private goBack(): void {
+    try {
+      this.getUIContext().getRouter().back();
+    } catch (err) {
+      this.showToast(`返回失败：${JSON.stringify(err)}`);
+    }
+  }
+
   private saveEntry(): void {
     const text = this.entryText.trim();
+    const displayText = this.entryDisplayText.trim();
     const code = this.entryCode.trim().toLowerCase();
     const position = this.parsePosition();
     if (text.length <= 0 || code.length <= 0) {
-      promptAction.showToast({ message: '请输入词条和编码' });
+      this.showToast('请输入词条和编码');
       return;
     }
     if (this.action === 'POSITION' && position <= 0) {
-      promptAction.showToast({ message: '指定位置必须是正整数' });
+      this.showToast('指定位置必须是正整数');
       return;
     }
     this.busy = true;
-    this.controller.upsert(text, code, this.action, position).then((result) => {
+    this.controller.upsert(text, code, this.action, position, displayText).then((result) => {
       this.finish(result);
       if (result.success) {
         this.entryText = '';
+        this.entryDisplayText = '';
         this.entryCode = '';
       }
     });
@@ -126,12 +142,12 @@ export struct UserLexiconPage {
 
   private applyBatch(action: UserLexiconActionType): void {
     if (this.selectedIds.length <= 0) {
-      promptAction.showToast({ message: '请先选择词条' });
+      this.showToast('请先选择词条');
       return;
     }
     const position = this.parsePosition();
     if (action === 'POSITION' && position <= 0) {
-      promptAction.showToast({ message: '指定位置必须是正整数' });
+      this.showToast('指定位置必须是正整数');
       return;
     }
     this.busy = true;
@@ -140,7 +156,7 @@ export struct UserLexiconPage {
 
   private removeSelected(): void {
     if (this.selectedIds.length <= 0) {
-      promptAction.showToast({ message: '请先选择词条' });
+      this.showToast('请先选择词条');
       return;
     }
     this.busy = true;
@@ -149,7 +165,7 @@ export struct UserLexiconPage {
 
   private importText(replace: boolean): void {
     if (this.transferText.trim().length <= 0) {
-      promptAction.showToast({ message: '请粘贴待导入词库文本' });
+      this.showToast('请粘贴待导入词库文本');
       return;
     }
     this.busy = true;
@@ -182,10 +198,10 @@ export struct UserLexiconPage {
       if (result.success) {
         this.reloadLexiconSources();
       }
-      promptAction.showToast({ message: result.success ? '固定词库来源已保存' : result.message });
+      this.showToast(result.success ? '固定词库来源已保存' : result.message);
     } catch (err) {
       this.busy = false;
-      promptAction.showToast({ message: `选择词库失败：${JSON.stringify(err)}` });
+      this.showToast(`选择词库失败：${JSON.stringify(err)}`);
     }
   }
 
@@ -199,7 +215,7 @@ export struct UserLexiconPage {
     if (result.success) {
       this.reloadLexiconSources();
     }
-    promptAction.showToast({ message: result.success ? '词库来源设置已更新' : result.message });
+    this.showToast(result.success ? '词库来源设置已更新' : result.message);
   }
 
   private async cycleLexiconSourceMode(source: LexiconSourceConfig): Promise<void> {
@@ -215,7 +231,7 @@ export struct UserLexiconPage {
     if (result.success) {
       this.reloadLexiconSources();
     }
-    promptAction.showToast({ message: result.success ? `导入模式：${mode}` : result.message });
+    this.showToast(result.success ? `导入模式：${mode}` : result.message);
   }
 
   private async removeLexiconSource(source: LexiconSourceConfig): Promise<void> {
@@ -225,12 +241,12 @@ export struct UserLexiconPage {
     if (result.success) {
       this.reloadLexiconSources();
     }
-    promptAction.showToast({ message: result.success ? '固定词库来源已移除' : result.message });
+    this.showToast(result.success ? '固定词库来源已移除' : result.message);
   }
 
   private applyLexiconSources(): void {
     if (this.lexiconSources.filter((source: LexiconSourceConfig): boolean => source.enabled).length === 0) {
-      promptAction.showToast({ message: '没有启用的固定词库来源' });
+      this.showToast('没有启用的固定词库来源');
       return;
     }
     this.busy = true;
@@ -244,10 +260,13 @@ export struct UserLexiconPage {
     if (result.success) {
       this.selectedIds = [];
     }
-    promptAction.showToast({ message: result.success ? '用户词库已应用' : result.message });
+    this.showToast(result.success ? '用户词库已应用' : result.message);
   }
 
   private actionLabel(entry: UserLexiconEntryRecord): string {
+    if (entry.action === 'DIRECT') {
+      return entry.displayText.length > 0 ? `直通 · 候选显示“${entry.displayText}”` : '直通';
+    }
     if (entry.action === 'DELETE') return '隐藏系统词';
     if (entry.action === 'FIXED') return '固顶';
     if (entry.action === 'POSITION') return `第 ${entry.position} 位`;
@@ -284,7 +303,7 @@ export struct UserLexiconPage {
 
       Column({ space: 12 }) {
         Row({ space: 12 }) {
-          Text('‹').fontSize(30).fontColor(this.theme.primaryText).onClick(() => router.back())
+          Text('‹').fontSize(30).fontColor(this.theme.primaryText).onClick(() => this.goBack())
           Column({ space: 3 }) {
             Text('用户词库').fontSize(24).fontWeight(FontWeight.Bold).fontColor(this.theme.primaryText)
             Text(`有效 ${this.document.stats.effective} 条 · 已选 ${this.selectedIds.length} 条`)
@@ -305,8 +324,8 @@ export struct UserLexiconPage {
               }
               ChoiceSettingRow({
                 title: '动作',
-                values: ['ADD', 'DELETE', 'FIXED', 'POSITION'],
-                labels: ['添加', '隐藏系统词', '固顶', '第 N 位'],
+                values: ['ADD', 'DIRECT', 'DELETE', 'FIXED', 'POSITION'],
+                labels: ['添加', '直通', '隐藏系统词', '固顶', '第 N 位'],
                 currentValue: this.action,
                 primaryTextColor: this.theme.primaryText,
                 secondaryTextColor: this.theme.secondaryText,
@@ -315,6 +334,10 @@ export struct UserLexiconPage {
                 accentColor: this.theme.accent,
                 onValueChange: (value: string) => this.action = value as UserLexiconActionType
               })
+              if (this.action === 'DIRECT') {
+                TextInput({ placeholder: '候选提示（可选；留空则同上屏内容）', text: this.entryDisplayText })
+                  .onChange((value: string) => this.entryDisplayText = value)
+              }
               if (this.action === 'POSITION') {
                 TextInput({ placeholder: 'N（正整数）', text: this.positionText })
                   .type(InputType.Number)
@@ -328,8 +351,11 @@ export struct UserLexiconPage {
                 .onChange((value: string) => this.searchText = value)
               Row({ space: 6 }) {
                 this.SmallButton('普通', () => this.applyBatch('ADD'))
+                this.SmallButton('直通', () => this.applyBatch('DIRECT'))
                 this.SmallButton('隐藏', () => this.applyBatch('DELETE'))
                 this.SmallButton('固顶', () => this.applyBatch('FIXED'))
+              }.width('100%')
+              Row({ space: 6 }) {
                 this.SmallButton('第 N 位', () => this.applyBatch('POSITION'))
                 this.SmallButton('移除', () => this.removeSelected(), true)
               }.width('100%')
@@ -341,7 +367,8 @@ export struct UserLexiconPage {
                         Text(this.selectedIds.indexOf(entry.id) >= 0 ? '✓' : '○')
                           .fontSize(20).fontColor(this.theme.accent)
                         Column({ space: 3 }) {
-                          Text(`${entry.text}  ${entry.code}`).fontSize(15).fontColor(this.theme.primaryText)
+                          Text(`${entry.text}${entry.displayText.length > 0 ? ` → ${entry.displayText}` : ''}  ${entry.code}`)
+                            .fontSize(15).fontColor(this.theme.primaryText)
                           Text(this.actionLabel(entry)).fontSize(11).fontColor(this.theme.secondaryText)
                         }.layoutWeight(1).alignItems(HorizontalAlign.Start)
                       }.width('100%').padding(10).backgroundColor(this.theme.chipBackground)
@@ -354,7 +381,7 @@ export struct UserLexiconPage {
 
             Column({ space: 10 }) {
               Text('批量导入 / 导出').fontSize(16).fontWeight(FontWeight.Medium).fontColor(this.theme.primaryText)
-              Text('每行格式：词条<Tab>编码；后缀支持 #删、#固、#N')
+              Text('每行格式：词条<Tab>编码；支持 #直、#删、#固、#N；直通可写“上屏内容,候选提示<Tab>编码#直”')
                 .fontSize(12).fontColor(this.theme.secondaryText)
               TextArea({ placeholder: '在此粘贴或查看词库文本', text: this.transferText })
                 .height(180).onChange((value: string) => this.transferText = value)

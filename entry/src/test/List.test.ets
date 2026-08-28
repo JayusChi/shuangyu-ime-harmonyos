@@ -35,6 +35,11 @@ import keyboardAlternateGestureTest from './KeyboardAlternateGesture.test';
 import ai0FoundationTest from './Ai0Foundation.test';
 import ai1InputTest from './Ai1Input.test';
 import ai1ProxyReadinessTest from './Ai1ProxyReadiness.test';
+import keyboardCustomizationTest from './KeyboardCustomization.test';
+import editorExtendActionTest from './EditorExtendAction.test';
+import deletionRecoveryTest from './DeletionRecovery.test';
+import keyboardSwipeActionsTest from './KeyboardSwipeActions.test';
+import keyboardLiftLayerTest from './KeyboardLiftLayer.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -74,4 +79,9 @@ export default function testsuite() {
   ai0FoundationTest();
   ai1InputTest();
   ai1ProxyReadinessTest();
+  keyboardCustomizationTest();
+  editorExtendActionTest();
+  deletionRecoveryTest();
+  keyboardSwipeActionsTest();
+  keyboardLiftLayerTest();
 }

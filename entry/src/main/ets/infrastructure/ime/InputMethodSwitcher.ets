@@ -5,6 +5,20 @@ const TAG = 'InputMethodSwitcher';
 const LOGGER = new Logger(TAG);
 const DUPLICATE_REQUEST_GUARD_MS: number = 700;
 
+export type SystemInputMethodPickerOpener = () => boolean;
+
+let systemInputMethodPickerOpener: SystemInputMethodPickerOpener | undefined;
+
+export function registerSystemInputMethodPickerOpener(opener: SystemInputMethodPickerOpener): void {
+  systemInputMethodPickerOpener = opener;
+}
+
+export function unregisterSystemInputMethodPickerOpener(opener: SystemInputMethodPickerOpener): void {
+  if (systemInputMethodPickerOpener === opener) {
+    systemInputMethodPickerOpener = undefined;
+  }
+}
+
 export interface InputMethodSwitchCapabilities {
   canSwitchToNext: boolean;
   canShowSystemPicker: boolean;
@@ -69,13 +83,17 @@ export class HarmonyInputMethodSystemBackend implements InputMethodSystemBackend
   }
 
   async listEnabledInputMethods(): Promise<InputMethodDescriptor[]> {
-    const properties = await inputMethod.getSetting().getInputMethods(true);
-    this.nativeProperties.clear();
-    return properties.map((property: inputMethod.InputMethodProperty): InputMethodDescriptor => {
-      const descriptor: InputMethodDescriptor = { name: property.name, id: property.id };
-      this.nativeProperties.set(descriptorKey(descriptor), property);
-      return descriptor;
-    });
+    try {
+      const properties = await inputMethod.getSetting().getInputMethods(true);
+      this.nativeProperties.clear();
+      return properties.map((property: inputMethod.InputMethodProperty): InputMethodDescriptor => {
+        const descriptor: InputMethodDescriptor = { name: property.name, id: property.id };
+        this.nativeProperties.set(descriptorKey(descriptor), property);
+        return descriptor;
+      });
+    } catch (err) {
+      throw new Error(`enabled input method query failed: ${JSON.stringify(err)}`);
+    }
   }
 
   getCurrentInputMethod(): InputMethodDescriptor {
@@ -92,13 +110,17 @@ export class HarmonyInputMethodSystemBackend implements InputMethodSystemBackend
     if (!nativeTarget) {
       return false;
     }
-    return inputMethod.switchInputMethod(nativeTarget);
+    try {
+      return inputMethod.switchInputMethod(nativeTarget);
+    } catch (err) {
+      throw new Error(`input method switch failed: ${JSON.stringify(err)}`);
+    }
   }
 
   async showSystemPicker(): Promise<boolean> {
-    // API 24 keeps this official service call for non-UI integration, although API 18 marks it
-    // deprecated in favor of the ArkUI InputMethodListDialog component.
-    return inputMethod.getSetting().showOptionalInputMethods();
+    // API 18 replaced the service picker call with the ArkUI InputMethodListDialog.
+    // The active keyboard root owns that dialog and registers this short-lived opener.
+    return systemInputMethodPickerOpener ? systemInputMethodPickerOpener() : false;
   }
 }
 

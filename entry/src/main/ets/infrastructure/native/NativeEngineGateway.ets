@@ -17,7 +17,7 @@ import {
 
 const TAG = 'Stage0NativeGateway';
 const LOGGER = new Logger(TAG);
-const EXPECTED_INTERFACE_VERSION = 10;
+const EXPECTED_INTERFACE_VERSION = 11;
 
 export class NativeEngineGateway implements NativeEngineGatewayContract {
   getInterfaceVersion(): number {
@@ -88,7 +88,14 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
   processKey(handle: number, key: string): CompositionResult {
     try {
       const nativeResult = imeBridge.processKey(handle, key) as CompositionResult;
-      return this.normalizeCompositionResult(nativeResult);
+      const result = this.normalizeCompositionResult(nativeResult);
+      if (key === '`') {
+        LOGGER.info(
+          `universal key result: success=${result.success}, rawLength=${result.rawInput.length}, ` +
+            `candidateCount=${result.candidates.length}`
+        );
+      }
+      return result;
     } catch (err) {
       LOGGER.error(`processKey failed: ${JSON.stringify(err)}`);
       return this.createCompositionFailure(ImeErrorCode.NATIVE_BRIDGE_ERROR, 'Native processKey failed');
@@ -410,6 +417,12 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
         typeof candidate.source !== 'string') {
         return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR, 'Native candidates are invalid');
       }
+      if (candidate.displayText === undefined) {
+        candidate.displayText = '';
+      } else if (typeof candidate.displayText !== 'string') {
+        return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR,
+          'Native candidate displayText is invalid');
+      }
       if (candidate.consumedRawLen === undefined) {
         candidate.consumedRawLen = 0;
       } else if (!Number.isInteger(candidate.consumedRawLen) || candidate.consumedRawLen < 0) {
@@ -628,13 +641,15 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     const entries: UserLexiconEntryRecord[] = [];
     nativeDocument.entries.forEach((entry: UserLexiconEntryRecord) => {
       if (typeof entry.id !== 'string' || typeof entry.text !== 'string' ||
-        typeof entry.code !== 'string' || !this.isUserLexiconAction(entry.action) ||
+        typeof entry.displayText !== 'string' || typeof entry.code !== 'string' ||
+        !this.isUserLexiconAction(entry.action) ||
         !Number.isInteger(entry.position) || !Number.isInteger(entry.sourceOrder)) {
         throw new Error('Invalid user lexicon entry');
       }
       entries.push({
         id: entry.id,
         text: entry.text,
+        displayText: entry.displayText,
         code: entry.code,
         action: entry.action,
         position: entry.position,
@@ -668,7 +683,8 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
   }
 
   private isUserLexiconAction(value: string): boolean {
-    return value === 'ADD' || value === 'DELETE' || value === 'FIXED' || value === 'POSITION';
+    return value === 'ADD' || value === 'DIRECT' || value === 'DELETE' ||
+      value === 'FIXED' || value === 'POSITION';
   }
 
   private isCategoryKind(value: string): boolean {

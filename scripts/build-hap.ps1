@@ -100,8 +100,8 @@ try {
         }
         $formalBundle = Get-Item -LiteralPath $formalBundleSource
         $formalHash = (Get-FileHash -LiteralPath $formalBundleSource -Algorithm SHA256).Hash.ToLowerInvariant()
-        if ($formalBundle.Length -ne 56183822 -or
-            $formalHash -ne '0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942') {
+        if ($formalBundle.Length -ne 56184164 -or
+            $formalHash -ne 'f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7') {
             throw "Frozen formal bundle identity mismatch: bytes=$($formalBundle.Length) sha256=$formalHash"
         }
         Copy-Item -LiteralPath $formalBundleSource -Destination $formalBundleResource -Force
@@ -126,9 +126,13 @@ try {
 
     $targetName = if ($BuildMode -eq 'debug') { 'internalDebug' } else { 'default' }
     $productName = if ($BuildMode -eq 'debug') { 'internalDebug' } else { 'default' }
+    # Release packages must never reuse test/debug intermediates. A previous ArkTS
+    # test run can leave a default-product profile with debug metadata, so Release
+    # builds always start from a clean Hvigor graph even when -Clean is omitted.
+    $shouldClean = $Clean -or $BuildMode -eq 'release'
     Push-Location $repoRoot
     try {
-        if ($Clean) {
+        if ($shouldClean) {
             & $hvigor --no-daemon clean
             if ($LASTEXITCODE -ne 0) {
                 throw "HAP clean failed with exit code $LASTEXITCODE"
@@ -189,6 +193,7 @@ Copy-Item -LiteralPath $hap.FullName -Destination $artifact -Force
 $artifactItem = Get-Item -LiteralPath $artifact
 
 Write-Host "BUILD_MODE=$BuildMode"
+Write-Host "CLEAN_BUILD=$($shouldClean.ToString().ToLowerInvariant())"
 Write-Host "DEBUG=$($profile.app.debug.ToString().ToLowerInvariant())"
 Write-Host "HAP: $($artifactItem.FullName)"
 Write-Host "Size: $($artifactItem.Length) bytes"

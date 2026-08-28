@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::model::{UserLexiconAction, UserLexiconEntry, UserLexiconStats};
 
@@ -36,7 +36,7 @@ impl UserLexiconSnapshot {
         for (index, entry) in entries.iter().enumerate() {
             by_code.entry(entry.code.clone()).or_default().push(index);
             match entry.action {
-                UserLexiconAction::Add => stats.added += 1,
+                UserLexiconAction::Add | UserLexiconAction::Direct => stats.added += 1,
                 UserLexiconAction::Delete => stats.deleted += 1,
                 UserLexiconAction::Fixed => stats.fixed += 1,
                 UserLexiconAction::Position(_) => stats.positioned += 1,
@@ -59,6 +59,26 @@ impl UserLexiconSnapshot {
 
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
+    }
+
+    /// Retains external rules plus bundle-owned rules whose source category is
+    /// enabled. This keeps built-in direct words and fixed rules atomic with
+    /// their actual category instead of assigning every rule to one category.
+    pub fn for_enabled_categories(&self, enabled_category_ids: &[String]) -> Self {
+        let enabled = enabled_category_ids.iter().collect::<BTreeSet<_>>();
+        let entries = self
+            .entries
+            .iter()
+            .filter(|entry| {
+                entry
+                    .category_id
+                    .as_ref()
+                    .is_none_or(|category_id| enabled.contains(category_id))
+            })
+            .cloned()
+            .collect::<Vec<_>>();
+        let accepted = entries.len();
+        Self::from_entries(entries, accepted)
     }
 
     pub fn entries_for_code(&self, code: &str) -> Vec<&UserLexiconEntry> {
@@ -113,16 +133,29 @@ impl UserLexiconSnapshot {
         let mut output = String::new();
         for entry in &self.entries {
             output.push_str(&entry.text);
+            if matches!(entry.action, UserLexiconAction::Direct) && entry.category_id.is_none() {
+                if let Some(display_text) = &entry.display_text {
+                    output.push(',');
+                    output.push_str(display_text);
+                }
+            }
             output.push('\t');
             output.push_str(&entry.code);
             match entry.action {
                 UserLexiconAction::Add => {}
+                UserLexiconAction::Direct => output.push_str("#直"),
                 UserLexiconAction::Delete => output.push_str("#删"),
                 UserLexiconAction::Fixed => output.push_str("#固"),
                 UserLexiconAction::Position(position) => {
                     output.push('#');
                     output.push_str(&position.to_string());
                 }
+            }
+            if let Some(category_id) = &entry.category_id {
+                output.push('\t');
+                output.push_str(entry.display_text.as_deref().unwrap_or(""));
+                output.push('\t');
+                output.push_str(category_id);
             }
             output.push('\n');
         }
@@ -209,6 +242,16 @@ mod tests {
     }
 
     #[test]
+    fn direct_snapshot_round_trips_commit_and_candidate_text() {
+        let snapshot = snapshot("给予,给ʲⁱ̌予\tgwyu#直\n直通词\tztci#直\n");
+        assert_eq!(
+            snapshot.normalized_bytes(),
+            "给予,给ʲⁱ̌予\tgwyu#直\n直通词\tztci#直\n".as_bytes()
+        );
+        assert_eq!(snapshot.stats().added, 2);
+    }
+
+    #[test]
     fn layered_empty_and_single_layer_snapshots_preserve_values() {
         let empty = UserLexiconSnapshot::empty();
         let built_in = snapshot("内置甲\tabc#固\n内置乙\tdef#固\n");
@@ -254,6 +297,7 @@ mod tests {
         for (marker, expected) in [
             ("#删", UserLexiconAction::Delete),
             ("", UserLexiconAction::Add),
+            ("#直", UserLexiconAction::Direct),
             ("#7", UserLexiconAction::Position(7)),
             ("#固", UserLexiconAction::Fixed),
         ] {
@@ -307,6 +351,32 @@ mod tests {
                 + first.stats().deleted
                 + first.stats().fixed
                 + first.stats().positioned
+        );
+    }
+
+    #[test]
+    fn category_filter_keeps_external_rules_and_only_enabled_embedded_rules() {
+        let embedded = crate::parse_embedded_user_lexicon_bytes(
+            "embedded.txt",
+            "核心直通\tabcd\t核心提示\tcore\n扩展直通\tefgh\t扩展提示\tfull-code-word\n".as_bytes(),
+        )
+        .unwrap()
+        .into_snapshot();
+        let external = snapshot("用户词\tuvwx\n");
+        let merged = merge_user_lexicon_snapshots(&embedded, &external);
+        let filtered = merged.for_enabled_categories(&["core".to_owned()]);
+
+        assert_eq!(
+            filtered
+                .entries()
+                .iter()
+                .map(|entry| entry.text.as_str())
+                .collect::<Vec<_>>(),
+            ["核心直通", "用户词"]
+        );
+        assert_eq!(
+            filtered.entries()[0].display_text.as_deref(),
+            Some("核心提示")
         );
     }
 }

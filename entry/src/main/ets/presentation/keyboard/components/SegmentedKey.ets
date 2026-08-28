@@ -40,6 +40,8 @@ export struct SegmentedKey {
     .backgroundColor(this.pressed
       ? this.palette.letterKeyPressedBackground
       : this.palette.letterKeyBackground)
+    .backgroundImage(this.pressed ? '' : this.palette.letterKeyBackgroundImage, ImageRepeat.NoRepeat)
+    .backgroundImageSize({ width: '100%', height: '100%' })
     .border({ width: 1, color: this.palette.keyBorder })
     .borderRadius(this.metrics.keyBorderRadius)
     .accessibilityText(this.spec.accessibilityLabel)

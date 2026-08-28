@@ -13,17 +13,6 @@
       "next_stage_action": "apply only the explicit 11.6.2C transform"
     },
     {
-      "decision_id": "record-15a6e7c12182-cmd",
-      "scope": "record_category",
-      "source_file": "小鹤音形/0.0.小鹤.txt",
-      "physical_line_or_range": "15566",
-      "role": "cmd",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_UNSUPPORTED_COMMAND",
-      "reason": "isolate and require explicit support",
-      "next_stage_action": "isolate and require explicit support"
-    },
-    {
       "decision_id": "record-15a6e7c12182-comment",
       "scope": "record_category",
       "source_file": "小鹤音形/0.0.小鹤.txt",
@@ -33,6 +22,17 @@
       "reason_code": "IGNORE_NON_DATA_LINE",
       "reason": "exclude from candidate records",
       "next_stage_action": "exclude from candidate records"
+    },
+    {
+      "decision_id": "record-15a6e7c12182-direct_add",
+      "scope": "record_category",
+      "source_file": "小鹤音形/0.0.小鹤.txt",
+      "physical_line_or_range": "15566",
+      "role": "direct_add",
+      "decision": "TRANSFORM",
+      "reason_code": "TRANSFORM_DIRECT_ADD",
+      "reason": "convert through frozen user rule policy",
+      "next_stage_action": "convert through frozen user rule policy"
     },
     {
       "decision_id": "record-15a6e7c12182-ordinary",

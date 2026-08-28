@@ -9,9 +9,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $hdc = Join-Path $DevEcoRoot 'sdk\default\openharmony\toolchains\hdc.exe'
 $hap = Join-Path $repoRoot 'entry\build\default\outputs\default\entry-default-signed.hap'
+$editorHap = Join-Path $repoRoot 'tools\ime-acceptance-client\entry\build\default\outputs\default\entry-default-unsigned.hap'
 $outDir = Join-Path $repoRoot $EvidenceDir
 $imeBundle = 'com.corrosion.shuangyuime'
-$editorBundle = 'com.example.nexttest'
+$editorBundle = 'com.example.shuangyuime.acceptance'
+$editorHint = 'ACCEPT_CHAT_SEND'
 $xiaoheLabel = -join @([char]0x32, [char]0x36, [char]0x20, [char]0x952E, [char]0x53CC, [char]0x62FC)
 $yinxingLabel = -join @(
     [char]0x32, [char]0x36, [char]0x20, [char]0x952E,
@@ -102,7 +104,8 @@ function Get-TextInputValue([string]$layout) {
     $values = [Collections.Generic.List[string]]::new()
     Visit-Nodes $root {
         param($node)
-        if ($null -ne $node.attributes -and [string]$node.attributes.type -eq 'TextInput') {
+        if ($null -ne $node.attributes -and [string]$node.attributes.type -eq 'TextInput' -and
+          [string]$node.attributes.hint -eq $script:editorHint) {
             $values.Add([string]$node.attributes.text) | Out-Null
         }
     }
@@ -123,7 +126,9 @@ function Open-Editor {
     Start-Sleep -Seconds 3
     $layout = Dump-Layout 'editor-before-focus'
     for ($attempt = 1; $attempt -le 5; $attempt++) {
-        $nodes = @(Get-TypeNodes $layout 'TextInput')
+        $nodes = @(Get-TypeNodes $layout 'TextInput' | Where-Object {
+          [string]$_.attributes.hint -eq $script:editorHint
+        })
         if ($nodes.Count -ne 1) { throw 'independent TextInput hint not found' }
         $bounds = [regex]::Match(
             [string]$nodes[0].attributes.bounds,
@@ -151,7 +156,9 @@ function Press-VisibleKey([string]$label) {
         $bounds = [regex]::Match([string]$_.attributes.bounds, '^\[(\d+),(\d+)\]\[(\d+),(\d+)\]$')
         [string]$_.attributes.type -eq 'Text' -and
             [string]$_.attributes.text -ceq $label -and
-            $bounds.Success -and [int]$bounds.Groups[2].Value -ge 1800
+            # The lift layer and resized candidate row move the first letter row
+            # above y=1800 on the current 1320x2856 phone profile.
+            $bounds.Success -and [int]$bounds.Groups[2].Value -ge 1600
     })
     if ($nodes.Count -ne 1) {
         throw "expected one visible keyboard key '$label', found $($nodes.Count)"
@@ -185,6 +192,9 @@ function Assert-EditorText([string]$name, [string]$expected) {
 
 if (-not (Test-Path -LiteralPath $hdc -PathType Leaf)) { throw "hdc not found: $hdc" }
 if (-not (Test-Path -LiteralPath $hap -PathType Leaf)) { throw "signed Release HAP not found: $hap" }
+if (-not (Test-Path -LiteralPath $editorHap -PathType Leaf)) {
+    throw "independent editor HAP not found: $editorHap"
+}
 
 Start-Transcript -Path $logPath -Force | Out-Null
 try {
@@ -196,7 +206,10 @@ try {
     Assert-True ($abi -eq 'x86_64') 'device ABI is x86_64'
     Assert-True ($resolution -eq '1320x2856') 'phone automation profile is 1320x2856'
 
-    if (-not $SkipInstall) { Invoke-Hdc install -r $hap | Out-Null }
+    if (-not $SkipInstall) {
+        Invoke-Hdc install -r $hap | Out-Null
+        Invoke-Hdc install -r $editorHap | Out-Null
+    }
     Invoke-Hdc shell aa force-stop $imeBundle | Out-Null
     Invoke-Hdc shell bm clean -n $imeBundle -d | Out-Null
     Invoke-Hdc shell ime -e $imeBundle -f | Out-Null

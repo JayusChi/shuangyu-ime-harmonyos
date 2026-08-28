@@ -11,6 +11,8 @@ export interface ImeInputService extends ProtocolActionImeService {
     anchorAfterCandidateCommit?: boolean,
     serializedContinuation?: boolean
   ): Promise<boolean>;
+  /** 当前组合输入码是否实际由编辑器光标处的系统预编辑展示。 */
+  isCursorPreviewActive?(): boolean;
   finishPreviewText(generation?: number): Promise<boolean>;
   clearPreviewText(generation?: number): Promise<boolean>;
   isPreviewTextAttached(generation?: number): Promise<boolean>;
@@ -36,6 +38,8 @@ export interface ImeInputService extends ProtocolActionImeService {
   clearPairState?(): void;
   moveToLineEnd?(): Promise<boolean>;
   deleteCurrentLine?(): Promise<boolean>;
+  restoreLastDeletion?(): Promise<boolean>;
+  clearDeletionRecovery?(): void;
   sendExtendAction?(action: EditorExtendAction): Promise<boolean>;
   sendEnter(action?: EnterAction): Promise<boolean>;
   hideKeyboard(): Promise<boolean>;

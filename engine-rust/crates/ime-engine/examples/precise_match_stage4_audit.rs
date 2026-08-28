@@ -544,9 +544,11 @@ fn audit_user_deletions(
         let overlay = UserLexiconSnapshot::from_entries(
             vec![UserLexiconEntry {
                 text: deleted.clone(),
+                display_text: None,
                 code: code.clone(),
                 action: UserLexiconAction::Delete,
                 source_order: index as u32,
+                category_id: None,
             }],
             1,
         );
@@ -740,6 +742,7 @@ fn effective_candidates(
     let make_user = |entry: &UserLexiconEntry| CodeTableCandidate {
         id: entry.stable_id(),
         text: entry.text.clone(),
+        display_text: entry.display_text.clone(),
         code: entry.code.clone(),
         category_id: "user-lexicon".to_owned(),
         source_order: entry.source_order,

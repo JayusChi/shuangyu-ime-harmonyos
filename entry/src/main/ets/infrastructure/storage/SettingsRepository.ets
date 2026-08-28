@@ -26,7 +26,10 @@ interface SettingsPreferenceKeys {
   KEYBOARD_PROFILE_ID: string;
   SCHEME_ID: string;
   THEME_MODE: string;
+  KEYBOARD_STRUCTURE_ID: string;
+  KEYBOARD_SKIN_ID: string;
   KEYBOARD_HEIGHT_MODE: string;
+  KEYBOARD_LIFT_LAYER_ENABLED: string;
   CANDIDATE_FONT_SIZE_MODE: string;
   HAPTIC_LEVEL: string;
   KEY_SOUND_ENABLED: string;
@@ -44,6 +47,9 @@ interface SettingsPreferenceKeys {
   SPELLING_CORRECTION_ENABLED: string;
   FUZZY_OPTIONS: string;
   SMART_PERIOD_TIMEOUT_MS: string;
+  SMART_PUNCTUATION_SYMBOLS: string;
+  CHINESE_LETTER_SWIPE_SYMBOLS: string;
+  ENGLISH_LETTER_SWIPE_SYMBOLS: string;
   PUNCTUATION_MODE: string;
   FULL_WIDTH_ENABLED: string;
   NUMERIC_PERIOD_ENABLED: string;
@@ -66,7 +72,10 @@ const KEYS: SettingsPreferenceKeys = {
   KEYBOARD_PROFILE_ID: 'keyboard_profile_id',
   SCHEME_ID: 'scheme_id',
   THEME_MODE: 'theme_mode',
+  KEYBOARD_STRUCTURE_ID: 'keyboard_structure_id',
+  KEYBOARD_SKIN_ID: 'keyboard_skin_id',
   KEYBOARD_HEIGHT_MODE: 'keyboard_height_mode',
+  KEYBOARD_LIFT_LAYER_ENABLED: 'keyboard_lift_layer_enabled',
   CANDIDATE_FONT_SIZE_MODE: 'candidate_font_size_mode',
   HAPTIC_LEVEL: 'haptic_level',
   KEY_SOUND_ENABLED: 'key_sound_enabled',
@@ -84,6 +93,9 @@ const KEYS: SettingsPreferenceKeys = {
   SPELLING_CORRECTION_ENABLED: 'quanpin_spelling_correction_enabled',
   FUZZY_OPTIONS: 'quanpin_fuzzy_options',
   SMART_PERIOD_TIMEOUT_MS: 'smart_period_timeout_ms',
+  SMART_PUNCTUATION_SYMBOLS: 'smart_punctuation_symbols',
+  CHINESE_LETTER_SWIPE_SYMBOLS: 'chinese_letter_swipe_symbols',
+  ENGLISH_LETTER_SWIPE_SYMBOLS: 'english_letter_swipe_symbols',
   PUNCTUATION_MODE: 'punctuation_mode',
   FULL_WIDTH_ENABLED: 'full_width_enabled',
   NUMERIC_PERIOD_ENABLED: 'numeric_period_enabled',
@@ -235,8 +247,12 @@ export class SettingsRepository implements SettingsRepositoryContract {
   }
 
   private async readString(storage: preferences.Preferences, key: string): Promise<string | undefined> {
-    const value = await storage.get(key, '');
-    return typeof value === 'string' && value.length > 0 ? value : undefined;
+    try {
+      const value = await storage.get(key, '');
+      return typeof value === 'string' && value.length > 0 ? value : undefined;
+    } catch (err) {
+      throw new Error(`settings read failed for ${key}: ${JSON.stringify(err)}`);
+    }
   }
 
   private async readRaw(storage: preferences.Preferences): Promise<SettingsRaw> {
@@ -245,7 +261,10 @@ export class SettingsRepository implements SettingsRepositoryContract {
       keyboardProfileId: await this.readString(storage, KEYS.KEYBOARD_PROFILE_ID),
       schemeId: await this.readString(storage, KEYS.SCHEME_ID),
       themeMode: await this.readString(storage, KEYS.THEME_MODE),
+      keyboardStructureId: await this.readString(storage, KEYS.KEYBOARD_STRUCTURE_ID),
+      keyboardSkinId: await this.readString(storage, KEYS.KEYBOARD_SKIN_ID),
       keyboardHeightMode: await this.readString(storage, KEYS.KEYBOARD_HEIGHT_MODE),
+      keyboardLiftLayerEnabled: await this.readString(storage, KEYS.KEYBOARD_LIFT_LAYER_ENABLED),
       candidateFontSizeMode: await this.readString(storage, KEYS.CANDIDATE_FONT_SIZE_MODE),
       hapticLevel: await this.readString(storage, KEYS.HAPTIC_LEVEL),
       keySoundEnabled: await this.readString(storage, KEYS.KEY_SOUND_ENABLED),
@@ -263,6 +282,9 @@ export class SettingsRepository implements SettingsRepositoryContract {
       spellingCorrectionEnabled: await this.readString(storage, KEYS.SPELLING_CORRECTION_ENABLED),
       fuzzyOptions: await this.readString(storage, KEYS.FUZZY_OPTIONS),
       smartPeriodTimeoutMs: await this.readString(storage, KEYS.SMART_PERIOD_TIMEOUT_MS),
+      smartPunctuationSymbols: await this.readString(storage, KEYS.SMART_PUNCTUATION_SYMBOLS),
+      chineseLetterSwipeSymbols: await this.readString(storage, KEYS.CHINESE_LETTER_SWIPE_SYMBOLS),
+      englishLetterSwipeSymbols: await this.readString(storage, KEYS.ENGLISH_LETTER_SWIPE_SYMBOLS),
       punctuationMode: await this.readString(storage, KEYS.PUNCTUATION_MODE),
       fullWidthEnabled: await this.readString(storage, KEYS.FULL_WIDTH_ENABLED),
       numericPeriodEnabled: await this.readString(storage, KEYS.NUMERIC_PERIOD_ENABLED),
@@ -288,45 +310,65 @@ export class SettingsRepository implements SettingsRepositoryContract {
   }
 
   private async writeRaw(storage: preferences.Preferences, raw: SettingsRaw): Promise<void> {
-    await storage.put(KEYS.SCHEMA_VERSION, raw.schemaVersion ?? '');
-    await storage.put(KEYS.KEYBOARD_PROFILE_ID, raw.keyboardProfileId ?? '');
-    await storage.put(KEYS.SCHEME_ID, raw.schemeId ?? '');
-    await storage.put(KEYS.THEME_MODE, raw.themeMode ?? '');
-    await storage.put(KEYS.KEYBOARD_HEIGHT_MODE, raw.keyboardHeightMode ?? '');
-    await storage.put(KEYS.CANDIDATE_FONT_SIZE_MODE, raw.candidateFontSizeMode ?? '');
-    await storage.put(KEYS.HAPTIC_LEVEL, raw.hapticLevel ?? '');
-    await storage.put(KEYS.KEY_SOUND_ENABLED, raw.keySoundEnabled ?? '');
-    await storage.put(KEYS.USER_LEARNING_ENABLED, raw.userLearningEnabled ?? '');
-    await storage.put(KEYS.AI_ENABLED, raw.aiEnabled ?? '');
-    await storage.put(KEYS.LOCAL_ASSOCIATION_ENABLED, raw.localAssociationEnabled ?? '');
-    await storage.put(KEYS.CLOUD_AI_ENABLED, raw.cloudAiEnabled ?? '');
-    await storage.put(KEYS.CLOUD_AI_CONSENT_VERSION, raw.cloudAiConsentVersion ?? '');
-    await storage.put(KEYS.PREFERRED_AI_ACTIONS, raw.preferredAiActions ?? '');
-    await storage.put(KEYS.VOICE_INPUT_ENABLED, raw.voiceInputEnabled ?? '');
-    await storage.put(KEYS.VOICE_LANGUAGE, raw.voiceLanguage ?? '');
-    await storage.put(KEYS.VOICE_AUTO_COMMIT, raw.voiceAutoCommit ?? '');
-    await storage.put(KEYS.VOICE_CLOUD_CONSENT_VERSION, raw.voiceCloudConsentVersion ?? '');
-    await storage.put(KEYS.VOICE_PUNCTUATION_ENABLED, raw.voicePunctuationEnabled ?? '');
-    await storage.put(KEYS.SPELLING_CORRECTION_ENABLED, raw.spellingCorrectionEnabled ?? '');
-    await storage.put(KEYS.FUZZY_OPTIONS, raw.fuzzyOptions ?? '');
-    await storage.put(KEYS.SMART_PERIOD_TIMEOUT_MS, raw.smartPeriodTimeoutMs ?? '');
-    await storage.put(KEYS.PUNCTUATION_MODE, raw.punctuationMode ?? '');
-    await storage.put(KEYS.FULL_WIDTH_ENABLED, raw.fullWidthEnabled ?? '');
-    await storage.put(KEYS.NUMERIC_PERIOD_ENABLED, raw.numericPeriodEnabled ?? '');
-    await storage.put(KEYS.TRADITIONAL_OUTPUT_ENABLED, raw.traditionalOutputEnabled ?? '');
-    await storage.put(KEYS.CODE_TABLE_EMPTY_CLEAR_LENGTH, raw.codeTableEmptyClearLength ?? '');
-    await storage.put(KEYS.CODE_TABLE_AUTO_COMMIT_ENABLED, raw.codeTableAutoCommitEnabled ?? '');
-    await storage.put(KEYS.INPUT_PRESENTATION_PREFERENCE, raw.inputPresentationPreference ?? '');
-    await storage.put(KEYS.CANDIDATE_PRESENTATION_MODE, raw.candidatePresentationMode ?? '');
-    await storage.put(
+    await this.putString(storage, KEYS.SCHEMA_VERSION, raw.schemaVersion);
+    await this.putString(storage, KEYS.KEYBOARD_PROFILE_ID, raw.keyboardProfileId);
+    await this.putString(storage, KEYS.SCHEME_ID, raw.schemeId);
+    await this.putString(storage, KEYS.THEME_MODE, raw.themeMode);
+    await this.putString(storage, KEYS.KEYBOARD_STRUCTURE_ID, raw.keyboardStructureId);
+    await this.putString(storage, KEYS.KEYBOARD_SKIN_ID, raw.keyboardSkinId);
+    await this.putString(storage, KEYS.KEYBOARD_HEIGHT_MODE, raw.keyboardHeightMode);
+    await this.putString(storage, KEYS.KEYBOARD_LIFT_LAYER_ENABLED, raw.keyboardLiftLayerEnabled);
+    await this.putString(storage, KEYS.CANDIDATE_FONT_SIZE_MODE, raw.candidateFontSizeMode);
+    await this.putString(storage, KEYS.HAPTIC_LEVEL, raw.hapticLevel);
+    await this.putString(storage, KEYS.KEY_SOUND_ENABLED, raw.keySoundEnabled);
+    await this.putString(storage, KEYS.USER_LEARNING_ENABLED, raw.userLearningEnabled);
+    await this.putString(storage, KEYS.AI_ENABLED, raw.aiEnabled);
+    await this.putString(storage, KEYS.LOCAL_ASSOCIATION_ENABLED, raw.localAssociationEnabled);
+    await this.putString(storage, KEYS.CLOUD_AI_ENABLED, raw.cloudAiEnabled);
+    await this.putString(storage, KEYS.CLOUD_AI_CONSENT_VERSION, raw.cloudAiConsentVersion);
+    await this.putString(storage, KEYS.PREFERRED_AI_ACTIONS, raw.preferredAiActions);
+    await this.putString(storage, KEYS.VOICE_INPUT_ENABLED, raw.voiceInputEnabled);
+    await this.putString(storage, KEYS.VOICE_LANGUAGE, raw.voiceLanguage);
+    await this.putString(storage, KEYS.VOICE_AUTO_COMMIT, raw.voiceAutoCommit);
+    await this.putString(storage, KEYS.VOICE_CLOUD_CONSENT_VERSION, raw.voiceCloudConsentVersion);
+    await this.putString(storage, KEYS.VOICE_PUNCTUATION_ENABLED, raw.voicePunctuationEnabled);
+    await this.putString(storage, KEYS.SPELLING_CORRECTION_ENABLED, raw.spellingCorrectionEnabled);
+    await this.putString(storage, KEYS.FUZZY_OPTIONS, raw.fuzzyOptions);
+    await this.putString(storage, KEYS.SMART_PERIOD_TIMEOUT_MS, raw.smartPeriodTimeoutMs);
+    await this.putString(storage, KEYS.SMART_PUNCTUATION_SYMBOLS, raw.smartPunctuationSymbols);
+    await this.putString(storage, KEYS.CHINESE_LETTER_SWIPE_SYMBOLS, raw.chineseLetterSwipeSymbols);
+    await this.putString(storage, KEYS.ENGLISH_LETTER_SWIPE_SYMBOLS, raw.englishLetterSwipeSymbols);
+    await this.putString(storage, KEYS.PUNCTUATION_MODE, raw.punctuationMode);
+    await this.putString(storage, KEYS.FULL_WIDTH_ENABLED, raw.fullWidthEnabled);
+    await this.putString(storage, KEYS.NUMERIC_PERIOD_ENABLED, raw.numericPeriodEnabled);
+    await this.putString(storage, KEYS.TRADITIONAL_OUTPUT_ENABLED, raw.traditionalOutputEnabled);
+    await this.putString(storage, KEYS.CODE_TABLE_EMPTY_CLEAR_LENGTH, raw.codeTableEmptyClearLength);
+    await this.putString(storage, KEYS.CODE_TABLE_AUTO_COMMIT_ENABLED, raw.codeTableAutoCommitEnabled);
+    await this.putString(storage, KEYS.INPUT_PRESENTATION_PREFERENCE, raw.inputPresentationPreference);
+    await this.putString(storage, KEYS.CANDIDATE_PRESENTATION_MODE, raw.candidatePresentationMode);
+    await this.putString(
+      storage,
       KEYS.XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
-      raw.xiaoheYinxingCategorySchemaVersion ?? ''
+      raw.xiaoheYinxingCategorySchemaVersion
     );
-    await storage.put(
+    await this.putString(
+      storage,
       KEYS.XIAOHE_YINXING_ENABLED_CATEGORY_IDS,
-      raw.xiaoheYinxingEnabledCategoryIds ?? ''
+      raw.xiaoheYinxingEnabledCategoryIds
     );
-    await storage.put(KEYS.LEXICON_SOURCES, raw.lexiconSources ?? '');
+    await this.putString(storage, KEYS.LEXICON_SOURCES, raw.lexiconSources);
+  }
+
+  private async putString(
+    storage: preferences.Preferences,
+    key: string,
+    value: string | undefined
+  ): Promise<void> {
+    try {
+      await storage.put(key, value ?? '');
+    } catch (err) {
+      throw new Error(`settings write failed for ${key}: ${JSON.stringify(err)}`);
+    }
   }
 
   private async openSharedStorage(): Promise<void> {
@@ -340,10 +382,14 @@ export class SettingsRepository implements SettingsRepositoryContract {
 
   private async openPreferences(context: common.Context): Promise<preferences.Preferences> {
     const options: preferences.Options = { name: PREFERENCES_NAME };
-    preferences.removePreferencesFromCacheSync(context, options);
-    const storage = await preferences.getPreferences(context, options);
-    this.storage = storage;
-    return storage;
+    try {
+      preferences.removePreferencesFromCacheSync(context, options);
+      const storage = await preferences.getPreferences(context, options);
+      this.storage = storage;
+      return storage;
+    } catch (err) {
+      throw new Error(`settings storage open failed: ${JSON.stringify(err)}`);
+    }
   }
 
   private async readPreferencesSnapshot(context: common.Context): Promise<ImeSettings | undefined> {
@@ -420,10 +466,12 @@ export class SettingsRepository implements SettingsRepositoryContract {
   private describe(settings: ImeSettings): string {
     return `schemaVersion=${settings.schemaVersion}, keyboardProfileId=${settings.keyboardProfileId}, ` +
       `schemeId=${settings.schemeId}, ` +
-      `themeMode=${settings.themeMode}, keyboardHeightMode=${settings.keyboardHeightMode}, ` +
+      `themeMode=${settings.themeMode}, keyboardStructureId=${settings.keyboardStructureId}, ` +
+      `keyboardSkinId=${settings.keyboardSkinId}, keyboardHeightMode=${settings.keyboardHeightMode}, ` +
       `candidateFontSizeMode=${settings.candidateFontSizeMode}, hapticLevel=${settings.hapticLevel}, ` +
       `keySoundEnabled=${settings.keySoundEnabled}, userLearningEnabled=${settings.userLearningEnabled}, ` +
       `smartPeriodTimeoutMs=${settings.smartPeriodTimeoutMs}, ` +
+      `smartPunctuationSymbols=${JSON.stringify(settings.smartPunctuationSymbols)}, ` +
       `inputPresentationPreference=${settings.inputPresentationPreference}, ` +
       `candidatePresentationMode=${settings.candidatePresentationMode}, ` +
       `xiaoheYinxingCategorySchemaVersion=${settings.xiaoheYinxingCategorySchemaVersion}, ` +

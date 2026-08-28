@@ -21,6 +21,14 @@ Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\resources\rawfile\qu
 $pageProfileRoot = Join-Path $resourceRoot 'base\profile'
 New-Item -ItemType Directory -Path $pageProfileRoot -Force | Out-Null
 [IO.File]::WriteAllText((Join-Path $pageProfileRoot 'main_pages.json'), '{"src":["pages/Index"]}', [Text.Encoding]::UTF8)
+Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\resources\base\profile\stage0_input_method.json') `
+    -Destination (Join-Path $pageProfileRoot 'stage0_input_method.json')
+Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\module.json5') `
+    -Destination (Join-Path $sourceRoot 'module.json5')
+$imeSourceRoot = Join-Path $sourceRoot 'ets\inputmethod'
+New-Item -ItemType Directory -Path $imeSourceRoot -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\ets\inputmethod\Stage0InputMethodAbilityBase.ets') `
+    -Destination (Join-Path $imeSourceRoot 'Stage0InputMethodAbilityBase.ets')
 $etsRoot = Join-Path $sourceRoot 'ets\pages'
 New-Item -ItemType Directory -Path $etsRoot -Force | Out-Null
 $indexSource = Join-Path $etsRoot 'Index.ets'

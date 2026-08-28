@@ -30,6 +30,8 @@ class FakeImeInputService implements ImeInputService {
   finishPreviewCount: number = 0;
   clearPreviewCount: number = 0;
   deleteCount: number = 0;
+  deleteLineCount: number = 0;
+  restoreDeletionCount: number = 0;
   enterCount: number = 0;
   hideCount: number = 0;
   failNextPreview: boolean = false;
@@ -78,6 +80,16 @@ class FakeImeInputService implements ImeInputService {
 
   async deleteBackward(count?: number): Promise<boolean> {
     this.deleteCount += count ?? 1;
+    return true;
+  }
+
+  async deleteCurrentLine(): Promise<boolean> {
+    this.deleteLineCount += 1;
+    return true;
+  }
+
+  async restoreLastDeletion(): Promise<boolean> {
+    this.restoreDeletionCount += 1;
     return true;
   }
 
@@ -170,11 +182,11 @@ class FakeNativeGateway implements NativeEngineGatewayContract {
   userLearningEnabledValues: boolean[] = [];
 
   getInterfaceVersion(): number {
-    return 10;
+    return 11;
   }
 
   getEngineVersion(): string {
-    return '0.0.1-direct-controls';
+    return '0.0.1-direct-display';
   }
 
   getNativeBuildInfo(): string {
@@ -182,7 +194,7 @@ class FakeNativeGateway implements NativeEngineGatewayContract {
   }
 
   createEngine(config: EngineConfig): number {
-    if (config.interfaceVersion !== 10 || config.schemeId !== 'xiaohe') {
+    if (config.interfaceVersion !== 11 || config.schemeId !== 'xiaohe') {
       throw new Error('bad config');
     }
     this.createdCount += 1;
@@ -363,7 +375,7 @@ class ReloadableSchemeGateway extends FakeNativeGateway {
       codeTableActionFixtureSha256: config.codeTableActionFixtureSha256,
       candidatePageSize: config.candidatePageSize
     });
-    if (config.interfaceVersion !== 10) {
+    if (config.interfaceVersion !== 11) {
       throw new Error('bad interface version');
     }
     if (config.schemeId === 'xiaohe-yinxing') {
@@ -399,7 +411,7 @@ class QuanpinGateway extends FakeNativeGateway {
   configs: EngineConfig[] = [];
 
   createEngine(config: EngineConfig): number {
-    if (config.interfaceVersion !== 10 || config.schemeId !== 'quanpin') {
+    if (config.interfaceVersion !== 11 || config.schemeId !== 'quanpin') {
       throw new Error('bad quanpin config');
     }
     this.configs.push({
@@ -430,7 +442,7 @@ class T9Gateway extends FakeNativeGateway {
   boundaryCount: number = 0;
 
   createEngine(config: EngineConfig): number {
-    if (config.interfaceVersion !== 10 || config.schemeId !== 'pinyin-9') {
+    if (config.interfaceVersion !== 11 || config.schemeId !== 'pinyin-9') {
       throw new Error('bad pinyin-9 config');
     }
     this.createdCount += 1;
@@ -1015,10 +1027,14 @@ export default function stage2ControllerTest() {
       const controller = new KeyboardController(sessionController, new FakeNativeGateway());
 
       await controller.handleAction({ type: KeyboardActionType.DELETE });
+      await controller.handleAction({ type: KeyboardActionType.DELETE_CURRENT_LINE });
+      await controller.handleAction({ type: KeyboardActionType.RESTORE_LAST_DELETION });
       await controller.handleAction({ type: KeyboardActionType.ENTER });
       await controller.handleAction({ type: KeyboardActionType.HIDE_KEYBOARD });
 
       expect(imeService.deleteCount).assertEqual(1);
+      expect(imeService.deleteLineCount).assertEqual(1);
+      expect(imeService.restoreDeletionCount).assertEqual(1);
       expect(imeService.enterCount).assertEqual(1);
       expect(imeService.hideCount).assertEqual(1);
       expect(store.getSnapshot().keyboardVisible).assertEqual(false);
@@ -1398,7 +1414,7 @@ export default function stage2ControllerTest() {
       expect(gateway.processKeys[0]).assertEqual('q');
     });
 
-    it('quanpinUsesNativePreviewWhenTheEditorSupportsIt', 0, async () => {
+    it('quanpinKeepsRawCodeInTheCandidateBarWhenEditorPreviewIsSupported', 0, async () => {
       const store = new InputSessionStore();
       const imeService = new FakeImeInputService();
       const gateway = new QuanpinGateway();
@@ -1414,8 +1430,9 @@ export default function stage2ControllerTest() {
 
       expect(result.success).assertTrue();
       expect(imeService.previewSupportedValues.length).assertEqual(1);
-      expect(imeService.previewSupportedValues[0]).assertTrue();
+      expect(imeService.previewSupportedValues[0]).assertFalse();
       expect(imeService.insertedTexts.length).assertEqual(0);
+      expect(store.getSnapshot().cursorPreeditVisible === true).assertFalse();
     });
 
     it('quanpinLetterProtocolGuardRollsBackBeforeAnyEditorCommit', 0, async () => {

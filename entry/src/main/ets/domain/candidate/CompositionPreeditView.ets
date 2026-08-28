@@ -4,10 +4,10 @@
  * HarmonyOS `inputMethodEngine.InputClient.setPreviewText(text, range)` 自 API 12
  * 起签名固定为 `(string, Range)`，没有为输入法暴露样式接口。系统预编辑的视觉
  * 完全由宿主编辑框自行决定，输入法侧不能可靠地强制下划线或颜色。因此本模块
- * 只描述"键盘顶部候选栏"这一唯一由输入法自绘的展示位，用来在任何宿主上给出
- * 一致的"未上屏"提示：非空的组合编码按双拼两码段展示，并用带下划线的
- * 文本装饰渲染。实际分段完全由当前 Rust 解析器提供，既可表示双拼两码段，
- * 也可表示全拼音节段。
+ * 只描述输入法自绘候选区域的回退展示位。系统预编辑已经在光标处展示输入码时，
+ * 候选区域必须隐藏同一输入码；只有光标处没有系统预编辑时，候选区域才用带
+ * 下划线的文本装饰表达"未上屏"。实际分段完全由当前 Rust 解析器提供，既可
+ * 表示双拼两码段，也可表示全拼音节段。
  *
  * 该函数不修改引擎状态，不给引擎传分隔符或下划线字符，也不改变候选查询键。
  * 展示层连接引擎分段时插入的 `'` 和下划线装饰只影响 ArkUI `Text` 组件；
@@ -31,6 +31,8 @@ export interface CompositionPreeditView {
 export interface CompositionPreeditInput {
   rawInput: string;
   preeditText: string;
+  /** 系统预编辑是否已经在编辑器光标处承担输入码展示。 */
+  cursorPreeditVisible?: boolean;
   /** Optional engine-provided display path, used by T9 instead of raw digits. */
   preferredDisplayText?: string;
   /** 引擎生成的原始码展示段；UI 只负责使用 `'` 连接。 */
@@ -67,7 +69,7 @@ export function formatTwoCodePreedit(
 /**
  * 计算顶部候选栏预编辑显示位。
  *
- * - `rawInput` 为空时不显示，避免残留旧提示。
+ * - `rawInput` 为空或光标处已有系统预编辑时不显示，避免残留和双重展示。
  * - 展示内容由引擎 `displaySegments` 生成，不使用展开成全拼的
  *   `preeditText`。
  * - 完整编码按解析器音节段展示，未完成尾码由解析器原样提供。
@@ -76,7 +78,7 @@ export function formatTwoCodePreedit(
 export function resolveCompositionPreeditView(
   input: CompositionPreeditInput
 ): CompositionPreeditView {
-  if (input.rawInput.length === 0) {
+  if (input.rawInput.length === 0 || input.cursorPreeditVisible === true) {
     return {
       visible: false,
       displayText: '',

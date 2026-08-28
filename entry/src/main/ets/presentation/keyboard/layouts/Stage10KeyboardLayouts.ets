@@ -3,11 +3,13 @@ import { EditorContext, EditorKind, ShiftState } from '../../../domain/editor/Ed
 import { ShuangpinKeyboardLayout } from '../../../domain/keyboard/ShuangpinKeyboardLayout';
 import {
   createCharacterInputAction,
+  createLiteralCharacterInputAction,
   createLetterInputAction,
   CANCEL_COMPOSITION_ACTION,
   COPY_ACTION,
   CUT_ACTION,
   DELETE_ACTION,
+  DELETE_CURRENT_LINE_ACTION,
   ENTER_ACTION,
   KeyboardAction,
   KeyboardMode,
@@ -22,8 +24,11 @@ import {
   TOGGLE_SYMBOL_ACTION,
   UNIVERSAL_KEY_ACTION,
   SWITCH_INPUT_METHOD_ACTION,
-  SECOND_CANDIDATE_OR_PUNCTUATION_ACTION,
-  SECOND_CANDIDATE_OR_COMMA_ACTION
+  SECOND_CANDIDATE_OR_PERIOD_ACTION,
+  THIRD_CANDIDATE_OR_COMMA_ACTION,
+  REPEAT_LAST_COMMIT_ACTION,
+  RESTORE_LAST_DELETION_ACTION,
+  UNDO_LAST_COMMIT_ACTION
 } from '../../../domain/keyboard/KeyboardAction';
 import {
   KeyboardKeyKind,
@@ -92,7 +97,7 @@ interface UpperDeckSpec {
 function upperCharacter(character: string): UpperDeckSpec {
   return {
     label: character,
-    action: createCharacterInputAction(character),
+    action: createLiteralCharacterInputAction(character),
     accessibilityLabel: `输入 ${character}`
   };
 }
@@ -216,7 +221,7 @@ function letterRow(letters: string, shiftState: ShiftState): KeyboardKeySpec[] {
 }
 
 function enterKey(context: EditorContext, weight: number = 1.35): KeyboardKeySpec {
-  return key(
+  const spec = key(
     'enter',
     enterActionLabel(context.enterAction),
     KeyboardKeyKind.ENTER,
@@ -224,10 +229,18 @@ function enterKey(context: EditorContext, weight: number = 1.35): KeyboardKeySpe
     ENTER_ACTION,
     enterActionAccessibilityText(context.enterAction)
   );
+  spec.swipeUpAction = REPEAT_LAST_COMMIT_ACTION;
+  spec.swipeDownAction = RESTORE_LAST_DELETION_ACTION;
+  spec.accessibilityLabel = `${spec.accessibilityLabel}，上滑重复上屏，下滑恢复最近删除`;
+  return spec;
 }
 
 function deleteKey(weight: number = 1.3): KeyboardKeySpec {
-  return key('delete', '删除', KeyboardKeyKind.DELETE, weight, DELETE_ACTION, '删除前一个字符');
+  const spec = key('delete', '删除', KeyboardKeyKind.DELETE, weight, DELETE_ACTION,
+    '删除前一个字符，上滑撤销上屏，下滑删除当前行');
+  spec.swipeUpAction = UNDO_LAST_COMMIT_ACTION;
+  spec.swipeDownAction = DELETE_CURRENT_LINE_ACTION;
+  return spec;
 }
 
 function inputMethodSwitchKey(weight: number = KEY_WEIGHTS.MODE_SWITCH): KeyboardKeySpec {
@@ -241,6 +254,41 @@ function inputMethodSwitchKey(weight: number = KEY_WEIGHTS.MODE_SWITCH): Keyboar
   );
   switchKey.longPressAction = SHOW_INPUT_METHOD_PICKER_ACTION;
   return switchKey;
+}
+
+function numberDeckKey(weight: number = KEY_WEIGHTS.MODE_SWITCH): KeyboardKeySpec {
+  const spec = key(
+    'number',
+    'ϟ12',
+    KeyboardKeyKind.MODE_SWITCH,
+    weight,
+    TOGGLE_NUMBER_ACTION,
+    '点击进入数字键盘，长按进入符号键盘'
+  );
+  spec.longPressAction = TOGGLE_SYMBOL_ACTION;
+  return spec;
+}
+
+function commaKey(chineseMode: boolean, weight: number = 0.9): KeyboardKeySpec {
+  return key(
+    'punctuation-comma',
+    chineseMode ? '，' : ',',
+    KeyboardKeyKind.FUNCTION,
+    weight,
+    chineseMode ? THIRD_CANDIDATE_OR_COMMA_ACTION : createCharacterInputAction(','),
+    chineseMode ? '有第三候选时选择第三候选，否则输入逗号' : '输入逗号'
+  );
+}
+
+function periodKey(chineseMode: boolean, weight: number = 0.9): KeyboardKeySpec {
+  return key(
+    'punctuation-period',
+    chineseMode ? '。' : '.',
+    KeyboardKeyKind.FUNCTION,
+    weight,
+    chineseMode ? SECOND_CANDIDATE_OR_PERIOD_ACTION : createCharacterInputAction('.'),
+    chineseMode ? '有第二候选时选择第二候选，否则输入句号' : '输入句号'
+  );
 }
 
 function shiftKey(shiftState: ShiftState, chineseMode: boolean = false): KeyboardKeySpec {
@@ -312,13 +360,8 @@ function createTextBottomRow(
   showInputMethodSwitchKey: boolean = false
 ): KeyboardRowSpec {
   const keys: KeyboardKeySpec[] = [];
-  if (context.symbolModeAllowed) {
-    keys.push(key('symbol', '符', KeyboardKeyKind.MODE_SWITCH, KEY_WEIGHTS.MODE_SWITCH,
-      TOGGLE_SYMBOL_ACTION, '切换到符号键盘'));
-  }
   if (context.numberModeAllowed) {
-    keys.push(key('number', '123', KeyboardKeyKind.MODE_SWITCH, KEY_WEIGHTS.MODE_SWITCH,
-      TOGGLE_NUMBER_ACTION, '切换到数字键盘'));
+    keys.push(numberDeckKey());
   }
   if (showInputMethodSwitchKey) {
     keys.push(inputMethodSwitchKey());
@@ -331,16 +374,9 @@ function createTextBottomRow(
   space.upperLabel = '中/英';
   space.longPressAction = TOGGLE_LANGUAGE_ACTION;
   space.swipeUpAction = TOGGLE_LANGUAGE_ACTION;
+  keys.push(commaKey(chineseMode));
   keys.push(space);
-  keys.push(segmentedKey(
-    'punctuation-comma-period',
-    chineseMode ? ['，', '。'] : [',', '.'],
-    chineseMode
-      ? [SECOND_CANDIDATE_OR_COMMA_ACTION, createCharacterInputAction('。')]
-      : [createCharacterInputAction(','), createCharacterInputAction('.')],
-    KeyboardKeyKind.FUNCTION,
-    1.25
-  ));
+  keys.push(periodKey(chineseMode));
   keys.push(enterKey(context, KEY_WEIGHTS.ENTER));
   return { keys, kind: KeyboardRowKind.BOTTOM_ACTIONS };
 }
@@ -351,15 +387,6 @@ function createEighteenKeyTextLayout(
   shiftState: ShiftState,
   chineseCapsLock: boolean
 ): KeyboardLayoutSpec {
-  const punctuation = segmentedKey(
-    'punctuation-comma-period',
-    chineseMode ? ['，', '。'] : [',', '.'],
-    chineseMode
-      ? [SECOND_CANDIDATE_OR_COMMA_ACTION, createCharacterInputAction('。')]
-      : [createCharacterInputAction(','), createCharacterInputAction('.')],
-    KeyboardKeyKind.FUNCTION,
-    1.25
-  );
   const letterShiftState = chineseMode ? ShiftState.ONE_SHOT_UPPERCASE : shiftState;
   return {
     rows: [
@@ -399,7 +426,7 @@ function createEighteenKeyTextLayout(
         kind: KeyboardRowKind.BOTTOM_LETTERS
       },
       {
-        keys: createEighteenKeyBottomKeys(context, punctuation),
+        keys: createEighteenKeyBottomKeys(context, chineseMode),
         kind: KeyboardRowKind.BOTTOM_ACTIONS
       }
     ]
@@ -408,7 +435,7 @@ function createEighteenKeyTextLayout(
 
 function createEighteenKeyBottomKeys(
   context: EditorContext,
-  punctuation: KeyboardKeySpec
+  chineseMode: boolean
 ): KeyboardKeySpec[] {
   const space = key('space', '空格', KeyboardKeyKind.SPACE, 3.5, SPACE_ACTION,
     '空格，上滑或长按切换中英文');
@@ -416,12 +443,10 @@ function createEighteenKeyBottomKeys(
   space.longPressAction = TOGGLE_LANGUAGE_ACTION;
   space.swipeUpAction = TOGGLE_LANGUAGE_ACTION;
   return [
-    key('symbol', '符', KeyboardKeyKind.MODE_SWITCH, 1.05,
-      TOGGLE_SYMBOL_ACTION, '切换到符号键盘'),
-    key('number', '123', KeyboardKeyKind.MODE_SWITCH, 1.05,
-      TOGGLE_NUMBER_ACTION, '切换到数字键盘'),
+    numberDeckKey(1.05),
+    commaKey(chineseMode),
     space,
-    punctuation,
+    periodKey(chineseMode),
     enterKey(context, KEY_WEIGHTS.ENTER)
   ];
 }
@@ -483,7 +508,8 @@ function createReferenceNumberLayout(
   showInputMethodSwitchKey: boolean
 ): KeyboardLayoutSpec {
   const bottomKeys: KeyboardKeySpec[] = [
-    upperCharacterKey('/', ';', 'slash'),
+    key('number-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
+      TOGGLE_NUMBER_ACTION, '返回文字键盘'),
     upperCharacterKey(',', '¥', 'comma'),
     upperCharacterKey('0', '$', 'zero'),
     upperCharacterKey('.', '€', 'decimal')
@@ -500,8 +526,7 @@ function createReferenceNumberLayout(
           characterKey('1', 'one'),
           characterKey('2', 'two'),
           characterKey('3', 'three'),
-          key('number-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
-            TOGGLE_NUMBER_ACTION, '返回文字键盘')
+          upperCharacterKey('/', ';', 'slash')
         ]
       },
       {
@@ -510,8 +535,7 @@ function createReferenceNumberLayout(
           characterKey('4', 'four'),
           characterKey('5', 'five'),
           characterKey('6', 'six'),
-          key('symbol', '符号', KeyboardKeyKind.MODE_SWITCH, 1,
-            TOGGLE_SYMBOL_ACTION, '切换到更多符号')
+          characterKey('=', 'equals')
         ]
       },
       {
@@ -593,7 +617,9 @@ function createPhoneLayout(context: EditorContext, showInputMethodSwitchKey: boo
 
 function createSymbolLayout(context: EditorContext, showInputMethodSwitchKey: boolean): KeyboardLayoutSpec {
   const bottomKeys: KeyboardKeySpec[] = [
-    ...['=', '+', '-', '×', '÷', '~'].map((value: string) => characterKey(value))
+    key('symbol-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
+      TOGGLE_SYMBOL_ACTION, '返回之前的键盘'),
+    ...['=', '+', '-', '~'].map((value: string) => characterKey(value))
   ];
   if (showInputMethodSwitchKey) {
     bottomKeys.push(inputMethodSwitchKey());
@@ -603,12 +629,10 @@ function createSymbolLayout(context: EditorContext, showInputMethodSwitchKey: bo
     rows: [
       {
         keys: [
-          key('symbol-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
-            TOGGLE_SYMBOL_ACTION, '返回之前的键盘'),
-          ...['#', '&', '¥', '`', '^', '—'].map((value: string) => characterKey(value))
+          ...['#', '&', '¥', '`', '^', '—', '×'].map((value: string) => characterKey(value))
         ]
       },
-      { keys: ['·', '*', '%', '<', '>', '"', "'"].map((value: string) => characterKey(value)) },
+      { keys: ['·', '*', '%', '<', '>', '"', '÷'].map((value: string) => characterKey(value)) },
       { keys: ['{', '}', '[', ']', '(', ')', '\\'].map((value: string) => characterKey(value)) },
       {
         keys: bottomKeys,

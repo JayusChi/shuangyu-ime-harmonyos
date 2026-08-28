@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "sample.standard-wide-space",
+  "name": "标准宽空格示例",
+  "rows": [
+    {
+      "kind": "top_letters",
+      "keys": [
+        { "id": "letter-q" }, { "id": "letter-w" }, { "id": "letter-e" },
+        { "id": "letter-r" }, { "id": "letter-t" }, { "id": "letter-y" },
+        { "id": "letter-u" }, { "id": "letter-i" }, { "id": "letter-o" },
+        { "id": "letter-p" }
+      ]
+    },
+    {
+      "kind": "middle_letters",
+      "keys": [
+        { "id": "letter-a" }, { "id": "letter-s" }, { "id": "letter-d" },
+        { "id": "letter-f" }, { "id": "letter-g" }, { "id": "letter-h" },
+        { "id": "letter-j" }, { "id": "letter-k" }, { "id": "letter-l" }
+      ]
+    },
+    {
+      "kind": "bottom_letters",
+      "keys": [
+        { "id": "left-action", "weight": 1.4 },
+        { "id": "letter-z" }, { "id": "letter-x" }, { "id": "letter-c" },
+        { "id": "letter-v" }, { "id": "letter-b" }, { "id": "letter-n" },
+        { "id": "letter-m" }, { "id": "delete", "weight": 1.4 }
+      ]
+    },
+    {
+      "kind": "bottom_actions",
+      "keys": [
+        { "id": "number" },
+        { "id": "punctuation-comma", "weight": 0.9 },
+        { "id": "space", "weight": 5.2 },
+        { "id": "punctuation-period", "weight": 0.9 },
+        { "id": "enter", "weight": 1.6 }
+      ]
+    }
+  ]
+}

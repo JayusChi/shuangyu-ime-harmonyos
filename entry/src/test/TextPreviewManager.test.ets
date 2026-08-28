@@ -212,6 +212,30 @@ class DeferredFinishCompositionClient extends FakeCompositionClient {
   }
 }
 
+class PcSelectionRequiredCompositionClient extends FakeCompositionClient {
+  private cursorAnchored: boolean = false;
+
+  async selectByRange(range: inputMethodEngine.Range): Promise<void> {
+    await super.selectByRange(range);
+    this.cursorAnchored = range.start === range.end;
+  }
+
+  async insertText(text: string): Promise<boolean> {
+    if (!this.cursorAnchored) {
+      return false;
+    }
+    this.cursorAnchored = false;
+    return await super.insertText(text);
+  }
+}
+
+class PcFalseAcknowledgementCompositionClient extends FakeCompositionClient {
+  async insertText(text: string): Promise<boolean> {
+    await super.insertText(text);
+    return false;
+  }
+}
+
 function nextTurn(): Promise<void> {
   return new Promise<void>((resolve: () => void) => setTimeout(resolve, 0));
 }
@@ -314,7 +338,7 @@ export default function textPreviewManagerTest() {
       expect(client.text).assertEqual('ni');
     });
 
-    it('unsupportedEditorReplacesOneCompatibleRangeWithoutDuplication', 0, async () => {
+    it('unsupportedEditorKeepsRawInputOnlyInCandidateBar', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
       const inputs = ['n', 'ni', 'nih', 'niha', 'nihao'];
@@ -322,20 +346,23 @@ export default function textPreviewManagerTest() {
       for (let index = 0; index < inputs.length; index += 1) {
         expect(await manager.update(client, inputs[index], false, 9)).assertTrue();
       }
-      expect(manager.getMode()).assertEqual(CompositionTextMode.COMPATIBLE);
-      expect(client.text).assertEqual('nihao');
-      expect(client.insertCount).assertEqual(5);
+      expect(manager.getMode()).assertEqual(CompositionTextMode.CANDIDATE_BAR);
+      expect(manager.getTextLength()).assertEqual(5);
+      expect(client.text).assertEqual('');
+      expect(client.insertCount).assertEqual(0);
     });
 
-    it('unsupportedEditorAppendsOnlyTheNewSuffixDuringFastTyping', 0, async () => {
+    it('unsupportedEditorUpdatesCandidateBarWithoutEditorWrites', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
 
       expect(await manager.update(client, 'n', false, 10)).assertTrue();
       expect(await manager.update(client, 'nihao', false, 10)).assertTrue();
 
-      expect(client.text).assertEqual('nihao');
-      expect(client.insertCount).assertEqual(2);
+      expect(manager.getMode()).assertEqual(CompositionTextMode.CANDIDATE_BAR);
+      expect(manager.getTextLength()).assertEqual(5);
+      expect(client.text).assertEqual('');
+      expect(client.insertCount).assertEqual(0);
     });
 
     it('serializedHardwareContinuationDoesNotWaitForRedundantEditorReads', 0, async () => {
@@ -355,13 +382,14 @@ export default function textPreviewManagerTest() {
         true
       )).assertTrue();
 
-      expect(client.text).assertEqual('qazwsxedcrfvtgby');
+      expect(client.text).assertEqual('');
       expect(client.cursorReadCount).assertEqual(cursorReadsAfterFirstKey);
       expect(client.forwardReadCount).assertEqual(forwardReadsAfterFirstKey);
-      expect(client.insertCount).assertEqual(2);
+      expect(client.insertCount).assertEqual(0);
+      expect(manager.getTextLength()).assertEqual(16);
     });
 
-    it('compatibleCandidatePreciselyReplacesRawInput', 0, async () => {
+    it('candidateBarCompositionCommitsDirectlyAtTheCursor', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
       client.text = 'A';
@@ -370,6 +398,31 @@ export default function textPreviewManagerTest() {
       await manager.update(client, 'nihao', false, 11);
       expect(await manager.commit(client, '你好', 11)).assertTrue();
       expect(client.text).assertEqual('A你好');
+      expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
+    });
+
+    it('pcHostCandidateCommitAnchorsTheCursorWithoutWritingRawCode', 0, async () => {
+      const manager = new CompositionTextManager();
+      const client = new PcSelectionRequiredCompositionClient();
+      client.text = 'PC:';
+      client.cursor = 3;
+
+      expect(await manager.update(client, 'nihao', false, 44)).assertTrue();
+      expect(client.text).assertEqual('PC:');
+      expect(await manager.commit(client, '你好', 44)).assertTrue();
+      expect(client.text).assertEqual('PC:你好');
+      expect(client.text.indexOf('nihao')).assertEqual(-1);
+      expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
+    });
+
+    it('pcHostObservedInsertionOverridesAFalseCompatibilityAcknowledgement', 0, async () => {
+      const manager = new CompositionTextManager();
+      const client = new PcFalseAcknowledgementCompositionClient();
+
+      expect(await manager.update(client, 'ni', false, 45)).assertTrue();
+      expect(await manager.commit(client, '你', 45)).assertTrue();
+      expect(client.text).assertEqual('你');
+      expect(client.insertCount).assertEqual(1);
       expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
     });
 
@@ -393,8 +446,8 @@ export default function textPreviewManagerTest() {
 
       expect(await manager.update(client, rawInput, false, 43)).assertTrue();
       // Desktop browser InputClient may resolve insertText before its editor
-      // mutation is visible. Both number selections must remain serialized
-      // against the observable replacement, not merely the resolved promise.
+      // mutation is visible. Both commits remain serialized, while the raw
+      // tail stays exclusively in the candidate bar.
       client.insertApplyDelayMs = 20;
       expect(await manager.commitWithRemaining(
         client,
@@ -402,8 +455,8 @@ export default function textPreviewManagerTest() {
         'zmy',
         43
       )).assertTrue();
-      expect(client.text).assertEqual('今天的天气到底zmy');
-      expect(manager.getMode()).assertEqual(CompositionTextMode.COMPATIBLE);
+      expect(client.text).assertEqual('今天的天气到底');
+      expect(manager.getMode()).assertEqual(CompositionTextMode.CANDIDATE_BAR);
       expect(manager.getTextLength()).assertEqual(3);
 
       expect(await manager.commitWithRemaining(client, '怎么样', '', 43)).assertTrue();
@@ -411,49 +464,53 @@ export default function textPreviewManagerTest() {
       expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
     });
 
-    it('remainingRawInputStartsAfterLongerCommittedTextWhenCursorIsStale', 0, async () => {
+    it('remainingCandidateBarInputCommitsAfterThePreviousChineseText', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
 
       expect(await manager.update(client, 'wxq', true, 29)).assertTrue();
       expect(await manager.commit(client, '正向切分段', 29)).assertTrue();
-      client.cursor = 3;
       expect(await manager.update(client, 'r', false, 29, (): boolean => true, true)).assertTrue();
-      expect(client.text).assertEqual('正向切分段r');
+      expect(client.text).assertEqual('正向切分段');
+      expect(manager.getMode()).assertEqual(CompositionTextMode.CANDIDATE_BAR);
+      expect(manager.getTextLength()).assertEqual(1);
+      expect(await manager.commit(client, '续', 29)).assertTrue();
+      expect(client.text).assertEqual('正向切分段续');
     });
 
-    it('compatibleDeleteRemovesOneRawLetterAndThenClearsRange', 0, async () => {
+    it('candidateBarDeleteNeverMutatesEditorText', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
 
       await manager.update(client, 'ni', false, 13);
       expect(await manager.update(client, 'n', false, 13)).assertTrue();
-      expect(client.text).assertEqual('n');
+      expect(client.text).assertEqual('');
+      expect(manager.getTextLength()).assertEqual(1);
       expect(await manager.update(client, '', false, 13)).assertTrue();
       expect(client.text).assertEqual('');
       expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
     });
 
-    it('compatibleClearUsesOwnedRangeWhenForwardTextIsUnreadableAndCursorIsExact', 0, async () => {
+    it('candidateBarClearDoesNotReadAnUnsupportedEditor', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new UnreadableForwardCompositionClient();
 
       expect(await manager.update(client, 'vut', false, 31)).assertTrue();
-      expect(client.text).assertEqual('vut');
+      expect(client.text).assertEqual('');
       expect(await manager.update(client, '', false, 31)).assertTrue();
       expect(client.text).assertEqual('');
       expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
     });
 
-    it('compatibleClearDeletesVerifiedOwnedTextBeforeCursorExactlyOnce', 0, async () => {
+    it('candidateBarClearDoesNotDeleteCommittedEditorText', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
 
       expect(await manager.update(client, 'vut', false, 37)).assertTrue();
-      expect(client.text).assertEqual('vut');
+      expect(client.text).assertEqual('');
       expect(await manager.update(client, '', false, 37)).assertTrue();
       expect(client.text).assertEqual('');
-      expect(client.compatibleDeleteCount).assertEqual(1);
+      expect(client.compatibleDeleteCount).assertEqual(0);
       expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
     });
 
@@ -464,9 +521,9 @@ export default function textPreviewManagerTest() {
 
       expect(await manager.update(client, 'n', true, 15)).assertTrue();
       expect(client.previewCount).assertEqual(1);
-      expect(client.insertCount).assertEqual(1);
-      expect(client.text).assertEqual('n');
-      expect(manager.getMode()).assertEqual(CompositionTextMode.COMPATIBLE);
+      expect(client.insertCount).assertEqual(0);
+      expect(client.text).assertEqual('');
+      expect(manager.getMode()).assertEqual(CompositionTextMode.CANDIDATE_BAR);
     });
 
     it('indeterminatePreviewFailureNeverFallsBackToInsert', 0, async () => {
@@ -480,30 +537,31 @@ export default function textPreviewManagerTest() {
       expect(client.text).assertEqual('');
     });
 
-    it('failedCandidateCommitRetainsCompatibleCompositionForRetry', 0, async () => {
+    it('failedCandidateCommitRetainsCandidateBarCompositionForRetry', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
       await manager.update(client, 'nihao', false, 19);
       client.failInsert = true;
 
       expect(await manager.commit(client, '你好', 19)).assertFalse();
-      expect(manager.getMode()).assertEqual(CompositionTextMode.COMPATIBLE);
-      expect(client.text).assertEqual('nihao');
+      expect(manager.getMode()).assertEqual(CompositionTextMode.CANDIDATE_BAR);
+      expect(client.text).assertEqual('');
       expect(await manager.commit(client, '你好', 19)).assertTrue();
       expect(client.text).assertEqual('你好');
     });
 
-    it('movedCursorAndOldGenerationCannotApplyStoredRange', 0, async () => {
+    it('candidateBarUpdatesIgnoreCursorMovementButRejectOldGeneration', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
       await manager.update(client, 'ni', false, 21);
       client.cursor = 0;
 
-      expect(await manager.update(client, 'nih', false, 21)).assertFalse();
-      expect(client.text).assertEqual('ni');
+      expect(await manager.update(client, 'nih', false, 21)).assertTrue();
+      expect(client.text).assertEqual('');
+      expect(manager.getTextLength()).assertEqual(3);
       client.cursor = 2;
       expect(await manager.update(client, 'nih', false, 22)).assertFalse();
-      expect(client.text).assertEqual('ni');
+      expect(client.text).assertEqual('');
     });
 
     it('serializesClearAndNextUpdateWithoutDroppingPreviewOwnership', 0, async () => {
@@ -525,7 +583,7 @@ export default function textPreviewManagerTest() {
       expect(client.text).assertEqual('n');
     });
 
-    it('connectionGuardStopsMultiStepReplacementBeforeInsert', 0, async () => {
+    it('candidateBarUpdateDoesNotPerformMultiStepEditorReplacement', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
       await manager.update(client, 'n', false, 23);
@@ -535,24 +593,26 @@ export default function textPreviewManagerTest() {
         return checks < 3;
       };
 
-      expect(await manager.update(client, 'ni', false, 23, guard)).assertFalse();
-      expect(client.text).assertEqual('n');
-      expect(client.insertCount).assertEqual(1);
+      expect(await manager.update(client, 'ni', false, 23, guard)).assertTrue();
+      expect(checks).assertEqual(1);
+      expect(client.text).assertEqual('');
+      expect(client.insertCount).assertEqual(0);
     });
 
-    it('staleCursorAnchorSelfRepairsBeforeTheNextLetter', 0, async () => {
+    it('candidateBarInputNeverTouchesAStaleCursorAnchor', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new StaleCursorCompositionClient();
       client.text = '你好刚';
       client.cursor = 3;
 
       expect(await manager.update(client, 'b', false, 25)).assertTrue();
-      expect(client.text).assertEqual('你好刚b');
+      expect(client.text).assertEqual('你好刚');
       expect(await manager.update(client, 'be', false, 25)).assertTrue();
-      expect(client.text).assertEqual('你好刚be');
+      expect(client.text).assertEqual('你好刚');
+      expect(manager.getTextLength()).assertEqual(2);
     });
 
-    it('detectsWhenTheHostEditorSilentlyClearsCompatibleText', 0, async () => {
+    it('candidateBarCompositionDoesNotDependOnHostEditorText', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
 
@@ -561,21 +621,21 @@ export default function textPreviewManagerTest() {
       client.text = '';
       client.cursor = 0;
 
-      expect(await manager.isTextAttached(client, 26)).assertFalse();
+      expect(await manager.isTextAttached(client, 26)).assertTrue();
     });
 
-    it('keepsCompatibleOwnershipWhenCursorAdvancesBeforeTextQueriesSettle', 0, async () => {
+    it('keepsCandidateBarOwnershipWithoutCursorQueries', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new LaggingForwardCompositionClient();
 
       expect(await manager.update(client, 's', false, 28)).assertTrue();
       expect(await manager.isTextAttached(client, 28)).assertTrue();
       expect(await manager.update(client, 'so', false, 28)).assertTrue();
-      expect(client.text).assertEqual('so');
+      expect(client.text).assertEqual('');
       expect(manager.getTextLength()).assertEqual(2);
     });
 
-    it('exhaustivelyKeepsCompatibleTextForAppendAndDeleteSequences', 0, async () => {
+    it('exhaustivelyKeepsCandidateBarTextOutOfTheEditor', 0, async () => {
       const actions = ['b', 'e', 'x', 'delete'];
       let passed = true;
       let failedSequence = '';
@@ -597,7 +657,7 @@ export default function textPreviewManagerTest() {
             ? rawInput.slice(0, Math.max(0, rawInput.length - 1))
             : rawInput + action;
           const updated = await manager.update(client, rawInput, false, 27);
-          if (!updated || client.text !== `前缀${rawInput}`) {
+          if (!updated || client.text !== '前缀' || manager.getTextLength() !== rawInput.length) {
             passed = false;
             failedSequence = sequence;
             break;

@@ -10,7 +10,7 @@ use code_table_runtime::{
 };
 use user_lexicon::UserLexiconAction;
 
-const ARCHIVE_SHA256: &str = "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942";
+const ARCHIVE_SHA256: &str = "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7";
 const SNAPSHOT: &str = include_str!("data/xiaohe_yinxing_stage11_6_3.tsv");
 const CATEGORY_PROFILE: [(&str, usize); 12] = [
     ("core", 68_568),
@@ -71,7 +71,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     let path = bundle_path();
     assert_eq!(
         fs::metadata(&path).expect("bundle metadata").len(),
-        56_183_822
+        56_184_164
     );
     let bundle =
         CodeTableBundle::load_frozen_production_file(&path).expect("load frozen production bundle");
@@ -404,16 +404,29 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
         .expect("load frozen production bundle");
     let rules = bundle.user_rules.as_ref().expect("embedded rules");
     let stats = rules.stats();
-    assert_eq!(stats.accepted, 36);
-    assert_eq!(stats.effective, 36);
-    assert_eq!(stats.added, 0);
+    assert_eq!(stats.accepted, 37);
+    assert_eq!(stats.effective, 37);
+    assert_eq!(stats.added, 1);
     assert_eq!(stats.deleted, 0);
     assert_eq!(stats.fixed, 36);
     assert_eq!(stats.positioned, 0);
-    assert!(rules
+    assert_eq!(
+        rules
+            .entries()
+            .iter()
+            .filter(|entry| matches!(entry.action, UserLexiconAction::Fixed))
+            .count(),
+        36
+    );
+    let direct = rules
         .entries()
         .iter()
-        .all(|entry| matches!(entry.action, UserLexiconAction::Fixed)));
+        .find(|entry| matches!(entry.action, UserLexiconAction::Add))
+        .expect("one embedded direct entry");
+    assert_eq!(direct.text, "给予");
+    assert_eq!(direct.code, "gwyu");
+    assert_eq!(direct.display_text.as_deref(), Some("给ʲⁱ̌予"));
+    assert_eq!(direct.category_id.as_deref(), Some("core"));
     assert!(rules
         .entries()
         .iter()
@@ -426,7 +439,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
             .map(|entry| (entry.code.as_str(), entry.text.as_str()))
             .collect::<BTreeSet<_>>()
             .len(),
-        36
+        37
     );
     let groups =
         rules
@@ -436,7 +449,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
                 *groups.entry(entry.code.as_str()).or_default() += 1;
                 groups
             });
-    assert_eq!(groups.len(), 36);
+    assert_eq!(groups.len(), 37);
     assert_eq!(groups.values().copied().max(), Some(1));
     assert_eq!(
         bundle
@@ -464,7 +477,11 @@ fn every_embedded_fixed_rule_applies_before_paging_without_mutating_system_queri
     )
     .expect("formal state with embedded rules");
 
-    for rule in rules.entries() {
+    for rule in rules
+        .entries()
+        .iter()
+        .filter(|entry| matches!(entry.action, UserLexiconAction::Fixed))
+    {
         let pure_before = query_exact_or_prefix(&bundle, &enabled, &rule.code, usize::MAX);
         state.reset();
         for key in rule.code.chars() {

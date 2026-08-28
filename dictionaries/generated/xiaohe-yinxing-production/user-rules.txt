@@ -1,36 +1,37 @@
-修正	xqvg#固
-即可	jike#固
-知道	vidc#固
-只能	ving#固
-简单	jmdj#固
-计算	jisr#固
-一下	yixx#固
-一直	yivi#固
-只是	viui#固
-按时	anui#固
-而是	erui#固
-成为	igww#固
-小时	xnui#固
-简直	jmvi#固
-任务	rfwu#固
-时间	uijm#固
-水平	uvpk#固
-试试	uiui#固
-神似	ufsi#固
-传统	irts#固
-台湾	tdwj#固
-反应	fjyk#固
-每周	mwvz#固
-联系	lmxi#固
-现金	xmjb#固
-期间	qijm#固
-极其	jiqi#固
-在线	zdxm#固
-只会	vihv#固
-一片	yipm#固
-美丽	mwli#固
-想想	xlxl#固
-按到	andc#固
-微软	wwrr#固
-位置	wwvi#固
-事半功倍	ubgb#固
+给予	gwyu	给ʲⁱ̌予	core
+修正	xqvg#固		full-code-word
+即可	jike#固		full-code-word
+知道	vidc#固		full-code-word
+只能	ving#固		full-code-word
+简单	jmdj#固		full-code-word
+计算	jisr#固		full-code-word
+一下	yixx#固		full-code-word
+一直	yivi#固		full-code-word
+只是	viui#固		full-code-word
+按时	anui#固		full-code-word
+而是	erui#固		full-code-word
+成为	igww#固		full-code-word
+小时	xnui#固		full-code-word
+简直	jmvi#固		full-code-word
+任务	rfwu#固		full-code-word
+时间	uijm#固		full-code-word
+水平	uvpk#固		full-code-word
+试试	uiui#固		full-code-word
+神似	ufsi#固		full-code-word
+传统	irts#固		full-code-word
+台湾	tdwj#固		full-code-word
+反应	fjyk#固		full-code-word
+每周	mwvz#固		full-code-word
+联系	lmxi#固		full-code-word
+现金	xmjb#固		full-code-word
+期间	qijm#固		full-code-word
+极其	jiqi#固		full-code-word
+在线	zdxm#固		full-code-word
+只会	vihv#固		full-code-word
+一片	yipm#固		full-code-word
+美丽	mwli#固		full-code-word
+想想	xlxl#固		full-code-word
+按到	andc#固		full-code-word
+微软	wwrr#固		full-code-word
+位置	wwvi#固		full-code-word
+事半功倍	ubgb#固		full-code-word

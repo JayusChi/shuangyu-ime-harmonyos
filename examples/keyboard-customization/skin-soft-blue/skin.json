@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "sample.soft-blue",
+  "name": "柔和蓝示例",
+  "colors": {
+    "panelBackground": "#D8E4F4",
+    "candidateBackground": "#EDF4FC",
+    "letterKeyBackground": "#F8FBFF",
+    "functionKeyBackground": "#C7D8EE",
+    "spaceKeyBackground": "#F8FBFF",
+    "primaryFunctionBackground": "#6F9FD8",
+    "letterKeyPressedBackground": "#B7CDE8",
+    "functionKeyPressedBackground": "#AFC7E4",
+    "primaryFunctionPressedBackground": "#507FB8",
+    "letterKeyText": "#18324F",
+    "functionKeyText": "#18324F",
+    "primaryFunctionText": "#FFFFFF",
+    "candidateText": "#18324F",
+    "candidateReading": "#607D9E",
+    "candidateDivider": "#B7CAE0",
+    "keyBorder": "#B7CAE0"
+  },
+  "images": {
+    "letterKey": "assets/letter-key.png",
+    "functionKey": "assets/function-key.png"
+  }
+}

@@ -64,7 +64,7 @@
         "has_next_page": false,
         "commit_text": "",
         "composition_finished": false,
-        "json_utf8_bytes": 1232
+        "json_utf8_bytes": 1351
       }
     },
     {
@@ -143,7 +143,7 @@
         "has_next_page": true,
         "commit_text": "",
         "composition_finished": false,
-        "json_utf8_bytes": 1553
+        "json_utf8_bytes": 1706
       }
     }
   ],
@@ -224,7 +224,7 @@
       "has_next_page": true,
       "commit_text": "",
       "composition_finished": false,
-      "json_utf8_bytes": 1553
+      "json_utf8_bytes": 1706
     },
     "after": {
       "success": true,
@@ -297,7 +297,7 @@
       "has_next_page": true,
       "commit_text": "输入",
       "composition_finished": false,
-      "json_utf8_bytes": 1304
+      "json_utf8_bytes": 1457
     }
   }
 }

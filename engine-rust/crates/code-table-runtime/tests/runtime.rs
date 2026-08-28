@@ -202,11 +202,26 @@ fn universal_key_queries_unknown_shape_and_sound_positions() {
 
 #[test]
 fn direct_user_layer_is_exactly_queryable_but_hidden_from_universal_key() {
-    let mut exact = state_with_rules(8, 64, "直通词\tunan\n");
+    let rules = "直通词,候选提示\tunan#直\n";
+    let mut exact = state_with_rules(8, 64, rules);
     input(&mut exact, "unan");
-    assert!(candidate_texts(&exact).contains(&"直通词"));
+    let direct_index = exact
+        .current_candidates()
+        .iter()
+        .position(|candidate| candidate.text == "直通词")
+        .expect("user-managed direct entry");
+    assert_eq!(
+        exact.current_candidates()[direct_index]
+            .display_text
+            .as_deref(),
+        Some("候选提示")
+    );
+    assert_eq!(
+        exact.select_current_page(direct_index).unwrap(),
+        CodeTableSelection::CommitText("直通词".to_owned())
+    );
 
-    let mut wildcard = state_with_rules(8, 64, "直通词\tunan\n");
+    let mut wildcard = state_with_rules(8, 64, rules);
     input(&mut wildcard, "un");
     wildcard.process_key('`').unwrap();
     assert!(!candidate_texts(&wildcard).contains(&"直通词"));

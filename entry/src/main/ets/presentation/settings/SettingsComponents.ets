@@ -63,6 +63,72 @@ export struct ChoiceSettingRow {
 }
 
 @Component
+export struct MultiChoiceSettingRow {
+  @Prop title: ResourceStr = '';
+  @Prop description: ResourceStr = '';
+  @Prop values: string[] = [];
+  @Prop labels: string[] = [];
+  @Prop selectedValues: string = '';
+  @Prop primaryTextColor: string = '#18212F';
+  @Prop secondaryTextColor: string = '#657080';
+  @Prop chipBackground: string = '#EEF1F5';
+  @Prop selectedChipBackground: string = '#DCEBFF';
+  @Prop accentColor: string = '#0A59F7';
+  onSelectionChange?: (values: string) => void;
+
+  private isSelected(value: string): boolean {
+    return this.selectedValues.indexOf(value) >= 0;
+  }
+
+  private toggle(value: string): void {
+    if (!this.onSelectionChange) {
+      return;
+    }
+    const selected = this.isSelected(value);
+    const next = this.values
+      .filter((item: string): boolean => item !== value ? this.isSelected(item) : !selected)
+      .join('');
+    this.onSelectionChange(next);
+  }
+
+  build() {
+    Column({ space: 9 }) {
+      Text(this.title)
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(this.primaryTextColor)
+        .width('100%')
+      if (this.description) {
+        Text(this.description)
+          .fontSize(12)
+          .fontColor(this.secondaryTextColor)
+          .width('100%')
+      }
+      Flex({ direction: FlexDirection.Row, wrap: FlexWrap.Wrap }) {
+        ForEach(this.values, (value: string, index: number) => {
+          Text(this.labels[index])
+            .fontSize(15)
+            .fontColor(this.isSelected(value) ? this.accentColor : this.primaryTextColor)
+            .fontWeight(this.isSelected(value) ? FontWeight.Medium : FontWeight.Regular)
+            .textAlign(TextAlign.Center)
+            .width(42)
+            .height(36)
+            .borderRadius(9)
+            .margin({ right: 7, bottom: 7 })
+            .backgroundColor(this.isSelected(value)
+              ? this.selectedChipBackground
+              : this.chipBackground)
+            .onClick(() => this.toggle(value))
+        }, (value: string) => value)
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+  }
+}
+
+@Component
 export struct SwitchSettingRow {
   @Prop title: ResourceStr = '';
   @Prop description: ResourceStr = '';

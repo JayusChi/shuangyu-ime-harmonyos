@@ -3,13 +3,19 @@ import { EditorContext } from '../../../domain/editor/EditorContext';
 import {
   createT9PinyinDigitAction,
   DELETE_ACTION,
+  DELETE_CURRENT_LINE_ACTION,
   ENTER_ACTION,
   INSERT_SEGMENT_BOUNDARY_ACTION,
   KeyboardAction,
   SPACE_ACTION,
   TOGGLE_LANGUAGE_ACTION,
   TOGGLE_NUMBER_ACTION,
-  TOGGLE_SYMBOL_ACTION
+  TOGGLE_SYMBOL_ACTION,
+  REPEAT_LAST_COMMIT_ACTION,
+  RESTORE_LAST_DELETION_ACTION,
+  UNDO_LAST_COMMIT_ACTION,
+  SECOND_CANDIDATE_OR_PERIOD_ACTION,
+  THIRD_CANDIDATE_OR_COMMA_ACTION
 } from '../../../domain/keyboard/KeyboardAction';
 import {
   KeyboardKeyKind,
@@ -56,7 +62,7 @@ function t9DigitKey(digit: string, letters: string, chineseNumber: string): Keyb
 }
 
 function enterKey(context: EditorContext): KeyboardKeySpec {
-  return key(
+  const spec = key(
     'enter',
     enterActionLabel(context.enterAction),
     KeyboardKeyKind.ENTER,
@@ -64,6 +70,10 @@ function enterKey(context: EditorContext): KeyboardKeySpec {
     ENTER_ACTION,
     enterActionAccessibilityText(context.enterAction)
   );
+  spec.swipeUpAction = REPEAT_LAST_COMMIT_ACTION;
+  spec.swipeDownAction = RESTORE_LAST_DELETION_ACTION;
+  spec.accessibilityLabel = `${spec.accessibilityLabel}，上滑重复上屏，下滑恢复最近删除`;
+  return spec;
 }
 
 /**
@@ -75,12 +85,15 @@ export function createPinyin9KeyboardLayout(context: EditorContext): KeyboardLay
     '空格，上滑或长按切换中英文', '中/英');
   space.longPressAction = TOGGLE_LANGUAGE_ACTION;
   space.swipeUpAction = TOGGLE_LANGUAGE_ACTION;
+  const numberKey = key('t9-number', 'ϟ12', KeyboardKeyKind.MODE_SWITCH, 1, TOGGLE_NUMBER_ACTION,
+    '点击进入数字键盘，长按进入符号键盘');
+  numberKey.longPressAction = TOGGLE_SYMBOL_ACTION;
   return {
     rows: [
       {
         keys: [
-          key('t9-punctuation', '1', KeyboardKeyKind.FUNCTION, 1, TOGGLE_SYMBOL_ACTION,
-            '数字一，常用标点', '标点'),
+          key('t9-punctuation', '1', KeyboardKeyKind.FUNCTION, 1, THIRD_CANDIDATE_OR_COMMA_ACTION,
+            '常用标点或第三候选', '标点'),
           t9DigitKey('2', 'ABC', '二'),
           t9DigitKey('3', 'DEF', '三')
         ]
@@ -101,20 +114,31 @@ export function createPinyin9KeyboardLayout(context: EditorContext): KeyboardLay
       },
       {
         keys: [
-          key('t9-number', '符/123', KeyboardKeyKind.MODE_SWITCH, 1, TOGGLE_NUMBER_ACTION,
-            '符号和数字'),
+          numberKey,
           key('t9-boundary', '0', KeyboardKeyKind.FUNCTION, 1, INSERT_SEGMENT_BOUNDARY_ACTION,
             '分词', '分词'),
-          key('delete', '删除', KeyboardKeyKind.DELETE, 1, DELETE_ACTION, '删除')
+          deleteKey()
         ]
       },
       {
         keys: [
+          key('punctuation-comma', '，', KeyboardKeyKind.FUNCTION, 0.9,
+            THIRD_CANDIDATE_OR_COMMA_ACTION, '有第三候选时选择第三候选，否则输入逗号'),
           space,
+          key('punctuation-period', '。', KeyboardKeyKind.FUNCTION, 0.9,
+            SECOND_CANDIDATE_OR_PERIOD_ACTION, '有第二候选时选择第二候选，否则输入句号'),
           enterKey(context)
         ],
         kind: KeyboardRowKind.BOTTOM_ACTIONS
       }
     ]
   };
+}
+
+function deleteKey(): KeyboardKeySpec {
+  const spec = key('delete', '删除', KeyboardKeyKind.DELETE, 1, DELETE_ACTION,
+    '删除前一个字符，上滑撤销上屏，下滑删除当前行');
+  spec.swipeUpAction = UNDO_LAST_COMMIT_ACTION;
+  spec.swipeDownAction = DELETE_CURRENT_LINE_ACTION;
+  return spec;
 }

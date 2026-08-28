@@ -685,7 +685,9 @@ fn contract_json(
                 ("ordinary", Json::string("transform")),
                 (
                     "direct_add",
-                    Json::string("transform only in full-code-word; hide from wildcard lookup"),
+                    Json::string(
+                        "transform in owning category; optional commit/display split; hide from wildcard lookup",
+                    ),
                 ),
                 ("delete", Json::string("transform exact text+code")),
                 ("pin", Json::string("transform stable fixed prefix")),

@@ -1,4 +1,3 @@
-import { promptAction, router } from '@kit.ArkUI';
 import { getSharedSettingsController, SettingsController, SettingsOperationResult } from '../../application/SettingsController';
 import {
   CandidateFontSizeMode,
@@ -15,8 +14,17 @@ import {
   XIAOHE_YINXING_SCHEME_ID
 } from '../../domain/settings/ImeSettings';
 import { enabledKeyboardProfiles, KeyboardProfile } from '../../domain/keyboard/KeyboardProfile';
+import {
+  SMART_PUNCTUATION_OPTIONS,
+  SmartPunctuationOption
+} from '../../domain/keyboard/SmartPunctuation';
 import { SettingsStateListener } from '../../state/SettingsStore';
-import { ActionSettingRow, ChoiceSettingRow, SwitchSettingRow } from './SettingsComponents';
+import {
+  ActionSettingRow,
+  ChoiceSettingRow,
+  MultiChoiceSettingRow,
+  SwitchSettingRow
+} from './SettingsComponents';
 import { resolveSettingsTheme, SettingsThemeTokens } from './SettingsTheme';
 import {
   EMPTY_SETTINGS_SAFE_AREA,
@@ -101,7 +109,23 @@ export struct SettingsPage {
   private finish(result: SettingsOperationResult): void {
     this.busy = false;
     this.refresh();
-    promptAction.showToast({ message: result.success ? $r('app.string.settings_saved') : result.message });
+    this.showToast(result.success ? $r('app.string.settings_saved') : result.message);
+  }
+
+  private openPage(url: string): void {
+    try {
+      this.getUIContext().getRouter().pushUrl({ url }).catch((err: Object): void => {
+        this.showToast(`页面打开失败：${JSON.stringify(err)}`);
+      });
+    } catch (err) {
+      this.showToast(`页面打开失败：${JSON.stringify(err)}`);
+    }
+  }
+
+  private showToast(message: ResourceStr): void {
+    try {
+      this.getUIContext().getPromptAction().showToast({ message });
+    } catch (_) {}
   }
 
   private setCategory(categoryId: string, enabled: boolean): void {
@@ -128,20 +152,24 @@ export struct SettingsPage {
   }
 
   private confirmClearUserModel(): void {
-    AlertDialog.show({
-      title: $r('app.string.clear_user_model'),
-      message: $r('app.string.clear_user_model_confirm'),
-      primaryButton: { value: $r('app.string.cancel'), action: () => {} },
-      secondaryButton: {
-        value: $r('app.string.clear'),
-        fontColor: this.theme.danger,
-        action: () => {
-          if (this.busy) return;
-          this.busy = true;
-          this.controller.clearUserModel().then((result: SettingsOperationResult) => this.finish(result));
+    try {
+      this.getUIContext().showAlertDialog({
+        title: $r('app.string.clear_user_model'),
+        message: $r('app.string.clear_user_model_confirm'),
+        primaryButton: { value: $r('app.string.cancel'), action: () => {} },
+        secondaryButton: {
+          value: $r('app.string.clear'),
+          fontColor: this.theme.danger,
+          action: () => {
+            if (this.busy) return;
+            this.busy = true;
+            this.controller.clearUserModel().then((result: SettingsOperationResult) => this.finish(result));
+          }
         }
-      }
-    });
+      });
+    } catch (err) {
+      this.showToast(`确认框打开失败：${JSON.stringify(err)}`);
+    }
   }
 
   build() {
@@ -202,8 +230,8 @@ export struct SettingsPage {
           })
           Divider().color(this.theme.divider)
           ChoiceSettingRow({
-            title: '智能句号',
-            description: '时间窗内连续输入两个中文句号，替换为单个英文句点；虚拟和实体键盘均生效',
+            title: '智能标点',
+            description: '时间窗内双击已选中的中文标点，替换为单个英文标点；虚拟和实体键盘均生效',
             values: SMART_PERIOD_TIMEOUT_OPTIONS_MS.map((value: number): string => `${value}`),
             labels: ['关闭', '300 毫秒', '500 毫秒', '800 毫秒', '1 秒'],
             currentValue: `${this.settings.smartPeriodTimeoutMs}`,
@@ -215,6 +243,21 @@ export struct SettingsPage {
             onValueChange: (value: string) => this.controller.setSmartPeriodTimeoutMs(
               Number.parseInt(value)
             ).then((r) => this.finish(r))
+          })
+          Divider().color(this.theme.divider)
+          MultiChoiceSettingRow({
+            title: '智能标点范围',
+            description: '可按需选择，对应配置项 intelligsymbol',
+            values: SMART_PUNCTUATION_OPTIONS.map((item: SmartPunctuationOption): string => item.symbol),
+            labels: SMART_PUNCTUATION_OPTIONS.map((item: SmartPunctuationOption): string => item.label),
+            selectedValues: this.settings.smartPunctuationSymbols,
+            primaryTextColor: this.theme.primaryText,
+            secondaryTextColor: this.theme.secondaryText,
+            chipBackground: this.theme.chipBackground,
+            selectedChipBackground: this.theme.selectedChipBackground,
+            accentColor: this.theme.accent,
+            onSelectionChange: (symbols: string) => this.controller.setSmartPunctuationSymbols(symbols)
+              .then((r) => this.finish(r))
           })
         }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground)
 
@@ -327,6 +370,19 @@ export struct SettingsPage {
             onValueChange: (value: string) => this.controller.setKeyboardHeightMode(value as KeyboardHeightMode).then((r) => this.finish(r))
           })
           Divider().color(this.theme.divider)
+          SwitchSettingRow({
+            title: '键盘架高层',
+            description: '底部显示输入法切换、键盘菜单和收起键；设备已有系统底栏时可关闭',
+            checked: this.settings.keyboardLiftLayerEnabled,
+            disabled: this.busy,
+            primaryTextColor: this.theme.primaryText,
+            secondaryTextColor: this.theme.secondaryText,
+            onCheckedChange: (value: boolean) => {
+              this.busy = true;
+              this.controller.setKeyboardLiftLayerEnabled(value).then((r) => this.finish(r));
+            }
+          })
+          Divider().color(this.theme.divider)
           ChoiceSettingRow({
             title: $r('app.string.candidate_font'), description: '',
             values: [CandidateFontSizeMode.SMALL, CandidateFontSizeMode.STANDARD, CandidateFontSizeMode.LARGE],
@@ -381,10 +437,17 @@ export struct SettingsPage {
         this.SectionHeader($r('app.string.data_management'))
         Column({ space: 18 }) {
           ActionSettingRow({
+            title: '键盘结构与皮肤', description: '导入并自由组合自定义键盘结构、颜色和皮肤图片',
+            primaryTextColor: this.theme.primaryText, secondaryTextColor: this.theme.secondaryText,
+            actionColor: this.theme.accent, disabled: this.busy,
+            onAction: () => this.openPage('pages/KeyboardCustomization')
+          })
+          Divider().color(this.theme.divider)
+          ActionSettingRow({
             title: '用户词库', description: '添加常用词、隐藏系统词，并设置固顶或指定第 N 位；支持批量操作',
             primaryTextColor: this.theme.primaryText, secondaryTextColor: this.theme.secondaryText,
             actionColor: this.theme.accent, disabled: this.busy,
-            onAction: () => router.pushUrl({ url: 'pages/UserLexicon' })
+            onAction: () => this.openPage('pages/UserLexicon')
           })
           if (this.settings.schemeId === XIAOHE_YINXING_SCHEME_ID) {
             Divider().color(this.theme.divider)
@@ -392,7 +455,7 @@ export struct SettingsPage {
               title: '码表分类管理', description: '管理小鹤音形码表分类的启用状态',
               primaryTextColor: this.theme.primaryText, secondaryTextColor: this.theme.secondaryText,
               actionColor: this.theme.accent, disabled: this.busy,
-              onAction: () => router.pushUrl({ url: 'pages/XiaoheYinxingCategoryManagerPage' })
+              onAction: () => this.openPage('pages/XiaoheYinxingCategoryManagerPage')
             })
           }
           Divider().color(this.theme.divider)

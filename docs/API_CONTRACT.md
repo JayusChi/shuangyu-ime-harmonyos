@@ -17,9 +17,9 @@ fuzzyOptions?: FuzzyOptionId[]      // 缺省 []，最多 8 项
 错误配置版本或超过 8 项均拒绝创建。纠错后的拼音不进入跨层结果，`rawInput` 始终保留
 用户原始按键，纠错/模糊候选的 `consumedRawLen` 覆盖原始输入长度。
 
-设置 schema version 为 `8`。迁移缺省关闭全拼纠错/模糊音，智能句号窗口缺省为 500 毫秒；设置变更通过创建并恢复完整运行时
+设置 schema version 为 `12`。迁移缺省关闭全拼纠错/模糊音，智能标点窗口缺省为 500 毫秒；设置变更通过创建并恢复完整运行时
 状态的新 Rust handle 事务式应用，成功后才替换旧 handle 和持久化快照。创建或持久化失败
-时恢复最后有效配置。输入法进程冷启动从共享的同一 schema 8 快照恢复；非 `quanpin`
+时恢复最后有效配置。输入法进程冷启动从共享的同一 schema 12 快照恢复；非 `quanpin`
 profile 不执行扩展，切回 `quanpin` 时继续使用已保存的全拼设置。
 
 ## 26 键全拼和 9 键计划阶段 4：九键 UI 动作合同
@@ -99,7 +99,7 @@ loadUserLexicon(path: string): UserLexiconDocument
 saveUserLexicon(path: string, expectedRevision: string, content: string): UserLexiconDocument
 ```
 
-对应 C ABI 为 `ime_engine_reload_user_lexicon`、`ime_user_lexicon_load`、`ime_user_lexicon_save`。管理文档包含 `success/errorCode/errorLine/errorField/message/warningCode/revision/entries/stats`。保存中的格式错误和 revision 冲突作为结构化文档返回；无效指针、UTF-8 或句柄仍使用 C ABI 错误码。
+对应 C ABI 为 `ime_engine_reload_user_lexicon`、`ime_user_lexicon_load`、`ime_user_lexicon_save`。管理文档包含 `success/errorCode/errorLine/errorField/message/warningCode/revision/entries/stats`。每个词条记录包含 `id/text/displayText/code/action/position/sourceOrder`；`action` 为 `ADD | DIRECT | DELETE | FIXED | POSITION`，其中 `DIRECT` 的 `text` 是上屏内容，`displayText` 是可为空的候选提示。保存中的格式错误和 revision 冲突作为结构化文档返回；无效指针、UTF-8 或句柄仍使用 C ABI 错误码。
 
 `saveUserLexicon` 必须先完整解析内容，再比较磁盘当前 revision，匹配后才执行原子保存。`reloadUserLexicon` 只在完整加载成功时替换引擎不可变快照；运行时恢复为空或失败时保留最后有效快照。
 
@@ -159,14 +159,18 @@ Pad/Phone 输入法切换完全位于 ArkTS `InputMethodSwitcher` 适配器与 I
 
 ## ArkTS 设置契约
 
-`SettingsController` 是设置页面唯一写入口。Preferences 写入成功后才发布新的 `SettingsStore` 快照；写入失败时内存状态不前移。配置 schemaVersion 当前为 `8`，`keyboardProfileId` 是方案与布局的唯一真实来源；`schemeId` 只作为派生兼容字段持久化。未知或尚未启用的档案安全回退到 `xiaohe-26`。正式码表分类先在 native 原子替换，成功后再保存；保存失败恢复旧分类和旧组合。
+`SettingsController` 是设置页面唯一写入口。Preferences 写入成功后才发布新的 `SettingsStore` 快照；写入失败时内存状态不前移。配置 schemaVersion 当前为 `14`，`keyboardProfileId` 是方案与布局的唯一真实来源；`schemeId` 只作为派生兼容字段持久化。未知或尚未启用的档案安全回退到 `xiaohe-26`。正式码表分类先在 native 原子替换，成功后再保存；保存失败恢复旧分类和旧组合。
 
-主 Ability 的 Preferences 是 canonical 设置存储；成功写入后把同一规范化 schema 8 快照发布到
+主 Ability 的 Preferences 是 canonical 设置存储；成功写入后把同一规范化 schema 14 快照发布到
 本包 `SHARED_CONFIG` DataProxy，供 `:inputMethod` 进程冷启动读取。输入法进程不写 canonical
 Preferences。Preferences 或共享快照任一步保存失败时必须恢复上一个持久化快照；不能发布一个
 Native 未生效或只在单进程可见的方案状态。完整决策见 ADR 0019。
 
-`smartPeriodTimeoutMs` 取值为 `0..2000` 的整数，`0` 表示关闭，默认为 `500`。中文句号的两次按键到达间隔不大于该值、且两次之间没有其他输入动作时，输入法才核对并尝试将光标前的 `。` 替换为单个 `.`；核对失败或超时时仅插入新的 `。`。
+`smartPeriodTimeoutMs` 作为兼容字段继续表示智能标点时间窗，取值为 `0..2000` 的整数，`0` 表示关闭，默认为 `500`。`smartPunctuationSymbols` 保存可选的 ASCII 标点集合，默认对应 `intelligsymbol=,./;\\!:?"$()[]^_<>`。同一个已启用的中文标点的两次按键到达间隔不大于时间窗、且两次之间没有其他输入动作时，输入法才核对并尝试将光标前的中文标点替换为对应的单个英文标点；核对失败、标点未选中或超时时保留原输入。
+
+`chineseLetterSwipeSymbols` 与 `englishLetterSwipeSymbols` 分别保存 26 键中文、英文键盘的字母下滑映射。两者都是按 `qwertyuiopasdfghjklzxcvbnm` 顺序排列的 26 项 JSON 字符串数组；空项禁用对应字母的下滑动作，单项最多 8 个 UTF-16 单元且不能包含回车、换行或制表符。映射只产生原样字符上屏动作，不改变键帽文字。
+
+`keyboardLiftLayerEnabled` 控制皮肤键盘底部 46vp 架高层。开启时面板高度同步增加，底层固定提供系统输入法切换、键盘菜单与隐藏键盘入口，候选栏不再重复显示这些入口；关闭时恢复原候选栏入口和旧面板高度。
 
 用户学习的有效会话值为：
 
@@ -230,7 +234,7 @@ export interface EngineConfig {
 
 `codeTableBundlePath` 是码表 bundle 的沙箱绝对路径：`schemeId='code-table-fixture'` 使用通用测试包，`schemeId='xiaohe-yinxing'` 使用严格冻结的正式包。两者只用于测试或 Debug-only 验收；Release 产品配置不提供这些方案或资源。
 
-`userLexiconPath` 是沙箱内可选用户文本词库路径。未传、空字符串或文件不存在表示空覆盖层；空文件同样有效。Rust 必须先完整解析并生成不可变快照才参与候选合并。损坏用户词库不得导致系统 `production.lex` 加载或引擎创建失败。格式与恢复合同见 `USER_LEXICON_FORMAT.md`。
+`userLexiconPath` 是沙箱内可选用户文本词库路径。未传、空字符串或文件不存在表示空覆盖层；空文件同样有效。Rust 必须先完整解析并生成不可变快照才参与候选合并。外部文件接受 `上屏内容,候选提示<TAB>完整编码#直`，加载后保留 `DIRECT` 动作，管理接口可与普通词条一样新增、改动和删除。损坏用户词库不得导致系统 `production.lex` 加载或引擎创建失败。格式与恢复合同见 `USER_LEXICON_FORMAT.md`。
 
 ```typescript
 export type ParserState =
@@ -276,6 +280,11 @@ export interface CompositionResult {
 ArkTS 只使用 `'` 连接非空段；字段缺失或非法时安全回退显示未修改的 `rawInput`，
 不得在 UI 重新解析音节。显示分隔符不进入 `rawInput`、`preeditText`、查询键、
 用户模型或 `commitText`。
+
+输入码展示位置必须互斥且由输入法控制：中文组合期间连接层固定使用 `CANDIDATE_BAR` 模式，
+不得把原始编码写入编辑器或交给宿主 `TextPreview` 绘制；固定候选栏、展开候选区或浮动候选窗中
+只能有一个当前可见表面绘制该编码，并统一使用实线下划线表达未上屏状态。候选确认后仅提交候选文字，
+退格、清空及部分候选剩余码只更新自绘候选区域，不得把原始编码冻结成普通编辑器文本。
 
 `currentPinyin` 是解析器当前首选的规范化拼音路径；`pinyinCombinations` 是需要用户消歧时的
 有界备选路径。普通双拼没有多选时必须返回空数组。阶段 2 已启用全拼解析器；9 键解析器仍未启用。
@@ -372,7 +381,7 @@ candidatePageSize?: number
 ```
 
 - `code-table-fixture` 仅供 Rust/FFI 测试与 Debug-only 设备验收，创建时必须提供有效的 `codeTableBundlePath`；缺失或损坏返回明确的创建错误。
-- `xiaohe-yinxing` 只接受冻结生产身份、版本、归档拓扑、11 类画像、规则画像和哈希完全一致的 `HSPYXP01`。包内 `#固/#直` 规则归属 `full-code-word`，只在该分类启用时组成内置基础层；可选 `userLexiconPath` 为不受系统分类开关影响的外部覆盖层。同完整编码＋词条由外部规则覆盖，两层合并后再由既有候选算法统一执行。
+- `xiaohe-yinxing` 只接受冻结生产身份、版本、归档拓扑、11 类画像、规则画像和哈希完全一致的 `HSPYXP01`。包内 `#固/#直` 规则保留各自来源分类，只在所属分类启用时组成内置基础层；`#直` 可分别携带实际上屏文本与候选展示文本。可选 `userLexiconPath` 为不受系统分类开关影响的外部覆盖层。同完整编码＋词条由外部规则覆盖，两层合并后再由既有候选算法统一执行。
 - `xiaohe` 继续只使用 `lexiconPath`，忽略无关的 `codeTableBundlePath`；同时提供两种资源不会混合两种候选语义。
 - Node-API 的可选配置属性兼容缺失、`undefined` 和 `null`；其他类型仍返回 `INVALID_ARGUMENT`。
 - 候选 ID 使用确定的 `ct:{bundleId}:{categoryId}:{source_order}` 命名空间；`reading` 为原始码，`source` 为分类 ID。

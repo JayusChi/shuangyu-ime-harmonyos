@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@ohos/hypium';
 import {
   AlternateKeyGestureController,
+  KEY_SWIPE_DOWN_THRESHOLD_VP,
   KEY_SWIPE_UP_THRESHOLD_VP
 } from '../main/ets/application/AlternateKeyGestureController';
 
@@ -54,6 +55,23 @@ export default function keyboardAlternateGestureTest() {
       controller.release();
       controller.click();
       expect(events.join(',')).assertEqual('long');
+      controller.destroy();
+    });
+
+    it('turns a vertical downward move into one alternate action', 0, () => {
+      const events: string[] = [];
+      const controller = new AlternateKeyGestureController(
+        (): void => { events.push('tap'); },
+        (): void => { events.push('long'); },
+        (): void => { events.push('up'); },
+        undefined,
+        (): void => { events.push('down'); }
+      );
+      controller.start(20, 100);
+      expect(controller.move(18, 100 + KEY_SWIPE_DOWN_THRESHOLD_VP + 2)).assertTrue();
+      controller.release();
+      controller.click();
+      expect(events.join(',')).assertEqual('down');
       controller.destroy();
     });
   });

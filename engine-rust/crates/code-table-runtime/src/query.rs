@@ -36,6 +36,7 @@ pub enum CodeTableQueryStrategy {
 pub struct CodeTableCandidate {
     pub id: String,
     pub text: String,
+    pub display_text: Option<String>,
     pub code: String,
     pub category_id: String,
     pub source_order: u32,
@@ -176,6 +177,7 @@ pub fn query_with_strategy_and_snapshot(
                         bundle.bundle_id, category.id, entry.source_order
                     ),
                     text: entry.word.clone(),
+                    display_text: None,
                     code: entry.pinyin_key.clone(),
                     category_id: category.id.clone(),
                     source_order: entry.source_order,
@@ -279,6 +281,7 @@ pub(crate) fn longer_system_candidates(
                     bundle.bundle_id, category.id, entry.source_order
                 ),
                 text: entry.word.clone(),
+                display_text: None,
                 code: entry.pinyin_key.clone(),
                 category_id: category.id.clone(),
                 source_order: entry.source_order,
@@ -327,6 +330,7 @@ pub(crate) fn wildcard_system_candidates(
                     bundle.bundle_id, category.id, entry.source_order
                 ),
                 text: entry.word.clone(),
+                display_text: None,
                 code: entry.pinyin_key.clone(),
                 category_id: category.id.clone(),
                 source_order: entry.source_order,
@@ -387,6 +391,7 @@ pub(crate) fn query_isolated_table(
         .map(|entry| CodeTableCandidate {
             id: format!("ct:{bundle_id}:guide:{}", entry.source_order),
             text: entry.word.clone(),
+            display_text: None,
             code: entry.pinyin_key.clone(),
             category_id: "guide".to_owned(),
             source_order: entry.source_order,
@@ -424,6 +429,7 @@ fn collect_candidates(
                         bundle.bundle_id, category.id, entry.source_order
                     ),
                     text: entry.word.clone(),
+                    display_text: None,
                     code: entry.pinyin_key.clone(),
                     category_id: category.id.clone(),
                     source_order: entry.source_order,

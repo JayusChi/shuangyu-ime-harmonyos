@@ -799,6 +799,7 @@ impl CodeTableStateMachine {
         let make_user_candidate = |entry: &UserLexiconEntry| CodeTableCandidate {
             id: entry.stable_id(),
             text: entry.text.clone(),
+            display_text: entry.display_text.clone(),
             code: entry.code.clone(),
             category_id: "user-lexicon".to_owned(),
             source_order: entry.source_order,
@@ -872,6 +873,7 @@ impl CodeTableStateMachine {
         let make_user_candidate = |entry: &UserLexiconEntry| CodeTableCandidate {
             id: entry.stable_id(),
             text: entry.text.clone(),
+            display_text: entry.display_text.clone(),
             code: entry.code.clone(),
             category_id: "user-lexicon".to_owned(),
             source_order: entry.source_order,
@@ -908,6 +910,7 @@ impl CodeTableStateMachine {
             |entry: &UserLexiconEntry| CodeTableCandidate {
                 id: entry.stable_id(),
                 text: entry.text.clone(),
+                display_text: entry.display_text.clone(),
                 code: entry.code.clone(),
                 category_id: "user-lexicon".to_owned(),
                 source_order: entry.source_order,
@@ -992,6 +995,7 @@ impl CodeTableStateMachine {
                         Some(CodeTableCandidate {
                             id: format!("action:{}", record.id),
                             text: record.label.clone(),
+                            display_text: None,
                             code: record.code.clone(),
                             category_id: "functional".to_owned(),
                             source_order: record.source_order,
@@ -1024,6 +1028,7 @@ impl CodeTableStateMachine {
         let candidates = functional.into_iter().map(|record| CodeTableCandidate {
             id: format!("action:{}", record.id),
             text: record.label.clone(),
+            display_text: None,
             code: record.code.clone(),
             category_id: "functional".to_owned(),
             source_order: record.source_order,
@@ -1074,6 +1079,7 @@ impl CodeTableStateMachine {
             |entry: &UserLexiconEntry| CodeTableCandidate {
                 id: entry.stable_id(),
                 text: entry.text.clone(),
+                display_text: entry.display_text.clone(),
                 code: entry.code.clone(),
                 category_id: "user-lexicon".to_owned(),
                 source_order: entry.source_order,

@@ -599,7 +599,8 @@ export class InputPanelController {
     const height = panelHeightForMode(
       settings.keyboardHeightMode,
       screenMetrics,
-      settings.keyboardProfileId === PINYIN_9_PROFILE_ID && sessionState.keyboardMode === KeyboardMode.CHINESE
+      settings.keyboardProfileId === PINYIN_9_PROFILE_ID && sessionState.keyboardMode === KeyboardMode.CHINESE,
+      settings.keyboardLiftLayerEnabled
     );
     const targetSize: PanelSizePx = { widthPx: width, heightPx: height };
     if (panelSizeEqual(this.lastAppliedPanelSize, targetSize)) {
@@ -666,7 +667,8 @@ export class InputPanelController {
       heightPx: panelHeightForMode(
         settings.keyboardHeightMode,
         sessionState.screenMetrics,
-        settings.keyboardProfileId === PINYIN_9_PROFILE_ID && sessionState.keyboardMode === KeyboardMode.CHINESE
+        settings.keyboardProfileId === PINYIN_9_PROFILE_ID && sessionState.keyboardMode === KeyboardMode.CHINESE,
+        settings.keyboardLiftLayerEnabled
       )
     };
   }

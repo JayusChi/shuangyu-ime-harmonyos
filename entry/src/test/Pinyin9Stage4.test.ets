@@ -24,13 +24,14 @@ export default function pinyin9Stage4Test() {
       expect(layout.rows[1].keys.map((key: KeyboardKeySpec) => key.label).join('|')).assertEqual('4|5|6');
       expect(layout.rows[2].keys.map((key: KeyboardKeySpec) => key.label).join('|')).assertEqual('7|8|9');
       expect(layout.rows[3].keys.map((key: KeyboardKeySpec) => key.label).join('|'))
-        .assertEqual('符/123|0|删除');
-      expect(layout.rows[4].keys[0].label).assertEqual('空格');
-      expect(layout.rows[4].keys[0].longPressAction?.type)
+        .assertEqual('ϟ12|0|删除');
+      expect(layout.rows[4].keys.map((key: KeyboardKeySpec) => key.label).join('|'))
+        .assertEqual('，|空格|。|回车');
+      expect(layout.rows[4].keys[1].longPressAction?.type)
         .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
-      expect(layout.rows[4].keys[0].swipeUpAction?.type)
+      expect(layout.rows[4].keys[1].swipeUpAction?.type)
         .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
-      expect(layout.rows[4].keys[1].action.type).assertEqual(KeyboardActionType.ENTER);
+      expect(layout.rows[4].keys[3].action.type).assertEqual(KeyboardActionType.ENTER);
     });
 
     it('uses dedicated T9 actions and complete primary-secondary labels for 2 through 9', 0, () => {
@@ -51,8 +52,9 @@ export default function pinyin9Stage4Test() {
 
     it('routes punctuation boundary number entry and delete without entering the T9 digit parser', 0, () => {
       const layout = createPinyin9KeyboardLayout(createUnknownEditorContext());
-      expect(layout.rows[0].keys[0].action.type).assertEqual(KeyboardActionType.TOGGLE_SYMBOL);
+      expect(layout.rows[0].keys[0].action.type).assertEqual(KeyboardActionType.THIRD_CANDIDATE_OR_COMMA);
       expect(layout.rows[3].keys[0].action.type).assertEqual(KeyboardActionType.TOGGLE_NUMBER);
+      expect(layout.rows[3].keys[0].longPressAction?.type).assertEqual(KeyboardActionType.TOGGLE_SYMBOL);
       expect(layout.rows[3].keys[1].action.type).assertEqual(KeyboardActionType.INSERT_SEGMENT_BOUNDARY);
       expect(layout.rows[3].keys[2].action.type).assertEqual(KeyboardActionType.DELETE);
     });

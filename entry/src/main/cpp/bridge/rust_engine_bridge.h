@@ -12,8 +12,8 @@ struct RustCallResult {
     RustBuffer payload;
 };
 
-constexpr uint32_t CURRENT_INTERFACE_VERSION = 10;
-constexpr uint32_t CURRENT_ABI_VERSION = 10;
+constexpr uint32_t CURRENT_INTERFACE_VERSION = 11;
+constexpr uint32_t CURRENT_ABI_VERSION = 11;
 constexpr uint32_t STAGE7_INTERFACE_VERSION = CURRENT_INTERFACE_VERSION;
 constexpr uint32_t STAGE7_ABI_VERSION = CURRENT_ABI_VERSION;
 constexpr uint32_t STAGE5_INTERFACE_VERSION = CURRENT_INTERFACE_VERSION;

@@ -2,7 +2,7 @@
 
 ## Current production identity
 
-The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipped as the main HAP raw resource. The 2026-08-24 customer-category build has this frozen identity:
+The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipped as the main HAP raw resource. The 2026-08-26 direct-display build has this frozen identity:
 
 | Field | Value |
 | --- | --- |
@@ -11,12 +11,12 @@ The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipp
 | Data version | `source-receipt-1` |
 | Converter | `yinxing-converter/1.0.0` |
 | Categories | 12 internal / 10 customer-visible switches |
-| Accepted records | 162,730 |
-| Bundle bytes | 56,183,822 |
-| Bundle SHA-256 | `0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942` |
-| Content SHA-256 | `9c6fe5f8214c2560572a7f09c4d3228527c961f47507d3d8567c2f94b14023a7` |
+| Accepted records | 162,731 |
+| Bundle bytes | 56,184,164 |
+| Bundle SHA-256 | `f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7` |
+| Content SHA-256 | `83fa186fb43acc045fac88ba74ea3db5d761bf8c7c901499c4b517d953eef2e3` |
 
-The raw resource installer uses a v4 installed filename and receipt, so a previously verified customer-category resource cannot mask this build after an application upgrade.
+The raw resource installer uses a v5 installed filename and receipt, so a previously verified customer-category resource cannot mask this build after an application upgrade.
 
 ## Categories
 
@@ -37,19 +37,20 @@ The manifest freezes category order, entry counts and defaults:
 | 10 | `full-code-character` | 全码字 | 1,654 | off |
 | 11 | `ok-spelling` | ok拼字 | 88,020 | on |
 
-The settings UI merges `category-secondary` plus `out-of-table-character` into the customer-visible “分类” switch and merges `symbol` plus `symbol-group` into “符号”. “直通” is a full-code-word record property, and “用户” is the separate user lexicon layer; neither creates a system switch.
+The settings UI merges `category-secondary` plus `out-of-table-character` into the customer-visible “分类” switch and merges `symbol` plus `symbol-group` into “符号”. “直通” is a property of a record in its owning category, and “用户” is the separate user lexicon layer; neither creates a system switch.
 
-## Full-code fixed and direct records
+## Fixed and direct records
 
-The authoritative `full-code-word` source accepts:
+An authoritative category source accepts:
 
 ```text
 普通词条<TAB>编码
 置顶词条<TAB>编码#固
 直通词条<TAB>编码#直
+上屏内容,候选提示<TAB>完整编码#直
 ```
 
-`#固` establishes protected top ordering while `full-code-word` is enabled. `#直` remains available to exact ordinary code input but is hidden from backtick universal-key lookup. Both disappear atomically when `full-code-word` is disabled. The converter rejects `#直` in every other system category.
+`#固` establishes protected top ordering while its owning category is enabled. `#直` reserves the precise longer-code hint and remains hidden from backtick universal-key lookup. The optional ASCII comma splits clean commit text from candidate-only presentation text; the UI appends the untyped code suffix. For example, `给予,给ʲⁱ̌予<TAB>gwyu#直` displays `给ʲⁱ̌予u` after `gwy`, while selection or the complete `gwyu` commits `给予`. Both rule types disappear atomically when their owning category is disabled.
 
 `#直` controls candidate visibility only; it grants no execution authority. `$cmd/$ddcmd`, network access, external programs, arbitrary file operations and platform-private commands remain quarantined by the action policy.
 
@@ -65,7 +66,7 @@ The archive contains 17 records: `manifest.json`, 12 `categories/*.lex` files, `
 
 Each category file is a checksummed `HSPLEX01` 1.1 binary retaining the category ID, contract order, source SHA-256 and zero-based `source_order`. Runtime query order is exact-before-prefix, category order, then `source_order`, with stable text deduplication.
 
-`user-rules.txt` uses the strict user-lexicon grammar. `action-metadata.json` has `execution_allowed=false`. Rejected actions retain only safe source identity, line number, syntax class, disposition, reason and digest; original sensitive action lines are not copied.
+`user-rules.txt` uses the strict embedded grammar `commit<TAB>code-and-marker<TAB>display-or-empty<TAB>category-id`; the runtime filters these records by their owning category before merging the independent external user lexicon. `action-metadata.json` has `execution_allowed=false`. Rejected actions retain only safe source identity, line number, syntax class, disposition, reason and digest; original sensitive action lines are not copied.
 
 ## Integrity and build
 

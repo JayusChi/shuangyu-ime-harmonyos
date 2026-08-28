@@ -26,9 +26,9 @@ pub const ENGINE_VERSION_PINYIN_STAGE2: &str = "0.0.1-pinyin-stage2-quality4";
 pub const INTERFACE_VERSION_PINYIN_STAGE3: u32 = 7;
 pub const ABI_VERSION_PINYIN_STAGE3: u32 = 7;
 pub const ENGINE_VERSION_PINYIN_STAGE3: &str = "0.0.1-pinyin-stage3";
-pub const INTERFACE_VERSION_DIRECT_ACTIONS: u32 = 10;
-pub const ABI_VERSION_DIRECT_ACTIONS: u32 = 10;
-pub const ENGINE_VERSION_DIRECT_ACTIONS: &str = "0.0.1-direct-controls";
+pub const INTERFACE_VERSION_DIRECT_ACTIONS: u32 = 11;
+pub const ABI_VERSION_DIRECT_ACTIONS: u32 = 11;
+pub const ENGINE_VERSION_DIRECT_ACTIONS: &str = "0.0.1-direct-display";
 pub const INTERFACE_VERSION_STAGE7: u32 = INTERFACE_VERSION_STAGE8;
 pub const ABI_VERSION_STAGE7: u32 = ABI_VERSION_STAGE8;
 pub const ENGINE_VERSION_STAGE7: &str = ENGINE_VERSION_STAGE8;
@@ -61,6 +61,8 @@ impl ParserState {
 pub struct FormalCandidate {
     pub id: String,
     pub text: String,
+    /// Candidate-only presentation text. Empty means render `text`.
+    pub display_text: String,
     pub reading: String,
     pub source: String,
     /// Number of raw composition letters consumed when this candidate is
@@ -294,9 +296,10 @@ impl CompositionResult {
             .iter()
             .map(|candidate| {
                 format!(
-                    "{{\"id\":\"{}\",\"text\":\"{}\",\"reading\":\"{}\",\"source\":\"{}\",\"consumedRawLen\":{}}}",
+                    "{{\"id\":\"{}\",\"text\":\"{}\",\"displayText\":\"{}\",\"reading\":\"{}\",\"source\":\"{}\",\"consumedRawLen\":{}}}",
                     escape_json(&candidate.id),
                     escape_json(&candidate.text),
+                    escape_json(&candidate.display_text),
                     escape_json(&candidate.reading),
                     escape_json(&candidate.source),
                     candidate.consumed_raw_len
@@ -467,5 +470,27 @@ mod tests {
             CompositionResult::success(";rqab", ";rqab", Vec::new(), "", ParserState::Complete)
                 .with_phonetic_metadata(vec![";rq".to_owned(), "ab".to_owned()], "", Vec::new());
         assert_eq!(guided.display_segments, vec![";rq", "ab"]);
+    }
+
+    #[test]
+    fn serializes_candidate_display_text_separately_from_commit_text() {
+        let result =
+            CompositionResult::success("gwy", "gwy", Vec::new(), "", ParserState::Complete)
+                .with_candidates(
+                    vec![FormalCandidate {
+                        id: "direct-gwyu".to_owned(),
+                        text: "给予".to_owned(),
+                        display_text: "给ʲⁱ̌予".to_owned(),
+                        reading: "gwyu".to_owned(),
+                        source: "core".to_owned(),
+                        consumed_raw_len: 3,
+                    }],
+                    0,
+                    false,
+                    false,
+                );
+        let json = result.to_json();
+        assert!(json.contains("\"text\":\"给予\""));
+        assert!(json.contains("\"displayText\":\"给ʲⁱ̌予\""));
     }
 }

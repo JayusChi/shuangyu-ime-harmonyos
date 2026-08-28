@@ -25,8 +25,12 @@ export enum KeyboardActionType {
   HIDE_KEYBOARD = 'hide_keyboard',
   SECOND_CANDIDATE_OR_PUNCTUATION = 'second_candidate_or_punctuation',
   SECOND_CANDIDATE_OR_COMMA = 'second_candidate_or_comma',
+  SECOND_CANDIDATE_OR_PERIOD = 'second_candidate_or_period',
+  THIRD_CANDIDATE_OR_COMMA = 'third_candidate_or_comma',
   REPEAT_LAST_COMMIT = 'repeat_last_commit',
   UNDO_LAST_COMMIT = 'undo_last_commit',
+  DELETE_CURRENT_LINE = 'delete_current_line',
+  RESTORE_LAST_DELETION = 'restore_last_deletion',
   SELECT_ALL = 'select_all',
   CUT = 'cut',
   COPY = 'copy',
@@ -48,6 +52,8 @@ export interface KeyboardAction {
   letter?: string;
   digit?: string;
   character?: string;
+  /** Bypasses punctuation/full-width conversion so an upper-deck key outputs its printed value. */
+  literal?: boolean;
 }
 
 export function createLetterInputAction(letter: string): KeyboardAction {
@@ -61,6 +67,14 @@ export function createCharacterInputAction(character: string): KeyboardAction {
   return {
     type: KeyboardActionType.CHARACTER,
     character
+  };
+}
+
+export function createLiteralCharacterInputAction(character: string): KeyboardAction {
+  return {
+    type: KeyboardActionType.CHARACTER,
+    character,
+    literal: true
   };
 }
 
@@ -135,12 +149,28 @@ export const SECOND_CANDIDATE_OR_COMMA_ACTION: KeyboardAction = {
   type: KeyboardActionType.SECOND_CANDIDATE_OR_COMMA
 };
 
+export const SECOND_CANDIDATE_OR_PERIOD_ACTION: KeyboardAction = {
+  type: KeyboardActionType.SECOND_CANDIDATE_OR_PERIOD
+};
+
+export const THIRD_CANDIDATE_OR_COMMA_ACTION: KeyboardAction = {
+  type: KeyboardActionType.THIRD_CANDIDATE_OR_COMMA
+};
+
 export const REPEAT_LAST_COMMIT_ACTION: KeyboardAction = {
   type: KeyboardActionType.REPEAT_LAST_COMMIT
 };
 
 export const UNDO_LAST_COMMIT_ACTION: KeyboardAction = {
   type: KeyboardActionType.UNDO_LAST_COMMIT
+};
+
+export const DELETE_CURRENT_LINE_ACTION: KeyboardAction = {
+  type: KeyboardActionType.DELETE_CURRENT_LINE
+};
+
+export const RESTORE_LAST_DELETION_ACTION: KeyboardAction = {
+  type: KeyboardActionType.RESTORE_LAST_DELETION
 };
 
 export const SELECT_ALL_ACTION: KeyboardAction = {

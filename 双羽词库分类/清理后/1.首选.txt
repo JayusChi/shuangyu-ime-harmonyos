@@ -15563,7 +15563,7 @@ B超	biic
 购物中心	gwvx
 格物致知	gwvv
 狗尾续貂	gwxd
-$cmd(给予,给ʲⁱ̌予)	gwyu
+给予,给ʲⁱ̌予	gwyu#直
 公务员	gwyr
 给以	gwyi
 宫外孕	gwyy

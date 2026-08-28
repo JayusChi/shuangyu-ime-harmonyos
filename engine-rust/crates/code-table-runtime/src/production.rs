@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use lexicon_core::{load_binary_lexicon_compact, SOURCE_ORDER_UNSPECIFIED};
-use user_lexicon::parse_user_lexicon_bytes;
+use user_lexicon::parse_embedded_user_lexicon_bytes;
 
 use crate::bundle::{CodeTableBundle, CodeTableCategory};
 use crate::error::{CodeTableError, CodeTableErrorKind};
@@ -23,13 +23,13 @@ const EXPECTED_AUDIT_MANIFEST_VERSION: &str = "1.1.0";
 const EXPECTED_AUDITOR: &str = "yinxing-source-auditor/1.1.0";
 const EXPECTED_CONTRACT_VERSION: &str = "1.1.0";
 const EXPECTED_SOURCE_MANIFEST_HASH: &str =
-    "b59c7cf78096a86e99f5162107c7486623449efeda70631015e2bf39b0818459";
+    "4dd2304ce2a2f7ffa48f38c7a707e11d9d2318b1bc32c8ded7dc264a2458048f";
 const EXPECTED_CONTRACT_HASH: &str =
-    "94bc2aa06d10723ffd82b7919627005e44f31215b7ba958f295375adbbc5cae1";
+    "27894e17bed11e267504e3ddae20f82348ab89e07e3a813b6236d80d29739caa";
 const EXPECTED_CONTENT_HASH: &str =
-    "9c6fe5f8214c2560572a7f09c4d3228527c961f47507d3d8567c2f94b14023a7";
+    "83fa186fb43acc045fac88ba74ea3db5d761bf8c7c901499c4b517d953eef2e3";
 const EXPECTED_ARCHIVE_HASH: &str =
-    "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942";
+    "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7";
 const EXPECTED_ARCHIVE_FILE_COUNT: usize = 17;
 const EXPECTED_CATEGORIES: [(&str, usize, bool); 12] = [
     ("core", 68_568, true),
@@ -290,7 +290,7 @@ fn load_production_bytes_with_trust(
     let user_entry = entries
         .get(&manifest.user_rules.path)
         .expect("validated user rules");
-    let user_rules = parse_user_lexicon_bytes("production-user-rules", user_entry.bytes)
+    let user_rules = parse_embedded_user_lexicon_bytes("production-user-rules", user_entry.bytes)
         .map_err(|_| {
             error(
                 CodeTableErrorKind::InvalidUserRules,
@@ -300,9 +300,9 @@ fn load_production_bytes_with_trust(
         .into_snapshot();
     let user_stats = user_rules.stats();
     if strict_frozen
-        && (user_stats.accepted != 36
-            || user_stats.effective != 36
-            || user_stats.added != 0
+        && (user_stats.accepted != 37
+            || user_stats.effective != 37
+            || user_stats.added != 1
             || user_stats.deleted != 0
             || user_stats.fixed != 36
             || user_stats.positioned != 0)

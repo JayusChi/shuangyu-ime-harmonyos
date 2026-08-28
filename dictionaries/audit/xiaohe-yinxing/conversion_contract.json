@@ -4,7 +4,7 @@
   "bundle_id": "xiaohe-yinxing-production",
   "data_version": "source-receipt-1",
   "converter_version": "yinxing-converter/0-not-implemented",
-  "audit_manifest_sha256": "b59c7cf78096a86e99f5162107c7486623449efeda70631015e2bf39b0818459",
+  "audit_manifest_sha256": "4dd2304ce2a2f7ffa48f38c7a707e11d9d2318b1bc32c8ded7dc264a2458048f",
   "source_roots": [
     "码表",
     "小鹤音形"
@@ -12,7 +12,7 @@
   "source_files": [
     {
       "source": "小鹤音形/0.0.小鹤.txt",
-      "sha256": "7b69e10a19c83988dce9bebff4ee4c5d88b91c5d251ea551a94f0e0668d89dc7",
+      "sha256": "e78c063a971a53bbf68112fa681ef99e624907690235b32ce9cd374f78ba810e",
       "role": "core_code_table",
       "decision": "TRANSFORM",
       "conversion_input": true
@@ -549,7 +549,7 @@
   ],
   "user_rule_policy": {
     "ordinary": "transform",
-    "direct_add": "transform only in full-code-word; hide from wildcard lookup",
+    "direct_add": "transform in owning category; optional commit/display split; hide from wildcard lookup",
     "delete": "transform exact text+code",
     "pin": "transform stable fixed prefix",
     "position": "transform 1-based global position",

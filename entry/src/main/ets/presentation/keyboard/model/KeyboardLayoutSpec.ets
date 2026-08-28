@@ -37,6 +37,7 @@ export interface KeyboardKeySpec {
   action: KeyboardAction;
   longPressAction?: KeyboardAction;
   swipeUpAction?: KeyboardAction;
+  swipeDownAction?: KeyboardAction;
   previewEnabled: boolean;
   accessibilityLabel: string;
   active?: boolean;

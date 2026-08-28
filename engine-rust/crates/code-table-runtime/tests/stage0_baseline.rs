@@ -40,9 +40,9 @@ fn stage0_machine_baselines_are_committed_path_clean_and_tied_to_frozen_bundle()
     }
     for expected in [
         "\"bundle_byte_size\"",
-        "56183822",
+        "56184164",
         "\"bundle_sha256\"",
-        "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942",
+        "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7",
         "\"ordinary_record_count\"",
         "162694",
         "\"embedded_fixed_rule_count\"",
@@ -62,7 +62,7 @@ fn stage0_machine_baselines_are_committed_path_clean_and_tied_to_frozen_bundle()
         std::fs::metadata(bundle_path())
             .expect("formal bundle")
             .len(),
-        56_183_822
+        56_184_164
     );
     let bundle = CodeTableBundle::load_frozen_production_file(bundle_path())
         .expect("strict frozen loader verifies format, allowlist, hashes, and content");
@@ -93,14 +93,14 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "按时",
                     "anui",
                     "user-lexicon",
-                    9,
+                    10,
                     "user-lexicon-0e678f52bf07c8b8",
                 ),
                 (
                     "按到",
                     "andc",
                     "user-lexicon",
-                    32,
+                    33,
                     "user-lexicon-e8eb21db1b7e774d",
                 ),
                 ("安", "an", "core", 2, "ct:xiaohe-yinxing-production:core:2"),
@@ -133,14 +133,14 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "时间",
                     "uijm",
                     "user-lexicon",
-                    15,
+                    16,
                     "user-lexicon-82fb3de0a4e7340b",
                 ),
                 (
                     "试试",
                     "uiui",
                     "user-lexicon",
-                    17,
+                    18,
                     "user-lexicon-8e108f684f027787",
                 ),
                 (
@@ -159,28 +159,28 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "知道",
                     "vidc",
                     "user-lexicon",
-                    2,
+                    3,
                     "user-lexicon-e61a289af9b75d6f",
                 ),
                 (
                     "只能",
                     "ving",
                     "user-lexicon",
-                    3,
+                    4,
                     "user-lexicon-ea6ff1d051418793",
                 ),
                 (
                     "只是",
                     "viui",
                     "user-lexicon",
-                    8,
+                    9,
                     "user-lexicon-da195c3ad7218efb",
                 ),
                 (
                     "只会",
                     "vihv",
                     "user-lexicon",
-                    28,
+                    29,
                     "user-lexicon-49b58bbe2cc171be",
                 ),
                 (
@@ -216,7 +216,7 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "现金",
                     "xmjb",
                     "user-lexicon",
-                    24,
+                    25,
                     "user-lexicon-b54819968e7f1570",
                 ),
                 (
@@ -242,7 +242,7 @@ fn stage0_required_default_candidate_profiles_remain_exact_and_ordered() {
                     "修正",
                     "xqvg",
                     "user-lexicon",
-                    0,
+                    1,
                     "user-lexicon-5731f97642e9301a",
                 ),
                 (

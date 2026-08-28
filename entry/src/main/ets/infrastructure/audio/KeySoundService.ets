@@ -39,7 +39,11 @@ export class HarmonyKeySoundBackend implements KeySoundBackend {
       rightVolume: 0.16,
       priority: 1
     };
-    await this.pool.play(this.soundId, parameters);
+    try {
+      await this.pool.play(this.soundId, parameters);
+    } catch (err) {
+      throw new Error(`key sound playback failed: ${JSON.stringify(err)}`);
+    }
   }
 
   async dispose(): Promise<void> {
@@ -51,31 +55,38 @@ export class HarmonyKeySoundBackend implements KeySoundBackend {
     if (!pool) {
       return;
     }
-    if (soundId > 0) {
-      await pool.unload(soundId);
+    try {
+      if (soundId > 0) {
+        await pool.unload(soundId);
+      }
+      await pool.release();
+    } catch (err) {
+      throw new Error(`key sound disposal failed: ${JSON.stringify(err)}`);
     }
-    await pool.release();
   }
 
   private async prepare(context: common.Context): Promise<void> {
     const info: audio.AudioRendererInfo = {
-      content: audio.ContentType.CONTENT_TYPE_SONIFICATION,
       usage: audio.StreamUsage.STREAM_USAGE_MUSIC,
       rendererFlags: 0
     };
-    const pool = await media.createSoundPool(4, info);
-    const wav = this.createClickWav();
-    const path = `${context.filesDir}/ime_key_click.wav`;
-    const file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE | fs.OpenMode.TRUNC);
     try {
-      fs.writeSync(file.fd, wav.buffer);
-      this.soundId = await pool.load(file.fd, 0, wav.byteLength);
-      this.pool = pool;
-    } finally {
-      fs.closeSync(file);
-      if (!this.pool) {
-        await pool.release();
+      const pool = await media.createSoundPool(4, info);
+      const wav = this.createClickWav();
+      const path = `${context.filesDir}/ime_key_click.wav`;
+      const file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE | fs.OpenMode.TRUNC);
+      try {
+        fs.writeSync(file.fd, wav.buffer);
+        this.soundId = await pool.load(file.fd, 0, wav.byteLength);
+        this.pool = pool;
+      } finally {
+        fs.closeSync(file);
+        if (!this.pool) {
+          await pool.release();
+        }
       }
+    } catch (err) {
+      throw new Error(`key sound initialization failed: ${JSON.stringify(err)}`);
     }
   }
 

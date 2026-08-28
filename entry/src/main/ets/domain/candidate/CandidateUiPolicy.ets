@@ -25,6 +25,10 @@ function isGuideInput(rawInput: string): boolean {
   return rawInput.startsWith(';');
 }
 
+function isUniversalInput(rawInput: string): boolean {
+  return rawInput.indexOf('`') >= 0;
+}
+
 /**
  * Rust keeps the guide prefix in rawInput so backspace can return from `;f`
  * to `;`, while guide/action candidates expose their table code as `f`.
@@ -72,7 +76,12 @@ export function resolveVisibleCandidates(
   rawInput: string,
   candidates: Candidate[]
 ): Candidate[] {
-  if (mode !== CandidateUiMode.PRECISE_MATCH || candidates.length === 0) {
+  // The Rust wildcard query has already applied the sound/shape pattern and
+  // category rules. Its candidate reading is the matched complete code, not
+  // the literal raw pattern containing backticks, so applying the ordinary
+  // exact-code filter again would hide every valid universal-key result.
+  if (mode !== CandidateUiMode.PRECISE_MATCH || candidates.length === 0 ||
+    isUniversalInput(rawInput)) {
     return candidates;
   }
   const inputCode = comparableInputCode(rawInput);

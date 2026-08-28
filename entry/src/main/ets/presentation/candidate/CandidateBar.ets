@@ -2,8 +2,6 @@ import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
 import {
   HIDE_KEYBOARD_ACTION,
   KeyboardAction,
-  KeyboardMode,
-  TOGGLE_LANGUAGE_ACTION,
   SHOW_INPUT_METHOD_PICKER_ACTION
 } from '../../domain/keyboard/KeyboardAction';
 import {
@@ -44,6 +42,7 @@ const CANDIDATE_BAR_HORIZONTAL_PADDING = 8;
 export interface KeyboardStatusBarLayoutSpec {
   contentLayoutWeight: number;
   actionScrollable: boolean;
+  languageSwitchVisible: boolean;
   actionId: string;
   actionAccessibilityText: string;
   actionIconSize: number;
@@ -63,6 +62,8 @@ export interface CandidateExpansionActionSpec {
 export const KEYBOARD_STATUS_BAR_LAYOUT: KeyboardStatusBarLayoutSpec = {
   contentLayoutWeight: 1,
   actionScrollable: false,
+  // 中英文切换统一由架高层或空格手势承担，候选栏不再重复显示入口。
+  languageSwitchVisible: false,
   actionId: 'status-bar-hide-keyboard',
   actionAccessibilityText: '收起键盘',
   // 固定尺寸矢量图标不依赖设备字体基线，由按键容器在所有设备上做几何居中。
@@ -95,6 +96,7 @@ export interface CandidateBarProps {
   state: CandidateBarState;
   rawInput: string;
   preeditText: string;
+  cursorPreeditVisible?: boolean;
   preferredPreeditText?: string;
   displaySegments?: string[];
   pendingCode?: string;
@@ -113,8 +115,7 @@ export interface CandidateBarProps {
   keyboardLayout?: ShuangpinKeyboardLayout;
   keyboardProfileName?: string;
   inputMethodPickerAvailable?: boolean;
-  keyboardMode?: KeyboardMode;
-  languageSwitchAvailable?: boolean;
+  bottomLiftLayerVisible?: boolean;
   aiEntryVisible?: boolean;
   aiEntryEnabled?: boolean;
   aiUnavailableReason?: string;
@@ -147,6 +148,7 @@ export struct CandidateBar {
   @Prop state: CandidateBarState = CandidateBarState.IDLE;
   @Prop rawInput: string = '';
   @Prop preeditText: string = '';
+  @Prop cursorPreeditVisible: boolean = false;
   @Prop preferredPreeditText: string = '';
   @Prop displaySegments: string[] = [];
   @Prop pendingCode: string = '';
@@ -165,8 +167,7 @@ export struct CandidateBar {
   @Prop keyboardLayout: ShuangpinKeyboardLayout = ShuangpinKeyboardLayout.TWENTY_SIX_KEY;
   @Prop keyboardProfileName: string = '';
   @Prop inputMethodPickerAvailable: boolean = false;
-  @Prop keyboardMode: KeyboardMode = KeyboardMode.CHINESE;
-  @Prop languageSwitchAvailable: boolean = true;
+  @Prop bottomLiftLayerVisible: boolean = false;
   @Prop aiEntryVisible: boolean = false;
   @Prop aiEntryEnabled: boolean = false;
   @Prop aiUnavailableReason: string = '';
@@ -177,7 +178,6 @@ export struct CandidateBar {
   @Prop voicePresentation: VoicePresentationState = createIdleVoicePresentationState();
   @Prop localAssociations: LocalAssociationSuggestion[] = [];
   @State private actionPressed: boolean = false;
-  @State private languagePressed: boolean = false;
   @State private expansionPressed: boolean = false;
   @State private aiPressed: boolean = false;
   @State private voicePressed: boolean = false;
@@ -188,22 +188,6 @@ export struct CandidateBar {
     return this.keyboardProfileName.length > 0
       ? this.keyboardProfileName
       : shuangpinKeyboardLayoutDisplayName(this.keyboardLayout);
-  }
-
-  private languageLabel(): string {
-    if (this.keyboardMode === KeyboardMode.CHINESE) {
-      return '中';
-    }
-    if (this.keyboardMode === KeyboardMode.ENGLISH) {
-      return '英';
-    }
-    return '中/英';
-  }
-
-  private languageAccessibilityText(): string {
-    return this.keyboardMode === KeyboardMode.CHINESE
-      ? '当前中文，切换到英文'
-      : '当前英文，切换到中文';
   }
 
   onCandidateClick?: (candidate: Candidate, index: number) => void;
@@ -225,38 +209,42 @@ export struct CandidateBar {
   @Builder
   private IdleToolbar() {
     Row({ space: 2 }) {
-      Row({ space: 5 }) {
-        Text('⌨')
-          .fontSize(15)
-          .fontColor(this.palette.modeKeyTextChinese)
-        Text(this.currentKeyboardName())
-          .fontSize(11)
-          .fontColor(this.palette.modeKeyTextChinese)
-          .fontWeight(FontWeight.Medium)
-          .maxLines(1)
+      if (!this.bottomLiftLayerVisible) {
+        Row({ space: 5 }) {
+          Text('⌨')
+            .fontSize(15)
+            .fontColor(this.palette.modeKeyTextChinese)
+          Text(this.currentKeyboardName())
+            .fontSize(11)
+            .fontColor(this.palette.modeKeyTextChinese)
+            .fontWeight(FontWeight.Medium)
+            .maxLines(1)
+        }
+        .height('100%')
+        .padding({ left: 8, right: 8 })
+        .layoutWeight(1.45)
+        .justifyContent(FlexAlign.Center)
+        .accessibilityText(`${this.currentKeyboardName()}，选择键盘方案`)
+        .onClick((): void => this.onOpenKeyboardLayoutSelector?.())
       }
-      .height('100%')
-      .padding({ left: 8, right: 8 })
-      .layoutWeight(1.45)
-      .justifyContent(FlexAlign.Center)
-      .accessibilityText(`${this.currentKeyboardName()}，选择键盘方案`)
-      .onClick((): void => this.onOpenKeyboardLayoutSelector?.())
 
-      Row({ space: 4 }) {
-        Image($r('app.media.input_method_switcher'))
-          .width(17)
-          .height(17)
-          .fillColor(this.palette.functionKeyText)
-          .objectFit(ImageFit.Contain)
-        Text('输入法').fontSize(11).fontColor(this.palette.functionKeyText).maxLines(1)
+      if (!this.bottomLiftLayerVisible) {
+        Row({ space: 4 }) {
+          Image($r('app.media.input_method_switcher'))
+            .width(17)
+            .height(17)
+            .fillColor(this.palette.functionKeyText)
+            .objectFit(ImageFit.Contain)
+          Text('输入法').fontSize(11).fontColor(this.palette.functionKeyText).maxLines(1)
+        }
+        .height('100%')
+        .layoutWeight(1)
+        .justifyContent(FlexAlign.Center)
+        .opacity(this.inputMethodPickerAvailable ? 1 : 0.45)
+        .enabled(this.inputMethodPickerAvailable)
+        .accessibilityText('输入法')
+        .onClick((): void => this.onAction?.(SHOW_INPUT_METHOD_PICKER_ACTION))
       }
-      .height('100%')
-      .layoutWeight(1)
-      .justifyContent(FlexAlign.Center)
-      .opacity(this.inputMethodPickerAvailable ? 1 : 0.45)
-      .enabled(this.inputMethodPickerAvailable)
-      .accessibilityText('输入法')
-      .onClick((): void => this.onAction?.(SHOW_INPUT_METHOD_PICKER_ACTION))
 
       if (this.aiEntryVisible) {
         Row() {
@@ -503,6 +491,7 @@ export struct CandidateBar {
     return resolveCompositionPreeditView({
       rawInput: this.rawInput,
       preeditText: this.preeditText,
+      cursorPreeditVisible: this.cursorPreeditVisible,
       preferredDisplayText: this.preferredPreeditText,
       displaySegments: this.displaySegments,
       pendingCode: this.pendingCode,
@@ -523,7 +512,7 @@ export struct CandidateBar {
       this.candidateUiMode,
       this.rawInput,
       index,
-      candidate.text,
+      candidate.displayText && candidate.displayText.length > 0 ? candidate.displayText : candidate.text,
       candidate.reading
     );
   }
@@ -575,8 +564,8 @@ export struct CandidateBar {
 
   /**
    * 构建候选词视图。候选词全量加载，通过横向滚动浏览，无翻页按钮。
-   * 阶段 4.1：非空 rawInput 时在候选左侧固定展示带下划线的未上屏输入码，
-   * 让用户明确区分组合中的编码与已上屏文本。
+   * 光标处没有系统预编辑时，在候选左侧展示带下划线的未上屏输入码；光标处
+   * 已显示输入码时这里保持隐藏，确保同一输入码只有一个展示位置。
    */
   @Builder
   private CandidatesView() {
@@ -726,61 +715,37 @@ export struct CandidateBar {
         })
       }
 
-      Row() {
-        Text(this.languageLabel())
-          .fontSize(12)
-          .fontColor(this.palette.functionKeyText)
-          .fontWeight(FontWeight.Medium)
+      if (!this.bottomLiftLayerVisible) {
+        Row() {
+          Image($r('app.media.keyboard_hide_chevron'))
+            .width(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
+            .height(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
+            .fillColor(this.palette.functionKeyText)
+            .objectFit(ImageFit.Contain)
+            .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
+        }
+        .width(this.actionWidth)
+        .height('100%')
+        .justifyContent(FlexAlign.Center)
+        .alignItems(VerticalAlign.Center)
+        .backgroundColor(this.actionPressed
+          ? this.palette.functionKeyPressedBackground
+          : this.palette.functionKeyBackground)
+        .border({ width: { left: 1 }, color: this.palette.candidateDivider })
+        .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
+        .onTouch((event: TouchEvent) => {
+          if (event.type === TouchType.Down) {
+            this.actionPressed = true;
+          } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+            this.actionPressed = false;
+          }
+        })
+        .onClick(() => {
+          if (this.onAction) {
+            this.onAction(KEYBOARD_STATUS_BAR_LAYOUT.action);
+          }
+        })
       }
-      .width(this.actionWidth)
-      .height('100%')
-      .justifyContent(FlexAlign.Center)
-      .alignItems(VerticalAlign.Center)
-      .backgroundColor(this.languagePressed
-        ? this.palette.functionKeyPressedBackground
-        : this.palette.candidateBackground)
-      .border({ width: { left: 1 }, color: this.palette.candidateDivider })
-      .opacity(this.languageSwitchAvailable ? 1 : 0.45)
-      .enabled(this.languageSwitchAvailable)
-      .accessibilityText(this.languageAccessibilityText())
-      .onTouch((event: TouchEvent) => {
-        if (event.type === TouchType.Down) {
-          this.languagePressed = true;
-        } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
-          this.languagePressed = false;
-        }
-      })
-      .onClick(() => this.onAction?.(TOGGLE_LANGUAGE_ACTION))
-
-      Row() {
-        Image($r('app.media.keyboard_hide_chevron'))
-          .width(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
-          .height(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
-          .fillColor(this.palette.functionKeyText)
-          .objectFit(ImageFit.Contain)
-          .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
-      }
-      .width(this.actionWidth)
-      .height('100%')
-      .justifyContent(FlexAlign.Center)
-      .alignItems(VerticalAlign.Center)
-      .backgroundColor(this.actionPressed
-        ? this.palette.functionKeyPressedBackground
-        : this.palette.functionKeyBackground)
-      .border({ width: { left: 1 }, color: this.palette.candidateDivider })
-      .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
-      .onTouch((event: TouchEvent) => {
-        if (event.type === TouchType.Down) {
-          this.actionPressed = true;
-        } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
-          this.actionPressed = false;
-        }
-      })
-      .onClick(() => {
-        if (this.onAction) {
-          this.onAction(KEYBOARD_STATUS_BAR_LAYOUT.action);
-        }
-      })
     }
     .width('100%')
     .height(this.barHeight)

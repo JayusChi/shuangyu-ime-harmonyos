@@ -2,7 +2,7 @@ import { KeyboardKeySpec, KeyboardKeyKind } from '../model/KeyboardLayoutSpec';
 import { BaseKey } from './BaseKey';
 import { KeyboardColorPalette } from '../design/KeyboardPalette';
 import { OrientationMetrics } from '../design/KeyboardMetrics';
-import { KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
+import { KeyboardAction, KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
 import { ShiftState } from '../../../domain/editor/EditorContext';
 
 /**
@@ -22,6 +22,7 @@ export struct DeleteKey {
   onDeletePress?: () => void;
   onDeleteRelease?: () => void;
   onDeleteClick?: () => void;
+  onAlternateAction?: (action: KeyboardAction) => void;
 
   private handlePress(spec: KeyboardKeySpec): void {
     if (spec.kind === KeyboardKeyKind.DELETE && this.onDeletePress) {
@@ -41,6 +42,11 @@ export struct DeleteKey {
     }
   }
 
+  private handleAlternateAction(action: KeyboardAction): void {
+    this.onDeleteRelease?.();
+    this.onAlternateAction?.(action);
+  }
+
   build() {
     BaseKey({
       spec: this.spec,
@@ -50,7 +56,8 @@ export struct DeleteKey {
       shiftState: this.shiftState,
       onKeyPress: (spec: KeyboardKeySpec) => this.handlePress(spec),
       onKeyRelease: (spec: KeyboardKeySpec) => this.handleRelease(spec),
-      onKeyClick: (spec: KeyboardKeySpec) => this.handleClick(spec)
+      onKeyClick: (spec: KeyboardKeySpec) => this.handleClick(spec),
+      onLongPressAction: (action: KeyboardAction) => this.handleAlternateAction(action)
     })
   }
 }

@@ -1,6 +1,10 @@
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum UserLexiconAction {
     Add,
+    /// A user-managed direct word. It commits `text`, may present
+    /// `display_text`, and is excluded from wildcard enumeration by the
+    /// code-table query path.
+    Direct,
     Delete,
     Fixed,
     Position(u16),
@@ -9,9 +13,15 @@ pub enum UserLexiconAction {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UserLexiconEntry {
     pub text: String,
+    /// Optional candidate-only label. Selecting the candidate always commits
+    /// `text`; this value is presentation metadata for direct words.
+    pub display_text: Option<String>,
     pub code: String,
     pub action: UserLexiconAction,
     pub source_order: u32,
+    /// Owning system category for bundle-embedded rules. External user
+    /// lexicons leave this unset and remain independent from category toggles.
+    pub category_id: Option<String>,
 }
 
 impl UserLexiconEntry {
@@ -27,6 +37,12 @@ impl UserLexiconEntry {
         {
             hash ^= u64::from(*byte);
             hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
+        }
+        if let Some(display_text) = &self.display_text {
+            for byte in [0_u8].iter().chain(display_text.as_bytes()) {
+                hash ^= u64::from(*byte);
+                hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
+            }
         }
         format!("user-lexicon-{hash:016x}")
     }

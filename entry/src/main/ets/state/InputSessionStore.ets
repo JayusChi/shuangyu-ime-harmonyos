@@ -50,6 +50,8 @@ export interface InputSessionState {
   enterAction: EnterAction;
   candidateBarVisible: boolean;
   floatingCandidateVisible: boolean;
+  /** 非空输入码当前是否由编辑器光标处的系统预编辑负责展示。 */
+  cursorPreeditVisible: boolean;
   candidatePanelExpanded: boolean;
   candidatePageLoading: boolean;
   sessionLearningAllowed: boolean;
@@ -120,6 +122,7 @@ function createInitialState(): InputSessionState {
     enterAction: editorContext.enterAction,
     candidateBarVisible: false,
     floatingCandidateVisible: false,
+    cursorPreeditVisible: false,
     candidatePanelExpanded: false,
     candidatePageLoading: false,
     sessionLearningAllowed: editorContext.learningAllowed,
@@ -168,6 +171,7 @@ export class InputSessionStore {
       enterAction: this.state.enterAction,
       candidateBarVisible: this.state.candidateBarVisible,
       floatingCandidateVisible: this.state.floatingCandidateVisible,
+      cursorPreeditVisible: this.state.cursorPreeditVisible,
       candidatePanelExpanded: this.state.candidatePanelExpanded,
       candidatePageLoading: this.state.candidatePageLoading,
       sessionLearningAllowed: this.state.sessionLearningAllowed,
@@ -246,6 +250,7 @@ export class InputSessionStore {
     this.state.enterAction = EnterAction.ENTER;
     this.state.candidateBarVisible = false;
     this.state.floatingCandidateVisible = false;
+    this.state.cursorPreeditVisible = false;
     this.state.candidatePanelExpanded = false;
     this.state.candidatePageLoading = false;
     this.state.sessionLearningAllowed = false;
@@ -419,6 +424,9 @@ export class InputSessionStore {
     this.state.hasNextPage = result.hasNextPage;
     this.state.hasPreviousPage = result.hasPreviousPage;
     this.state.candidatePage = result.candidatePage;
+    if (result.rawInput.length === 0) {
+      this.state.cursorPreeditVisible = false;
+    }
     if (result.success) {
       this.clearErrorInternal();
     } else {
@@ -442,6 +450,15 @@ export class InputSessionStore {
       return;
     }
     this.state.floatingCandidateVisible = visible;
+    this.notify();
+  }
+
+  setCursorPreeditVisible(visible: boolean): void {
+    const resolved = visible && this.state.rawInput.length > 0;
+    if (this.state.cursorPreeditVisible === resolved) {
+      return;
+    }
+    this.state.cursorPreeditVisible = resolved;
     this.notify();
   }
 
@@ -596,6 +613,7 @@ export class InputSessionStore {
     this.state.hasPreviousPage = false;
     this.state.candidatePage = 0;
     this.state.floatingCandidateVisible = false;
+    this.state.cursorPreeditVisible = false;
     this.state.candidatePanelExpanded = false;
     this.state.candidatePageLoading = false;
     this.state.localAssociations = [];

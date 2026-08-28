@@ -34,6 +34,24 @@ pub fn parse_user_lexicon_bytes(
     path: impl Into<PathBuf>,
     bytes: &[u8],
 ) -> Result<ParsedUserLexicon, UserLexiconError> {
+    parse_user_lexicon_bytes_with_profile(path, bytes, false)
+}
+
+/// Parses the bundle-owned rule layer. Its four-field extension carries a
+/// candidate-only label and the owning system category; the public format
+/// remains two TAB-separated fields, including user-managed `#直` rows.
+pub fn parse_embedded_user_lexicon_bytes(
+    path: impl Into<PathBuf>,
+    bytes: &[u8],
+) -> Result<ParsedUserLexicon, UserLexiconError> {
+    parse_user_lexicon_bytes_with_profile(path, bytes, true)
+}
+
+fn parse_user_lexicon_bytes_with_profile(
+    path: impl Into<PathBuf>,
+    bytes: &[u8],
+    allow_embedded_metadata: bool,
+) -> Result<ParsedUserLexicon, UserLexiconError> {
     let path = path.into();
     let text = std::str::from_utf8(bytes).map_err(|_| {
         UserLexiconError::new(
@@ -56,7 +74,7 @@ pub fn parse_user_lexicon_bytes(
             continue;
         }
         let fields = line.split('\t').collect::<Vec<_>>();
-        if fields.len() != 2 {
+        if fields.len() != 2 && !(allow_embedded_metadata && fields.len() == 4) {
             return Err(error(
                 &path,
                 line_number,
@@ -66,7 +84,12 @@ pub fn parse_user_lexicon_bytes(
                 },
             ));
         }
-        let text = fields[0];
+        let (code, action) = parse_code_and_action(&path, line_number, fields[1])?;
+        let (text, inline_display_text) = if matches!(action, UserLexiconAction::Direct) {
+            parse_direct_word_and_display(&path, line_number, fields[0])?
+        } else {
+            (fields[0], None)
+        };
         validate_word(text).map_err(|reason| {
             let reason = match reason {
                 WordValidationError::Empty => UserLexiconReason::EmptyWord,
@@ -81,7 +104,26 @@ pub fn parse_user_lexicon_bytes(
             };
             error(&path, line_number, UserLexiconField::Word, reason)
         })?;
-        let (code, action) = parse_code_and_action(&path, line_number, fields[1])?;
+        let (display_text, category_id) = if fields.len() == 4 {
+            let display_text = if fields[2].is_empty() {
+                inline_display_text.map(str::to_owned)
+            } else {
+                if inline_display_text.is_some() {
+                    return Err(error(
+                        &path,
+                        line_number,
+                        UserLexiconField::DisplayText,
+                        UserLexiconReason::InvalidDisplayText,
+                    ));
+                }
+                validate_display_text(&path, line_number, fields[2])?;
+                Some(fields[2].to_owned())
+            };
+            validate_category_id(&path, line_number, fields[3])?;
+            (display_text, Some(fields[3].to_owned()))
+        } else {
+            (inline_display_text.map(str::to_owned), None)
+        };
         let source_order = next_source_order;
         next_source_order = next_source_order.checked_add(1).ok_or_else(|| {
             error(
@@ -93,9 +135,11 @@ pub fn parse_user_lexicon_bytes(
         })?;
         entries.push(UserLexiconEntry {
             text: text.to_owned(),
+            display_text,
             code,
             action,
             source_order,
+            category_id,
         });
     }
 
@@ -103,6 +147,60 @@ pub fn parse_user_lexicon_bytes(
         accepted_rows: entries.len(),
         entries,
     })
+}
+
+fn parse_direct_word_and_display<'a>(
+    path: &Path,
+    line: usize,
+    value: &'a str,
+) -> Result<(&'a str, Option<&'a str>), UserLexiconError> {
+    let Some((text, display_text)) = value.split_once(',') else {
+        return Ok((value, None));
+    };
+    if text.is_empty() {
+        return Err(error(
+            path,
+            line,
+            UserLexiconField::Word,
+            UserLexiconReason::EmptyWord,
+        ));
+    }
+    validate_display_text(path, line, display_text)?;
+    Ok((text, Some(display_text)))
+}
+
+fn validate_display_text(path: &Path, line: usize, value: &str) -> Result<(), UserLexiconError> {
+    if value.is_empty()
+        || value.chars().count() > 64
+        || value
+            .chars()
+            .any(|character| character.is_control() || matches!(character, '\t' | '\r' | '\n'))
+    {
+        return Err(error(
+            path,
+            line,
+            UserLexiconField::DisplayText,
+            UserLexiconReason::InvalidDisplayText,
+        ));
+    }
+    Ok(())
+}
+
+fn validate_category_id(path: &Path, line: usize, value: &str) -> Result<(), UserLexiconError> {
+    if value.is_empty()
+        || value.len() > 64
+        || !value
+            .bytes()
+            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+    {
+        return Err(error(
+            path,
+            line,
+            UserLexiconField::Category,
+            UserLexiconReason::InvalidCategory,
+        ));
+    }
+    Ok(())
 }
 
 fn parse_code_and_action(
@@ -141,6 +239,7 @@ fn parse_code_and_action(
             let code = &raw[..index];
             let marker = &raw[index + 1..];
             let action = match marker {
+                "直" => UserLexiconAction::Direct,
                 "删" => UserLexiconAction::Delete,
                 "固" => UserLexiconAction::Fixed,
                 "" => {
@@ -178,7 +277,11 @@ fn parse_code_and_action(
                     }
                     UserLexiconAction::Position(position)
                 }
-                value if value.starts_with('删') || value.starts_with('固') => {
+                value
+                    if value.starts_with('直')
+                        || value.starts_with('删')
+                        || value.starts_with('固') =>
+                {
                     return Err(error(
                         path,
                         line,
@@ -228,15 +331,18 @@ mod tests {
     #[test]
     fn parses_all_actions_bom_lf_crlf_and_no_final_newline() {
         let parsed = parse(
-            "\u{feff}自定义词\tzidycl\r\n删除词\tshanc#删\r\n固定词\tgudic#固\r\n第二词\tdeerc#2"
+            "\u{feff}自定义词\tzidycl\r\n直通词,候选提示\tzhitc#直\r\n删除词\tshanc#删\r\n固定词\tgudic#固\r\n第二词\tdeerc#2"
                 .as_bytes(),
         )
         .unwrap();
-        assert_eq!(parsed.entries.len(), 4);
+        assert_eq!(parsed.entries.len(), 5);
         assert_eq!(parsed.entries[0].action, UserLexiconAction::Add);
-        assert_eq!(parsed.entries[1].action, UserLexiconAction::Delete);
-        assert_eq!(parsed.entries[2].action, UserLexiconAction::Fixed);
-        assert_eq!(parsed.entries[3].action, UserLexiconAction::Position(2));
+        assert_eq!(parsed.entries[1].action, UserLexiconAction::Direct);
+        assert_eq!(parsed.entries[1].text, "直通词");
+        assert_eq!(parsed.entries[1].display_text.as_deref(), Some("候选提示"));
+        assert_eq!(parsed.entries[2].action, UserLexiconAction::Delete);
+        assert_eq!(parsed.entries[3].action, UserLexiconAction::Fixed);
+        assert_eq!(parsed.entries[4].action, UserLexiconAction::Position(2));
     }
 
     #[test]
@@ -266,6 +372,9 @@ mod tests {
             "溢出\tabc#65536\n".as_bytes(),
             "后缀\tabc#删abc\n".as_bytes(),
             "固后缀\tabc#固2\n".as_bytes(),
+            "直通空提示,\tabc#直\n".as_bytes(),
+            ",只有提示\tabc#直\n".as_bytes(),
+            "直通后缀\tabc#直x\n".as_bytes(),
         ];
         for bytes in invalid {
             assert!(parse(bytes).is_err(), "{bytes:?}");
@@ -280,5 +389,27 @@ mod tests {
         assert!(message.contains("field=fields"));
         assert!(message.contains("error="));
         assert!(!message.contains("坏词 abc"));
+    }
+
+    #[test]
+    fn embedded_profile_preserves_display_text_and_category_scope() {
+        let parsed = parse_embedded_user_lexicon_bytes(
+            "embedded.txt",
+            "给予\tgwyu\t给ʲⁱ̌予\tcore\n普通\tptaa\t\tfull-code-word\n".as_bytes(),
+        )
+        .unwrap();
+        assert_eq!(parsed.entries[0].text, "给予");
+        assert_eq!(parsed.entries[0].display_text.as_deref(), Some("给ʲⁱ̌予"));
+        assert_eq!(parsed.entries[0].category_id.as_deref(), Some("core"));
+        assert_eq!(parsed.entries[1].display_text, None);
+        assert_eq!(
+            parsed.entries[1].category_id.as_deref(),
+            Some("full-code-word")
+        );
+
+        assert!(
+            parse_user_lexicon_bytes("external.txt", "给予\tgwyu\t给ʲⁱ̌予\tcore\n".as_bytes())
+                .is_err()
+        );
     }
 }

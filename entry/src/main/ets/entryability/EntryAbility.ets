@@ -1,6 +1,6 @@
 import { AbilityConstant, Configuration, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { router, window } from '@kit.ArkUI';
+import { Router, window } from '@kit.ArkUI';
 import { getSharedSettingsController } from '../application/SettingsController';
 import { HarmonySystemThemeBackend, SystemThemeMonitor } from '../application/SystemThemeMonitor';
 import {
@@ -17,6 +17,7 @@ export default class EntryAbility extends UIAbility {
   private systemThemeMonitor?: SystemThemeMonitor;
   private settingsInitialization?: Promise<Object>;
   private settingsWindowCoordinator?: SettingsWindowCoordinator;
+  private entryRouter?: Router;
   private requestedEntryPage: string = 'pages/Index';
   private contentLoaded: boolean = false;
 
@@ -52,10 +53,14 @@ export default class EntryAbility extends UIAbility {
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     this.handleDirectControlWant(want);
     this.requestedEntryPage = this.entryPageFromWant(want);
-    if (this.contentLoaded) {
-      router.replaceUrl({ url: this.requestedEntryPage }).catch((err: Object): void => {
+    if (this.contentLoaded && this.entryRouter) {
+      try {
+        this.entryRouter.replaceUrl({ url: this.requestedEntryPage }).catch((err: Object): void => {
+          hilog.warn(DOMAIN, 'Settings', 'Entry page switch failed: %{public}s', JSON.stringify(err));
+        });
+      } catch (err) {
         hilog.warn(DOMAIN, 'Settings', 'Entry page switch failed: %{public}s', JSON.stringify(err));
-      });
+      }
     }
   }
 
@@ -76,6 +81,7 @@ export default class EntryAbility extends UIAbility {
     let mainWindow: window.Window;
     try {
       mainWindow = await windowStage.getMainWindow();
+      this.entryRouter = mainWindow.getUIContext().getRouter();
     } catch (err) {
       hilog.warn(DOMAIN, 'SettingsWindow', 'getMainWindow failed: %{public}s', JSON.stringify(err));
       this.loadSettingsPage(windowStage);
@@ -141,6 +147,7 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageDestroy(): void {
     this.contentLoaded = false;
+    this.entryRouter = undefined;
     if (this.settingsWindowCoordinator !== undefined) {
       this.settingsWindowCoordinator.stop();
       unregisterSharedSettingsWindowCoordinator(this.settingsWindowCoordinator);

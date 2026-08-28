@@ -191,11 +191,15 @@ fn production_quick_symbols_and_symbols_follow_category_switches() {
 }
 
 #[test]
-fn formal_engine_scopes_embedded_rules_to_full_code_word_and_allows_external_override() {
+fn formal_engine_scopes_embedded_rules_to_their_owning_category_and_allows_external_override() {
     let bundle = CodeTableBundle::load_frozen_production_file(formal_bundle())
         .expect("load frozen formal bundle");
     let embedded = bundle.user_rules.as_ref().expect("embedded rules");
-    let rule = embedded.entries().first().expect("embedded fixed rule");
+    let rule = embedded
+        .entries()
+        .iter()
+        .find(|entry| entry.category_id.as_deref() == Some("full-code-word"))
+        .expect("embedded full-code-word fixed rule");
 
     let mut built_in_only =
         ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 3))
@@ -229,6 +233,27 @@ fn formal_engine_scopes_embedded_rules_to_full_code_word_and_allows_external_ove
     enable_all_categories(&mut with_external);
     let external_texts = texts_for_code(&mut with_external, &rule.code);
     assert!(!external_texts.contains(&rule.text));
+}
+
+#[test]
+fn direct_entry_exposes_a_distinct_prefix_hint_and_commits_clean_text() {
+    let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
+        .expect("formal engine");
+
+    let prefix = enter(&mut engine, "gwy");
+    assert_eq!(prefix.candidates.len(), 1);
+    let direct = &prefix.candidates[0];
+    assert_eq!(direct.text, "给予");
+    assert_eq!(direct.display_text, "给ʲⁱ̌予");
+    assert_eq!(direct.reading, "gwyu");
+
+    let selected = engine.select_candidate(0).expect("select direct candidate");
+    assert_eq!(selected.commit_text, "给予");
+
+    engine.reset();
+    let complete = enter(&mut engine, "gwyu");
+    assert_eq!(complete.commit_text, "给予");
+    assert!(complete.candidates.is_empty());
 }
 
 #[test]
@@ -574,7 +599,8 @@ fn external_recovery_failure_never_removes_embedded_layer() {
         .as_ref()
         .expect("embedded rules")
         .entries()
-        .first()
+        .iter()
+        .find(|entry| entry.category_id.as_deref() == Some("full-code-word"))
         .expect("embedded fixed rule")
         .clone();
 

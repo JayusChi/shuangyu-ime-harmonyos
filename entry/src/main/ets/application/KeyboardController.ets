@@ -17,6 +17,10 @@ import {
 import { SmartPeriodInputAction } from './SmartPeriodController';
 import { AiAction } from '../domain/ai/AiContracts';
 import { AssistAvailability } from '../domain/security/InputMethodCapabilityState';
+import {
+  CandidatePunctuationResolutionType,
+  resolveCandidatePunctuation
+} from '../domain/keyboard/CandidatePunctuationPolicy';
 
 const TAG = 'KeyboardController';
 const LOGGER = new Logger(TAG);
@@ -338,7 +342,8 @@ export class KeyboardController {
     ): Promise<InputOperationResult> => {
       const result = await this.executeActionInternal(action, generation, inputAction);
       if (result.success && this.sessionController.isInputSessionGenerationCurrent(generation)) {
-        this.feedbackController.accepted(action.type === KeyboardActionType.DELETE);
+        this.feedbackController.accepted(action.type === KeyboardActionType.DELETE ||
+          action.type === KeyboardActionType.DELETE_CURRENT_LINE);
       }
       return result;
     });
@@ -358,7 +363,9 @@ export class KeyboardController {
         result = await this.sessionController.insertT9PinyinDigit(action.digit, generation);
         break;
       case KeyboardActionType.CHARACTER:
-        result = await this.sessionController.insertCharacter(action.character, generation, inputAction);
+        result = action.literal === true
+          ? await this.sessionController.insertLiteralCharacter(action.character, generation)
+          : await this.sessionController.insertCharacter(action.character, generation, inputAction);
         break;
       case KeyboardActionType.DELETE:
         result = await this.sessionController.deleteBackward(generation);
@@ -425,6 +432,12 @@ export class KeyboardController {
         }
         break;
       }
+      case KeyboardActionType.SECOND_CANDIDATE_OR_PERIOD:
+        result = await this.handleCandidatePunctuation(1, '。', generation, inputAction);
+        break;
+      case KeyboardActionType.THIRD_CANDIDATE_OR_COMMA:
+        result = await this.handleCandidatePunctuation(2, '，', generation, inputAction);
+        break;
       case KeyboardActionType.REPEAT_LAST_COMMIT: {
         const repeated = await this.sessionController.repeatLastCommit(generation);
         result = repeated
@@ -439,6 +452,12 @@ export class KeyboardController {
           : inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'undo last commit failed');
         break;
       }
+      case KeyboardActionType.DELETE_CURRENT_LINE:
+        result = await this.sessionController.deleteCurrentLine(generation);
+        break;
+      case KeyboardActionType.RESTORE_LAST_DELETION:
+        result = await this.sessionController.restoreLastDeletion(generation);
+        break;
       case KeyboardActionType.SELECT_ALL:
         result = await this.sessionController.performEditorExtendAction(EditorExtendAction.SELECT_ALL, generation);
         break;
@@ -463,6 +482,30 @@ export class KeyboardController {
         return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'unsupported keyboard action');
     }
     return result;
+  }
+
+  private async handleCandidatePunctuation(
+    candidateIndex: number,
+    punctuation: string,
+    generation: number,
+    inputAction: SmartPeriodInputAction
+  ): Promise<InputOperationResult> {
+    const state = this.sessionController.getState();
+    const resolution = resolveCandidatePunctuation(
+      state.rawInput,
+      state.candidates.length,
+      candidateIndex
+    );
+    if (resolution.type === CandidatePunctuationResolutionType.SELECT_CANDIDATE) {
+      return this.sessionController.commitCandidate(resolution.candidateIndex, generation);
+    }
+    if (resolution.type === CandidatePunctuationResolutionType.COMMIT_TOP_THEN_PUNCTUATION) {
+      const committed = await this.sessionController.commitCandidate(0, generation);
+      if (!committed.success || !this.sessionController.isInputSessionGenerationCurrent(generation)) {
+        return committed;
+      }
+    }
+    return this.sessionController.insertCharacter(punctuation, generation, inputAction);
   }
 
   private enqueueInputOperation(

@@ -1,10 +1,14 @@
 # Project State
 
-更新时间：2026-08-25
+更新时间：2026-08-27
 
 ## 当前阶段
 
+**0.5.1 客户反馈闭环修复 IMPLEMENTED / HOST_RELEASE_VALIDATED / THREE_DEVICE_REGRESSION_PASS / WINDOWS_PREVIEWER_BLOCKED（2026-08-27）** — 已修复 0.5.0 复验中仍未通过或未完全通过的四项：复制命令给宿主保留 500 ms 异步读取窗口、用原生光标移动收起选区，并以内存副本兼容独立宿主的扩展粘贴权限限制；删行改用光标两侧删除并支持失败回滚，回车下滑可按上下文恢复；中文组合码不再交给宿主绘制，统一只在候选区域显示实线下划线；小鹤音形万能键候选不再被精确码 UI 二次过滤。完整 Rust workspace（FFI `39/39`）、发布资源正负门禁、Release 构建与实包审计均 PASS。最新 ArkTS `567` 项测试源码已通过 `UnitTestArkTS` 编译，但 Windows Previewer 在执行前崩溃于 AMD OpenGL 驱动，最近一次完整执行报告仍为新增两项回归前的 `565/565 PASS`，不伪报 `567/567`。应用版本为 `0.5.1`（`versionCode=5001000`）；unsigned/signed HAP 分别为 `71,296,141`/`71,450,631` bytes，SHA-256 分别为 `EA94F3F1776CCC7BE991A506EB672C4473370C0B411D0A4FD70BEAE1957E8A83`、`230536B8189C9BA7F3D7255BD1734D3743A61953FD0CE1828616C68A36E8A840`。2in1 Stage 4、Pad 四条专项和 ARM64 Phone 系统浏览器输入码隔离 smoke 均 PASS；证据见 `docs/evidence/2026-08-27-v0.5.1-customer-feedback/README.md`。
+
 **客户 44 条直通确认 IMPLEMENTED_WITH_ONE_PLATFORM_DECISION_PENDING / HOST_RELEASE_VALIDATED / THREE_DEVICE_SMOKE_PASS（2026-08-25）** — 客户回填结果为 33 条正向选择、6 条“不需要”、5 条未填写。已实现其中 31 条功能项，另按确认保留 1 条 HTTP URL 安全拒绝；未实现项保持隔离。功能覆盖日期/农历/时间、固定 HTTPS 页面、设置与用户词库、删行、简繁/标点/全半角、数字句点、智能句号、空码和四码策略、三组词库预设、二简次选、授权导入及多行诗词。`ofi` 要求“读取复制单字但不粘贴”，但设备确认 normal APL 无法获得 `system_basic` 级 `ohos.permission.READ_PASTEBOARD`；失败入口和权限声明已撤下，等待客户在“显式粘贴/当前输入替代”与“系统级签名条件”之间二次决策。最终 signed Release 为 71,255,985 bytes、SHA-256 `39DA69D38C4BD5F0BCFE9358F8E2487BCFF6DF2A766DAD4581345DDF1749B4E9`；ArkTS 全量、Rust 四核心 crate 全量、双 ABI Native、Release 正负门禁 PASS。Phone、Pad、2in1 均安装同包并以 26 键小鹤音形输入 `orq` 显示两条日期候选，Phone/2in1 点击后上屏 `2026-08-25`；最终包仅声明 `VIBRATE`，不存在剪贴板读取权限。证据见 `docs/evidence/2026-08-25-customer-direct-actions/README.md`。
+
+**可配置直通提示 IMPLEMENTED / HOST_VALIDATED / HAP_BLOCKED_BY_UNRELATED_WORKTREE（2026-08-26）** — 已支持 `上屏内容,候选提示<Tab>完整编码#直`；正式词条 `给予,给ʲⁱ̌予<Tab>gwyu#直` 在输入 `gwy` 时显示 `给ʲⁱ̌予u`，选中或输完 `gwyu` 后只提交 `给予`。`#直` 保留来源分类、随所属分类开关生效并继续跳过万能键。候选协议升级至 interface/ABI 11，以 `displayText` 与 `text` 分离展示和提交。正式 bundle 接受 162,731 条、拒绝/隔离 390 条，大小 56,184,164 bytes，SHA-256 `F7BBFDF4473E9317D618C9AD02A792B47FF2DAB8BFD74FA23416579E01F9BDC7`，安装缓存升级到 v5。源审计、构建/复验、基线、Rust 全目标检查与相关回归、ArkTS 526/526、双 ABI Native 均 PASS；Release HAP 被当前工作区内无关的键盘自定义/设置模型 ArkTS 错误阻断，真机未运行。
 
 **客户回传小鹤音形词库 IMPORTED / HOST_RELEASE_VALIDATED / DEVICE_NOT_RUN（2026-08-24）** — 已清理并导入 `双羽词库分类/双羽词库/` 的 162,759 条客户记录，原件保持不变，规范化结果写入 `双羽词库分类/清理后/`；导入器严格校验 UTF-8、Tab、编码和重复项，并通过重复导入逐文件 SHA-256 不变的幂等检查。客户未提交表外段，按“未提交不等于删除”保留项目既有 362 条表外字；`5.直通.txt` 的 44 条命令或 URL 已合并为 `#直` 审计输入，但继续按正式安全策略隔离，未变成可执行候选，项目既有批准直通动作保持不变。正式 bundle 仍为 12 个内部分类，接受 162,730 条、拒绝/隔离 391 条：首选 68,568、分类 1,690、快符 16、一简 26、二简 66、表外 362、全码词 464、符号 623、符号组 707、生僻字 498、全码字 1,654、ok 拼字 88,020，另含 36 条全码词 `#固` 规则。bundle 为 56,183,822 bytes、SHA-256 `0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942`，安装缓存升级到 v4。源审计、正式构建/复验、候选基线、完整 Rust workspace、fmt、严格 Clippy、ArkTS 502/502、双 ABI OHOS Release Native、Release 正负资源门禁、default Release HAP 与实包内容门禁均 PASS；unsigned HAP 为 71,008,252 bytes、SHA-256 `0C1753EB17569F8478B50CE2475D709BA868756CF0575719DDF53C23B49BEA03`。真机安装与输入验收未运行。
 

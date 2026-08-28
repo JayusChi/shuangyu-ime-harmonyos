@@ -8,11 +8,11 @@ const TAG = 'YinxingBundleInstaller';
 const LOGGER = new Logger(TAG);
 
 const RAW_BUNDLE_NAME = 'xiaohe-yinxing-production.hsyx';
-const INSTALLED_BUNDLE_NAME = 'xiaohe-yinxing-production-v4.hsyx';
+const INSTALLED_BUNDLE_NAME = 'xiaohe-yinxing-production-v5.hsyx';
 const VALIDATION_RECEIPT_SUFFIX = '.verified-v4';
 const VALIDATION_RECEIPT_VERSION = 'yinxing-bundle-receipt/4';
-const EXPECTED_BUNDLE_SIZE = 56183822;
-const EXPECTED_BUNDLE_SHA256 = '0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942';
+const EXPECTED_BUNDLE_SIZE = 56184164;
+const EXPECTED_BUNDLE_SHA256 = 'f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7';
 
 export interface YinxingBundleInstallResult {
   success: boolean;
@@ -160,25 +160,33 @@ export class YinxingBundleInstaller {
   }
 
   private writeValidationReceipt(bundlePath: string, receiptPath: string): void {
-    const receiptTempPath = `${receiptPath}.tmp`;
-    const content = this.validationReceipt(fs.statSync(bundlePath));
-    const file: fs.File = fs.openSync(
-      receiptTempPath,
-      fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC
-    );
     try {
-      fs.writeSync(file.fd, content);
-      fs.fsyncSync(file.fd);
-    } finally {
-      fs.closeSync(file);
+      const receiptTempPath = `${receiptPath}.tmp`;
+      const content = this.validationReceipt(fs.statSync(bundlePath));
+      const file: fs.File = fs.openSync(
+        receiptTempPath,
+        fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC
+      );
+      try {
+        fs.writeSync(file.fd, content);
+        fs.fsyncSync(file.fd);
+      } finally {
+        fs.closeSync(file);
+      }
+      this.removeIfPresent(receiptPath);
+      fs.renameSync(receiptTempPath, receiptPath);
+    } catch (err) {
+      throw new Error(`bundle validation receipt write failed: ${JSON.stringify(err)}`);
     }
-    this.removeIfPresent(receiptPath);
-    fs.renameSync(receiptTempPath, receiptPath);
   }
 
   private removeIfPresent(path: string): void {
-    if (fs.accessSync(path)) {
-      fs.unlinkSync(path);
+    try {
+      if (fs.accessSync(path)) {
+        fs.unlinkSync(path);
+      }
+    } catch (err) {
+      throw new Error(`bundle file removal failed: ${JSON.stringify(err)}`);
     }
   }
 

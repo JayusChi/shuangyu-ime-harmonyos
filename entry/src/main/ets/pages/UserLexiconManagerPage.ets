@@ -48,6 +48,7 @@ struct UserLexiconManagerPage {
 
   // 添加词条对话框状态
   @State newEntryText: string = '';
+  @State newEntryDisplayText: string = '';
   @State newEntryCode: string = '';
   @State newEntryAction: UserLexiconActionType = 'ADD';
   @State newEntryPosition: number = 1;
@@ -110,6 +111,7 @@ struct UserLexiconManagerPage {
   private getActionLabel(action: UserLexiconActionType, position: number): string {
     switch (action) {
       case 'ADD': return '普通';
+      case 'DIRECT': return '直通';
       case 'DELETE': return '删除';
       case 'FIXED': return '固定';
       case 'POSITION': return `第${position}位`;
@@ -120,6 +122,7 @@ struct UserLexiconManagerPage {
   private getActionColor(action: UserLexiconActionType): string {
     switch (action) {
       case 'ADD': return '#666666';
+      case 'DIRECT': return '#9C27B0';
       case 'DELETE': return '#FF6B6B';
       case 'FIXED': return '#4CAF50';
       case 'POSITION': return '#2196F3';
@@ -144,7 +147,8 @@ struct UserLexiconManagerPage {
         this.newEntryText.trim(),
         this.newEntryCode.trim().toLowerCase(),
         this.newEntryAction,
-        this.newEntryPosition
+        this.newEntryPosition,
+        this.newEntryDisplayText.trim()
       );
 
       if (result.success) {
@@ -294,6 +298,7 @@ struct UserLexiconManagerPage {
 
   private resetAddDialogState(): void {
     this.newEntryText = '';
+    this.newEntryDisplayText = '';
     this.newEntryCode = '';
     this.newEntryAction = 'ADD';
     this.newEntryPosition = 1;
@@ -550,18 +555,27 @@ struct UserLexiconManagerPage {
         Blank()
         Select([
           { value: '普通添加', action: 'ADD' },
+          { value: '直通词条', action: 'DIRECT' },
           { value: '删除系统词', action: 'DELETE' },
           { value: '固定首位', action: 'FIXED' },
           { value: '插入位置', action: 'POSITION' }
         ])
           .selected(this.getActionIndex(this.newEntryAction))
           .onSelect((index: number) => {
-            const actions: UserLexiconActionType[] = ['ADD', 'DELETE', 'FIXED', 'POSITION'];
+            const actions: UserLexiconActionType[] = ['ADD', 'DIRECT', 'DELETE', 'FIXED', 'POSITION'];
             this.newEntryAction = actions[index];
           })
       }
       .width('100%')
       .margin({ bottom: 12 })
+
+      if (this.newEntryAction === 'DIRECT') {
+        TextInput({ placeholder: '候选提示（可选，留空则同上屏内容）', text: this.newEntryDisplayText })
+          .onChange((value: string) => {
+            this.newEntryDisplayText = value;
+          })
+          .margin({ bottom: 12 })
+      }
 
       if (this.newEntryAction === 'POSITION') {
         Row() {
@@ -608,7 +622,7 @@ struct UserLexiconManagerPage {
   }
 
   private getActionIndex(action: UserLexiconActionType): number {
-    const actions: UserLexiconActionType[] = ['ADD', 'DELETE', 'FIXED', 'POSITION'];
+    const actions: UserLexiconActionType[] = ['ADD', 'DIRECT', 'DELETE', 'FIXED', 'POSITION'];
     return actions.indexOf(action);
   }
 
@@ -696,6 +710,7 @@ struct EntryItem {
   @Prop entry: UserLexiconEntryRecord = {
     id: '',
     text: '',
+    displayText: '',
     code: '',
     action: 'ADD',
     position: 0,

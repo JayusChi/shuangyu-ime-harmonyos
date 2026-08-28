@@ -2,6 +2,7 @@
   "src": [
     "pages/Index",
     "pages/UserLexicon",
+    "pages/KeyboardCustomization",
     "pages/XiaoheYinxingCategoryManagerPage",
     "stage0/Stage0Keyboard",
     "presentation/keyboard/KeyboardRoot",

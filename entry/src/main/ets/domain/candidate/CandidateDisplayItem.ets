@@ -12,10 +12,14 @@ export function toCandidateDisplayItem(
   index: number,
   codeHint: string = ''
 ): CandidateDisplayItem {
-  const suffix = codeHint.length > 0 ? ` ${codeHint}` : '';
+  const hasDirectDisplayText = candidate.displayText !== undefined && candidate.displayText.length > 0;
+  const candidateText = hasDirectDisplayText ? candidate.displayText! : candidate.text;
+  // Direct-word labels flow into the remaining code (`给ʲⁱ̌予u`). Ordinary
+  // precise hints retain the established separating space.
+  const suffix = codeHint.length > 0 ? `${hasDirectDisplayText ? '' : ' '}${codeHint}` : '';
   return {
-    displayText: `${candidate.text}${suffix}`,
-    accessibilityText: `第 ${index + 1} 个候选，${candidate.text}${suffix}`
+    displayText: `${candidateText}${suffix}`,
+    accessibilityText: `第 ${index + 1} 个候选，${candidateText}${suffix}`
   };
 }
 

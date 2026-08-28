@@ -21,8 +21,8 @@
 
 ## 协议与兼容边界
 
-- 当前 interface/ABI version：`10`。
-- 当前 engine version：`0.0.1-direct-controls`。
+- 当前 interface/ABI version：`11`。
+- 当前 engine version：`0.0.1-direct-display`。
 - 新增动作：`REPEAT_COMMIT`、`UNDO_COMMIT`、`MOVE_LINE_END`；原有 `INSERT_PAIR` 保持兼容。
 - 撤销和行末定位依赖宿主编辑器提供文本查询、删除和光标定位能力；宿主拒绝或会话已切换时安全失败，不猜测、不重试写入。
 - 外部固定文件必须先经系统授权；应用不绕过 HarmonyOS 沙箱读取任意绝对路径。

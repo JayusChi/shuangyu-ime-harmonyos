@@ -501,23 +501,29 @@ fn test_concurrent_saves_are_serialized() {
 fn test_stable_id_generation() {
     let entry1 = UserLexiconEntry {
         text: "测试".to_owned(),
+        display_text: None,
         code: "ceshi".to_owned(),
         action: UserLexiconAction::Add,
         source_order: 0,
+        category_id: None,
     };
 
     let entry2 = UserLexiconEntry {
         text: "测试".to_owned(),
+        display_text: None,
         code: "ceshi".to_owned(),
         action: UserLexiconAction::Fixed,
         source_order: 10,
+        category_id: None,
     };
 
     let entry3 = UserLexiconEntry {
         text: "测试".to_owned(),
+        display_text: None,
         code: "ceshi1".to_owned(),
         action: UserLexiconAction::Add,
         source_order: 0,
+        category_id: None,
     };
 
     // 相同词条和编码应该生成相同ID

@@ -5,6 +5,10 @@ import {
 } from '../../domain/candidate/CandidateExpansionPolicy';
 import { toCandidateDisplayItem } from '../../domain/candidate/CandidateDisplayItem';
 import { KeyboardColorPalette, LIGHT_PALETTE } from '../keyboard/design/KeyboardPalette';
+import {
+  CompositionPreeditView,
+  resolveCompositionPreeditView
+} from '../../domain/candidate/CompositionPreeditView';
 
 export interface CandidatePagerAccessibilitySpec {
   previous: string;
@@ -19,6 +23,12 @@ export const CANDIDATE_PAGER_ACCESSIBILITY: CandidatePagerAccessibilitySpec = {
 @Component
 export struct CandidateExpansionPanel {
   @Prop palette: KeyboardColorPalette = LIGHT_PALETTE;
+  @Prop rawInput: string = '';
+  @Prop preeditText: string = '';
+  @Prop cursorPreeditVisible: boolean = false;
+  @Prop displaySegments: string[] = [];
+  @Prop pendingCode: string = '';
+  @Prop segmentBoundaries: number[] = [];
   @Prop @Watch('resetGridPosition') candidates: Candidate[] = [];
   @Prop @Watch('resetGridPosition') candidatePage: number = 0;
   @Prop hasPreviousPage: boolean = false;
@@ -42,6 +52,17 @@ export struct CandidateExpansionPanel {
 
   private resetGridPosition(): void {
     this.gridScroller.scrollTo({ xOffset: 0, yOffset: 0 });
+  }
+
+  private preeditView(): CompositionPreeditView {
+    return resolveCompositionPreeditView({
+      rawInput: this.rawInput,
+      preeditText: this.preeditText,
+      cursorPreeditVisible: this.cursorPreeditVisible,
+      displaySegments: this.displaySegments,
+      pendingCode: this.pendingCode,
+      segmentBoundaries: this.segmentBoundaries
+    });
   }
 
   @Builder
@@ -84,6 +105,21 @@ export struct CandidateExpansionPanel {
 
   build() {
     Column({ space: 4 }) {
+      if (this.preeditView().visible) {
+        Text(this.preeditView().displayText)
+          .width('100%')
+          .fontSize(this.candidateFontSize)
+          .fontColor(this.palette.candidateText)
+          .fontWeight(FontWeight.Medium)
+          .decoration({
+            type: TextDecorationType.Underline,
+            color: this.palette.candidateText,
+            style: TextDecorationStyle.SOLID
+          })
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .padding({ left: 8, right: 8, top: 3, bottom: 3 })
+      }
       Grid(this.gridScroller) {
         ForEach(this.candidates, (candidate: Candidate, index: number) => {
           GridItem() {

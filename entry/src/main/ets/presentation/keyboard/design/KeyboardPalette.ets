@@ -7,6 +7,13 @@ export interface KeyboardColorPalette {
   // “淡然”素材按日间/夜间分别提供位图图标；颜色模式同时决定图标版本。
   useDarkMedia: boolean;
 
+  // 自定义皮肤包可以为面板和不同键帽提供本地图片。空字符串表示只使用颜色。
+  panelBackgroundImage: string;
+  letterKeyBackgroundImage: string;
+  functionKeyBackgroundImage: string;
+  spaceKeyBackgroundImage: string;
+  enterKeyBackgroundImage: string;
+
   // 背景色
   panelBackground: string;
   candidateBackground: string;
@@ -51,6 +58,11 @@ export interface KeyboardColorPalette {
  */
 export const LIGHT_PALETTE: KeyboardColorPalette = {
   useDarkMedia: false,
+  panelBackgroundImage: '',
+  letterKeyBackgroundImage: '',
+  functionKeyBackgroundImage: '',
+  spaceKeyBackgroundImage: '',
+  enterKeyBackgroundImage: '',
 
   // 背景色
   panelBackground: '#DCE0EB',
@@ -96,6 +108,11 @@ export const LIGHT_PALETTE: KeyboardColorPalette = {
  */
 export const DARK_PALETTE: KeyboardColorPalette = {
   useDarkMedia: true,
+  panelBackgroundImage: '',
+  letterKeyBackgroundImage: '',
+  functionKeyBackgroundImage: '',
+  spaceKeyBackgroundImage: '',
+  enterKeyBackgroundImage: '',
 
   // 背景色
   panelBackground: '#1C202B',

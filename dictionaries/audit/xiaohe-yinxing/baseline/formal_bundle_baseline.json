@@ -4,9 +4,9 @@
     "bundle_id":  "xiaohe-yinxing-production",
     "bundle_path":  "dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx",
     "bundle_file_name":  "xiaohe-yinxing-production.hsyx",
-    "bundle_byte_size":  56183822,
-    "bundle_mib":  53.581068,
-    "bundle_sha256":  "0963f9c28b750c375dbe693feaa2b1c9334ecd9c2c58df2e367138b22b82c942",
+    "bundle_byte_size":  56184164,
+    "bundle_mib":  53.581394,
+    "bundle_sha256":  "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7",
     "bundle_magic":  "HSPYXP01",
     "bundle_format_version":  "1.0",
     "nested_lexicon_format_version":  "HSPLEX01 1.1",
@@ -138,7 +138,7 @@
                        }
                    ],
     "ordinary_record_count":  162694,
-    "embedded_rule_count":  743,
+    "embedded_rule_count":  744,
     "embedded_fixed_rule_count":  36,
     "core_required":  true,
     "default_enabled_category_ids":  [
