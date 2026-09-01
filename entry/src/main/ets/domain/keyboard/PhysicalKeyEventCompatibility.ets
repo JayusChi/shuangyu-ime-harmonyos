@@ -6,6 +6,14 @@ export enum PhysicalKeyEventChannel {
   LEGACY = 'legacy'
 }
 
+interface PhysicalKeyDecisionRecord {
+  channel: PhysicalKeyEventChannel;
+  keyCode: number;
+  isDown: boolean;
+  timestampMs: number;
+  handled: boolean;
+}
+
 const KEYCODE_ALT_LEFT = 2045;
 const KEYCODE_ALT_RIGHT = 2046;
 const KEYCODE_SHIFT_LEFT = 2047;
@@ -68,16 +76,17 @@ export class LegacyPhysicalKeyState {
  * Some hosts emit both keyboard-delegate APIs for one native key. Preserve the
  * first callback's consumed decision for the matching cross-channel callback,
  * while never suppressing repeat events delivered through the same channel.
+ *
+ * DOWN and UP callbacks can be delivered as a complete pair on one API before
+ * the other API starts its pair. Keeping only the globally last callback loses
+ * the earlier DOWN and dispatches one physical key twice. Recent decisions are
+ * therefore matched by `(keyCode, phase)` and consumed exactly once.
  */
 export class PhysicalKeyEventDeduplicator {
-  private lastChannel?: PhysicalKeyEventChannel;
-  private lastKeyCode: number = -1;
-  private lastIsDown: boolean = false;
-  private lastTimestampMs: number = 0;
-  private lastHandled: boolean = false;
+  private recentDecisions: PhysicalKeyDecisionRecord[] = [];
   private readonly duplicateWindowMs: number;
 
-  constructor(duplicateWindowMs: number = 24) {
+  constructor(duplicateWindowMs: number = 80) {
     this.duplicateWindowMs = duplicateWindowMs;
   }
 
@@ -86,13 +95,16 @@ export class PhysicalKeyEventDeduplicator {
     key: PhysicalKeySnapshot,
     timestampMs: number
   ): boolean | undefined {
-    const elapsedMs = timestampMs - this.lastTimestampMs;
-    if (this.lastChannel === undefined || this.lastChannel === channel ||
-      this.lastKeyCode !== key.keyCode || this.lastIsDown !== key.isDown ||
-      elapsedMs < 0 || elapsedMs > this.duplicateWindowMs) {
-      return undefined;
+    this.prune(timestampMs);
+    for (let index = this.recentDecisions.length - 1; index >= 0; index -= 1) {
+      const decision = this.recentDecisions[index];
+      if (decision.channel !== channel && decision.keyCode === key.keyCode &&
+        decision.isDown === key.isDown) {
+        this.recentDecisions.splice(index, 1);
+        return decision.handled;
+      }
     }
-    return this.lastHandled;
+    return undefined;
   }
 
   record(
@@ -101,18 +113,24 @@ export class PhysicalKeyEventDeduplicator {
     handled: boolean,
     timestampMs: number
   ): void {
-    this.lastChannel = channel;
-    this.lastKeyCode = key.keyCode;
-    this.lastIsDown = key.isDown;
-    this.lastTimestampMs = timestampMs;
-    this.lastHandled = handled;
+    this.prune(timestampMs);
+    this.recentDecisions.push({
+      channel,
+      keyCode: key.keyCode,
+      isDown: key.isDown,
+      timestampMs,
+      handled
+    });
   }
 
   reset(): void {
-    this.lastChannel = undefined;
-    this.lastKeyCode = -1;
-    this.lastIsDown = false;
-    this.lastTimestampMs = 0;
-    this.lastHandled = false;
+    this.recentDecisions = [];
+  }
+
+  private prune(timestampMs: number): void {
+    this.recentDecisions = this.recentDecisions.filter((decision: PhysicalKeyDecisionRecord): boolean => {
+      const elapsedMs = timestampMs - decision.timestampMs;
+      return elapsedMs >= 0 && elapsedMs <= this.duplicateWindowMs;
+    });
   }
 }

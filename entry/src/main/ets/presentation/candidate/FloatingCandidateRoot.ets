@@ -10,6 +10,8 @@ import {
 import { CandidateFontSizeMode } from '../../domain/settings/ImeSettings';
 import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
 import {
+  CompositionPreeditDecoration,
+  CompositionPreeditPlacement,
   CompositionPreeditView,
   resolveCompositionPreeditView
 } from '../../domain/candidate/CompositionPreeditView';
@@ -143,6 +145,7 @@ struct FloatingCandidateRoot {
       rawInput: this.rawInput,
       preeditText: this.preeditText,
       cursorPreeditVisible: this.cursorPreeditVisible,
+      placement: CompositionPreeditPlacement.FLOATING_WINDOW,
       displaySegments: this.displaySegments,
       pendingCode: this.pendingCode,
       segmentBoundaries: this.segmentBoundaries
@@ -159,7 +162,9 @@ struct FloatingCandidateRoot {
               .fontColor(this.palette.candidateText)
               .fontWeight(FontWeight.Medium)
               .decoration({
-                type: TextDecorationType.Underline,
+                type: this.preeditView().decoration === CompositionPreeditDecoration.UNDERLINE
+                  ? TextDecorationType.Underline
+                  : TextDecorationType.None,
                 color: this.palette.candidateText,
                 style: TextDecorationStyle.SOLID
               })

@@ -8,11 +8,11 @@ const TAG = 'YinxingBundleInstaller';
 const LOGGER = new Logger(TAG);
 
 const RAW_BUNDLE_NAME = 'xiaohe-yinxing-production.hsyx';
-const INSTALLED_BUNDLE_NAME = 'xiaohe-yinxing-production-v5.hsyx';
+const INSTALLED_BUNDLE_NAME = 'xiaohe-yinxing-production-v6.hsyx';
 const VALIDATION_RECEIPT_SUFFIX = '.verified-v4';
 const VALIDATION_RECEIPT_VERSION = 'yinxing-bundle-receipt/4';
-const EXPECTED_BUNDLE_SIZE = 56184164;
-const EXPECTED_BUNDLE_SHA256 = 'f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7';
+const EXPECTED_BUNDLE_SIZE = 56104660;
+const EXPECTED_BUNDLE_SHA256 = '263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09';
 
 export interface YinxingBundleInstallResult {
   success: boolean;

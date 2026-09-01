@@ -3,13 +3,18 @@ import common from '@ohos.app.ability.common';
 import { InputMethodListDialog } from '@kit.IMEKit';
 import { DeleteRepeatController } from '../../application/DeleteRepeatController';
 import {
+  createCharacterInputAction,
   DELETE_ACTION,
   HIDE_KEYBOARD_ACTION,
   KeyboardAction,
+  KeyboardActionType,
   KeyboardMode,
+  MOVE_CURSOR_LEFT_ACTION,
+  MOVE_CURSOR_RIGHT_ACTION,
+  SECOND_CANDIDATE_OR_PERIOD_ACTION,
   SHOW_INPUT_METHOD_PICKER_ACTION,
-  SWITCH_INPUT_METHOD_ACTION,
-  TOGGLE_LANGUAGE_ACTION,
+  THIRD_CANDIDATE_OR_COMMA_ACTION,
+  TOGGLE_NUMBER_ACTION,
   TOGGLE_SYMBOL_ACTION
 } from '../../domain/keyboard/KeyboardAction';
 import InputMethodExtensionContext from '@ohos.InputMethodExtensionContext';
@@ -21,6 +26,7 @@ import {
 import {
   CandidateFontSizeMode,
   CandidatePresentationMode,
+  DEFAULT_LONG_PRESS_DURATION_MS,
   KeyboardHeightMode,
   DEFAULT_SCHEME_ID
 } from '../../domain/settings/ImeSettings';
@@ -28,7 +34,8 @@ import {
   allowsCandidateBrowsing,
   CandidateUiMode,
   resolveCandidateUiMode,
-  resolveVisibleCandidates
+  resolveVisibleCandidates,
+  shouldShowCandidateExpansionAction
 } from '../../domain/candidate/CandidateUiPolicy';
 import { getSharedSettingsStore, SettingsStore } from '../../state/SettingsStore';
 import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
@@ -37,7 +44,8 @@ import {
   KeyboardKeyKind,
   KeyboardLayoutSpec,
   KeyboardRowKind,
-  KeyboardRowSpec
+  KeyboardRowSpec,
+  keyboardRowRenderIdentity
 } from './model/KeyboardLayoutSpec';
 import { createStage10KeyboardLayout } from './layouts/Stage10KeyboardLayouts';
 import { BaseKey } from './components/BaseKey';
@@ -65,8 +73,8 @@ import { CandidateBar, CandidateBarState } from '../candidate/CandidateBar';
 import { PinyinCombinationBar } from '../candidate/PinyinCombinationBar';
 import { CandidateExpansionPanel } from '../candidate/CandidateExpansionPanel';
 import {
+  KEY_WEIGHTS,
   PORTRAIT_METRICS,
-  KEYBOARD_LIFT_LAYER_HEIGHT,
   OrientationMetrics,
   getMetricsForOrientation
 } from './design/KeyboardMetrics';
@@ -168,7 +176,6 @@ struct KeyboardRoot {
   @State private segmentBoundaries: number[] = [];
   @State private currentPinyin: string = '';
   @State private pinyinCombinations: string[] = [];
-  @State private keyboardLayoutRawInput: string = '';
   @State private parserState: string = 'empty';
   @State private candidates: Candidate[] = [];
   @State private highlightedIndex: number = -1;
@@ -180,10 +187,11 @@ struct KeyboardRoot {
   @State private hasPreviousPage: boolean = false;
   @State private keyboardHeightMode: KeyboardHeightMode = KeyboardHeightMode.STANDARD;
   @State private keyboardLiftLayerEnabled: boolean = true;
+  @State private symbolLanguageMode: KeyboardMode = KeyboardMode.CHINESE;
+  @State private longPressDurationMs: number = DEFAULT_LONG_PRESS_DURATION_MS;
   @State private candidateFontSize: number = 14;
   @State private candidateUiMode: CandidateUiMode = resolveCandidateUiMode(DEFAULT_SCHEME_ID);
   @State private inputMethodSwitchAvailable: boolean = false;
-  @State private inputMethodNextAvailable: boolean = false;
   @State private inputMethodPickerAvailable: boolean = false;
   @State private shuangpinLayout: ShuangpinKeyboardLayout = DEFAULT_SHUANGPIN_KEYBOARD_LAYOUT;
   @State private keyboardProfileId: string = DEFAULT_KEYBOARD_PROFILE_ID;
@@ -212,6 +220,8 @@ struct KeyboardRoot {
   private keyboardStructure?: KeyboardStructureDefinition;
   private keyboardSkin?: KeyboardSkinDefinition;
   private keyboardSkinAssetRoot: string = '';
+  private cachedKeyboardLayoutKey: string = '';
+  private cachedKeyboardLayout?: KeyboardLayoutSpec;
   private pressedShortcutKeyIds: string[] = [];
   private consumedShortcutKeyIds: string[] = [];
   private readonly onSessionStateChanged = (): void => {
@@ -266,9 +276,6 @@ struct KeyboardRoot {
     this.segmentBoundaries = state.segmentBoundaries;
     this.currentPinyin = state.currentPinyin;
     this.pinyinCombinations = state.pinyinCombinations;
-    if (!this.deleteRepeatController.isActivated()) {
-      this.keyboardLayoutRawInput = state.rawInput;
-    }
     this.parserState = state.parserState;
     this.candidates = state.candidates;
     this.highlightedIndex = state.highlightedIndex;
@@ -277,6 +284,11 @@ struct KeyboardRoot {
     this.candidatePage = state.candidatePage;
     this.hasNextPage = state.hasNextPage;
     this.hasPreviousPage = state.hasPreviousPage;
+    if (this.candidatePanelExpanded &&
+      !allowsCandidateBrowsing(this.candidateUiMode, this.rawInput)) {
+      this.candidatePanelExpanded = false;
+      this.controller.setCandidatePanelExpanded(false);
+    }
     this.aiPresentation = state.aiPresentation;
     this.voicePresentation = state.voicePresentation;
     this.localAssociations = state.localAssociations;
@@ -311,7 +323,6 @@ struct KeyboardRoot {
   private refreshInputMethodSwitchCapabilities(): void {
     const capabilities = this.controller.getInputMethodSwitchCapabilities();
     this.inputMethodPickerAvailable = capabilities.canShowSystemPicker;
-    this.inputMethodNextAvailable = capabilities.canSwitchToNext;
     this.inputMethodSwitchAvailable = capabilities.canSwitchToNext || capabilities.canShowSystemPicker;
   }
 
@@ -331,6 +342,11 @@ struct KeyboardRoot {
   }
 
   private refreshSettings(): void {
+    // A customization package may be replaced in place while keeping its ID.
+    // Drop the cache on every settings snapshot so that the next render reads
+    // the newly loaded structure exactly once.
+    this.cachedKeyboardLayoutKey = '';
+    this.cachedKeyboardLayout = undefined;
     const settings = this.settingsStore.getSnapshot();
     this.keyboardProfileId = settings.keyboardProfileId;
     this.keyboardStructureId = settings.keyboardStructureId;
@@ -344,11 +360,16 @@ struct KeyboardRoot {
     this.keyboardSkinAssetRoot = installedSkin?.assetRoot ?? '';
     this.keyboardHeightMode = settings.keyboardHeightMode;
     this.keyboardLiftLayerEnabled = settings.keyboardLiftLayerEnabled;
+    this.longPressDurationMs = settings.longPressDurationMs;
+    this.deleteRepeatController.setLongPressDelayMs(settings.longPressDurationMs);
     this.candidateFontSize = this.resolveCandidateFontSize(settings.candidateFontSizeMode);
     this.candidateUiMode = resolveCandidateUiMode(settings.schemeId);
-    if (!allowsCandidateBrowsing(this.candidateUiMode) && this.candidatePanelExpanded) {
+    if (!allowsCandidateBrowsing(this.candidateUiMode, this.rawInput) && this.candidatePanelExpanded) {
       this.controller.setCandidatePanelExpanded(false);
       this.candidatePanelExpanded = false;
+    }
+    if (settings.candidatePresentationMode === CandidatePresentationMode.FLOATING) {
+      this.layoutSelectorVisible = false;
     }
     this.candidatePresentationMode = settings.candidatePresentationMode;
     this.aiEntryVisible = settings.aiEnabled;
@@ -385,30 +406,56 @@ struct KeyboardRoot {
   }
 
   private isCandidatePanelActive(): boolean {
-    return allowsCandidateBrowsing(this.candidateUiMode) && this.candidatePanelExpanded;
+    return allowsCandidateBrowsing(this.candidateUiMode, this.rawInput) && this.candidatePanelExpanded;
   }
 
   private async dispatchAction(action: KeyboardAction): Promise<void> {
+    if (action.type === KeyboardActionType.EXPAND_CANDIDATES) {
+      this.toggleCandidatePanel(true);
+      return;
+    }
+    if (action.type === KeyboardActionType.TOGGLE_SYMBOL && this.keyboardMode !== KeyboardMode.SYMBOL) {
+      this.symbolLanguageMode = this.languageMode;
+    }
     await this.controller.handleAction(action);
   }
 
   private currentKeyboardLayout(): KeyboardLayoutSpec {
+    // Candidate/preedit state changes on every Chinese key, but the key grid
+    // only changes once when the Chinese left key swaps between Shift and Esc.
+    // Keep the exact composition text out of the cache key so subsequent
+    // candidate refreshes do not allocate and diff the entire keyboard.
+    const chineseCompositionActive = this.keyboardMode === KeyboardMode.CHINESE && this.rawInput.length > 0;
+    const cacheKey = `${this.editorContext.kind}-${this.editorContext.enterAction}-` +
+      `${this.editorContext.chineseModeAllowed}-${this.editorContext.englishModeAllowed}-` +
+      `${this.editorContext.numberModeAllowed}-${this.editorContext.symbolModeAllowed}-` +
+      `${this.editorContext.numberDecimalAllowed}-${this.keyboardMode}-${this.shiftState}-` +
+      `${this.chineseCapsLock}-${this.shuangpinLayout}-${this.keyboardProfileId}-` +
+      `${this.keyboardStructureId}-${chineseCompositionActive}-${this.symbolLanguageMode}-` +
+      `${this.chineseLetterSwipeSymbols}-${this.englishLetterSwipeSymbols}`;
+    if (this.cachedKeyboardLayout !== undefined && this.cachedKeyboardLayoutKey === cacheKey) {
+      return this.cachedKeyboardLayout;
+    }
     const base = createStage10KeyboardLayout(
       this.keyboardMode,
       this.editorContext,
       this.shiftState,
-      this.rawInput,
+      chineseCompositionActive ? this.rawInput : '',
       this.chineseCapsLock,
-      false,
+      !this.keyboardLiftLayerEnabled,
       this.shuangpinLayout,
-      this.keyboardProfileId
+      this.keyboardProfileId,
+      this.symbolLanguageMode
     );
-    return applyLetterSwipeSymbols(
+    const layout = applyLetterSwipeSymbols(
       applyKeyboardStructure(base, this.keyboardStructure),
       this.keyboardMode,
       this.chineseLetterSwipeSymbols,
       this.englishLetterSwipeSymbols
     );
+    this.cachedKeyboardLayoutKey = cacheKey;
+    this.cachedKeyboardLayout = layout;
+    return layout;
   }
 
   private handleCustomizationKeyPress(spec: KeyboardKeySpec): void {
@@ -499,7 +546,11 @@ struct KeyboardRoot {
   }
 
   private toggleCandidatePanel(expanded: boolean): void {
-    if (expanded && !allowsCandidateBrowsing(this.candidateUiMode)) {
+    if (expanded && !shouldShowCandidateExpansionAction(
+      this.candidateUiMode,
+      this.visibleCandidates().length,
+      this.rawInput
+    )) {
       return;
     }
     this.controller.setCandidatePanelExpanded(expanded);
@@ -559,17 +610,62 @@ struct KeyboardRoot {
     return findKeyboardProfile(this.keyboardProfileId)?.displayName ?? '26 键双拼';
   }
 
-  private liftLayerLanguageLabel(): string {
-    return this.languageMode === KeyboardMode.CHINESE ? '中→英' : '英→中';
+  private liftLayerPunctuationLabel(comma: boolean): string {
+    if (this.languageMode === KeyboardMode.CHINESE) {
+      return comma ? '，' : '。';
+    }
+    return comma ? ',' : '.';
   }
 
-  private switchInputMethodFromLiftLayer(): void {
-    if (!this.inputMethodSwitchAvailable) {
+  private liftLayerPunctuationAction(comma: boolean): KeyboardAction {
+    if (this.languageMode === KeyboardMode.CHINESE) {
+      return comma ? THIRD_CANDIDATE_OR_COMMA_ACTION : SECOND_CANDIDATE_OR_PERIOD_ACTION;
+    }
+    return createCharacterInputAction(comma ? ',' : '.');
+  }
+
+  private liftLayerKeyWeight(keyId: string, fallback: number): number {
+    const rows = this.currentKeyboardLayout().rows;
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
+      if (rows[rowIndex].kind !== KeyboardRowKind.BOTTOM_ACTIONS) {
+        continue;
+      }
+      const keys = rows[rowIndex].keys;
+      for (let keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
+        if (keys[keyIndex].id === keyId) {
+          return keys[keyIndex].weight;
+        }
+      }
+    }
+    return fallback;
+  }
+
+  private showInputMethodPickerFromLiftLayer(): void {
+    if (!this.inputMethodPickerAvailable) {
       return;
     }
-    this.dispatchAction(this.inputMethodNextAvailable
-      ? SWITCH_INPUT_METHOD_ACTION
-      : SHOW_INPUT_METHOD_PICKER_ACTION);
+    this.dispatchAction(SHOW_INPUT_METHOD_PICKER_ACTION);
+  }
+
+  private returnFromTransientKeyboard(): void {
+    if (this.keyboardMode === KeyboardMode.NUMBER) {
+      this.dispatchAction(TOGGLE_NUMBER_ACTION);
+    } else if (this.keyboardMode === KeyboardMode.SYMBOL) {
+      this.dispatchAction(TOGGLE_SYMBOL_ACTION);
+    }
+  }
+
+  private showNumberKeyboard(): void {
+    if (this.keyboardMode !== KeyboardMode.NUMBER) {
+      this.dispatchAction(TOGGLE_NUMBER_ACTION);
+    }
+  }
+
+  private showSymbolKeyboard(languageMode: KeyboardMode): void {
+    this.symbolLanguageMode = languageMode;
+    if (this.keyboardMode !== KeyboardMode.SYMBOL) {
+      this.controller.handleAction(TOGGLE_SYMBOL_ACTION);
+    }
   }
 
   private async openSettings(): Promise<void> {
@@ -595,7 +691,6 @@ struct KeyboardRoot {
 
   private handleDeleteRelease(): void {
     this.deleteRepeatController.stop();
-    this.keyboardLayoutRawInput = this.rawInput;
   }
 
   private handleDeleteClick(): void {
@@ -614,6 +709,7 @@ struct KeyboardRoot {
         metrics: this.metrics,
         keyboardMode: this.keyboardMode,
         shiftState: this.shiftState,
+        longPressDurationMs: this.longPressDurationMs,
         onDeletePress: () => this.handleDeletePress(),
         onDeleteRelease: () => this.handleDeleteRelease(),
         onDeleteClick: () => this.handleDeleteClick(),
@@ -625,6 +721,7 @@ struct KeyboardRoot {
         palette: this.palette,
         metrics: this.metrics,
         longPressEnabled: this.inputMethodPickerAvailable,
+        longPressDurationMs: this.longPressDurationMs,
         onAction: (action: KeyboardAction) => this.dispatchAction(action)
       })
     } else if (spec.alternatives && spec.alternatives.length > 0) {
@@ -643,6 +740,7 @@ struct KeyboardRoot {
         metrics: this.metrics,
         keyboardMode: this.keyboardMode,
         shiftState: this.shiftState,
+        longPressDurationMs: this.longPressDurationMs,
         onKeyClick: (s: KeyboardKeySpec) => this.dispatchAction(s.action),
         onAlternateAction: (action: KeyboardAction) => this.dispatchAction(action)
       })
@@ -654,6 +752,7 @@ struct KeyboardRoot {
         keyboardMode: this.keyboardMode,
         shiftState: this.shiftState,
         longPressEnabled: true,
+        longPressDurationMs: this.longPressDurationMs,
         onKeyPress: (s: KeyboardKeySpec) => this.handleCustomizationKeyPress(s),
         onKeyRelease: (s: KeyboardKeySpec) => this.handleCustomizationKeyRelease(s),
         onKeyClick: (s: KeyboardKeySpec) => this.handleCustomizationKeyClick(s),
@@ -683,7 +782,7 @@ struct KeyboardRoot {
 
   @Builder
   private KeyboardLiftLayer() {
-    Row() {
+    Row({ space: this.metrics.keySpacing }) {
       Row() {
         Image($r('app.media.input_method_switcher'))
           .width(22)
@@ -691,55 +790,64 @@ struct KeyboardRoot {
           .fillColor(this.palette.functionKeyText)
           .objectFit(ImageFit.Contain)
       }
-      .width(54)
+      .layoutWeight(this.liftLayerKeyWeight('number', KEY_WEIGHTS.MODE_SWITCH))
       .height('100%')
       .justifyContent(FlexAlign.Center)
-      .opacity(this.inputMethodSwitchAvailable ? 1 : 0.4)
-      .enabled(this.inputMethodSwitchAvailable)
-      .accessibilityText('切换输入法')
-      .onClick((): void => this.switchInputMethodFromLiftLayer())
+      .opacity(this.inputMethodPickerAvailable ? 1 : 0.4)
+      .enabled(this.inputMethodPickerAvailable)
+      .accessibilityText('选择输入法')
+      .onClick((): void => this.showInputMethodPickerFromLiftLayer())
+
+      Text(this.liftLayerPunctuationLabel(true))
+        .fontSize(this.metrics.functionFontSize + 2)
+        .fontColor(this.palette.functionKeyText)
+        .fontWeight(FontWeight.Medium)
+        .textAlign(TextAlign.Center)
+        .layoutWeight(this.liftLayerKeyWeight('punctuation-comma', 0.9))
+        .height('100%')
+        .accessibilityText('输入逗号')
+        .onClick((): void => {
+          this.dispatchAction(this.liftLayerPunctuationAction(true));
+        })
 
       Row() {
-        Text(this.liftLayerLanguageLabel())
-          .fontSize(11)
+        Text('左移')
+          .fontSize(this.metrics.functionFontSize)
           .fontColor(this.palette.functionKeyText)
           .fontWeight(FontWeight.Medium)
           .textAlign(TextAlign.Center)
           .layoutWeight(1)
           .height('100%')
-          .opacity(this.editorContext.chineseModeAllowed && this.editorContext.englishModeAllowed ? 1 : 0.4)
-          .enabled(this.editorContext.chineseModeAllowed && this.editorContext.englishModeAllowed)
-          .accessibilityText('切换中英文键盘')
+          .accessibilityText('向左移动光标')
           .onClick((): void => {
-            this.dispatchAction(TOGGLE_LANGUAGE_ACTION);
+            this.dispatchAction(MOVE_CURSOR_LEFT_ACTION);
           })
-        Text('符号')
-          .fontSize(11)
-          .fontColor(this.keyboardMode === KeyboardMode.SYMBOL
-            ? this.palette.modeKeyTextChinese
-            : this.palette.functionKeyText)
-          .fontWeight(FontWeight.Medium)
-          .textAlign(TextAlign.Center)
-          .layoutWeight(1)
-          .height('100%')
-          .opacity(this.editorContext.symbolModeAllowed ? 1 : 0.4)
-          .enabled(this.editorContext.symbolModeAllowed)
-          .accessibilityText(this.keyboardMode === KeyboardMode.SYMBOL ? '返回文字键盘' : '切换到符号键盘')
-          .onClick((): void => {
-            this.dispatchAction(TOGGLE_SYMBOL_ACTION);
-          })
-        Text('键盘')
-          .fontSize(11)
+        Text('右移')
+          .fontSize(this.metrics.functionFontSize)
           .fontColor(this.palette.functionKeyText)
           .fontWeight(FontWeight.Medium)
           .textAlign(TextAlign.Center)
           .layoutWeight(1)
           .height('100%')
-          .accessibilityText(`${this.keyboardProfileName()}，选择其他键盘`)
-          .onClick((): void => this.toggleLayoutSelector())
+          .accessibilityText('向右移动光标')
+          .onClick((): void => {
+            this.dispatchAction(MOVE_CURSOR_RIGHT_ACTION);
+          })
       }
       .height('100%')
-      .layoutWeight(1)
+      .layoutWeight(this.liftLayerKeyWeight('space', KEY_WEIGHTS.SPACE))
+
+      Text(this.liftLayerPunctuationLabel(false))
+        .fontSize(this.metrics.functionFontSize + 2)
+        .fontColor(this.palette.functionKeyText)
+        .fontWeight(FontWeight.Medium)
+        .textAlign(TextAlign.Center)
+        .layoutWeight(this.liftLayerKeyWeight('punctuation-period', 0.9))
+        .height('100%')
+        .accessibilityText('输入句号')
+        .onClick((): void => {
+          this.dispatchAction(this.liftLayerPunctuationAction(false));
+        })
 
       Row() {
         Image($r('app.media.keyboard_hide_chevron'))
@@ -748,7 +856,7 @@ struct KeyboardRoot {
           .fillColor(this.palette.functionKeyText)
           .objectFit(ImageFit.Contain)
       }
-      .width(54)
+      .layoutWeight(this.liftLayerKeyWeight('enter', KEY_WEIGHTS.ENTER))
       .height('100%')
       .justifyContent(FlexAlign.Center)
       .accessibilityText('隐藏键盘')
@@ -757,7 +865,75 @@ struct KeyboardRoot {
       })
     }
     .width('100%')
-    .height(KEYBOARD_LIFT_LAYER_HEIGHT)
+    .height(this.metrics.letterKeyHeight)
+    .backgroundColor(this.palette.candidateBackground)
+    .border({ width: { top: 1 }, color: this.palette.candidateDivider })
+  }
+
+  @Builder
+  private TransientKeyboardLiftLayer() {
+    Row({ space: this.metrics.keySpacing }) {
+      Text('返回')
+        .fontSize(this.metrics.functionFontSize)
+        .fontColor(this.palette.functionKeyText)
+        .fontWeight(FontWeight.Medium)
+        .textAlign(TextAlign.Center)
+        .layoutWeight(1)
+        .height('100%')
+        .accessibilityText('返回文字键盘')
+        .onClick((): void => this.returnFromTransientKeyboard())
+      Text('数字')
+        .fontSize(this.metrics.functionFontSize)
+        .fontColor(this.keyboardMode === KeyboardMode.NUMBER
+          ? this.palette.modeKeyTextChinese
+          : this.palette.functionKeyText)
+        .fontWeight(FontWeight.Medium)
+        .textAlign(TextAlign.Center)
+        .layoutWeight(1)
+        .height('100%')
+        .accessibilityText('数字键盘')
+        .onClick((): void => this.showNumberKeyboard())
+      Text('中文')
+        .fontSize(this.metrics.functionFontSize)
+        .fontColor(this.keyboardMode === KeyboardMode.SYMBOL &&
+          this.symbolLanguageMode === KeyboardMode.CHINESE
+          ? this.palette.modeKeyTextChinese
+          : this.palette.functionKeyText)
+        .fontWeight(FontWeight.Medium)
+        .textAlign(TextAlign.Center)
+        .layoutWeight(1)
+        .height('100%')
+        .accessibilityText('中文符号键盘')
+        .onClick((): void => this.showSymbolKeyboard(KeyboardMode.CHINESE))
+      Text('英文')
+        .fontSize(this.metrics.functionFontSize)
+        .fontColor(this.keyboardMode === KeyboardMode.SYMBOL &&
+          this.symbolLanguageMode === KeyboardMode.ENGLISH
+          ? this.palette.modeKeyTextChinese
+          : this.palette.functionKeyText)
+        .fontWeight(FontWeight.Medium)
+        .textAlign(TextAlign.Center)
+        .layoutWeight(1)
+        .height('100%')
+        .accessibilityText('英文符号键盘')
+        .onClick((): void => this.showSymbolKeyboard(KeyboardMode.ENGLISH))
+      Row() {
+        Image($r('app.media.keyboard_hide_chevron'))
+          .width(22)
+          .height(22)
+          .fillColor(this.palette.functionKeyText)
+          .objectFit(ImageFit.Contain)
+      }
+      .layoutWeight(1)
+      .height('100%')
+      .justifyContent(FlexAlign.Center)
+      .accessibilityText('隐藏键盘')
+      .onClick((): void => {
+        this.dispatchAction(HIDE_KEYBOARD_ACTION);
+      })
+    }
+    .width('100%')
+    .height(this.metrics.letterKeyHeight)
     .backgroundColor(this.palette.candidateBackground)
     .border({ width: { top: 1 }, color: this.palette.candidateDivider })
   }
@@ -765,8 +941,9 @@ struct KeyboardRoot {
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
     Column({ space: this.metrics.rowSpacing }) {
-      // 3.2：顶部栏始终存在；只有左侧候选内容遵循候选可见性策略。
-      CandidateBar({
+      // 输入框下方浮窗承担候选展示时，固定候选栏整行不再占用键盘高度。
+      if (this.candidatePresentationMode !== CandidatePresentationMode.FLOATING) {
+        CandidateBar({
         palette: this.palette,
         state: this.candidateBarState,
         rawInput: this.rawInput,
@@ -782,8 +959,7 @@ struct KeyboardRoot {
         barHeight: this.metrics.candidateBarHeight,
         actionWidth: this.metrics.statusBarActionWidth,
         contentVisible: this.candidateBarVisible && !this.isCandidatePanelActive() &&
-          !this.floatingCandidateVisible &&
-          this.candidatePresentationMode !== CandidatePresentationMode.FLOATING,
+          !this.floatingCandidateVisible,
         expanded: this.isCandidatePanelActive(),
         pageLoading: this.candidatePageLoading,
         candidateUiMode: this.candidateUiMode,
@@ -823,7 +999,8 @@ struct KeyboardRoot {
         },
         onVoiceRetry: () => this.controller.retryVoiceInput(),
         onVoiceCancel: () => this.controller.cancelVoiceInput()
-      })
+        })
+      }
 
       if (this.shouldShowPinyinCombinationBar() && !this.isCandidatePanelActive()) {
         PinyinCombinationBar({
@@ -845,7 +1022,7 @@ struct KeyboardRoot {
             displaySegments: this.displaySegments,
             pendingCode: this.pendingCode,
             segmentBoundaries: this.segmentBoundaries,
-            candidates: this.candidates,
+            candidates: this.visibleCandidates(),
             candidatePage: this.candidatePage,
             hasPreviousPage: this.hasPreviousPage,
             hasNextPage: this.hasNextPage,
@@ -854,9 +1031,11 @@ struct KeyboardRoot {
             highlightedIndex: this.highlightedIndex,
             layout: this.candidateExpansionLayout(),
             fillAvailableHeight: true,
+            collapseActionVisible: this.candidatePresentationMode === CandidatePresentationMode.FLOATING,
             onCandidateClick: (candidate: Candidate, index: number) => this.commitCandidate(index),
             onPreviousPage: () => this.navigateCandidatePage(false),
-            onNextPage: () => this.navigateCandidatePage(true)
+            onNextPage: () => this.navigateCandidatePage(true),
+            onCollapse: () => this.toggleCandidatePanel(false)
           })
         }
       }
@@ -866,13 +1045,19 @@ struct KeyboardRoot {
           Column({ space: this.metrics.rowSpacing }) {
             ForEach(this.currentKeyboardLayout().rows, (row: KeyboardRowSpec, index: number) => {
               this.KeyboardRow(row)
-            }, (row: KeyboardRowSpec, index: number) =>
-              `${this.editorContext.kind}-${this.keyboardMode}-${this.shiftState}-${this.keyboardLayoutRawInput}-` +
-                `${this.chineseCapsLock}-` +
-                `${this.shuangpinLayout}-` +
-                `${this.keyboardProfileId}-` +
-                `${this.keyboardStructureId}-` +
-                `${this.editorContext.numberDecimalAllowed}-${this.editorContext.enterAction}-row-${index}`)
+            }, (row: KeyboardRowSpec, index: number) => keyboardRowRenderIdentity({
+              editorKind: this.editorContext.kind,
+              keyboardMode: this.keyboardMode,
+              symbolLanguageMode: this.symbolLanguageMode,
+              shiftState: this.shiftState,
+              rawInput: this.rawInput,
+              chineseCapsLock: this.chineseCapsLock,
+              shuangpinLayout: this.shuangpinLayout,
+              keyboardProfileId: this.keyboardProfileId,
+              keyboardStructureId: this.keyboardStructureId,
+              numberDecimalAllowed: this.editorContext.numberDecimalAllowed,
+              enterAction: this.editorContext.enterAction
+            }, index))
           }
           .layoutWeight(1)
           .height('100%')
@@ -886,7 +1071,7 @@ struct KeyboardRoot {
               displaySegments: this.displaySegments,
               pendingCode: this.pendingCode,
               segmentBoundaries: this.segmentBoundaries,
-              candidates: this.candidates,
+              candidates: this.visibleCandidates(),
               candidatePage: this.candidatePage,
               hasPreviousPage: this.hasPreviousPage,
               hasNextPage: this.hasNextPage,
@@ -896,9 +1081,11 @@ struct KeyboardRoot {
               layout: this.candidateExpansionLayout(),
               panelWidth: '48%',
               fillAvailableHeight: true,
+              collapseActionVisible: this.candidatePresentationMode === CandidatePresentationMode.FLOATING,
               onCandidateClick: (candidate: Candidate, index: number) => this.commitCandidate(index),
               onPreviousPage: () => this.navigateCandidatePage(false),
-              onNextPage: () => this.navigateCandidatePage(true)
+              onNextPage: () => this.navigateCandidatePage(true),
+              onCollapse: () => this.toggleCandidatePanel(false)
             })
           }
         }
@@ -907,7 +1094,11 @@ struct KeyboardRoot {
       }
 
       if (this.keyboardLiftLayerEnabled) {
-        this.KeyboardLiftLayer()
+        if (this.keyboardMode === KeyboardMode.NUMBER || this.keyboardMode === KeyboardMode.SYMBOL) {
+          this.TransientKeyboardLiftLayer()
+        } else {
+          this.KeyboardLiftLayer()
+        }
       }
     }
     .width('100%')

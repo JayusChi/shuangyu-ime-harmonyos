@@ -1,0 +1,22 @@
+{
+  "acceptedRows": 301342,
+  "existingKeyCount": 65193,
+  "frequencyRule": "min(1000000, max(1, jieba_frequency + 1))",
+  "inputRows": 349046,
+  "inputSha256": "7197c3211ddd98962b036cdf40324d1ea2bfaa12bd028e68faa70111a88e12a8",
+  "inventorySha256": "08056c36b28ac5af6119e6ddc01de8f0af0ba200ef9f995734d3e721690e8cde",
+  "jiebaVersion": "0.42.1",
+  "maximumWordCharacters": 16,
+  "ordering": "pinyin, word, source order",
+  "outputSha256": "99e0decce9d16d9c06e021a45c50b7d5321c05f4621b06e2664a1541cc641dd7",
+  "pypinyinVersion": "0.55.0",
+  "pypinyinWheelSha256": "d53b1e8ad2cdb815fb2cb604ed3123372f5a28c6f447571244aca36fc62a286f",
+  "rejectedByReason": {
+    "inherited_duplicate": 47627,
+    "invalid_syllable": 5,
+    "unsupported_characters": 72
+  },
+  "rejectedRows": 47704,
+  "schemaVersion": "jieba-quanpin-import/1",
+  "sourceId": "jieba_0_42_1_pypinyin_0_55_0"
+}

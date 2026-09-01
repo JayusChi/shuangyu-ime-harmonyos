@@ -685,7 +685,11 @@ export struct CandidateBar {
       .height('100%')
       .layoutWeight(KEYBOARD_STATUS_BAR_LAYOUT.contentLayoutWeight)
 
-      if (shouldShowCandidateExpansionAction(this.candidateUiMode, this.candidates.length)) {
+      if (this.expanded || shouldShowCandidateExpansionAction(
+        this.candidateUiMode,
+        this.candidates.length,
+        this.rawInput
+      )) {
         Row() {
           Text(this.expanded ? '收起' : '展开')
             .fontSize(11)

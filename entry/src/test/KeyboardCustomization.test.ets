@@ -149,6 +149,7 @@ export default function keyboardCustomizationTest() {
       expect(palette.panelBackground).assertEqual('#E8F2FF');
       expect(palette.functionKeyBackground).assertEqual(LIGHT_PALETTE.functionKeyBackground);
       expect(palette.letterKeyBackgroundImage).assertEqual('/data/skin/assets/letter-key.png');
+      expect(palette.useDanranKeyImages).assertFalse();
     });
 
     it('preserves valid selected IDs and falls back for invalid values', 0, () => {

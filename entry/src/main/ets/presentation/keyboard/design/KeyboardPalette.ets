@@ -7,6 +7,9 @@ export interface KeyboardColorPalette {
   // “淡然”素材按日间/夜间分别提供位图图标；颜色模式同时决定图标版本。
   useDarkMedia: boolean;
 
+  // 默认皮肤直接使用“淡然”九宫格键帽；其他内置/导入皮肤继续使用原有图片或纯色渲染。
+  useDanranKeyImages: boolean;
+
   // 自定义皮肤包可以为面板和不同键帽提供本地图片。空字符串表示只使用颜色。
   panelBackgroundImage: string;
   letterKeyBackgroundImage: string;
@@ -53,11 +56,44 @@ export interface KeyboardColorPalette {
   keyBorder: string;
 }
 
+export enum DanranKeyBackgroundKind {
+  LETTER = 'letter',
+  FUNCTION = 'function',
+  SPACE = 'space',
+  ENTER = 'enter'
+}
+
+/**
+ * 将客户 Android .9 PNG 中的 npTc 拉伸区转换成 ArkUI 的固定边缘切片。
+ * 显式使用 px，确保数值对应原始 PNG 像素，而不是随设备密度变化的 vp。
+ */
+export function resolveDanranKeyBackgroundSlice(
+  kind: DanranKeyBackgroundKind,
+  isDark: boolean,
+  isPressed: boolean
+): EdgeWidths {
+  if (kind === DanranKeyBackgroundKind.LETTER) {
+    if (isDark) {
+      return isPressed
+        ? { left: '47px', right: '44px', top: '47px', bottom: '47px' }
+        : { left: '45px', right: '43px', top: '47px', bottom: '47px' };
+    }
+    return isPressed
+      ? { left: '47px', right: '45px', top: '47px', bottom: '47px' }
+      : { left: '49px', right: '45px', top: '47px', bottom: '47px' };
+  }
+  if (kind === DanranKeyBackgroundKind.SPACE) {
+    return { left: '178px', right: '178px', top: '47px', bottom: '47px' };
+  }
+  return { left: '55px', right: '55px', top: '47px', bottom: '47px' };
+}
+
 /**
  * 浅色模式调色板
  */
 export const LIGHT_PALETTE: KeyboardColorPalette = {
   useDarkMedia: false,
+  useDanranKeyImages: true,
   panelBackgroundImage: '',
   letterKeyBackgroundImage: '',
   functionKeyBackgroundImage: '',
@@ -108,6 +144,7 @@ export const LIGHT_PALETTE: KeyboardColorPalette = {
  */
 export const DARK_PALETTE: KeyboardColorPalette = {
   useDarkMedia: true,
+  useDanranKeyImages: true,
   panelBackgroundImage: '',
   letterKeyBackgroundImage: '',
   functionKeyBackgroundImage: '',

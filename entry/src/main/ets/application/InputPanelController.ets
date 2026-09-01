@@ -5,7 +5,7 @@ import { Logger } from '../common/logging/Logger';
 import { InputSessionController } from './InputSessionController';
 import { getSharedSettingsStore, SettingsStore } from '../state/SettingsStore';
 import { panelHeightForMode } from '../presentation/keyboard/design/KeyboardMetrics';
-import { ImeSettings } from '../domain/settings/ImeSettings';
+import { CandidatePresentationMode, ImeSettings } from '../domain/settings/ImeSettings';
 import { InputPresentationMode } from '../domain/display/InputPresentationMode';
 import { KeyboardMode } from '../domain/keyboard/KeyboardAction';
 import { PINYIN_9_PROFILE_ID } from '../domain/keyboard/KeyboardProfile';
@@ -600,7 +600,8 @@ export class InputPanelController {
       settings.keyboardHeightMode,
       screenMetrics,
       settings.keyboardProfileId === PINYIN_9_PROFILE_ID && sessionState.keyboardMode === KeyboardMode.CHINESE,
-      settings.keyboardLiftLayerEnabled
+      settings.keyboardLiftLayerEnabled,
+      settings.candidatePresentationMode !== CandidatePresentationMode.FLOATING
     );
     const targetSize: PanelSizePx = { widthPx: width, heightPx: height };
     if (panelSizeEqual(this.lastAppliedPanelSize, targetSize)) {
@@ -608,7 +609,8 @@ export class InputPanelController {
     }
     LOGGER.info(
       `panel resize requested: source=${source}, generation=${generation}, ` +
-      `keyboardHeightMode=${settings.keyboardHeightMode}, statusBarVisible=true, ` +
+      `keyboardHeightMode=${settings.keyboardHeightMode}, ` +
+      `candidateBarVisible=${settings.candidatePresentationMode !== CandidatePresentationMode.FLOATING}, ` +
       `isLandscape=${screenMetrics.isLandscape}, widthPx=${width}, heightPx=${height}, ` +
       `screenHeightPx=${screenMetrics.heightPx}, density=${screenMetrics.densityPixels}`
     );
@@ -668,7 +670,8 @@ export class InputPanelController {
         settings.keyboardHeightMode,
         sessionState.screenMetrics,
         settings.keyboardProfileId === PINYIN_9_PROFILE_ID && sessionState.keyboardMode === KeyboardMode.CHINESE,
-        settings.keyboardLiftLayerEnabled
+        settings.keyboardLiftLayerEnabled,
+        settings.candidatePresentationMode !== CandidatePresentationMode.FLOATING
       )
     };
   }

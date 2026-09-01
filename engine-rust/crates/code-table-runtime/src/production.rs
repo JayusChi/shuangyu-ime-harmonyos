@@ -23,18 +23,18 @@ const EXPECTED_AUDIT_MANIFEST_VERSION: &str = "1.1.0";
 const EXPECTED_AUDITOR: &str = "yinxing-source-auditor/1.1.0";
 const EXPECTED_CONTRACT_VERSION: &str = "1.1.0";
 const EXPECTED_SOURCE_MANIFEST_HASH: &str =
-    "4dd2304ce2a2f7ffa48f38c7a707e11d9d2318b1bc32c8ded7dc264a2458048f";
+    "f054132eb8b5e008601f215db50cf337214c35bf2100fcb03f63180b2c9252b8";
 const EXPECTED_CONTRACT_HASH: &str =
-    "27894e17bed11e267504e3ddae20f82348ab89e07e3a813b6236d80d29739caa";
+    "025240e58548bf0c14dedb16fea075a2b42b722396d63cbc91947c1d7bddfaa3";
 const EXPECTED_CONTENT_HASH: &str =
-    "83fa186fb43acc045fac88ba74ea3db5d761bf8c7c901499c4b517d953eef2e3";
+    "39dd319c00826356da3fe5c768e10793f8d8b22fd5e4c44926f8fd84689fcef0";
 const EXPECTED_ARCHIVE_HASH: &str =
-    "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7";
+    "263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09";
 const EXPECTED_ARCHIVE_FILE_COUNT: usize = 17;
 const EXPECTED_CATEGORIES: [(&str, usize, bool); 12] = [
     ("core", 68_568, true),
     ("category-secondary", 1_690, true),
-    ("quick-symbol", 16, true),
+    ("quick-symbol", 17, true),
     ("one-key-secondary", 26, true),
     ("two-key-secondary", 66, false),
     ("out-of-table-character", 362, true),
@@ -300,12 +300,12 @@ fn load_production_bytes_with_trust(
         .into_snapshot();
     let user_stats = user_rules.stats();
     if strict_frozen
-        && (user_stats.accepted != 37
-            || user_stats.effective != 37
+        && (user_stats.accepted != 301
+            || user_stats.effective != 301
             || user_stats.added != 1
             || user_stats.deleted != 0
             || user_stats.fixed != 36
-            || user_stats.positioned != 0)
+            || user_stats.positioned != 264)
     {
         return Err(error(
             CodeTableErrorKind::MetadataMismatch,

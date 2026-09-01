@@ -1,6 +1,7 @@
 import { EnterAction } from '../domain/editor/EditorContext';
 import { EditorExtendAction } from '../domain/keyboard/KeyboardAction';
 import { ProtocolActionImeService } from './ProtocolActionExecutor';
+import { inputMethodEngine } from '@kit.IMEKit';
 
 export interface ImeInputService extends ProtocolActionImeService {
   insertText(text: string): Promise<boolean>;
@@ -41,6 +42,7 @@ export interface ImeInputService extends ProtocolActionImeService {
   restoreLastDeletion?(): Promise<boolean>;
   clearDeletionRecovery?(): void;
   sendExtendAction?(action: EditorExtendAction): Promise<boolean>;
+  moveCursor?(direction: inputMethodEngine.Direction): Promise<void>;
   sendEnter(action?: EnterAction): Promise<boolean>;
   hideKeyboard(): Promise<boolean>;
 }

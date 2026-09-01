@@ -230,32 +230,6 @@ pub(crate) fn longer_system_codes(
     codes
 }
 
-pub(crate) fn has_longer_system_code_in_category(
-    bundle: &CodeTableBundle,
-    selection: &CategorySelectionSnapshot,
-    category_id: &str,
-    prefix: &str,
-) -> bool {
-    if prefix.is_empty() || !selection.is_enabled(category_id) {
-        return false;
-    }
-    let Some(category) = bundle
-        .categories
-        .iter()
-        .find(|category| category.id == category_id)
-    else {
-        return false;
-    };
-    if !is_normal_query_category(category) {
-        return false;
-    }
-    // The binary index contains one row per distinct code. Two rows are
-    // sufficient to cover an exact prefix row followed by a longer row.
-    find_prefix_indexes(&category.lexicon, prefix, 2)
-        .into_iter()
-        .any(|index| index.pinyin_key.len() > prefix.len())
-}
-
 pub(crate) fn longer_system_candidates(
     bundle: &CodeTableBundle,
     selection: &CategorySelectionSnapshot,
@@ -297,7 +271,8 @@ pub(crate) fn longer_system_candidates(
 
 /// Queries Xiaohe Yinxing codes containing the backtick universal key.
 /// An internal backtick matches one code position; a trailing backtick matches
-/// the remaining suffix so `xk` can browse every shape code beginning with xk.
+/// the remaining suffix so `xk` can browse every single-character shape code
+/// beginning with xk. Words and phrases are deliberately excluded.
 pub(crate) fn wildcard_system_candidates(
     bundle: &CodeTableBundle,
     selection: &CategorySelectionSnapshot,
@@ -317,7 +292,9 @@ pub(crate) fn wildcard_system_candidates(
             .lexicon
             .entries
             .iter()
-            .filter(|entry| wildcard_code_matches(pattern, &entry.pinyin_key))
+            .filter(|entry| {
+                entry.word.chars().count() == 1 && wildcard_code_matches(pattern, &entry.pinyin_key)
+            })
             .collect::<Vec<_>>();
         entries.sort_by_key(|entry| entry.source_order);
         for entry in entries {

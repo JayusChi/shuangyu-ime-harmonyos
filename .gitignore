@@ -12,6 +12,7 @@
 /.test
 /.stage11_5_tmp
 /.quanpin_v2_tmp
+/.quanpin_import_tool
 
 **/build
 **/.test

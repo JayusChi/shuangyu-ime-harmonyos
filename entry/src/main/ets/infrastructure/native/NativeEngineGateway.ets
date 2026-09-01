@@ -102,6 +102,16 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     }
   }
 
+  async processKeyAsync(handle: number, key: string): Promise<CompositionResult> {
+    try {
+      const nativeResult = await imeBridge.processKeyAsync(handle, key) as CompositionResult;
+      return this.normalizeCompositionResult(nativeResult);
+    } catch (err) {
+      LOGGER.error(`processKeyAsync failed: ${JSON.stringify(err)}`);
+      return this.createCompositionFailure(ImeErrorCode.NATIVE_BRIDGE_ERROR, 'Native processKeyAsync failed');
+    }
+  }
+
   insertSegmentBoundary(handle: number): CompositionResult {
     try {
       const nativeResult = imeBridge.insertSegmentBoundary(handle) as CompositionResult;

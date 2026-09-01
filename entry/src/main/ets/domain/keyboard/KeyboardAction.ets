@@ -23,6 +23,8 @@ export enum KeyboardActionType {
   SWITCH_INPUT_METHOD = 'switch_input_method',
   SHOW_INPUT_METHOD_PICKER = 'show_input_method_picker',
   HIDE_KEYBOARD = 'hide_keyboard',
+  MOVE_CURSOR_LEFT = 'move_cursor_left',
+  MOVE_CURSOR_RIGHT = 'move_cursor_right',
   SECOND_CANDIDATE_OR_PUNCTUATION = 'second_candidate_or_punctuation',
   SECOND_CANDIDATE_OR_COMMA = 'second_candidate_or_comma',
   SECOND_CANDIDATE_OR_PERIOD = 'second_candidate_or_period',
@@ -36,6 +38,7 @@ export enum KeyboardActionType {
   COPY = 'copy',
   PASTE = 'paste',
   CANCEL_COMPOSITION = 'cancel_composition',
+  EXPAND_CANDIDATES = 'expand_candidates',
   UNIVERSAL_KEY = 'universal_key'
 }
 
@@ -133,6 +136,14 @@ export const HIDE_KEYBOARD_ACTION: KeyboardAction = {
   type: KeyboardActionType.HIDE_KEYBOARD
 };
 
+export const MOVE_CURSOR_LEFT_ACTION: KeyboardAction = {
+  type: KeyboardActionType.MOVE_CURSOR_LEFT
+};
+
+export const MOVE_CURSOR_RIGHT_ACTION: KeyboardAction = {
+  type: KeyboardActionType.MOVE_CURSOR_RIGHT
+};
+
 export const SWITCH_INPUT_METHOD_ACTION: KeyboardAction = {
   type: KeyboardActionType.SWITCH_INPUT_METHOD
 };
@@ -191,6 +202,10 @@ export const PASTE_ACTION: KeyboardAction = {
 
 export const CANCEL_COMPOSITION_ACTION: KeyboardAction = {
   type: KeyboardActionType.CANCEL_COMPOSITION
+};
+
+export const EXPAND_CANDIDATES_ACTION: KeyboardAction = {
+  type: KeyboardActionType.EXPAND_CANDIDATES
 };
 
 export const UNIVERSAL_KEY_ACTION: KeyboardAction = {

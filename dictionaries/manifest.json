@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sources": [
     {
       "sourceId": "rime-pinyin-simp",
@@ -27,6 +27,47 @@
       "modifications": "Project-authored source expanded with common weekday, conversation, messaging, file-sharing, people-count, device and input-method sentences; normalized and validated by the standard deterministic builder without runtime text parsing.",
       "sourceChecksum": "FB32C346DD26DE894A6ECEF568E6692754ED533AA769EF994909512C2955C61A",
       "entryCount": 78
+    },
+    {
+      "sourceId": "jieba-0.42.1",
+      "name": "Jieba Chinese segmentation frequency dictionary",
+      "sourceUrl": "https://github.com/fxsjy/jieba/blob/v0.42.1/jieba/dict.txt",
+      "sourceVersion": "v0.42.1",
+      "retrievedAt": "2026-08-28",
+      "license": "MIT",
+      "licenseFile": "LICENSES/jieba-MIT.txt",
+      "redistributionAllowed": true,
+      "modifications": "Common-CJK words up to 16 characters are converted to full pinyin with the pinned pypinyin 0.55.0 wheel; readings are checked against the engine syllable inventory; existing text+pinyin keys keep the established production source and frequency; frequency uses min(1000000, max(1, jieba_frequency + 1)).",
+      "sourceChecksum": "7197C3211DDD98962B036CDF40324D1EA2BFAA12BD028E68FAA70111A88E12A8",
+      "entryCount": 349046,
+      "generatedEntryCount": 301342,
+      "generatedChecksum": "99E0DECCE9D16D9C06E021A45C50B7D5321C05F4621B06E2664A1541CC641DD7"
+    },
+    {
+      "sourceId": "pypinyin-0.55.0",
+      "name": "pypinyin pronunciation data and converter",
+      "sourceUrl": "https://pypi.org/project/pypinyin/0.55.0/",
+      "sourceVersion": "0.55.0",
+      "retrievedAt": "2026-08-28",
+      "license": "MIT",
+      "licenseFile": "LICENSES/pypinyin-MIT.txt",
+      "redistributionAllowed": true,
+      "modifications": "Unmodified pure-Python wheel is retained as a pinned, offline build input and unpacked only into a temporary directory by the importer.",
+      "sourceChecksum": "D53B1E8AD2CDB815FB2CB604ED3123372F5A28C6F447571244ACA36FC62A286F",
+      "entryCount": 0
+    },
+    {
+      "sourceId": "project-quanpin-v2-production",
+      "name": "Project full-pinyin colloquial, hotword, proper-name and domain layers",
+      "sourceUrl": "dictionaries/source/quanpin-v2/source-catalog.json",
+      "sourceVersion": "2026-08-14-all-domains",
+      "retrievedAt": "2026-08-14",
+      "license": "Apache-2.0",
+      "licenseFile": "LICENSES/rime-pinyin-simp-Apache-2.0.txt",
+      "redistributionAllowed": true,
+      "modifications": "Project-authored sources are validated, filtered, tiered and normalized by build-quanpin-lexicon-v2.ps1; the all-domains normalized layer is the canonical production input.",
+      "sourceChecksum": "F22B7FE42FE14D871E83C45C250E4148016B0F5FA3ADE61EF194C3844BA55848",
+      "entryCount": 131
     }
   ]
 }

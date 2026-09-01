@@ -261,6 +261,19 @@ export default function stage3Tests() {
         await delay(700);
         expect(deleteCount).assertEqual(countAtDestroy);
       });
+
+      it('uses the configured long-press delay for repeat deletion', 0, async () => {
+        let deleteCount = 0;
+        const controller = new DeleteRepeatController(() => {
+          deleteCount++;
+        }, 5);
+
+        controller.start();
+        await delay(20);
+        controller.stop();
+        expect(deleteCount > 0).assertTrue();
+        controller.destroy();
+      });
     });
 
     describe('Stage 2 Backward Compatibility', () => {

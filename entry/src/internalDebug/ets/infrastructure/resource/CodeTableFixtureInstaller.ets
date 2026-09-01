@@ -16,8 +16,8 @@ const CORRUPT_FORMAL_FILE_NAME = 'debug-xiaohe-yinxing-corrupt.hsyx';
 const INCOMPATIBLE_FORMAL_FILE_NAME = 'debug-xiaohe-yinxing-incompatible.hsyx';
 const FORMAL_BYTES = 25397952;
 const PRODUCTION_RAW_NAME = 'production.lex';
-const PRODUCTION_FILE_NAME = 'debug-stage1163-production.lex';
-const PRODUCTION_BYTES = 3751923;
+const PRODUCTION_FILE_NAME = 'debug-quanpin-v300-production.lex';
+const PRODUCTION_BYTES = 24049458;
 const USER_LEXICON_FILE_NAME = 'debug-stage1164-user-lexicon.txt';
 const RESTART_USER_LEXICON_FILE_NAME = 'debug-stage1164-restart-user-lexicon.txt';
 

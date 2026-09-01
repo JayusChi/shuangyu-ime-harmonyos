@@ -2,8 +2,8 @@
   "app": {
     "bundleName": "com.corrosion.shuangyuime",
     "vendor": "科爱思（深圳）科技有限公司",
-    "versionCode": 5001000,
-    "versionName": "0.5.1",
+    "versionCode": 6000000,
+    "versionName": "0.6.0",
     "buildVersion": "2",
     "icon": "$media:layered_image",
     "label": "$string:app_name"

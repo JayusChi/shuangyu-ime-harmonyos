@@ -9,6 +9,8 @@ import {
   ImeSettings,
   isAvailableScheme,
   KeyboardHeightMode,
+  MAX_LONG_PRESS_DURATION_MS,
+  MIN_LONG_PRESS_DURATION_MS,
   PunctuationMode,
   LexiconSourceConfig,
   normalizeXiaoheYinxingCategoryIds,
@@ -275,6 +277,16 @@ export class SettingsController {
     }
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.smartPeriodTimeoutMs = timeoutMs;
+    });
+  }
+
+  async setLongPressDurationMs(durationMs: number): Promise<SettingsOperationResult> {
+    if (!Number.isInteger(durationMs) || durationMs < MIN_LONG_PRESS_DURATION_MS ||
+      durationMs > MAX_LONG_PRESS_DURATION_MS) {
+      return { success: false, message: '长按时间参数无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.longPressDurationMs = durationMs;
     });
   }
 
@@ -811,6 +823,7 @@ export class SettingsController {
       `keySoundEnabled=${settings.keySoundEnabled}, userLearningEnabled=${settings.userLearningEnabled}, ` +
       `spellingCorrectionEnabled=${settings.spellingCorrectionEnabled}, ` +
       `smartPeriodTimeoutMs=${settings.smartPeriodTimeoutMs}, ` +
+      `longPressDurationMs=${settings.longPressDurationMs}, ` +
       `smartPunctuationSymbols=${JSON.stringify(settings.smartPunctuationSymbols)}, ` +
       `fuzzyOptions=${settings.fuzzyOptions.join('|')}, ` +
       `inputPresentationPreference=${settings.inputPresentationPreference}, ` +

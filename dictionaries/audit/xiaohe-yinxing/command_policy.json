@@ -155,70 +155,6 @@
       "reason_code": "REJECT_UNSAFE_PATH_ACCESS"
     },
     {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 510,
-      "finding_type": "url",
-      "summary_sha256": "8ce1c1cb59d0cdf830908b7cdc72abbf087c3f2b2ecdb97c94ab7b29bafabc2c",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 511,
-      "finding_type": "url",
-      "summary_sha256": "3df2916266b71682bdd621959717bace4059243ae5c494689ec460b720625186",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 512,
-      "finding_type": "url",
-      "summary_sha256": "d7a60e103d0ac4522f91e05e341163a003e684cf78f4796df9df79343d85ba80",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 513,
-      "finding_type": "url",
-      "summary_sha256": "4d4f2d6243623d64416a56872653c392b7bb185a0295a1217203653d74a65cda",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 514,
-      "finding_type": "url",
-      "summary_sha256": "105567b43b8c24eb3a2fdf58ba49be84bd69987317a720a83548619eb839cc20",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 535,
-      "finding_type": "url",
-      "summary_sha256": "ca6598398c1d2721e5e0667cb32a573309f619d21322188499be4fe9c6ae4062",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 536,
-      "finding_type": "url",
-      "summary_sha256": "2a9806ce430511c69109cbfbf9f264b523a43e8998f3809f700fa3bd2e85d9d2",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 537,
-      "finding_type": "url",
-      "summary_sha256": "21a9cd0166285745b876674fc6f7fef4731b5b26c0995fedb29de62cdf928846",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_NETWORK_ACTION"
-    },
-    {
       "source_file": "码表/导出 - 主码 - 直通.txt",
       "physical_line": 10,
       "finding_type": "url",
@@ -359,14 +295,6 @@
       "physical_line": 3,
       "finding_type": "cmd",
       "summary_sha256": "d0b769b113ada3c5c2560a402abbf3a1f223ca47e31cc910c361b53accd4d64f",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_UNSUPPORTED_COMMAND"
-    },
-    {
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line": 504,
-      "finding_type": "cmd",
-      "summary_sha256": "0eafc02abdf5ebfc21fa074e73cdd3e3c2c43ae9d79e3817122412925df6ab2a",
       "decision": "REJECTED",
       "reason_code": "REJECT_UNSUPPORTED_COMMAND"
     },

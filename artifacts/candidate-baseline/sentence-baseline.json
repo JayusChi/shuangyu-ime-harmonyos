@@ -114,16 +114,10 @@
             "stable_id": "sentence:6:shu_ru_fa:输入乏"
           },
           {
-            "text": "输入阀",
+            "text": "输入彂",
             "reading": "shu ru fa",
-            "source": "rime_pinyin_simp",
-            "stable_id": "sentence:6:shu_ru_fa:输入阀"
-          },
-          {
-            "text": "输入發",
-            "reading": "shu ru fa",
-            "source": "rime_pinyin_simp",
-            "stable_id": "sentence:6:shu_ru_fa:输入發"
+            "source": "jieba_0_42_1_pypinyin_0_55_0,rime_pinyin_simp",
+            "stable_id": "sentence:6:shu_ru_fa:输入彂"
           },
           {
             "text": "输入",
@@ -136,6 +130,12 @@
             "reading": "shu",
             "source": "rime_pinyin_simp",
             "stable_id": "sentence:2:shu:书"
+          },
+          {
+            "text": "数",
+            "reading": "shu",
+            "source": "rime_pinyin_simp",
+            "stable_id": "sentence:2:shu:数"
           }
         ],
         "candidate_page": 0,
@@ -143,13 +143,13 @@
         "has_next_page": true,
         "commit_text": "",
         "composition_finished": false,
-        "json_utf8_bytes": 1706
+        "json_utf8_bytes": 1711
       }
     }
   ],
   "partial_commit": {
     "input": "uurufa",
-    "selected_page_index": 7,
+    "selected_page_index": 6,
     "selected_text": "输入",
     "before": {
       "success": true,
@@ -195,16 +195,10 @@
           "stable_id": "sentence:6:shu_ru_fa:输入乏"
         },
         {
-          "text": "输入阀",
+          "text": "输入彂",
           "reading": "shu ru fa",
-          "source": "rime_pinyin_simp",
-          "stable_id": "sentence:6:shu_ru_fa:输入阀"
-        },
-        {
-          "text": "输入發",
-          "reading": "shu ru fa",
-          "source": "rime_pinyin_simp",
-          "stable_id": "sentence:6:shu_ru_fa:输入發"
+          "source": "jieba_0_42_1_pypinyin_0_55_0,rime_pinyin_simp",
+          "stable_id": "sentence:6:shu_ru_fa:输入彂"
         },
         {
           "text": "输入",
@@ -217,6 +211,12 @@
           "reading": "shu",
           "source": "rime_pinyin_simp",
           "stable_id": "sentence:2:shu:书"
+        },
+        {
+          "text": "数",
+          "reading": "shu",
+          "source": "rime_pinyin_simp",
+          "stable_id": "sentence:2:shu:数"
         }
       ],
       "candidate_page": 0,
@@ -224,7 +224,7 @@
       "has_next_page": true,
       "commit_text": "",
       "composition_finished": false,
-      "json_utf8_bytes": 1706
+      "json_utf8_bytes": 1711
     },
     "after": {
       "success": true,
@@ -241,55 +241,55 @@
           "text": "发",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-发"
+          "stable_id": "lex-v300-fa-发"
         },
         {
           "text": "法",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-法"
+          "stable_id": "lex-v300-fa-法"
         },
         {
           "text": "伐",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-伐"
+          "stable_id": "lex-v300-fa-伐"
         },
         {
           "text": "罚",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-罚"
+          "stable_id": "lex-v300-fa-罚"
         },
         {
           "text": "阀",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-阀"
+          "stable_id": "lex-v300-fa-阀"
         },
         {
           "text": "乏",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-乏"
+          "stable_id": "lex-v300-fa-乏"
+        },
+        {
+          "text": "彂",
+          "reading": "fa",
+          "source": "jieba_0_42_1_pypinyin_0_55_0",
+          "stable_id": "lex-v300-fa-彂"
         },
         {
           "text": "發",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-發"
+          "stable_id": "lex-v300-fa-發"
         },
         {
           "text": "筏",
           "reading": "fa",
           "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-筏"
-        },
-        {
-          "text": "珐",
-          "reading": "fa",
-          "source": "rime_pinyin_simp",
-          "stable_id": "lex-v115-fa-珐"
+          "stable_id": "lex-v300-fa-筏"
         }
       ],
       "candidate_page": 0,
@@ -297,7 +297,7 @@
       "has_next_page": true,
       "commit_text": "输入",
       "composition_finished": false,
-      "json_utf8_bytes": 1457
+      "json_utf8_bytes": 1469
     }
   }
 }

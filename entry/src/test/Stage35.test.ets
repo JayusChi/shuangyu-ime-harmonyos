@@ -150,7 +150,7 @@ export default function stage35Test() {
       expect(tabletWeight).assertEqual(phoneWeight);
       const spaceKey = phone.rows[3].keys.find((key) => key.id === 'space');
       expect(spaceKey?.longPressAction?.type).assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
-      expect(spaceKey?.swipeUpAction?.type).assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
+      expect(spaceKey?.swipeUpAction?.type).assertEqual(KeyboardActionType.EXPAND_CANDIDATES);
     });
 
     it('keeps the inline fallback reachable in numeric phone and symbol layouts', 0, () => {
@@ -161,6 +161,10 @@ export default function stage35Test() {
         const switchKey = bottom.find((key) => key.id === 'input-method-switch');
         expect(switchKey?.action.type).assertEqual(KeyboardActionType.SWITCH_INPUT_METHOD);
         expect(switchKey?.longPressAction?.type).assertEqual(KeyboardActionType.SHOW_INPUT_METHOD_PICKER);
+        if (mode === KeyboardMode.SYMBOL) {
+          expect(bottom.find((key) => key.id === 'symbol-return')?.action.type)
+            .assertEqual(KeyboardActionType.TOGGLE_SYMBOL);
+        }
       });
     });
 

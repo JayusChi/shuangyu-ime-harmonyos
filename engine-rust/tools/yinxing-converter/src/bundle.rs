@@ -246,6 +246,7 @@ fn trace_index(categories: &[CategoryBuild]) -> Vec<u8> {
                 ("line_digest", JsonValue::string(&rule.line_digest)),
                 ("physical_line", JsonValue::Number(rule.physical_line)),
                 ("record_kind", JsonValue::string("user_rule")),
+                ("user_action", JsonValue::string(rule.action.name())),
                 ("source_file_id", JsonValue::string(&rule.source_file_id)),
                 (
                     "source_order",

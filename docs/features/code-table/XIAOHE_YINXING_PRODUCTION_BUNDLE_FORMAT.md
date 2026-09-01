@@ -2,7 +2,7 @@
 
 ## Current production identity
 
-The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipped as the main HAP raw resource. The 2026-08-26 direct-display build has this frozen identity:
+The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipped as the main HAP raw resource. The 2026-08-31 category-direct-entry feedback build has this frozen identity:
 
 | Field | Value |
 | --- | --- |
@@ -11,10 +11,10 @@ The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipp
 | Data version | `source-receipt-1` |
 | Converter | `yinxing-converter/1.0.0` |
 | Categories | 12 internal / 10 customer-visible switches |
-| Accepted records | 162,731 |
-| Bundle bytes | 56,184,164 |
-| Bundle SHA-256 | `f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7` |
-| Content SHA-256 | `83fa186fb43acc045fac88ba74ea3db5d761bf8c7c901499c4b517d953eef2e3` |
+| Accepted records | 162,732 |
+| Bundle bytes | 56,104,660 |
+| Bundle SHA-256 | `263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09` |
+| Content SHA-256 | `39dd319c00826356da3fe5c768e10793f8d8b22fd5e4c44926f8fd84689fcef0` |
 
 The raw resource installer uses a v5 installed filename and receipt, so a previously verified customer-category resource cannot mask this build after an application upgrade.
 
@@ -26,7 +26,7 @@ The manifest freezes category order, entry counts and defaults:
 | ---: | --- | --- | ---: | --- |
 | 0 | `core` | 首选 | 68,568 | on, required |
 | 1 | `category-secondary` | 分类 | 1,690 | on |
-| 2 | `quick-symbol` | 快符 | 16 | on |
+| 2 | `quick-symbol` | 快符 | 17 | on |
 | 3 | `one-key-secondary` | 一简次选 | 26 | on |
 | 4 | `two-key-secondary` | 二简次选 | 66 | off |
 | 5 | `out-of-table-character` | 表外字 | 362 | on |
@@ -66,7 +66,7 @@ The archive contains 17 records: `manifest.json`, 12 `categories/*.lex` files, `
 
 Each category file is a checksummed `HSPLEX01` 1.1 binary retaining the category ID, contract order, source SHA-256 and zero-based `source_order`. Runtime query order is exact-before-prefix, category order, then `source_order`, with stable text deduplication.
 
-`user-rules.txt` uses the strict embedded grammar `commit<TAB>code-and-marker<TAB>display-or-empty<TAB>category-id`; the runtime filters these records by their owning category before merging the independent external user lexicon. `action-metadata.json` has `execution_allowed=false`. Rejected actions retain only safe source identity, line number, syntax class, disposition, reason and digest; original sensitive action lines are not copied.
+`user-rules.txt` uses the strict embedded grammar `commit<TAB>code-and-marker<TAB>display-or-empty<TAB>category-id`; `#直` remains present on disk and parses as `Direct`, never as an unmarked `Add`. The runtime filters these records by their owning category before merging the independent external user lexicon, and the build report counts ordinary additions and direct entries separately. `action-metadata.json` has `execution_allowed=false`. Rejected actions retain only safe source identity, line number, syntax class, disposition, reason and digest; original sensitive action lines are not copied.
 
 ## Integrity and build
 

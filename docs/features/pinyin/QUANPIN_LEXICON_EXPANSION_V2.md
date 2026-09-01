@@ -1,6 +1,8 @@
 # 全拼词库覆盖扩充 V2
 
-> 2026-08-18 产品提升：`all_domains` 已被提升为正式随包 profile，基础、有效热词和六类专业领域共 131 个新增文本/读音对全部进入 `entry/src/main/resources/rawfile/production.lex`。下文“默认层/领域默认关闭”保留 2026-08-14 首次冻结时的实验口径；生成的 `default.lex` 仍用于隔离回归，但不再是当前随包文件。当前正式词库为 3,751,923 bytes、SHA-256 `e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365`。
+> 2026-08-28：本文保留 V2 历史冻结口径。当前正式词库已升级到 V3，见 [QUANPIN_PRODUCTION_LEXICON_V3.md](QUANPIN_PRODUCTION_LEXICON_V3.md)。
+>
+> 2026-08-18 产品提升：`all_domains` 已被提升为正式随包 profile，基础、有效热词和六类专业领域共 131 个新增文本/读音对全部进入 `entry/src/main/resources/rawfile/production.lex`。下文“默认层/领域默认关闭”保留 2026-08-14 首次冻结时的实验口径；生成的 `default.lex` 仍用于隔离回归，但不再是当前随包文件。当时正式词库为 3,751,923 bytes、SHA-256 `e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365`。
 
 ## 结论与边界
 

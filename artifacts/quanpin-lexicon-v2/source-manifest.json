@@ -12,6 +12,21 @@
                                  "path":  "dictionaries/source/stage11_5_short_sentences.tsv",
                                  "sha256":  "fb32c346dd26de894a6ecef568e6692754ed533aa769ef994909512c2955c61a",
                                  "license":  "Apache-2.0"
+                             },
+                             {
+                                 "path":  "dictionaries/source/jieba-0.42.1/dict.txt",
+                                 "sha256":  "7197c3211ddd98962b036cdf40324d1ea2bfaa12bd028e68faa70111a88e12a8",
+                                 "license":  "MIT"
+                             },
+                             {
+                                 "path":  "dictionaries/source/pypinyin-0.55.0/pypinyin-0.55.0-py2.py3-none-any.whl",
+                                 "sha256":  "d53b1e8ad2cdb815fb2cb604ed3123372f5a28c6f447571244aca36fc62a286f",
+                                 "license":  "MIT"
+                             },
+                             {
+                                 "path":  "dictionaries/generated/jieba-0.42.1.normalized.tsv",
+                                 "sha256":  "99e0decce9d16d9c06e021a45c50b7d5321c05f4621b06e2664a1541cc641dd7",
+                                 "license":  "MIT"
                              }
                          ],
     "v2Sources":  [

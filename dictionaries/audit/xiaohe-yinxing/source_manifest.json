@@ -217,25 +217,25 @@
       "normalized_relative_path": "1.2.快符-外接.txt",
       "file_name": "1.2.快符-外接.txt",
       "extension": "txt",
-      "byte_size": 501,
-      "physical_line_count": 28,
-      "non_empty_line_count": 28,
+      "byte_size": 507,
+      "physical_line_count": 29,
+      "non_empty_line_count": 29,
       "comment_line_count": 1,
       "configuration_header_line_count": 0,
-      "data_record_line_count": 27,
+      "data_record_line_count": 28,
       "unrecognized_line_count": 0,
       "detected_encoding": "UTF-8",
       "has_utf8_bom": false,
       "newline_style": "LF",
       "has_final_newline": true,
-      "sha256": "fffc036f616af3ff7e4e86337c835527f94dae3182e7ace0888416a670f49020",
+      "sha256": "1b7ac053c5290b7a0a4aab68ed6a532621ab8afa33f4164ab75b98c1c7527337",
       "file_role": "quick_symbol",
       "role_evidence": "numbered delivery name plus matching content syntax",
       "security_classification": "clean",
       "decision": "ACCEPTED",
       "decision_reason": "approved table role and byte format",
       "syntax_statistics": {
-        "ordinary": 16,
+        "ordinary": 17,
         "user_deletion": 0,
         "user_pin": 0,
         "direct_add": 0,
@@ -266,7 +266,7 @@
           {
             "syntax": "ordinary",
             "physical_line": 2,
-            "sample_sha256": "5e3e8e1f9d3b0a0beb6e13cf85f82de66bb3db844ae1e29b72b6aef2b389ce5d",
+            "sample_sha256": "0ad20e52a4e949a4500a463410fbcf31368827ae30eb2c8f26da6e51ebec6d7b",
             "error_code": "ACCEPT_TABLE_RECORD",
             "recommendation": "retain with source line"
           }
@@ -622,63 +622,42 @@
       "normalized_relative_path": "2.5.全码词.txt",
       "file_name": "2.5.全码词.txt",
       "extension": "txt",
-      "byte_size": 9065,
-      "physical_line_count": 547,
-      "non_empty_line_count": 546,
-      "comment_line_count": 2,
+      "byte_size": 6577,
+      "physical_line_count": 501,
+      "non_empty_line_count": 501,
+      "comment_line_count": 1,
       "configuration_header_line_count": 0,
-      "data_record_line_count": 544,
+      "data_record_line_count": 500,
       "unrecognized_line_count": 0,
       "detected_encoding": "UTF-8",
       "has_utf8_bom": false,
       "newline_style": "LF",
       "has_final_newline": true,
-      "sha256": "dd2d4c41800c0f5b03712c2b84864450bb754479211dc79cb9383786875f85e2",
+      "sha256": "98865ad3f4ff55211b27e966e4048cbfd4c6d7d85b083d55f8e2f96c41f66b55",
       "file_role": "full_code_word",
       "role_evidence": "numbered delivery name plus matching content syntax",
-      "security_classification": "findings_isolated",
-      "decision": "TRANSFORM",
-      "decision_reason": "security-matched records must be isolated before otherwise eligible content is converted",
+      "security_classification": "clean",
+      "decision": "ACCEPTED",
+      "decision_reason": "approved table role and byte format",
       "syntax_statistics": {
         "ordinary": 464,
         "user_deletion": 0,
         "user_pin": 36,
-        "direct_add": 1,
+        "direct_add": 0,
         "user_position": 0,
         "user_mixed_rule": 0,
-        "cmd": 43,
+        "cmd": 0,
         "ddcmd": 0,
         "configuration_header": 0,
         "configuration_item": 0,
-        "comment": 2,
-        "empty": 1,
+        "comment": 1,
+        "empty": 0,
         "unrecognized": 0,
         "first_occurrences": [
-          {
-            "syntax": "cmd",
-            "physical_line": 504,
-            "sample_sha256": "0eafc02abdf5ebfc21fa074e73cdd3e3c2c43ae9d79e3817122412925df6ab2a",
-            "error_code": "REJECT_UNSUPPORTED_COMMAND",
-            "recommendation": "isolate and require explicit support"
-          },
           {
             "syntax": "comment",
             "physical_line": 1,
             "sample_sha256": "3cca8768b36da380039439ca1f9483b9a0f773b85f6bf810ff48c3172d7f4232",
-            "error_code": "IGNORE_NON_DATA_LINE",
-            "recommendation": "exclude from candidate records"
-          },
-          {
-            "syntax": "direct_add",
-            "physical_line": 511,
-            "sample_sha256": "3df2916266b71682bdd621959717bace4059243ae5c494689ec460b720625186",
-            "error_code": "TRANSFORM_DIRECT_ADD",
-            "recommendation": "convert through frozen user rule policy"
-          },
-          {
-            "syntax": "empty",
-            "physical_line": 502,
-            "sample_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "error_code": "IGNORE_NON_DATA_LINE",
             "recommendation": "exclude from candidate records"
           },
@@ -698,64 +677,7 @@
           }
         ]
       },
-      "security_findings": [
-        {
-          "finding_type": "url",
-          "physical_line": 510,
-          "summary_sha256": "8ce1c1cb59d0cdf830908b7cdc72abbf087c3f2b2ecdb97c94ab7b29bafabc2c",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        },
-        {
-          "finding_type": "url",
-          "physical_line": 511,
-          "summary_sha256": "3df2916266b71682bdd621959717bace4059243ae5c494689ec460b720625186",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        },
-        {
-          "finding_type": "url",
-          "physical_line": 512,
-          "summary_sha256": "d7a60e103d0ac4522f91e05e341163a003e684cf78f4796df9df79343d85ba80",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        },
-        {
-          "finding_type": "url",
-          "physical_line": 513,
-          "summary_sha256": "4d4f2d6243623d64416a56872653c392b7bb185a0295a1217203653d74a65cda",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        },
-        {
-          "finding_type": "url",
-          "physical_line": 514,
-          "summary_sha256": "105567b43b8c24eb3a2fdf58ba49be84bd69987317a720a83548619eb839cc20",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        },
-        {
-          "finding_type": "url",
-          "physical_line": 535,
-          "summary_sha256": "ca6598398c1d2721e5e0667cb32a573309f619d21322188499be4fe9c6ae4062",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        },
-        {
-          "finding_type": "url",
-          "physical_line": 536,
-          "summary_sha256": "2a9806ce430511c69109cbfbf9f264b523a43e8998f3809f700fa3bd2e85d9d2",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        },
-        {
-          "finding_type": "url",
-          "physical_line": 537,
-          "summary_sha256": "21a9cd0166285745b876674fc6f7fef4731b5b26c0995fedb29de62cdf928846",
-          "reason_code": "REJECT_NETWORK_ACTION",
-          "blocking_credential": false
-        }
-      ],
+      "security_findings": [],
       "read_error": null
     },
     {
@@ -2049,7 +1971,7 @@
       "record_order_identical": false,
       "semantic_role_identical": true,
       "overlap_count": 14,
-      "left_only_count": 530,
+      "left_only_count": 486,
       "right_only_count": 488,
       "order_difference": false,
       "syntax_difference": true,
@@ -2149,11 +2071,11 @@
       "record_order_identical": false,
       "semantic_role_identical": true,
       "overlap_count": 1,
-      "left_only_count": 26,
+      "left_only_count": 27,
       "right_only_count": 26,
       "order_difference": false,
       "syntax_difference": true,
-      "same_text_different_code": 12,
+      "same_text_different_code": 13,
       "same_code_different_text": 1,
       "recommended_resolution": "use the numbered 小鹤音形 source only for frozen first-release categories; keep 码表 exports audit-only; keep deferred or rejected feature pairs isolated",
       "requires_manual_confirmation": false

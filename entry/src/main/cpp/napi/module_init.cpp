@@ -12,6 +12,7 @@ static napi_value Init(napi_env env, napi_value exports) {
         {"createEngineAsync", nullptr, CreateEngineAsync, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"destroyEngine", nullptr, DestroyEngine, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"processKey", nullptr, ProcessKey, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"processKeyAsync", nullptr, ProcessKeyAsync, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"insertSegmentBoundary", nullptr, InsertSegmentBoundary, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"backspace", nullptr, Backspace, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"reset", nullptr, Reset, nullptr, nullptr, nullptr, napi_default, nullptr},

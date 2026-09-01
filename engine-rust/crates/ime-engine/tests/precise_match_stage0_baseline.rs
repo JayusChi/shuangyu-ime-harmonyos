@@ -84,7 +84,7 @@ fn precise_match_stage0_files_are_path_clean_and_tied_to_the_frozen_resource() {
 }
 
 #[test]
-fn current_precise_behavior_preserves_the_archived_stage0_reference() {
+fn current_precise_behavior_preserves_unchanged_stage0_cases_and_uses_safe_empty_clear() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing")).expect("formal engine");
     engine
         .set_code_table_categories(
@@ -144,8 +144,8 @@ fn current_precise_behavior_preserves_the_archived_stage0_reference() {
     assert_eq!(missing.raw_input, "aaa");
     assert!(missing.candidates.is_empty());
     assert!(missing.commit_text.is_empty());
-    let split = engine.process_key('a');
-    assert_eq!(split.commit_text, "阿");
-    assert_eq!(split.raw_input, "aa");
-    assert_eq!(split.candidates.len(), 1);
+    let cleared = engine.process_key('a');
+    assert!(cleared.commit_text.is_empty());
+    assert!(cleared.raw_input.is_empty());
+    assert!(cleared.candidates.is_empty());
 }

@@ -103,7 +103,7 @@ saveUserLexicon(path: string, expectedRevision: string, content: string): UserLe
 
 `saveUserLexicon` 必须先完整解析内容，再比较磁盘当前 revision，匹配后才执行原子保存。`reloadUserLexicon` 只在完整加载成功时替换引擎不可变快照；运行时恢复为空或失败时保留最后有效快照。
 
-直通命令不是 Native ABI 字段。ArkTS 使用封闭 `action + target` 合同，并统一调用现有 SettingsController；完整命令表见 `STAGE12_DIRECT_CONTROL_USER_LEXICON.md`。
+直通命令不是 Native ABI 字段。ArkTS 使用封闭 `action + target` 合同，并统一调用现有 SettingsController。实体键盘动作词条的编码、候选标题和顺序来自客户 `5.直通.txt` 生成数据；Native/Rust 只接收离线规范化后的类型化记录，不解释原始 `$cmd/$ddcmd`。完整命令表见 `STAGE12_DIRECT_CONTROL_USER_LEXICON.md`。
 
 ## 阶段 11.6.7 四码提交与顶屏
 
@@ -283,7 +283,8 @@ ArkTS 只使用 `'` 连接非空段；字段缺失或非法时安全回退显示
 
 输入码展示位置必须互斥且由输入法控制：中文组合期间连接层固定使用 `CANDIDATE_BAR` 模式，
 不得把原始编码写入编辑器或交给宿主 `TextPreview` 绘制；固定候选栏、展开候选区或浮动候选窗中
-只能有一个当前可见表面绘制该编码，并统一使用实线下划线表达未上屏状态。候选确认后仅提交候选文字，
+只能有一个当前可见表面绘制该编码。装饰由展示位置决定：嵌入/固定展示位使用实线下划线表达
+未上屏，输入码与候选共同位于浮动候选窗时不得绘制下划线。候选确认后仅提交候选文字，
 退格、清空及部分候选剩余码只更新自绘候选区域，不得把原始编码冻结成普通编辑器文本。
 
 `currentPinyin` 是解析器当前首选的规范化拼音路径；`pinyinCombinations` 是需要用户消歧时的

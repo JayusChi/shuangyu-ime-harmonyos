@@ -3,6 +3,7 @@ import {
   DELETE_ACTION,
   ENTER_ACTION,
   KeyboardAction,
+  KeyboardMode,
   SPACE_ACTION,
   TOGGLE_LANGUAGE_ACTION
 } from '../../../domain/keyboard/KeyboardAction';
@@ -79,6 +80,42 @@ export interface KeyboardRowSpec {
  */
 export interface KeyboardLayoutSpec {
   rows: KeyboardRowSpec[];
+}
+
+/**
+ * Reactive values used to preserve ArkUI keyboard-row component identity.
+ * Only the Chinese bottom-letter row changes identity when composition starts
+ * or ends, because its leading key swaps between Shift and Esc. Exact code
+ * growth stays outside the identity so continued typing never rebuilds it.
+ */
+export interface KeyboardRowRenderIdentityState {
+  editorKind: string;
+  keyboardMode: string;
+  /** Distinguishes the Chinese and English decks while SYMBOL mode stays active. */
+  symbolLanguageMode: string;
+  shiftState: string;
+  rawInput: string;
+  chineseCapsLock: boolean;
+  shuangpinLayout: string;
+  keyboardProfileId: string;
+  keyboardStructureId: string;
+  numberDecimalAllowed: boolean;
+  enterAction: string;
+}
+
+export function keyboardRowRenderIdentity(
+  state: KeyboardRowRenderIdentityState,
+  rowIndex: number
+): string {
+  const compositionState = state.keyboardMode === KeyboardMode.CHINESE &&
+    rowIndex === 2 && state.rawInput.length > 0
+    ? 'composition'
+    : 'idle';
+  return `${state.editorKind}-${state.keyboardMode}-${state.shiftState}-` +
+    `${state.symbolLanguageMode}-` +
+    `${state.chineseCapsLock}-${state.shuangpinLayout}-${state.keyboardProfileId}-` +
+    `${state.keyboardStructureId}-${state.numberDecimalAllowed}-${state.enterAction}-` +
+    `${compositionState}-row-${rowIndex}`;
 }
 
 /**

@@ -112,6 +112,7 @@ declare const imeBridge: {
   createEngineAsync(config: EngineConfig): Promise<number>;
   destroyEngine(handle: number): void;
   processKey(handle: number, key: string): CompositionResult;
+  processKeyAsync(handle: number, key: string): Promise<CompositionResult>;
   insertSegmentBoundary(handle: number): CompositionResult;
   backspace(handle: number): CompositionResult;
   reset(handle: number): CompositionResult;
@@ -142,6 +143,7 @@ export const createEngine: (config: EngineConfig) => number;
 export const createEngineAsync: (config: EngineConfig) => Promise<number>;
 export const destroyEngine: (handle: number) => void;
 export const processKey: (handle: number, key: string) => CompositionResult;
+export const processKeyAsync: (handle: number, key: string) => Promise<CompositionResult>;
 export const insertSegmentBoundary: (handle: number) => CompositionResult;
 export const backspace: (handle: number) => CompositionResult;
 export const reset: (handle: number) => CompositionResult;

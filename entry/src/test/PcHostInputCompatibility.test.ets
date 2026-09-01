@@ -78,6 +78,48 @@ export default function pcHostInputCompatibilityTest() {
         .assertFalse();
     });
 
+    it('deduplicates a complete modern pair followed by the legacy pair', 0, () => {
+      const deduplicator = new PhysicalKeyEventDeduplicator();
+      const oDown = key(2031);
+      const oUp = key(2031, false);
+      deduplicator.record(PhysicalKeyEventChannel.MODERN, oDown, true, 1000);
+      deduplicator.record(PhysicalKeyEventChannel.MODERN, oUp, true, 1004);
+
+      expect(deduplicator.findDuplicateDecision(PhysicalKeyEventChannel.LEGACY, oDown, 1030))
+        .assertTrue();
+      expect(deduplicator.findDuplicateDecision(PhysicalKeyEventChannel.LEGACY, oUp, 1034))
+        .assertTrue();
+      // Both records were consumed. A later real O press is not mistaken for
+      // a third delivery of the original key.
+      expect(deduplicator.findDuplicateDecision(PhysicalKeyEventChannel.LEGACY, oDown, 1040))
+        .assertUndefined();
+    });
+
+    it('dispatches o then k once when each physical key arrives on both APIs', 0, () => {
+      const deduplicator = new PhysicalKeyEventDeduplicator();
+      const accepted: string[] = [];
+      const deliver = (
+        channel: PhysicalKeyEventChannel,
+        snapshot: PhysicalKeySnapshot,
+        timestampMs: number,
+        letter: string
+      ): void => {
+        const duplicate = deduplicator.findDuplicateDecision(channel, snapshot, timestampMs);
+        if (duplicate !== undefined) {
+          return;
+        }
+        accepted.push(letter);
+        deduplicator.record(channel, snapshot, true, timestampMs);
+      };
+
+      deliver(PhysicalKeyEventChannel.MODERN, key(2031), 2000, 'o');
+      deliver(PhysicalKeyEventChannel.LEGACY, key(2031), 2030, 'o');
+      deliver(PhysicalKeyEventChannel.MODERN, key(2027), 2100, 'k');
+      deliver(PhysicalKeyEventChannel.LEGACY, key(2027), 2130, 'k');
+
+      expect(accepted.join('')).assertEqual('ok');
+    });
+
     it('does not suppress same-channel repeats or later real events', 0, () => {
       const deduplicator = new PhysicalKeyEventDeduplicator(24);
       const down = key(2030);

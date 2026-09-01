@@ -2,7 +2,7 @@
 
 报告只含类型、位置和摘要哈希，不复制命中原文。
 
-- 安全命中：37
+- 安全命中：29
 - 原始凭据型命中：0
 - 凭据所在 `ime.android.ini`：`REJECTED_AND_QUARANTINED`。
 - `sanitized_configuration.json`：不复制任何原始键或值，不可执行、不可转换、不可进入 HAP。
@@ -25,14 +25,6 @@
 | `小鹤音形/2.3.直通-安卓.txt` | 311 | `url` | `REJECT_NETWORK_ACTION` | `5e326ed781f95aa5` |
 | `小鹤音形/2.3.直通-安卓.txt` | 315 | `android_storage_path` | `REJECT_UNSAFE_PATH_ACCESS` | `522badb7373baabb` |
 | `小鹤音形/2.3.直通-安卓.txt` | 316 | `android_storage_path` | `REJECT_UNSAFE_PATH_ACCESS` | `5ba17c3dd479ced1` |
-| `小鹤音形/2.5.全码词.txt` | 510 | `url` | `REJECT_NETWORK_ACTION` | `8ce1c1cb59d0cdf8` |
-| `小鹤音形/2.5.全码词.txt` | 511 | `url` | `REJECT_NETWORK_ACTION` | `3df2916266b71682` |
-| `小鹤音形/2.5.全码词.txt` | 512 | `url` | `REJECT_NETWORK_ACTION` | `d7a60e103d0ac452` |
-| `小鹤音形/2.5.全码词.txt` | 513 | `url` | `REJECT_NETWORK_ACTION` | `4d4f2d6243623d64` |
-| `小鹤音形/2.5.全码词.txt` | 514 | `url` | `REJECT_NETWORK_ACTION` | `105567b43b8c24eb` |
-| `小鹤音形/2.5.全码词.txt` | 535 | `url` | `REJECT_NETWORK_ACTION` | `ca6598398c1d2721` |
-| `小鹤音形/2.5.全码词.txt` | 536 | `url` | `REJECT_NETWORK_ACTION` | `2a9806ce430511c6` |
-| `小鹤音形/2.5.全码词.txt` | 537 | `url` | `REJECT_NETWORK_ACTION` | `21a9cd0166285745` |
 | `码表/导出 - 主码 - 直通.txt` | 10 | `url` | `REJECT_NETWORK_ACTION` | `d178511df1440c81` |
 | `码表/导出 - 主码 - 直通.txt` | 11 | `external_process` | `REJECT_EXTERNAL_PROCESS` | `b4fa81d223480561` |
 | `码表/导出 - 主码 - 直通.txt` | 13 | `external_process` | `REJECT_EXTERNAL_PROCESS` | `493e8d3cf19730f3` |

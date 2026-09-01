@@ -52,6 +52,30 @@ fn normal_specs() -> Vec<TableSpec> {
     ]
 }
 
+fn wildcard_specs() -> Vec<TableSpec> {
+    vec![
+        TableSpec {
+            id: "core",
+            order: 10,
+            enabled: true,
+            guide: false,
+            entries: vec![
+                ("晚", "unzz"),
+                ("安", "unan"),
+                ("核心后续词", "unxy"),
+                ("精确词", "un"),
+            ],
+        },
+        TableSpec {
+            id: "phrases",
+            order: 20,
+            enabled: true,
+            guide: false,
+            entries: vec![("短语后续", "unxx")],
+        },
+    ]
+}
+
 fn guide_spec() -> TableSpec {
     TableSpec {
         id: "guide",
@@ -82,12 +106,15 @@ fn production_direct_action_separates_candidate_label_from_committed_text() {
     let mut machine = state(8, 64);
     machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
 
-    input(&mut machine, "oba");
-    assert_eq!(machine.current_candidates()[0].text, "横_一");
-    assert_eq!(machine.current_candidates()[0].code, "oba");
+    input(&mut machine, "jysi");
+    assert_eq!(machine.current_candidates()[0].text, "『静夜思』");
+    assert_eq!(machine.current_candidates()[0].code, "jysi");
     assert_eq!(
         machine.select_current_page(0).unwrap(),
-        CodeTableSelection::CommitText("一".to_owned())
+        CodeTableSelection::CommitText(
+            "　　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n"
+                .to_owned()
+        )
     );
 }
 
@@ -114,14 +141,28 @@ fn production_actions_keep_guide_and_direct_scopes_isolated() {
 }
 
 #[test]
-fn production_double_semicolon_commits_full_width_colon() {
+fn production_bare_and_double_semicolon_follow_the_customer_contract() {
     let mut machine = state(8, 64);
     machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
     machine.process_key(';').unwrap();
+    assert_eq!(candidate_texts(&machine), ["："]);
     assert_eq!(
         machine.process_key(';').unwrap().commit_text.as_deref(),
-        Some("：")
+        Some("；")
     );
+}
+
+#[test]
+fn production_unique_quick_symbol_commits_on_its_letter_without_space() {
+    let mut machine = state(8, 64);
+    machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+
+    machine.process_key(';').unwrap();
+    let outcome = machine.process_key('q').unwrap();
+
+    assert_eq!(outcome.commit_text.as_deref(), Some("：“"));
+    assert_eq!(machine.input_state(), CodeTableInputState::Idle);
+    assert!(machine.current_candidates().is_empty());
 }
 
 #[test]
@@ -132,7 +173,7 @@ fn production_direct_actions_expose_typed_category_presets_and_dynamic_values() 
     input(&mut presets, "ojj");
     assert_eq!(
         candidate_texts(&presets)[0..3],
-        ["<熟手词库>", "<常规词库>", "<初学词库>"]
+        ["[熟手]", "[常规]", "[初学]"]
     );
     assert!(matches!(
         presets.select_current_page(1).unwrap(),
@@ -140,21 +181,11 @@ fn production_direct_actions_expose_typed_category_presets_and_dynamic_values() 
             if action == "category.preset" && target == "standard"
     ));
 
-    let mut timestamp = state(8, 64);
-    timestamp.set_action_table(Some(actions));
-    input(&mut timestamp, "ouji");
-    assert!(matches!(
-        timestamp.select_current_page(0).unwrap(),
-        CodeTableSelection::Action(FunctionalAction::DateTimeText(
-            code_table_runtime::DateTimeFormatId::UnixTimestamp
-        ))
-    ));
-
     let mut local_date = state(8, 64);
-    local_date.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+    local_date.set_action_table(Some(actions));
     input(&mut local_date, "orq");
     assert!(matches!(
-        local_date.select_current_page(1).unwrap(),
+        local_date.select_current_page(0).unwrap(),
         CodeTableSelection::Action(FunctionalAction::DateTimeText(
             code_table_runtime::DateTimeFormatId::DateLocalUnpadded
         ))
@@ -182,22 +213,23 @@ fn production_direct_actions_expose_typed_category_presets_and_dynamic_values() 
 
 #[test]
 fn universal_key_queries_unknown_shape_and_sound_positions() {
-    let mut unknown_shape = state(8, 64);
+    let mut unknown_shape = state_from_specs(&wildcard_specs(), 8, 64);
     input(&mut unknown_shape, "un");
     unknown_shape.process_key('`').unwrap();
     assert_eq!(unknown_shape.raw_code(), "un`");
     let shape_candidates = candidate_texts(&unknown_shape);
-    assert!(shape_candidates.contains(&"核心后续晚码"));
-    assert!(shape_candidates.contains(&"核心后续早码"));
-    assert!(shape_candidates.contains(&"短语后续"));
-    assert!(!shape_candidates.contains(&"核心精确甲"));
+    assert!(shape_candidates.contains(&"晚"));
+    assert!(shape_candidates.contains(&"安"));
+    assert!(!shape_candidates.contains(&"核心后续词"));
+    assert!(!shape_candidates.contains(&"短语后续"));
+    assert!(!shape_candidates.contains(&"精确词"));
 
-    let mut unknown_sound = state(8, 64);
+    let mut unknown_sound = state_from_specs(&wildcard_specs(), 8, 64);
     unknown_sound.process_key('`').unwrap();
     unknown_sound.process_key('`').unwrap();
     input(&mut unknown_sound, "an");
     assert_eq!(unknown_sound.raw_code(), "``an");
-    assert_eq!(candidate_texts(&unknown_sound), ["核心后续早码"]);
+    assert_eq!(candidate_texts(&unknown_sound), ["安"]);
 }
 
 #[test]
@@ -505,6 +537,12 @@ fn state(page_size: usize, limit: usize) -> CodeTableStateMachine {
     CodeTableStateMachine::new(loaded_bundle(), page_size, limit).unwrap()
 }
 
+fn state_from_specs(specs: &[TableSpec], page_size: usize, limit: usize) -> CodeTableStateMachine {
+    let bundle =
+        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(specs, &guide_spec())).unwrap());
+    CodeTableStateMachine::new(bundle, page_size, limit).unwrap()
+}
+
 fn snapshot(rules: &str) -> Arc<UserLexiconSnapshot> {
     Arc::new(
         parse_user_lexicon_bytes("fixture-user-lexicon.txt", rules.as_bytes())
@@ -714,7 +752,7 @@ fn deterministic_hint_delete_refills_without_fixed_or_position_reordering() {
 }
 
 #[test]
-fn fifth_key_never_top_screens_a_prefix_hint() {
+fn fifth_key_after_a_four_code_hint_is_checked_before_empty_clear() {
     let specs = vec![TableSpec {
         id: "core",
         order: 10,
@@ -728,8 +766,8 @@ fn fifth_key_never_top_screens_a_prefix_hint() {
 
     let outcome = machine.process_key('e').unwrap();
     assert!(outcome.commit_text.is_none());
-    assert_eq!(machine.raw_code(), "e");
-    assert_eq!(candidate_texts(&machine), ["new-segment"]);
+    assert!(machine.raw_code().is_empty());
+    assert!(candidate_texts(&machine).is_empty());
 }
 
 #[test]
@@ -1711,171 +1749,53 @@ fn stage11_6_7_empty_code_at_frozen_length_clears_composition() {
 }
 
 #[test]
-fn stage11_6_7_forward_empty_code_split_commits_longest_exact_prefix() {
+fn empty_full_code_never_commits_a_shorter_exact_prefix() {
     let specs = vec![TableSpec {
         id: "core",
         order: 10,
         enabled: true,
         guide: false,
-        entries: vec![("左段候选", "ab"), ("右段候选", "cd")],
+        entries: vec![("三码候选", "niu")],
     }];
     let bundle =
         Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
     let mut machine = CodeTableStateMachine::new(bundle, 8, 64).unwrap();
-    input(&mut machine, "abc");
+    input(&mut machine, "niu");
 
-    let outcome = machine.process_key('d').unwrap();
+    let outcome = machine.process_key('o').unwrap();
 
-    assert_eq!(outcome.commit_text.as_deref(), Some("左段候选"));
-    assert_eq!(machine.raw_code(), "cd");
-    assert_eq!(machine.all_candidates()[0].text, "右段候选");
+    assert!(outcome.commit_text.is_none());
+    assert_eq!(machine.input_state(), CodeTableInputState::Idle);
+    assert!(machine.raw_code().is_empty());
+    assert!(machine.all_candidates().is_empty());
 }
 
 #[test]
-fn stage11_6_7_reverse_empty_code_split_preserves_order_with_literal_left_segment() {
+fn disabled_empty_clear_preserves_the_full_four_code_without_splitting() {
     let specs = vec![TableSpec {
         id: "core",
         order: 10,
         enabled: true,
         guide: false,
-        entries: vec![("合法右后缀", "bcd")],
+        entries: vec![("三码候选", "niu")],
     }];
     let bundle =
         Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let mut machine = CodeTableStateMachine::new(bundle, 8, 64).unwrap();
-    input(&mut machine, "zbc");
-
-    let outcome = machine.process_key('d').unwrap();
-
-    assert_eq!(outcome.commit_text.as_deref(), Some("z"));
-    assert_eq!(machine.raw_code(), "bcd");
-    assert_eq!(machine.all_candidates()[0].text, "合法右后缀");
-}
-
-#[test]
-fn stage11_6_7_forward_split_wins_when_both_directions_are_possible() {
-    let specs = vec![TableSpec {
-        id: "core",
-        order: 10,
-        enabled: true,
-        guide: false,
-        entries: vec![("正向首选", "ab"), ("反向后缀", "bcd")],
-    }];
-    let bundle =
-        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let mut machine = CodeTableStateMachine::new(bundle, 8, 64).unwrap();
-    input(&mut machine, "abc");
-
-    let outcome = machine.process_key('d').unwrap();
-
-    assert_eq!(outcome.commit_text.as_deref(), Some("正向首选"));
-    assert_eq!(machine.raw_code(), "cd");
-}
-
-#[test]
-fn stage11_6_7_split_tie_breakers_choose_longest_prefix_or_suffix() {
-    let specs = vec![TableSpec {
-        id: "core",
-        order: 10,
-        enabled: true,
-        guide: false,
-        entries: vec![
-            ("短前缀", "a"),
-            ("最长前缀", "abc"),
-            ("短后缀", "d"),
-            ("最长后缀", "bcd"),
-        ],
-    }];
-    let bundle =
-        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let mut forward = CodeTableStateMachine::new(Arc::clone(&bundle), 8, 64).unwrap();
-    input(&mut forward, "abc");
-
-    let forward_outcome = forward.process_key('d').unwrap();
-
-    assert_eq!(forward_outcome.commit_text.as_deref(), Some("最长前缀"));
-    assert_eq!(forward.raw_code(), "d");
-
-    let reverse_specs = vec![TableSpec {
-        id: "core",
-        order: 10,
-        enabled: true,
-        guide: false,
-        entries: vec![("短后缀", "cd"), ("最长后缀", "bcd")],
-    }];
-    let reverse_bundle = Arc::new(
-        CodeTableBundle::load_bytes(&bundle_bytes(&reverse_specs, &guide_spec())).unwrap(),
-    );
-    let mut reverse = CodeTableStateMachine::new(reverse_bundle, 8, 64).unwrap();
-    input(&mut reverse, "zbc");
-
-    let reverse_outcome = reverse.process_key('d').unwrap();
-
-    assert_eq!(reverse_outcome.commit_text.as_deref(), Some("z"));
-    assert_eq!(reverse.raw_code(), "bcd");
-    assert_eq!(reverse.all_candidates()[0].text, "最长后缀");
-}
-
-#[test]
-fn stage11_6_7_user_delete_can_change_forward_split_into_reverse_split() {
-    let specs = vec![TableSpec {
-        id: "core",
-        order: 10,
-        enabled: true,
-        guide: false,
-        entries: vec![("被删左段", "ab"), ("保留右段", "cd")],
-    }];
-    let bundle =
-        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
+    let policy = CodeTableCommitPolicy::new(4, 4, 12, 64).unwrap();
     let mut machine =
-        CodeTableStateMachine::new_with_user_lexicon(bundle, 8, 64, snapshot("被删左段\tab#删\n"))
-            .unwrap();
-    input(&mut machine, "abc");
+        CodeTableStateMachine::new_with_policy(bundle, 8, 64, snapshot(""), policy).unwrap();
+    input(&mut machine, "niu");
 
-    let outcome = machine.process_key('d').unwrap();
+    let outcome = machine.process_key('o').unwrap();
 
-    assert_eq!(outcome.commit_text.as_deref(), Some("ab"));
-    assert_eq!(machine.raw_code(), "cd");
-    assert_eq!(machine.all_candidates()[0].text, "保留右段");
+    assert!(outcome.commit_text.is_none());
+    assert_eq!(machine.input_state(), CodeTableInputState::NormalCode);
+    assert_eq!(machine.raw_code(), "niuo");
+    assert!(machine.all_candidates().is_empty());
 }
 
 #[test]
-fn stage11_6_7_category_snapshot_changes_split_without_mid_operation_reads() {
-    let specs = vec![
-        TableSpec {
-            id: "core",
-            order: 10,
-            enabled: true,
-            guide: false,
-            entries: vec![("右段", "cd")],
-        },
-        TableSpec {
-            id: "phrases",
-            order: 20,
-            enabled: true,
-            guide: false,
-            entries: vec![("分类左段", "ab")],
-        },
-    ];
-    let bundle =
-        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let mut enabled = CodeTableStateMachine::new(Arc::clone(&bundle), 8, 64).unwrap();
-    input(&mut enabled, "abc");
-    let enabled_outcome = enabled.process_key('d').unwrap();
-    assert_eq!(enabled_outcome.commit_text.as_deref(), Some("分类左段"));
-
-    let mut core_only = CodeTableStateMachine::new(bundle, 8, 64).unwrap();
-    core_only
-        .set_enabled_categories(vec!["core".to_owned()])
-        .unwrap();
-    input(&mut core_only, "abc");
-    let core_outcome = core_only.process_key('d').unwrap();
-    assert_eq!(core_outcome.commit_text.as_deref(), Some("ab"));
-    assert_eq!(core_only.raw_code(), "cd");
-}
-
-#[test]
-fn stage11_6_7_deleted_reverse_suffix_falls_back_to_safe_clear() {
+fn deleted_continuation_falls_back_to_safe_clear() {
     let specs = vec![TableSpec {
         id: "core",
         order: 10,
@@ -1926,20 +1846,6 @@ fn stage11_6_7_commit_policy_rejects_invalid_or_incoherent_lengths() {
 
     let exceeds_max = CodeTableCommitPolicy::new(4, 4, 5, 4).unwrap_err();
     assert_eq!(exceeds_max.kind, CodeTableErrorKind::InvalidCommitPolicy);
-
-    let split_below_empty =
-        CodeTableCommitPolicy::new_with_split_limit(4, 4, 4, 64, 3).unwrap_err();
-    assert_eq!(
-        split_below_empty.kind,
-        CodeTableErrorKind::InvalidCommitPolicy
-    );
-
-    let split_above_normal =
-        CodeTableCommitPolicy::new_with_split_limit(4, 4, 4, 64, 65).unwrap_err();
-    assert_eq!(
-        split_above_normal.kind,
-        CodeTableErrorKind::InvalidCommitPolicy
-    );
 }
 
 #[test]
@@ -1956,7 +1862,7 @@ fn customer_commit_policy_can_change_only_at_a_clean_boundary() {
 }
 
 #[test]
-fn stage11_6_7_empty_code_does_not_split_before_frozen_threshold() {
+fn empty_code_does_not_clear_before_frozen_threshold() {
     let specs = vec![TableSpec {
         id: "core",
         order: 10,
@@ -1975,97 +1881,31 @@ fn stage11_6_7_empty_code_does_not_split_before_frozen_threshold() {
 }
 
 #[test]
-fn stage11_6_7_split_remainder_is_queried_once_without_second_auto_commit() {
+fn top_screen_waits_while_the_old_four_code_has_a_valid_continuation() {
     let specs = vec![TableSpec {
         id: "core",
         order: 10,
         enabled: true,
         guide: false,
         entries: vec![
-            ("左段", "abcd"),
-            ("阻止提前提交", "abcdx"),
-            ("右段", "efgh"),
+            ("四码首选", "abcd"),
+            ("四码次选", "abcd"),
+            ("五码后续", "abcde"),
         ],
     }];
     let bundle =
         Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let policy = CodeTableCommitPolicy::new_with_split_limit(4, 8, 8, 8, 8).unwrap();
-    let mut machine =
-        CodeTableStateMachine::new_with_policy(bundle, 8, 64, snapshot(""), policy).unwrap();
-    input(&mut machine, "abcdefg");
-
-    let outcome = machine.process_key('h').unwrap();
-
-    assert_eq!(outcome.commit_text.as_deref(), Some("左段"));
-    assert_eq!(machine.raw_code(), "efgh");
-    assert_eq!(machine.all_candidates().len(), 1);
-    assert_eq!(machine.all_candidates()[0].text, "右段");
-}
-
-#[test]
-fn stage11_6_7_split_scan_limit_fails_closed_without_partial_commit() {
-    let specs = vec![TableSpec {
-        id: "core",
-        order: 10,
-        enabled: true,
-        guide: false,
-        entries: vec![("四码后续", "abcde"), ("可切前缀", "ab")],
-    }];
-    let bundle =
-        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let policy = CodeTableCommitPolicy::new_with_split_limit(8, 8, 4, 8, 4).unwrap();
+    let policy = CodeTableCommitPolicy::new(64, 4, 12, 64).unwrap();
     let mut machine =
         CodeTableStateMachine::new_with_policy(bundle, 8, 64, snapshot(""), policy).unwrap();
     input(&mut machine, "abcd");
 
-    let outcome = machine.process_key('x').unwrap();
+    let outcome = machine.process_key('e').unwrap();
 
     assert!(outcome.commit_text.is_none());
-    assert!(machine.raw_code().is_empty());
-    assert!(machine.all_candidates().is_empty());
-}
-
-#[test]
-fn stage11_6_7_reverse_split_accepts_a_visible_prefix_suffix() {
-    let specs = vec![TableSpec {
-        id: "core",
-        order: 10,
-        enabled: true,
-        guide: false,
-        entries: vec![("右段后续", "bcd")],
-    }];
-    let bundle =
-        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let mut machine = CodeTableStateMachine::new(bundle, 8, 64).unwrap();
-    input(&mut machine, "zzb");
-
-    let outcome = machine.process_key('c').unwrap();
-
-    assert_eq!(outcome.commit_text.as_deref(), Some("zz"));
-    assert_eq!(machine.raw_code(), "bc");
-    assert_eq!(machine.all_candidates()[0].text, "右段后续");
-}
-
-#[test]
-fn stage11_6_7_forward_split_uses_final_user_fixed_first_candidate() {
-    let specs = vec![TableSpec {
-        id: "core",
-        order: 10,
-        enabled: true,
-        guide: false,
-        entries: vec![("系统首选", "ab"), ("用户固顶", "ab"), ("右段", "cd")],
-    }];
-    let bundle =
-        Arc::new(CodeTableBundle::load_bytes(&bundle_bytes(&specs, &guide_spec())).unwrap());
-    let mut machine =
-        CodeTableStateMachine::new_with_user_lexicon(bundle, 8, 64, snapshot("用户固顶\tab#固\n"))
-            .unwrap();
-    input(&mut machine, "abc");
-
-    let outcome = machine.process_key('d').unwrap();
-
-    assert_eq!(outcome.commit_text.as_deref(), Some("用户固顶"));
-    assert_eq!(machine.raw_code(), "cd");
+    assert_eq!(machine.raw_code(), "abcde");
+    assert_eq!(machine.all_candidates().len(), 1);
+    assert_eq!(machine.all_candidates()[0].text, "五码后续");
 }
 
 #[test]

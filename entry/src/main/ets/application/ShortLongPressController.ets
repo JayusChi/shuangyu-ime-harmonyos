@@ -1,4 +1,6 @@
-export const INPUT_METHOD_SWITCH_LONG_PRESS_MS: number = 500;
+import { DEFAULT_LONG_PRESS_DURATION_MS } from '../domain/settings/ImeSettings';
+
+export const INPUT_METHOD_SWITCH_LONG_PRESS_MS: number = DEFAULT_LONG_PRESS_DURATION_MS;
 
 export enum ShortLongPressState {
   IDLE = 'idle',

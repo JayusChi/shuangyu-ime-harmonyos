@@ -11,7 +11,12 @@ import {
 import { InputSessionController } from '../main/ets/application/InputSessionController';
 import { SettingsStore } from '../main/ets/state/SettingsStore';
 import { ImeErrorCode } from '../main/ets/common/error/ImeError';
-import { copyImeSettings, DEFAULT_IME_SETTINGS, KeyboardHeightMode } from '../main/ets/domain/settings/ImeSettings';
+import {
+  CandidatePresentationMode,
+  copyImeSettings,
+  DEFAULT_IME_SETTINGS,
+  KeyboardHeightMode
+} from '../main/ets/domain/settings/ImeSettings';
 import { InputSessionStore } from '../main/ets/state/InputSessionStore';
 import { createScreenMetrics, ScreenMetricsPx } from '../main/ets/domain/display/ScreenMetrics';
 import { DeviceMetricsProvider } from '../main/ets/infrastructure/display/DeviceMetricsProvider';
@@ -293,7 +298,7 @@ export default function inputPanelLifecycleTest() {
       controller.handleInputStart();
       await controller.waitForLifecycleIdle();
       expect(backend.panel.resizeCount).assertEqual(1);
-      expect(backend.panel.resizeHeights[0]).assertEqual(1032);
+      expect(backend.panel.resizeHeights[0]).assertEqual(1053);
 
       const loaded = copyImeSettings(DEFAULT_IME_SETTINGS);
       loaded.keyboardHeightMode = KeyboardHeightMode.TALL;
@@ -301,7 +306,7 @@ export default function inputPanelLifecycleTest() {
       await controller.waitForLifecycleIdle();
 
       expect(backend.panel.resizeCount).assertEqual(2);
-      expect(backend.panel.resizeHeights[1]).assertEqual(1134);
+      expect(backend.panel.resizeHeights[1]).assertEqual(1158);
     });
 
     it('settings readiness barrier applies loaded height before first panel creation', 0, async () => {
@@ -327,7 +332,7 @@ export default function inputPanelLifecycleTest() {
       await controller.waitForLifecycleIdle();
       expect(backend.createCount).assertEqual(1);
       expect(backend.panel.resizeCount).assertEqual(1);
-      expect(backend.panel.resizeHeights[0]).assertEqual(1134);
+      expect(backend.panel.resizeHeights[0]).assertEqual(1158);
     });
 
     it('duplicate and rapid settings notifications coalesce stale resize work', 0, async () => {
@@ -347,7 +352,7 @@ export default function inputPanelLifecycleTest() {
       await controller.waitForLifecycleIdle();
 
       expect(backend.panel.resizeCount).assertEqual(2);
-      expect(backend.panel.resizeHeights[1]).assertEqual(1134);
+      expect(backend.panel.resizeHeights[1]).assertEqual(1158);
     });
 
     it('lift layer setting resizes the visible panel without restarting the input session', 0, async () => {
@@ -356,7 +361,7 @@ export default function inputPanelLifecycleTest() {
       const controller = createController(backend, settingsStore);
       controller.handleInputStart();
       await controller.waitForLifecycleIdle();
-      expect(backend.panel.resizeHeights[0]).assertEqual(1032);
+      expect(backend.panel.resizeHeights[0]).assertEqual(1053);
 
       const withoutLiftLayer = copyImeSettings(DEFAULT_IME_SETTINGS);
       withoutLiftLayer.keyboardLiftLayerEnabled = false;
@@ -365,6 +370,29 @@ export default function inputPanelLifecycleTest() {
 
       expect(backend.panel.resizeCount).assertEqual(2);
       expect(backend.panel.resizeHeights[1]).assertEqual(894);
+    });
+
+    it('floating candidate mode removes the fixed candidate row from the visible panel', 0, async () => {
+      const backend = new FakePanelBackend();
+      const settingsStore = new SettingsStore();
+      const controller = createController(backend, settingsStore);
+      controller.handleInputStart();
+      await controller.waitForLifecycleIdle();
+      const barHeight = backend.panel.resizeHeights[0];
+
+      const floating = copyImeSettings(DEFAULT_IME_SETTINGS);
+      floating.candidatePresentationMode = CandidatePresentationMode.FLOATING;
+      settingsStore.replace(floating);
+      await controller.waitForLifecycleIdle();
+
+      expect(backend.panel.resizeCount).assertEqual(2);
+      expect(backend.panel.resizeHeights[1] < barHeight).assertTrue();
+
+      const fixedBar = copyImeSettings(floating);
+      fixedBar.candidatePresentationMode = CandidatePresentationMode.BAR;
+      settingsStore.replace(fixedBar);
+      await controller.waitForLifecycleIdle();
+      expect(backend.panel.resizeHeights[2]).assertEqual(barHeight);
     });
 
     it('does not retry forever after the platform rejects a resize', 0, async () => {
@@ -393,7 +421,7 @@ export default function inputPanelLifecycleTest() {
 
       expect(backend.panel.resizeCount).assertEqual(1);
       expect(backend.panel.resizeWidths[0]).assertEqual(2880);
-      expect(backend.panel.resizeHeights[0]).assertEqual(1144);
+      expect(backend.panel.resizeHeights[0]).assertEqual(1266);
     });
 
     it('rotation publishes width and height together and duplicate snapshots do not resize', 0, async () => {
@@ -413,9 +441,9 @@ export default function inputPanelLifecycleTest() {
 
       expect(backend.panel.resizeCount).assertEqual(2);
       expect(backend.panel.resizeWidths[0]).assertEqual(1920);
-      expect(backend.panel.resizeHeights[0]).assertEqual(1190);
+      expect(backend.panel.resizeHeights[0]).assertEqual(1320);
       expect(backend.panel.resizeWidths[1]).assertEqual(2880);
-      expect(backend.panel.resizeHeights[1]).assertEqual(1144);
+      expect(backend.panel.resizeHeights[1]).assertEqual(1266);
     });
 
     it('publishes API 21 system panel bottom insets before sizing the keyboard panel', 0, async () => {

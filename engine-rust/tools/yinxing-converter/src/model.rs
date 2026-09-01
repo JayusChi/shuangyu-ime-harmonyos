@@ -49,6 +49,7 @@ pub struct SystemRecord {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum UserAction {
     Add,
+    Direct,
     Delete,
     Fixed,
     Position(u16),
@@ -58,6 +59,7 @@ impl UserAction {
     pub const fn name(&self) -> &'static str {
         match self {
             Self::Add => "add",
+            Self::Direct => "direct",
             Self::Delete => "delete",
             Self::Fixed => "fixed",
             Self::Position(_) => "position",
@@ -67,6 +69,7 @@ impl UserAction {
     pub fn marker(&self) -> String {
         match self {
             Self::Add => String::new(),
+            Self::Direct => "#直".to_owned(),
             Self::Delete => "#删".to_owned(),
             Self::Fixed => "#固".to_owned(),
             Self::Position(value) => format!("#{value}"),
@@ -124,6 +127,7 @@ pub struct CategoryStatistics {
     pub ordinary: u64,
     pub accepted_system: u64,
     pub user_add: u64,
+    pub user_direct: u64,
     pub user_delete: u64,
     pub user_fixed: u64,
     pub user_position: u64,
@@ -143,7 +147,7 @@ pub struct CategoryStatistics {
 
 impl CategoryStatistics {
     pub fn user_rule_count(&self) -> u64 {
-        self.user_add + self.user_delete + self.user_fixed + self.user_position
+        self.user_add + self.user_direct + self.user_delete + self.user_fixed + self.user_position
     }
 }
 
@@ -167,6 +171,7 @@ pub struct BuildStatistics {
     pub configuration_headers: u64,
     pub ordinary: u64,
     pub user_add: u64,
+    pub user_direct: u64,
     pub user_delete: u64,
     pub user_fixed: u64,
     pub user_position: u64,
@@ -193,6 +198,7 @@ impl BuildStatistics {
         self.configuration_headers += value.configuration_headers;
         self.ordinary += value.ordinary;
         self.user_add += value.user_add;
+        self.user_direct += value.user_direct;
         self.user_delete += value.user_delete;
         self.user_fixed += value.user_fixed;
         self.user_position += value.user_position;

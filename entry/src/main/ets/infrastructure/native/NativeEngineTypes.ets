@@ -193,6 +193,7 @@ export interface NativeEngineGatewayContract {
   createEngineAsync?(config: EngineConfig): Promise<number>;
   destroyEngine(handle: number): void;
   processKey(handle: number, key: string): CompositionResult;
+  processKeyAsync?(handle: number, key: string): Promise<CompositionResult>;
   insertSegmentBoundary(handle: number): CompositionResult;
   backspace(handle: number): CompositionResult;
   reset(handle: number): CompositionResult;

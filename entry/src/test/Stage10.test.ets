@@ -185,6 +185,14 @@ class Stage10GuideRepeatEngineCoordinator extends Stage10FakeEngineCoordinator {
   private guidePressCount: number = 0;
 
   processKey(key: string): CompositionResult {
+    if (key === 'q' && this.guidePressCount === 1) {
+      this.processCount += 1;
+      this.processedKeys.push(key);
+      const result = emptyComposition();
+      result.commitText = '：“';
+      result.compositionFinished = true;
+      return result;
+    }
     if (key !== ';') {
       return super.processKey(key);
     }
@@ -203,6 +211,17 @@ class Stage10GuideRepeatEngineCoordinator extends Stage10FakeEngineCoordinator {
       result.compositionFinished = true;
     }
     return result;
+  }
+
+  selectCandidate(candidateIndex: number): CompositionResult {
+    if (this.guidePressCount === 1 && candidateIndex === 0) {
+      this.selectCount += 1;
+      const result = emptyComposition();
+      result.commitText = '：';
+      result.compositionFinished = true;
+      return result;
+    }
+    return super.selectCandidate(candidateIndex);
   }
 }
 
@@ -708,6 +727,40 @@ export default function stage10Test() {
       expect(store.getSnapshot().candidates.length).assertEqual(0);
     });
 
+    it('commitsTheBareSemicolonColonCandidateWithSpace', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new Stage10FakeImeService();
+      const engine = new Stage10GuideRepeatEngineCoordinator();
+      const controller = new InputSessionController(store, ime, engine);
+      store.markSessionStarted();
+      controller.applyEditorContext(mapper().mapValues(CATALOG.patternText, CATALOG.enterDone));
+      store.switchKeyboardMode(KeyboardMode.CHINESE);
+
+      expect((await controller.insertCharacter(';')).success).assertTrue();
+      expect((await controller.insertSpace()).success).assertTrue();
+
+      expect(ime.insertedTexts.join('')).assertEqual('：');
+      expect(store.getSnapshot().rawInput).assertEqual('');
+    });
+
+    it('commitsAUniqueQuickSymbolAsSoonAsItsGuideLetterArrives', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new Stage10FakeImeService();
+      const engine = new Stage10GuideRepeatEngineCoordinator();
+      const controller = new InputSessionController(store, ime, engine);
+      store.markSessionStarted();
+      controller.applyEditorContext(mapper().mapValues(CATALOG.patternText, CATALOG.enterDone));
+      store.switchKeyboardMode(KeyboardMode.CHINESE);
+
+      expect((await controller.insertCharacter(';')).success).assertTrue();
+      expect((await controller.insertLetter('q')).success).assertTrue();
+
+      expect(engine.processedKeys.join('')).assertEqual(';q');
+      expect(ime.insertedTexts.join('')).assertEqual('：“');
+      expect(store.getSnapshot().rawInput).assertEqual('');
+      expect(store.getSnapshot().candidates.length).assertEqual(0);
+    });
+
     it('outputs upper-deck punctuation exactly as printed instead of converting it', 0, async () => {
       const store = new InputSessionStore();
       const ime = new Stage10FakeImeService();
@@ -822,7 +875,7 @@ export default function stage10Test() {
         false
       );
       expect(layout.rows[2].keys[0].action.type)
-        .assertEqual(KeyboardActionType.CANCEL_COMPOSITION);
+        .assertEqual(KeyboardActionType.TOGGLE_CHINESE_CAPS_LOCK);
     });
 
     it('rejectsEmptyOrRepeatedSegmentBoundaryWithoutLosingComposition', 0, async () => {
@@ -888,7 +941,7 @@ export default function stage10Test() {
       });
 
       expect(chinese.rows[2].keys[0].action.type)
-        .assertEqual(KeyboardActionType.CANCEL_COMPOSITION);
+        .assertEqual(KeyboardActionType.TOGGLE_CHINESE_CAPS_LOCK);
       expect(english.rows[2].keys[0].action.type).assertEqual(KeyboardActionType.SHIFT);
 
       expect(chinese.rows[0].keys.map((item) => item.id).join(','))
@@ -911,7 +964,7 @@ export default function stage10Test() {
       expect(layout.rows[1].keys.map((item) => item.upperLabel ?? '').join(''))
         .assertEqual('全选*/;!-#+@');
       expect(layout.rows[2].keys.slice(1, 8).map((item) => item.upperLabel ?? '').join(''))
-        .assertEqual("万能剪切复制粘贴-`'");
+        .assertEqual('万能剪切复制粘贴_`：');
 
       const upperActions: KeyboardActionType[] = [
         KeyboardActionType.SELECT_ALL,
@@ -988,7 +1041,7 @@ export default function stage10Test() {
       expect(ime.compatibleTexts[0]).assertEqual('n');
     });
 
-    it('keepsTheChineseEscKeyStableWhileComposing', 0, () => {
+    it('showsChineseShiftOnlyWhileIdleAndEscOnlyWhileComposing', 0, () => {
       const context = mapper().mapValues(CATALOG.patternText, CATALOG.enterDone);
       const shift = createStage10KeyboardLayout(
         KeyboardMode.CHINESE,
@@ -1004,16 +1057,16 @@ export default function stage10Test() {
         'ni',
         false
       );
-      const escapeKey = shift.rows[2].keys[0];
+      const idleShiftKey = shift.rows[2].keys[0];
       const composingEscapeKey = segment.rows[2].keys[0];
-      expect(escapeKey.id).assertEqual(composingEscapeKey.id);
-      expect(escapeKey.weight).assertEqual(composingEscapeKey.weight);
-      expect(shift.rows[2].keys.map((item) => item.id).join(','))
-        .assertEqual(segment.rows[2].keys.map((item) => item.id).join(','));
-      expect(escapeKey.action.type).assertEqual(KeyboardActionType.CANCEL_COMPOSITION);
-      expect(escapeKey.label).assertEqual('Esc');
-      expect(escapeKey.active).assertFalse();
-      expect(escapeKey.accessibilityLabel).assertEqual('取消当前中文组合');
+      expect(idleShiftKey.id).assertEqual('shift');
+      expect(composingEscapeKey.id).assertEqual('escape');
+      expect(idleShiftKey.weight).assertEqual(composingEscapeKey.weight);
+      expect(shift.rows[2].keys.slice(1).map((item) => item.id).join(','))
+        .assertEqual(segment.rows[2].keys.slice(1).map((item) => item.id).join(','));
+      expect(idleShiftKey.action.type).assertEqual(KeyboardActionType.TOGGLE_CHINESE_CAPS_LOCK);
+      expect(idleShiftKey.active).assertTrue();
+      expect(idleShiftKey.accessibilityLabel).assertEqual('关闭大写直输');
       expect(composingEscapeKey.action.type).assertEqual(KeyboardActionType.CANCEL_COMPOSITION);
       expect(composingEscapeKey.label).assertEqual('Esc');
       expect(composingEscapeKey.active).assertFalse();
@@ -1036,7 +1089,7 @@ export default function stage10Test() {
       expect(layout.rows[1].keys.map((item) => item.label).join('|'))
         .assertEqual('A|S D|F G|H|J K|L');
       expect(layout.rows[2].keys.map((item) => item.label).join('|'))
-        .assertEqual('Esc|Z|X C|V|B N|M|删除');
+        .assertEqual('⇧|Z|X C|V|B N|M|删除');
       expect(layout.rows[0].keys[1].alternatives?.map((item) => item.label).join(','))
         .assertEqual('W,E');
       const letters: string[] = [];
@@ -1050,14 +1103,27 @@ export default function stage10Test() {
         });
       });
       expect(letters.join('')).assertEqual('qwertyuiopasdfghjklzxcvbnm');
-      expect(layout.rows[2].keys[0].action.type).assertEqual(KeyboardActionType.CANCEL_COMPOSITION);
+      expect(layout.rows[2].keys[0].action.type)
+        .assertEqual(KeyboardActionType.TOGGLE_CHINESE_CAPS_LOCK);
+      const composingLayout = createStage10KeyboardLayout(
+        KeyboardMode.CHINESE,
+        context,
+        ShiftState.LOWERCASE,
+        'ni',
+        false,
+        false,
+        ShuangpinKeyboardLayout.EIGHTEEN_KEY
+      );
+      expect(composingLayout.rows[2].keys[0].label).assertEqual('Esc');
+      expect(composingLayout.rows[2].keys[0].action.type)
+        .assertEqual(KeyboardActionType.CANCEL_COMPOSITION);
       expect(layout.rows[2].keys[6].action.type).assertEqual(KeyboardActionType.DELETE);
       expect(layout.rows[3].keys.map((item) => item.id).join(','))
         .assertEqual('number,punctuation-comma,space,punctuation-period,enter');
       expect(layout.rows[3].keys[2].longPressAction?.type)
         .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
       expect(layout.rows[3].keys[2].swipeUpAction?.type)
-        .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
+        .assertEqual(KeyboardActionType.EXPAND_CANDIDATES);
       expect(normalizeShuangpinKeyboardLayout('seventeen_key'))
         .assertEqual(ShuangpinKeyboardLayout.EIGHTEEN_KEY);
       expect(normalizeShuangpinKeyboardLayout('eighteen_key'))
@@ -1093,7 +1159,7 @@ export default function stage10Test() {
         expect(bottom.filter((item) => item.action.type === KeyboardActionType.DELETE).length).assertEqual(0);
         expect(bottom.filter((item) => item.action.type === KeyboardActionType.HIDE_KEYBOARD).length).assertEqual(0);
         expect(bottom[2].longPressAction?.type).assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
-        expect(bottom[2].swipeUpAction?.type).assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
+        expect(bottom[2].swipeUpAction?.type).assertEqual(KeyboardActionType.EXPAND_CANDIDATES);
         expect(bottom[2].weight > bottom[4].weight).assertTrue();
       });
     });

@@ -1,5 +1,6 @@
 import { XIAOHE_YINXING_SCHEME_ID } from '../settings/ImeSettings';
 import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
+import { MIN_CANDIDATES_FOR_EXPANSION } from './CandidateExpansionPolicy';
 
 /**
  * 候选 UI 必须按方案显式分流，不能再从候选数量或分页字段反推方案语义。
@@ -48,17 +49,21 @@ export function resolveCandidateUiMode(schemeId: string): CandidateUiMode {
 }
 
 /**
- * 小鹤双拼保留分页和展开浏览；小鹤音形只显示当前精确快照。
+ * 小鹤双拼保留分页和展开浏览；小鹤音形通常只显示当前精确快照，
+ * 但万能键查询会产生一组可浏览的单字候选，因此允许展开。
  */
-export function allowsCandidateBrowsing(mode: CandidateUiMode): boolean {
-  return mode === CandidateUiMode.BROWSABLE;
+export function allowsCandidateBrowsing(mode: CandidateUiMode, rawInput: string = ''): boolean {
+  return mode === CandidateUiMode.BROWSABLE ||
+    (mode === CandidateUiMode.PRECISE_MATCH && isUniversalInput(rawInput));
 }
 
 export function shouldShowCandidateExpansionAction(
   mode: CandidateUiMode,
-  candidateCount: number
+  candidateCount: number,
+  rawInput: string = ''
 ): boolean {
-  return allowsCandidateBrowsing(mode) && candidateCount > 0;
+  return allowsCandidateBrowsing(mode, rawInput) &&
+    candidateCount >= MIN_CANDIDATES_FOR_EXPANSION;
 }
 
 export function isPreciseMatchHintCandidate(

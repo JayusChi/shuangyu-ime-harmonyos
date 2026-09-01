@@ -6,6 +6,7 @@ import {
   CandidateFontSizeMode,
   copyImeSettings,
   CURRENT_SETTINGS_SCHEMA_VERSION,
+  DEFAULT_LONG_PRESS_DURATION_MS,
   DEFAULT_SMART_PERIOD_TIMEOUT_MS,
   DEFAULT_IME_SETTINGS,
   EffectiveTheme,
@@ -53,7 +54,12 @@ import {
 } from '../main/ets/infrastructure/native/NativeEngineTypes';
 import { ImeErrorCode } from '../main/ets/common/error/ImeError';
 import { KeyboardThemeResolver } from '../main/ets/presentation/keyboard/design/KeyboardThemeResolver';
-import { DARK_PALETTE, LIGHT_PALETTE } from '../main/ets/presentation/keyboard/design/KeyboardPalette';
+import {
+  DanranKeyBackgroundKind,
+  DARK_PALETTE,
+  LIGHT_PALETTE,
+  resolveDanranKeyBackgroundSlice
+} from '../main/ets/presentation/keyboard/design/KeyboardPalette';
 import { UserModelStatus } from '../main/ets/infrastructure/native/NativeEngineTypes';
 import {
   SystemThemeBackend,
@@ -428,6 +434,7 @@ export default function stage11Test() {
       expect(DEFAULT_IME_SETTINGS.spellingCorrectionEnabled).assertFalse();
       expect(DEFAULT_IME_SETTINGS.fuzzyOptions.length).assertEqual(0);
       expect(DEFAULT_IME_SETTINGS.smartPeriodTimeoutMs).assertEqual(DEFAULT_SMART_PERIOD_TIMEOUT_MS);
+      expect(DEFAULT_IME_SETTINGS.longPressDurationMs).assertEqual(DEFAULT_LONG_PRESS_DURATION_MS);
       expect(DEFAULT_IME_SETTINGS.smartPunctuationSymbols).assertEqual(DEFAULT_SMART_PUNCTUATION_SYMBOLS);
       expect(DEFAULT_SMART_PUNCTUATION_SYMBOLS).assertEqual(',./;\\!:?"$()[]^_<>');
       expect(panelHeightForMode(KeyboardHeightMode.STANDARD)).assertEqual(894);
@@ -437,12 +444,12 @@ export default function stage11Test() {
     it('uses exact injected tablet dimensions for portrait, landscape and height modes', 0, () => {
       const landscape = createScreenMetrics({ widthPx: 2880, heightPx: 1920, densityPixels: 2 }, true);
       const portrait = createScreenMetrics({ widthPx: 1920, heightPx: 2880, densityPixels: 2 }, false);
-      expect(panelHeightForMode(KeyboardHeightMode.COMPACT, landscape)).assertEqual(932);
+      expect(panelHeightForMode(KeyboardHeightMode.COMPACT, landscape)).assertEqual(948);
       expect(panelHeightForMode(KeyboardHeightMode.STANDARD, landscape)).assertEqual(1052);
-      expect(panelHeightForMode(KeyboardHeightMode.TALL, landscape)).assertEqual(1182);
-      expect(panelHeightForMode(KeyboardHeightMode.COMPACT, portrait)).assertEqual(968);
+      expect(panelHeightForMode(KeyboardHeightMode.TALL, landscape)).assertEqual(1158);
+      expect(panelHeightForMode(KeyboardHeightMode.COMPACT, portrait)).assertEqual(984);
       expect(panelHeightForMode(KeyboardHeightMode.STANDARD, portrait)).assertEqual(1098);
-      expect(panelHeightForMode(KeyboardHeightMode.TALL, portrait)).assertEqual(1226);
+      expect(panelHeightForMode(KeyboardHeightMode.TALL, portrait)).assertEqual(1202);
     });
 
     it('falls back for zero negative NaN and infinite screen dimensions', 0, () => {
@@ -500,6 +507,10 @@ export default function stage11Test() {
         .assertEqual(DEFAULT_SMART_PERIOD_TIMEOUT_MS);
       expect(new SettingsValidator().validate({ smartPeriodTimeoutMs: '800' }).smartPeriodTimeoutMs)
         .assertEqual(800);
+      expect(new SettingsValidator().validate({ longPressDurationMs: '149' }).longPressDurationMs)
+        .assertEqual(DEFAULT_LONG_PRESS_DURATION_MS);
+      expect(new SettingsValidator().validate({ longPressDurationMs: '200' }).longPressDurationMs)
+        .assertEqual(200);
       expect(normalizeSmartPunctuationSymbols('?x?,')).assertEqual(',?');
       expect(new SettingsValidator().validate({ smartPunctuationSymbols: '""' }).smartPunctuationSymbols)
         .assertEqual('');
@@ -737,6 +748,7 @@ export default function stage11Test() {
       settings.hapticLevel = HapticLevel.STRONG;
       settings.keySoundEnabled = true;
       settings.smartPeriodTimeoutMs = 1000;
+      settings.longPressDurationMs = 700;
       const roundTrip = new SettingsValidator().validate(settingsToRaw(settings));
       expect(imeSettingsEqual(settings, roundTrip)).assertTrue();
     });
@@ -874,6 +886,7 @@ export default function stage11Test() {
 
     it('embedded Danran skin keeps its authoritative day and night tokens paired', 0, () => {
       expect(LIGHT_PALETTE.useDarkMedia).assertFalse();
+      expect(LIGHT_PALETTE.useDanranKeyImages).assertTrue();
       expect(LIGHT_PALETTE.candidateBackground).assertEqual('#ECEFF8');
       expect(LIGHT_PALETTE.panelBackground).assertEqual('#DCE0EB');
       expect(LIGHT_PALETTE.letterKeyBackground).assertEqual('#F8F8F8');
@@ -881,12 +894,30 @@ export default function stage11Test() {
       expect(LIGHT_PALETTE.modeKeyTextEnglish).assertEqual('#505657');
       expect(LIGHT_PALETTE.modeKeyTextChinese).assertEqual('#D75642');
       expect(DARK_PALETTE.useDarkMedia).assertTrue();
+      expect(DARK_PALETTE.useDanranKeyImages).assertTrue();
       expect(DARK_PALETTE.candidateBackground).assertEqual('#0C101B');
       expect(DARK_PALETTE.panelBackground).assertEqual('#1C202B');
       expect(DARK_PALETTE.letterKeyBackground).assertEqual('#444444');
       expect(DARK_PALETTE.letterKeyPressedBackground).assertEqual('#5E5E5E');
       expect(DARK_PALETTE.modeKeyTextEnglish).assertEqual('#FFFDFF');
       expect(DARK_PALETTE.modeKeyTextChinese).assertEqual('#FFB5B0');
+    });
+
+    it('embedded Danran key backgrounds preserve the source .9 fixed edges', 0, () => {
+      const lightLetter = resolveDanranKeyBackgroundSlice(DanranKeyBackgroundKind.LETTER, false, false);
+      const darkPressedLetter = resolveDanranKeyBackgroundSlice(DanranKeyBackgroundKind.LETTER, true, true);
+      const functionKey = resolveDanranKeyBackgroundSlice(DanranKeyBackgroundKind.FUNCTION, false, true);
+      const spaceKey = resolveDanranKeyBackgroundSlice(DanranKeyBackgroundKind.SPACE, true, false);
+      expect(lightLetter.left as string).assertEqual('49px');
+      expect(lightLetter.right as string).assertEqual('45px');
+      expect(darkPressedLetter.left as string).assertEqual('47px');
+      expect(darkPressedLetter.right as string).assertEqual('44px');
+      expect(functionKey.left as string).assertEqual('55px');
+      expect(functionKey.right as string).assertEqual('55px');
+      expect(spaceKey.left as string).assertEqual('178px');
+      expect(spaceKey.right as string).assertEqual('178px');
+      expect(spaceKey.top as string).assertEqual('47px');
+      expect(spaceKey.bottom as string).assertEqual('47px');
     });
 
     it('settings window style reuses page tokens and readable icon contrast', 0, () => {
@@ -1083,6 +1114,16 @@ export default function stage11Test() {
       expect(store.getSnapshot().smartPunctuationSymbols).assertEqual('');
       expect((await controller.setSmartPeriodTimeoutMs(2001)).success).assertFalse();
       expect(repo.saveCount).assertEqual(3);
+    });
+
+    it('controller persists and validates the long-press duration', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const store = new SettingsStore();
+      const controller = new SettingsController(repo, store, new FakeSettingsEngine(), new InputSessionStore());
+      expect((await controller.setLongPressDurationMs(200)).success).assertTrue();
+      expect(store.getSnapshot().longPressDurationMs).assertEqual(200);
+      expect((await controller.setLongPressDurationMs(1001)).success).assertFalse();
+      expect(repo.saveCount).assertEqual(1);
     });
 
     it('serializes delayed saves and bases a rapid second field change on the first', 0, async () => {

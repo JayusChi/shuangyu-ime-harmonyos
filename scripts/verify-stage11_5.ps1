@@ -40,7 +40,7 @@ try {
             if (Test-Path $expanded) { Remove-Item $expanded -Recurse -Force }
             Expand-Archive -LiteralPath $archive -DestinationPath $expanded
             $packed = Get-ChildItem $expanded -Recurse -Filter production.lex | Select-Object -First 1
-            if ($null -eq $packed -or $packed.Length -ne 3741328) { throw 'production lexicon missing or truncated in HAP' }
+            if ($null -eq $packed -or $packed.Length -ne 24049458) { throw 'production lexicon missing or truncated in HAP' }
         }
     } finally { Pop-Location }
     Write-Host 'STAGE11_5_VERIFY_RESULT=PASS'

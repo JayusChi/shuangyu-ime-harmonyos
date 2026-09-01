@@ -1,9 +1,9 @@
 # 小鹤音形正式来源审计
 
 - 阶段状态：**COMPLETED**
-- 文件：27（3532177 bytes）
-- Manifest SHA-256：`4dd2304ce2a2f7ffa48f38c7a707e11d9d2318b1bc32c8ded7dc264a2458048f`
-- Conversion contract SHA-256：`27894e17bed11e267504e3ddae20f82348ab89e07e3a813b6236d80d29739caa`
+- 文件：27（3529695 bytes）
+- Manifest SHA-256：`f054132eb8b5e008601f215db50cf337214c35bf2100fcb03f63180b2c9252b8`
+- Conversion contract SHA-256：`025240e58548bf0c14dedb16fea075a2b42b722396d63cbc91947c1d7bddfaa3`
 - 不可读取文件：0
 - 未识别角色：0
 - 阻断原因：none
@@ -22,7 +22,7 @@
 | `小鹤音形/2.2.二简次选.txt` | `two_key_secondary_table` | `UTF-8` | `LF` | `ACCEPTED` |
 | `小鹤音形/2.3.直通-安卓.txt` | `direct_input` | `UTF-8` | `LF` | `REJECTED` |
 | `小鹤音形/2.4.表外字.txt` | `out_of_table_character` | `UTF-8` | `LF` | `ACCEPTED` |
-| `小鹤音形/2.5.全码词.txt` | `full_code_word` | `UTF-8` | `LF` | `TRANSFORM` |
+| `小鹤音形/2.5.全码词.txt` | `full_code_word` | `UTF-8` | `LF` | `ACCEPTED` |
 | `小鹤音形/2.6.符号-安卓.txt` | `android_reference` | `Binary / Unknown` | `Binary / Not applicable` | `REJECTED` |
 | `小鹤音形/2.6.符号.txt` | `symbol_table` | `UTF-8` | `LF` | `ACCEPTED` |
 | `小鹤音形/2.7.符号组-安卓.txt` | `android_reference` | `UTF-8` | `LF` | `REJECTED` |

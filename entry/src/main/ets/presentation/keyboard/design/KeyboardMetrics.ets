@@ -1,4 +1,8 @@
-import { KeyboardHeightMode } from '../../../domain/settings/ImeSettings';
+import {
+  DEFAULT_LONG_PRESS_DURATION_MS,
+  KeyboardHeightMode,
+  keyboardHeightScale
+} from '../../../domain/settings/ImeSettings';
 import {
   SAFE_FALLBACK_SCREEN_METRICS_PX,
   ScreenMetricsPx,
@@ -74,9 +78,6 @@ export interface KeyPreviewConfig {
  * 该间距只由活动键盘根容器负责，具体布局和按键行不得重复添加。
  */
 export const KEYBOARD_BOTTOM_PADDING: number = 15;
-/** Optional system-style tool layer rendered below the key grid. */
-export const KEYBOARD_LIFT_LAYER_HEIGHT: number = 46;
-
 /**
  * 竖屏模式尺寸配置
  */
@@ -142,7 +143,7 @@ export const KEY_WEIGHTS: KeyboardKeyWeights = {
  * 长按删除配置
  */
 export const DELETE_REPEAT_CONFIG: DeleteRepeatConfig = {
-  LONG_PRESS_DELAY_MS: 500,    // 长按触发阈值
+  LONG_PRESS_DELAY_MS: DEFAULT_LONG_PRESS_DURATION_MS, // 未传入用户设置时的长按触发阈值
   REPEAT_INTERVAL_MS: 50,       // 连续删除间隔
   FAST_REPEAT_THRESHOLD: 10,    // 加速阈值（第N次后加速）
   FAST_REPEAT_INTERVAL_MS: 30   // 加速后的间隔
@@ -171,10 +172,10 @@ export function getMetricsForOrientation(
     return calculateDynamicMetrics(screenMetrics, heightMode);
   }
   const base = isLandscape ? LANDSCAPE_METRICS : PORTRAIT_METRICS;
-  if (heightMode === KeyboardHeightMode.STANDARD) {
+  const scale = keyboardHeightScale(heightMode);
+  if (scale === 1) {
     return base;
   }
-  const scale = heightMode === KeyboardHeightMode.COMPACT ? 0.88 : 1.12;
   return {
     layoutForm: base.layoutForm,
     candidateBarHeight: base.candidateBarHeight,
@@ -219,12 +220,7 @@ export function calculateDynamicMetrics(
     ? KeyboardLayoutForm.TABLET
     : (isLandscape ? KeyboardLayoutForm.PHONE_LANDSCAPE : KeyboardLayoutForm.PHONE_PORTRAIT);
 
-  let keyboardHeightRatio = isLandscape ? 0.55 : 0.38;
-  if (heightMode === KeyboardHeightMode.COMPACT) {
-    keyboardHeightRatio *= 0.88;
-  } else if (heightMode === KeyboardHeightMode.TALL) {
-    keyboardHeightRatio *= 1.12;
-  }
+  const keyboardHeightRatio = (isLandscape ? 0.55 : 0.38) * keyboardHeightScale(heightMode);
 
   const totalKeyboardHeight = Math.max(195, Math.min(screenHeightVp, Math.round(screenHeightVp * keyboardHeightRatio)));
   const candidateBarHeight = clamp(Math.round(totalKeyboardHeight * 0.15), 40, 60);
@@ -282,7 +278,8 @@ export function panelHeightForMode(
   mode: KeyboardHeightMode,
   screenMetrics: ScreenMetricsPx = SAFE_FALLBACK_SCREEN_METRICS_PX,
   pinyin9ChineseLayout: boolean = false,
-  keyboardLiftLayerEnabled: boolean = false
+  keyboardLiftLayerEnabled: boolean = false,
+  candidateBarVisible: boolean = true
 ): number {
   const validMetrics = createScreenMetrics({
     widthPx: screenMetrics.widthPx,
@@ -294,7 +291,8 @@ export function panelHeightForMode(
   const panelHeightVp = calculateTotalKeyboardHeight(
     metrics,
     pinyin9ChineseLayout,
-    keyboardLiftLayerEnabled
+    keyboardLiftLayerEnabled,
+    candidateBarVisible
   ) + 6;
   let panelHeightPx = vpToPx(panelHeightVp, validMetrics);
   if (pinyin9ChineseLayout && validMetrics.isLandscape) {
@@ -303,7 +301,7 @@ export function panelHeightForMode(
     // bar, but every rendered row uses layoutWeight, so it can safely share this
     // bounded panel and distribute the available height instead of overflowing.
     const qwertyHeightPx = vpToPx(
-      calculateTotalKeyboardHeight(metrics, false, keyboardLiftLayerEnabled) + 6,
+      calculateTotalKeyboardHeight(metrics, false, keyboardLiftLayerEnabled, candidateBarVisible) + 6,
       validMetrics
     );
     const usableHeightPx = validMetrics.heightPx - (validMetrics.bottomSystemInsetPx ?? 0);
@@ -319,10 +317,10 @@ export function panelHeightForMode(
 export function calculateTotalKeyboardHeight(
   metrics: OrientationMetrics,
   pinyin9ChineseLayout: boolean = false,
-  keyboardLiftLayerEnabled: boolean = false
+  keyboardLiftLayerEnabled: boolean = false,
+  candidateBarVisible: boolean = true
 ): number {
-  // 3.2 起顶部状态栏始终存在；候选内容可隐藏，但固定收起按钮不能消失。
-  const candidateSection = metrics.candidateBarHeight;
+  const candidateSection = candidateBarVisible ? metrics.candidateBarHeight : 0;
   const keyboardRows = pinyin9ChineseLayout ? 5 : 4;
   const primaryRows = pinyin9ChineseLayout ? 4 : 3;
   const keyboardHeight =
@@ -331,7 +329,7 @@ export function calculateTotalKeyboardHeight(
     (metrics.rowSpacing * (keyboardRows - 1));
   const pinyinSection = pinyin9ChineseLayout ? metrics.pinyinCombinationBarHeight : 0;
 
-  const liftLayer = keyboardLiftLayerEnabled ? KEYBOARD_LIFT_LAYER_HEIGHT : 0;
+  const liftLayer = keyboardLiftLayerEnabled ? metrics.letterKeyHeight : 0;
   return candidateSection + pinyinSection + keyboardHeight + liftLayer + metrics.bottomPadding;
 }
 

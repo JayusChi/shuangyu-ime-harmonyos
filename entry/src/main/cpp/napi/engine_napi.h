@@ -10,6 +10,7 @@ napi_value CreateEngine(napi_env env, napi_callback_info info);
 napi_value CreateEngineAsync(napi_env env, napi_callback_info info);
 napi_value DestroyEngine(napi_env env, napi_callback_info info);
 napi_value ProcessKey(napi_env env, napi_callback_info info);
+napi_value ProcessKeyAsync(napi_env env, napi_callback_info info);
 napi_value InsertSegmentBoundary(napi_env env, napi_callback_info info);
 napi_value Backspace(napi_env env, napi_callback_info info);
 napi_value Reset(napi_env env, napi_callback_info info);

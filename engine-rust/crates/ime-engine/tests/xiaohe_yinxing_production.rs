@@ -6,7 +6,7 @@ use code_table_fixture_generator::{build_bundle, generate_fixture};
 use code_table_runtime::{query_exact_or_prefix, CodeTableBundle};
 use engine_protocol::ProtocolAction;
 use ime_engine::{EngineConfig, ImeEngine};
-use user_lexicon::{parse_user_lexicon_bytes, save_snapshot_atomic};
+use user_lexicon::{parse_user_lexicon_bytes, save_snapshot_atomic, UserLexiconAction};
 
 const ALL_CATEGORY_IDS: [&str; 12] = [
     "core",
@@ -149,10 +149,10 @@ fn production_guide_prefix_candidate_and_double_semicolon_follow_the_table() {
 
     let prefix = engine.process_key(';');
     assert_eq!(prefix.raw_input, ";");
-    assert!(prefix.candidates.is_empty());
+    assert_eq!(prefix.candidates[0].text, "：");
 
     let repeated = engine.process_key(';');
-    assert_eq!(repeated.commit_text, "：");
+    assert_eq!(repeated.commit_text, "；");
     assert!(repeated.raw_input.is_empty());
     assert!(repeated.candidates.is_empty());
 }
@@ -163,10 +163,9 @@ fn production_quick_symbols_and_symbols_follow_category_switches() {
         .expect("formal engine");
 
     let quick = enter(&mut engine, ";q");
-    assert!(quick
-        .candidates
-        .iter()
-        .any(|candidate| candidate.text == "：“"));
+    assert_eq!(quick.commit_text, "：“");
+    assert!(quick.raw_input.is_empty());
+    assert!(quick.candidates.is_empty());
     assert!(texts_for_code(&mut engine, "oi").contains(&"😊".to_owned()));
     assert!(texts_for_code(&mut engine, "ofbd").contains(&"．".to_owned()));
 
@@ -188,6 +187,125 @@ fn production_quick_symbols_and_symbols_follow_category_switches() {
     assert!(quick_disabled.candidates.is_empty());
     assert!(!texts_for_code(&mut engine, "oi").contains(&"😊".to_owned()));
     assert!(!texts_for_code(&mut engine, "ofbd").contains(&"．".to_owned()));
+}
+
+#[test]
+fn production_component_candidates_cover_ob_and_ox_source_rows_in_order() {
+    let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
+        .expect("formal engine");
+
+    assert_eq!(texts_for_code(&mut engine, "oba"), ["一", "鱼"]);
+    assert_eq!(texts_for_code(&mut engine, "obn"), ["乀", "⺧", "牜"]);
+
+    engine.reset();
+    let oba = enter(&mut engine, "oba");
+    assert_eq!(oba.candidates[0].text, "一");
+    assert_eq!(oba.candidates[0].display_text, "横_一");
+    assert_eq!(oba.candidates[1].text, "鱼");
+    engine.reset();
+    let obn = enter(&mut engine, "obn");
+    assert_eq!(obn.candidates[0].text, "乀");
+    assert_eq!(obn.candidates[0].display_text, "捺_乀");
+
+    let expected_counts = [
+        ("oba", 2),
+        ("obb", 6),
+        ("obc", 2),
+        ("obd", 5),
+        ("obe", 5),
+        ("obf", 5),
+        ("obg", 5),
+        ("obh", 4),
+        ("obi", 3),
+        ("obj", 3),
+        ("obk", 5),
+        ("obl", 4),
+        ("obm", 1),
+        ("obn", 3),
+        ("obo", 3),
+        ("obp", 3),
+        ("obq", 4),
+        ("obr", 1),
+        ("obs", 4),
+        ("obt", 1),
+        ("obu", 5),
+        ("obv", 3),
+        ("obw", 4),
+        ("obx", 5),
+        ("oby", 5),
+        ("obz", 3),
+        ("oxa", 1),
+        ("oxb", 13),
+        ("oxc", 4),
+        ("oxd", 9),
+        ("oxe", 4),
+        ("oxf", 9),
+        ("oxg", 12),
+        ("oxh", 5),
+        ("oxi", 14),
+        ("oxj", 16),
+        ("oxk", 3),
+        ("oxl", 11),
+        ("oxm", 12),
+        ("oxn", 8),
+        ("oxp", 3),
+        ("oxq", 8),
+        ("oxr", 5),
+        ("oxs", 3),
+        ("oxt", 4),
+        ("oxu", 23),
+        ("oxv", 13),
+        ("oxw", 16),
+        ("oxx", 9),
+        ("oxy", 29),
+        ("oxz", 3),
+    ];
+    for (code, expected_count) in expected_counts {
+        assert_eq!(
+            texts_for_code(&mut engine, code).len(),
+            expected_count,
+            "candidate count for {code}",
+        );
+    }
+}
+
+#[test]
+fn production_o_prefix_accepts_each_key_once_and_keeps_direct_actions_reachable() {
+    let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
+        .expect("formal engine");
+
+    let o = engine.process_key('o');
+    assert!(o.success);
+    assert_eq!(o.raw_input, "o");
+    assert!(o.candidates.iter().any(|candidate| candidate.text == "哦"));
+    assert!(o
+        .candidates
+        .iter()
+        .all(|candidate| candidate.reading == "o"));
+
+    let ok = engine.process_key('k');
+    assert!(ok.success);
+    assert_eq!(ok.raw_input, "ok");
+    assert!(ok.candidates.iter().any(|candidate| candidate.text == "👌"));
+    assert!(ok
+        .candidates
+        .iter()
+        .all(|candidate| candidate.reading == "ok"));
+
+    engine.reset();
+    for (key, expected_raw) in [('o', "o"), ('c', "oc"), ('d', "ocd")] {
+        let result = engine.process_key(key);
+        assert!(result.success);
+        assert_eq!(result.raw_input, expected_raw);
+    }
+    let selected = engine
+        .select_candidate(0)
+        .expect("select o-prefixed settings action");
+    assert!(matches!(
+        selected.action,
+        Some(ProtocolAction::DirectControl { ref action, ref target })
+            if action == "app.open" && target == "settings"
+    ));
 }
 
 #[test]
@@ -237,6 +355,18 @@ fn formal_engine_scopes_embedded_rules_to_their_owning_category_and_allows_exter
 
 #[test]
 fn direct_entry_exposes_a_distinct_prefix_hint_and_commits_clean_text() {
+    let bundle = CodeTableBundle::load_frozen_production_file(formal_bundle())
+        .expect("load frozen formal bundle");
+    let direct_rule = bundle
+        .user_rules
+        .as_ref()
+        .expect("embedded rules")
+        .entries()
+        .iter()
+        .find(|entry| entry.text == "给予" && entry.code == "gwyu")
+        .expect("embedded direct entry");
+    assert!(matches!(direct_rule.action, UserLexiconAction::Direct));
+
     let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
         .expect("formal engine");
 
@@ -254,6 +384,28 @@ fn direct_entry_exposes_a_distinct_prefix_hint_and_commits_clean_text() {
     let complete = enter(&mut engine, "gwyu");
     assert_eq!(complete.commit_text, "给予");
     assert!(complete.candidates.is_empty());
+
+    let delete_path = temporary_user_file("delete-embedded-direct");
+    fs::write(&delete_path, "给予\tgwyu#删\n").expect("external direct deletion");
+    let mut deleted = ImeEngine::new(config(
+        "xiaohe-yinxing",
+        Some(formal_bundle()),
+        Some(delete_path),
+        9,
+    ))
+    .expect("formal engine with direct deletion");
+    let deleted_prefix = enter(&mut deleted, "gwy");
+    assert!(!deleted_prefix
+        .candidates
+        .iter()
+        .any(|candidate| candidate.text == "给予"));
+    deleted.reset();
+    let deleted_complete = enter(&mut deleted, "gwyu");
+    assert_ne!(deleted_complete.commit_text, "给予");
+    assert!(!deleted_complete
+        .candidates
+        .iter()
+        .any(|candidate| candidate.text == "给予"));
 }
 
 #[test]
@@ -766,6 +918,34 @@ fn four_code_uniqueness_is_decided_after_user_rules_and_commits_once() {
     let next = unique.process_key('a');
     assert!(next.commit_text.is_empty());
     assert_eq!(next.raw_input, "a");
+}
+
+#[test]
+fn customer_empty_code_examples_never_commit_a_shorter_prefix_before_four_codes() {
+    let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
+        .expect("formal engine");
+
+    let niu = enter(&mut engine, "niu");
+    assert!(niu.commit_text.is_empty());
+    assert_eq!(niu.raw_input, "niu");
+    let niuo = engine.process_key('o');
+    assert!(niuo.commit_text.is_empty());
+    assert!(niuo.raw_input.is_empty());
+    assert!(niuo.candidates.is_empty());
+
+    let lad = enter(&mut engine, "lad");
+    assert!(lad.commit_text.is_empty());
+    assert_eq!(lad.raw_input, "lad");
+    let ladj = engine.process_key('j');
+    assert!(ladj.commit_text.is_empty());
+    assert!(ladj.raw_input.is_empty());
+    assert!(ladj.candidates.is_empty());
+
+    let jda = enter(&mut engine, "jda");
+    assert!(jda.commit_text.is_empty());
+    assert_eq!(jda.raw_input, "jda");
+    assert!(jda.candidates.is_empty());
+    assert!(!jda.composition_finished);
 }
 
 #[test]

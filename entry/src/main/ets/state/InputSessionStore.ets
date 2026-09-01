@@ -9,6 +9,7 @@ import {
   ShiftState
 } from '../domain/editor/EditorContext';
 import { KeyboardMode } from '../domain/keyboard/KeyboardAction';
+import { MIN_CANDIDATES_FOR_EXPANSION } from '../domain/candidate/CandidateExpansionPolicy';
 import { Candidate, CompositionResult, ParserState } from '../infrastructure/native/NativeEngineTypes';
 import {
   copyScreenMetrics,
@@ -432,6 +433,8 @@ export class InputSessionStore {
     } else {
       this.recordErrorInternal(result.errorCode, result.errorMessage);
     }
+    // The three-candidate rule gates opening only. Once open, a short final
+    // page must remain visible so the user can navigate back or collapse it.
     if (this.state.candidates.length === 0 || !result.success) {
       this.state.candidatePanelExpanded = false;
     }
@@ -466,7 +469,7 @@ export class InputSessionStore {
     const canExpand = this.state.sessionActive &&
       this.state.keyboardVisible &&
       this.state.candidateBarVisible &&
-      this.state.candidates.length > 0 &&
+      this.state.candidates.length >= MIN_CANDIDATES_FOR_EXPANSION &&
       this.state.lastErrorCode === ImeErrorCode.SUCCESS;
     const resolved = expanded && canExpand;
     if (this.state.candidatePanelExpanded === resolved) {

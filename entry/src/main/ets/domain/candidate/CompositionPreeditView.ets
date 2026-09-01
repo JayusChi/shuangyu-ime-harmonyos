@@ -5,9 +5,9 @@
  * 起签名固定为 `(string, Range)`，没有为输入法暴露样式接口。系统预编辑的视觉
  * 完全由宿主编辑框自行决定，输入法侧不能可靠地强制下划线或颜色。因此本模块
  * 只描述输入法自绘候选区域的回退展示位。系统预编辑已经在光标处展示输入码时，
- * 候选区域必须隐藏同一输入码；只有光标处没有系统预编辑时，候选区域才用带
- * 下划线的文本装饰表达"未上屏"。实际分段完全由当前 Rust 解析器提供，既可
- * 表示双拼两码段，也可表示全拼音节段。
+ * 候选区域必须隐藏同一输入码。自绘输入码的装饰取决于展示位置：嵌入式展示用
+ * 下划线表达“未上屏”，输入码与候选共同位于浮动候选窗时不加下划线。实际分段
+ * 完全由当前 Rust 解析器提供，既可表示双拼两码段，也可表示全拼音节段。
  *
  * 该函数不修改引擎状态，不给引擎传分隔符或下划线字符，也不改变候选查询键。
  * 展示层连接引擎分段时插入的 `'` 和下划线装饰只影响 ArkUI `Text` 组件；
@@ -17,6 +17,12 @@
 export enum CompositionPreeditDecoration {
   NONE = 'none',
   UNDERLINE = 'underline'
+}
+
+/** 输入码所在的可见表面；只决定展示装饰，不改变组合所有权。 */
+export enum CompositionPreeditPlacement {
+  INLINE = 'inline',
+  FLOATING_WINDOW = 'floatingWindow'
 }
 
 export interface CompositionPreeditView {
@@ -33,6 +39,8 @@ export interface CompositionPreeditInput {
   preeditText: string;
   /** 系统预编辑是否已经在编辑器光标处承担输入码展示。 */
   cursorPreeditVisible?: boolean;
+  /** 缺省为嵌入式展示；浮动候选窗显式传入 FLOATING_WINDOW。 */
+  placement?: CompositionPreeditPlacement;
   /** Optional engine-provided display path, used by T9 instead of raw digits. */
   preferredDisplayText?: string;
   /** 引擎生成的原始码展示段；UI 只负责使用 `'` 连接。 */
@@ -73,7 +81,7 @@ export function formatTwoCodePreedit(
  * - 展示内容由引擎 `displaySegments` 生成，不使用展开成全拼的
  *   `preeditText`。
  * - 完整编码按解析器音节段展示，未完成尾码由解析器原样提供。
- * - 只要显示，就应用单下划线装饰。
+ * - 嵌入式显示应用单下划线；输入码与候选同处浮动窗时不加下划线。
  */
 export function resolveCompositionPreeditView(
   input: CompositionPreeditInput
@@ -90,6 +98,8 @@ export function resolveCompositionPreeditView(
     displayText: input.preferredDisplayText && input.preferredDisplayText.length > 0
       ? input.preferredDisplayText
       : formatTwoCodePreedit(input.rawInput, input.displaySegments),
-    decoration: CompositionPreeditDecoration.UNDERLINE
+    decoration: input.placement === CompositionPreeditPlacement.FLOATING_WINDOW
+      ? CompositionPreeditDecoration.NONE
+      : CompositionPreeditDecoration.UNDERLINE
   };
 }

@@ -80,7 +80,7 @@ function Write-EnvironmentSnapshot {
         }
         resources = @(
             [ordered]@{
-                id = 'archived-v115-double-pinyin-lexicon'
+                id = 'production-v300-quanpin-lexicon'
                 path = 'dictionaries/generated/production.lex'
                 byte_size = (Get-Item -LiteralPath $lexiconPath).Length
                 sha256 = (Get-FileHash -LiteralPath $lexiconPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -94,33 +94,33 @@ function Write-EnvironmentSnapshot {
         )
         page_size_contract = [ordered]@{
             arkts_requested_page_size = 50
-            rust_default_page_size = 5
-            rust_max_page_size = 9
-            production_effective_page_size = 9
+            rust_default_page_size = 50
+            rust_max_page_size = 500
+            production_effective_page_size = 50
             normalization = 'min(caller_request, rust_max_page_size)'
         }
         environment_page_sizes = @(
             [ordered]@{
                 environment = 'Phone'
-                source_level_effective_page_size = 9
+                source_level_effective_page_size = 50
                 actual_device_measurement = 'NOT_RUN'
                 reason = 'No Phone simulator or physical device was attached during this host baseline run.'
             },
             [ordered]@{
                 environment = 'Pad'
-                source_level_effective_page_size = 9
+                source_level_effective_page_size = 50
                 actual_device_measurement = 'NOT_RUN'
                 reason = 'No Pad simulator or physical device was attached during this host baseline run.'
             },
             [ordered]@{
                 environment = 'Debug'
-                source_level_effective_page_size = 9
+                source_level_effective_page_size = 50
                 actual_installed_build_measurement = 'NOT_RUN'
                 reason = 'Debug and Release share EngineCoordinator and Rust QueryConfig; an installed Debug package was not instrumented.'
             },
             [ordered]@{
                 environment = 'Release'
-                source_level_effective_page_size = 9
+                source_level_effective_page_size = 50
                 actual_installed_build_measurement = 'NOT_RUN'
                 reason = 'Debug and Release share EngineCoordinator and Rust QueryConfig; an installed Release package was not instrumented.'
             }
@@ -133,7 +133,7 @@ function Write-EnvironmentSnapshot {
 }
 
 if (-not (Test-Path -LiteralPath $lexiconPath -PathType Leaf)) {
-    throw "Archived V115 double-pinyin lexicon is missing: $lexiconPath"
+    throw "Production V300 phonetic lexicon is missing: $lexiconPath"
 }
 if (-not (Test-Path -LiteralPath $bundlePath -PathType Leaf)) {
     throw "Production flypy-shape bundle is missing: $bundlePath"
@@ -212,7 +212,7 @@ try {
         })
     }
     $report = @(
-        '# Candidate improvement stage 0 baseline'
+        '# Candidate regression baseline'
         ''
         'Status: host-runnable scope completed. Phone, Pad, installed Debug/Release, and ARM64 device measurements were not run.'
         ''
@@ -232,7 +232,7 @@ try {
         "- Double-pinyin pre-ranking recall: $($doublePinyin.pre_rank_recall_count), scanned from $($doublePinyin.scanned_pinyin_range.first) through $($doublePinyin.scanned_pinyin_range.last)."
         "- `ha/hai`: $($doublePinyin.ha_hai_count)/$($doublePinyin.pre_rank_recall_count), or $($doublePinyin.ha_hai_ratio_percent)%."
         "- Double-pinyin ranked first 9: $($doublePinyin.ranked_first_9.text -join ', ')."
-        '- ArkTS requests 50; Rust defaults to 5 and caps at 9; the current production effective page size is 9.'
+        '- ArkTS and Rust default to 50 candidates per page; Rust accepts explicit page sizes up to 500.'
         ''
         '## Performance summary'
         ''
@@ -241,18 +241,18 @@ try {
         '## Environment limitations'
         ''
         '- Actual Phone and Pad package page size, UI-visible latency, and memory: `NOT_RUN`; corresponding simulators or devices are required.'
-        '- Installed Debug and Release package page size: `NOT_RUN`; the shared-source contract implies 9.'
+        '- Installed Debug and Release package page size: `NOT_RUN`; the shared-source contract implies 50.'
         '- ARM64 physical-device performance: `NOT_RUN`.'
         '- Git metadata was unavailable in this execution environment, so a separate stage 0 commit was not created or verified.'
         ''
-        '## Stage 1 regression focus'
+        '## Regression focus'
         ''
-        '- Raising the page cap must not alter the global order of the 512-item shape snapshot.'
+        '- The global order of the 512-item shape snapshot must remain deterministic.'
         '- Requests for both 50 and 9 must remain testable; concatenated pages must not repeat or lose candidates.'
-        '- Stage 1 must not also fix double-pinyin recall; the current 100% `ha/hai` bias in the 64-item pool is the stage 3 control.'
+        '- Double-pinyin recall remains covered independently from the full-pinyin production lexicon.'
         '- Unique four-code auto-commit, multiple four-code candidates, double-pinyin sentences, and partial commit must match these snapshots.'
         ''
-        'This stage adds only diagnostics, scripts, tests, and evidence. It does not change production dictionaries, ranking, paging parameters, recall logic, or UI.'
+        'These snapshots describe the current V300 production resources and paging contract.'
     )
     Write-Utf8NoBom -Path $docsPath -Value (($report -join "`n") + "`n")
 } finally {

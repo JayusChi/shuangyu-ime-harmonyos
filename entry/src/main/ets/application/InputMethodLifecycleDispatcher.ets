@@ -301,6 +301,18 @@ export class InputMethodLifecycleDispatcher {
     }
     LOGGER.debug(`physical key consumed: type=${command.type}, keyCode=${key.keyCode}`);
     this.physicalKeyConsumption.recordConsumedDown(key.keyCode);
+    const isPlainSemicolon = key.unicodeChar === 59 ||
+      (key.unicodeChar === 0 && key.keyCode === 2062 && key.shiftKey !== true);
+    const isSemicolonCommand = command.type === PhysicalKeyCommandType.CANDIDATE ||
+      command.type === PhysicalKeyCommandType.SECOND_CANDIDATE ||
+      command.type === PhysicalKeyCommandType.SYMBOL_GUIDE;
+    if (isPlainSemicolon && isSemicolonCommand &&
+      this.settingsStore.getSnapshot().schemeId === XIAOHE_YINXING_SCHEME_ID) {
+      this.symbolGuideActive = false;
+      this.observePhysicalOperation(this.physicalKeyboardController.handlePhysicalCodeTableSemicolon());
+      LOGGER.info('code-table semicolon queued for live candidate resolution');
+      return true;
+    }
     // Symbol guide: if active, the next LETTER resolves to a symbol
     if (this.symbolGuideActive && command.type === PhysicalKeyCommandType.LETTER) {
       this.symbolGuideActive = false;
@@ -321,7 +333,7 @@ export class InputMethodLifecycleDispatcher {
     }
     if (command.type === PhysicalKeyCommandType.CANDIDATE) {
       // Semicolon with a single candidate: commit it and arm the symbol guide
-      const isSemicolonSingleCandidate = (key.unicodeChar === 59 || key.keyCode === 2062) &&
+      const isSemicolonSingleCandidate = isPlainSemicolon &&
         state.candidates.length === 1;
       this.observePhysicalOperation(this.physicalKeyboardController.commitCandidate(command.candidateIndex ?? 0));
       if (isSemicolonSingleCandidate) {

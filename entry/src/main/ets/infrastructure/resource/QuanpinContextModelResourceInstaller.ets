@@ -6,10 +6,10 @@ import { Logger } from '../../common/logging/Logger';
 const TAG = 'QuanpinContextModelInstaller';
 const LOGGER = new Logger(TAG);
 const RAW_MODEL_NAME = 'quanpin-context-v2.qng';
-const INSTALLED_MODEL_NAME = 'quanpin-context-v2-91b2beda.qng';
-const EXPECTED_MODEL_BYTES = 37659;
+const INSTALLED_MODEL_NAME = 'quanpin-context-v3-15b55101.qng';
+const EXPECTED_MODEL_BYTES = 64300;
 export const QUANPIN_CONTEXT_MODEL_SHA256 =
-  '91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c';
+  '15b55101d77a87a64d2d414f96147291f7e260a138c98ecbea1d38af2f17b05f';
 const HASH_BUFFER_BYTES = 64 * 1024;
 
 export interface QuanpinContextModelInstallResult {

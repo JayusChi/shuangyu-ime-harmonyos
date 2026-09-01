@@ -5,7 +5,19 @@ function emptyBindings(): string[] {
   return LETTER_SWIPE_KEYS.map((): string => '');
 }
 
-export const DEFAULT_LETTER_SWIPE_SYMBOLS: string = JSON.stringify(emptyBindings());
+const RECOMMENDED_BINDINGS: string[] = [
+  '[', ']', '%', '&', '<', '>', '"', "'", '(', ')',
+  '_', '-', '$', '《', '》', '”', '“', '(', ')',
+  '', '', '', '', '🍀', '乚', '→'
+];
+
+/** The former default, retained so migrations can distinguish untouched settings. */
+export const EMPTY_LETTER_SWIPE_SYMBOLS: string = JSON.stringify(emptyBindings());
+
+/** Recommended direct-text bindings derived from the customer's reference keyboard. */
+export const RECOMMENDED_LETTER_SWIPE_SYMBOLS: string = JSON.stringify(RECOMMENDED_BINDINGS);
+
+export const DEFAULT_LETTER_SWIPE_SYMBOLS: string = RECOMMENDED_LETTER_SWIPE_SYMBOLS;
 
 export function normalizeLetterSwipeSymbol(value: string): string {
   if (value.length > MAX_LETTER_SWIPE_SYMBOL_UNITS || /[\r\n\t]/.test(value)) {
@@ -34,6 +46,10 @@ export function parseLetterSwipeSymbols(value: string | undefined): string[] {
 
 export function normalizeLetterSwipeSymbols(value: string | undefined): string {
   return JSON.stringify(parseLetterSwipeSymbols(value));
+}
+
+export function hasOnlyEmptyLetterSwipeSymbols(value: string | undefined): boolean {
+  return parseLetterSwipeSymbols(value).every((symbol: string): boolean => symbol.length === 0);
 }
 
 export function resolveLetterSwipeSymbol(value: string | undefined, letter: string): string {

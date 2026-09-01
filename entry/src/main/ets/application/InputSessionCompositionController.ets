@@ -154,8 +154,13 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       }
       state = this.store.getSnapshot();
 
-      const result = this.engineCoordinator.processKey(normalizedInput);
       const activeSchemeId = this.engineCoordinator.getActiveSchemeId();
+      // Full-pinyin correction can require several bounded sentence decodes.
+      // Await the native worker-backed path so ArkUI can continue receiving
+      // touches while the existing input-action queue preserves key order.
+      const result = activeSchemeId === 'quanpin'
+        ? await this.engineCoordinator.processKeyAsync(normalizedInput)
+        : this.engineCoordinator.processKey(normalizedInput);
       if (!result.success) {
         this.store.updateComposition(result);
         return inputOperationFailed(result.errorCode, result.errorMessage);

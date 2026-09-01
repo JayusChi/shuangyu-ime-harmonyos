@@ -14,9 +14,19 @@ export class DeleteRepeatController {
   private repeatCount: number = 0;
   private isActive: boolean = false;
   private readonly onDelete: () => void;
+  private longPressDelayMs: number;
 
-  constructor(onDelete: () => void) {
+  constructor(onDelete: () => void, longPressDelayMs: number = DELETE_REPEAT_CONFIG.LONG_PRESS_DELAY_MS) {
     this.onDelete = onDelete;
+    this.longPressDelayMs = longPressDelayMs;
+  }
+
+  setLongPressDelayMs(longPressDelayMs: number): void {
+    if (this.longPressDelayMs === longPressDelayMs) {
+      return;
+    }
+    this.stop();
+    this.longPressDelayMs = longPressDelayMs;
   }
 
   /**
@@ -36,7 +46,7 @@ export class DeleteRepeatController {
     this.longPressTimer = setTimeout(() => {
       this.longPressTimer = null;
       this.startRepeat();
-    }, DELETE_REPEAT_CONFIG.LONG_PRESS_DELAY_MS);
+    }, this.longPressDelayMs);
 
     LOGGER.debug('delete repeat started');
   }

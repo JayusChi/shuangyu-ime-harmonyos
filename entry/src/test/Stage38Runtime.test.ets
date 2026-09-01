@@ -209,6 +209,26 @@ export default function stage38RuntimeTest() {
       await fixture.controller.waitForIdle();
     });
 
+    it('keeps a candidate-less three-code composition visible for hardware editing', 0, async () => {
+      const fixture = createFixture();
+      await fixture.controller.waitForIdle();
+      const emptyPrefix = composition();
+      emptyPrefix.rawInput = 'jda';
+      emptyPrefix.preeditText = 'jda';
+      emptyPrefix.parserState = 'invalid';
+      emptyPrefix.candidates = [];
+      emptyPrefix.highlightedIndex = -1;
+
+      fixture.store.updateComposition(emptyPrefix);
+      await fixture.controller.waitForIdle();
+
+      expect(fixture.backend.panel.hideCount).assertEqual(0);
+      expect(fixture.store.getSnapshot().rawInput).assertEqual('jda');
+      expect(fixture.store.getSnapshot().floatingCandidateVisible).assertTrue();
+      fixture.controller.destroy();
+      await fixture.controller.waitForIdle();
+    });
+
     it('hides immediately when composition is cleared', 0, async () => {
       const fixture = createFixture();
       await fixture.controller.waitForIdle();
@@ -367,7 +387,14 @@ export default function stage38RuntimeTest() {
         heightPx: 2856,
         densityPixels: 3
       }));
-      store.updateComposition(composition());
+      const touchComposition = composition();
+      touchComposition.candidates.push({
+        id: '3',
+        text: '泥',
+        reading: 'ni',
+        source: 'runtime-test'
+      });
+      store.updateComposition(touchComposition);
       controller.handleCursorContextChange(120, 400, 40);
       await controller.waitForIdle();
       expect(backend.createCount).assertEqual(1);
@@ -375,11 +402,21 @@ export default function stage38RuntimeTest() {
       expect(backend.panel.showCount).assertEqual(1);
       expect(store.getSnapshot().floatingCandidateVisible).assertTrue();
 
+      expect(store.setCandidatePanelExpanded(true)).assertTrue();
+      await controller.waitForIdle();
+      expect(backend.panel.hideCount).assertEqual(1);
+      expect(store.getSnapshot().floatingCandidateVisible).assertFalse();
+
+      store.setCandidatePanelExpanded(false);
+      await controller.waitForIdle();
+      expect(backend.panel.showCount).assertEqual(2);
+      expect(store.getSnapshot().floatingCandidateVisible).assertTrue();
+
       const barSettings = copyImeSettings(configured);
       barSettings.candidatePresentationMode = CandidatePresentationMode.BAR;
       settings.replace(barSettings);
       await controller.waitForIdle();
-      expect(backend.panel.hideCount).assertEqual(1);
+      expect(backend.panel.hideCount).assertEqual(2);
       expect(store.getSnapshot().floatingCandidateVisible).assertFalse();
       controller.destroy();
       await controller.waitForIdle();

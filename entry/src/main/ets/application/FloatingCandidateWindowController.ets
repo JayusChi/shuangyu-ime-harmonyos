@@ -24,7 +24,10 @@ import { InputSessionController } from './InputSessionController';
 import { InputPresentationMode } from '../domain/display/InputPresentationMode';
 import { Candidate } from '../infrastructure/native/NativeEngineTypes';
 import { toContextualCandidateDisplayItem } from '../domain/candidate/CandidateDisplayItem';
-import { resolveCompositionPreeditView } from '../domain/candidate/CompositionPreeditView';
+import {
+  CompositionPreeditPlacement,
+  resolveCompositionPreeditView
+} from '../domain/candidate/CompositionPreeditView';
 import {
   resolveCandidateUiMode,
   resolveVisibleCandidates
@@ -319,8 +322,13 @@ export class FloatingCandidateWindowController {
     const physicalKeyboardPresent = this.presentationMode === InputPresentationMode.HARDWARE ||
       this.physicalKeyboard.isPresent();
     const formFactor = resolveKeyboardAuxiliaryAreaPolicy(state.screenMetrics).formFactor;
+    // A composing code remains user-editable even when its current prefix has
+    // no candidate. Requiring candidates here made the hardware floating
+    // window disappear on three-code empty prefixes such as `jda`, which
+    // looked like an early clear although the engine still owned rawInput.
     const sessionAllowsPanel = state.sessionActive && state.editorConnected && state.candidateBarVisible &&
-      state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0 && state.candidates.length > 0;
+      !state.candidatePanelExpanded &&
+      state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0;
     const effective = resolveEffectivePresentationMode(
       requestedMode,
       {
@@ -334,8 +342,7 @@ export class FloatingCandidateWindowController {
     );
     const decisionSignature = `${this.presentationMode}|${preference}|${requestedMode}|${effective}|` +
       `${sessionAllowsPanel}|${formFactor}|${physicalKeyboardPresent}`;
-    if (state.rawInput.length > 0 && state.candidates.length > 0 &&
-      decisionSignature !== this.lastDecisionSignature) {
+    if (state.rawInput.length > 0 && decisionSignature !== this.lastDecisionSignature) {
       this.lastDecisionSignature = decisionSignature;
       LOGGER.info(
         `presentation decision: inputMode=${this.presentationMode}, preference=${preference}, ` +
@@ -356,7 +363,13 @@ export class FloatingCandidateWindowController {
     const desiredWidthVp = this.estimateWindowWidthVp();
     const settings = this.settingsStore.getSnapshot();
     const touchKeyboardInset = this.presentationMode === InputPresentationMode.TOUCH
-      ? panelHeightForMode(settings.keyboardHeightMode, metrics, false, settings.keyboardLiftLayerEnabled)
+      ? panelHeightForMode(
+        settings.keyboardHeightMode,
+        metrics,
+        false,
+        settings.keyboardLiftLayerEnabled,
+        settings.candidatePresentationMode !== CandidatePresentationMode.FLOATING
+      )
       : 0;
     return computeFloatingCandidatePosition({
       cursorRect: this.cursorRect,
@@ -398,6 +411,7 @@ export class FloatingCandidateWindowController {
       rawInput: state.rawInput,
       preeditText: state.preeditText,
       cursorPreeditVisible: state.cursorPreeditVisible,
+      placement: CompositionPreeditPlacement.FLOATING_WINDOW,
       displaySegments: state.displaySegments,
       pendingCode: state.pendingCode,
       segmentBoundaries: state.segmentBoundaries

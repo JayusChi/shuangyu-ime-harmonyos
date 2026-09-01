@@ -8,6 +8,8 @@ import {
   ImeSettings,
   KeyboardHeightMode,
   LexiconSourceConfig,
+  MAX_LONG_PRESS_DURATION_MS,
+  MIN_LONG_PRESS_DURATION_MS,
   normalizeXiaoheYinxingCategoryIds,
   QUANPIN_FUZZY_OPTIONS,
   QuanpinFuzzyOption,
@@ -83,9 +85,14 @@ export class SettingsValidator {
       ),
       fuzzyOptions: this.fuzzyOptions(raw.fuzzyOptions),
       smartPeriodTimeoutMs: this.smartPeriodTimeout(raw.smartPeriodTimeoutMs),
+      longPressDurationMs: this.longPressDuration(raw.longPressDurationMs),
       smartPunctuationSymbols: normalizeSmartPunctuationSymbols(raw.smartPunctuationSymbols),
-      chineseLetterSwipeSymbols: normalizeLetterSwipeSymbols(raw.chineseLetterSwipeSymbols),
-      englishLetterSwipeSymbols: normalizeLetterSwipeSymbols(raw.englishLetterSwipeSymbols),
+      chineseLetterSwipeSymbols: normalizeLetterSwipeSymbols(
+        raw.chineseLetterSwipeSymbols ?? DEFAULT_IME_SETTINGS.chineseLetterSwipeSymbols
+      ),
+      englishLetterSwipeSymbols: normalizeLetterSwipeSymbols(
+        raw.englishLetterSwipeSymbols ?? DEFAULT_IME_SETTINGS.englishLetterSwipeSymbols
+      ),
       punctuationMode: raw.punctuationMode === PunctuationMode.ENGLISH ?
         PunctuationMode.ENGLISH : PunctuationMode.CHINESE,
       fullWidthEnabled: this.booleanValue(raw.fullWidthEnabled, DEFAULT_IME_SETTINGS.fullWidthEnabled),
@@ -190,6 +197,18 @@ export class SettingsValidator {
     return parsed;
   }
 
+  private longPressDuration(value?: string): number {
+    if (!value) {
+      return DEFAULT_IME_SETTINGS.longPressDurationMs;
+    }
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < MIN_LONG_PRESS_DURATION_MS ||
+      parsed > MAX_LONG_PRESS_DURATION_MS) {
+      return DEFAULT_IME_SETTINGS.longPressDurationMs;
+    }
+    return parsed;
+  }
+
   private yinxingCategories(value?: string): string[] {
     if (!value) {
       return DEFAULT_IME_SETTINGS.xiaoheYinxingEnabledCategoryIds.slice();
@@ -235,8 +254,9 @@ export class SettingsValidator {
   }
 
   private height(value?: string): KeyboardHeightMode {
-    if (value === KeyboardHeightMode.COMPACT || value === KeyboardHeightMode.STANDARD ||
-      value === KeyboardHeightMode.TALL) {
+    if (value === KeyboardHeightMode.EXTRA_COMPACT || value === KeyboardHeightMode.COMPACT ||
+      value === KeyboardHeightMode.STANDARD || value === KeyboardHeightMode.TALL ||
+      value === KeyboardHeightMode.EXTRA_TALL) {
       return value as KeyboardHeightMode;
     }
     return DEFAULT_IME_SETTINGS.keyboardHeightMode;

@@ -1,6 +1,7 @@
 import { describe, it, expect } from '@ohos/hypium';
 import {
   CompositionPreeditDecoration,
+  CompositionPreeditPlacement,
   CompositionPreeditView,
   formatTwoCodePreedit,
   resolveCompositionPreeditView
@@ -117,6 +118,24 @@ export default function stage41Test() {
       const view = resolveCompositionPreeditView({ rawInput: 'a', preeditText: 'a' });
       expect(view.visible).assertTrue();
       expect(view.decoration).assertEqual(CompositionPreeditDecoration.UNDERLINE);
+    });
+
+    it('floating input code beside candidates has no underline decoration', 0, () => {
+      const floating = resolveCompositionPreeditView({
+        rawInput: 'ok',
+        preeditText: 'ok',
+        placement: CompositionPreeditPlacement.FLOATING_WINDOW
+      });
+      expect(floating.visible).assertTrue();
+      expect(floating.displayText).assertEqual('ok');
+      expect(floating.decoration).assertEqual(CompositionPreeditDecoration.NONE);
+
+      const embedded = resolveCompositionPreeditView({
+        rawInput: 'ok',
+        preeditText: 'ok',
+        placement: CompositionPreeditPlacement.INLINE
+      });
+      expect(embedded.decoration).assertEqual(CompositionPreeditDecoration.UNDERLINE);
     });
 
     it('cursor preview and candidate bar never render the same input code together', 0, () => {

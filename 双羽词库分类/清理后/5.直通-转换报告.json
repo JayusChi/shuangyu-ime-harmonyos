@@ -1,0 +1,73 @@
+{
+  "source": "双羽词库分类/双羽词库/5.直通.txt",
+  "sourceRecordCount": 44,
+  "acceptedRecordCount": 31,
+  "rejectedRecordCount": 13,
+  "rejected": [
+    {
+      "sourceOrder": 0,
+      "code": "ofi",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 8,
+      "code": "xhwp",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 12,
+      "code": "oiz",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 13,
+      "code": "ouz",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 14,
+      "code": "ojy",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 15,
+      "code": "oav",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 23,
+      "code": "oqr",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 24,
+      "code": "oqr",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 25,
+      "code": "ojc",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 30,
+      "code": "oss",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 31,
+      "code": "oss",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 32,
+      "code": "ozd",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    },
+    {
+      "sourceOrder": 33,
+      "code": "ozd",
+      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
+    }
+  ]
+}

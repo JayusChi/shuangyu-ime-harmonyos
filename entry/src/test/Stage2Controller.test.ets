@@ -1,4 +1,5 @@
 import { describe, it, expect } from '@ohos/hypium';
+import { inputMethodEngine } from '@kit.IMEKit';
 import {
   createT9PinyinDigitAction,
   KeyboardActionType,
@@ -34,6 +35,7 @@ class FakeImeInputService implements ImeInputService {
   restoreDeletionCount: number = 0;
   enterCount: number = 0;
   hideCount: number = 0;
+  cursorDirections: inputMethodEngine.Direction[] = [];
   failNextPreview: boolean = false;
 
   async insertText(text: string): Promise<boolean> {
@@ -101,6 +103,10 @@ class FakeImeInputService implements ImeInputService {
   async hideKeyboard(): Promise<boolean> {
     this.hideCount += 1;
     return true;
+  }
+
+  async moveCursor(direction: inputMethodEngine.Direction): Promise<void> {
+    this.cursorDirections.push(direction);
   }
 }
 
@@ -433,6 +439,17 @@ class QuanpinGateway extends FakeNativeGateway {
     });
     this.createdCount += 1;
     return 7;
+  }
+}
+
+class AsyncQuanpinKeyGateway extends QuanpinGateway {
+  asyncProcessKeyCount: number = 0;
+
+  async processKeyAsync(_handle: number, key: string): Promise<CompositionResult> {
+    this.asyncProcessKeyCount += 1;
+    await nextTask();
+    this.processKeys.push(key);
+    return createCompositionResult(key, key, 'complete');
   }
 }
 
@@ -849,6 +866,20 @@ export default function stage2ControllerTest() {
       expect(engineCoordinator.isInitialized()).assertTrue();
     });
 
+    it('routesQuanpinKeyProcessingThroughTheAsyncNativePath', 0, async () => {
+      const gateway = new AsyncQuanpinKeyGateway();
+      const engineCoordinator = new EngineCoordinator(gateway);
+      expect(engineCoordinator.initialize('quanpin', '/files/production.lex').success).assertTrue();
+
+      const pending = engineCoordinator.processKeyAsync('n');
+      expect(gateway.asyncProcessKeyCount).assertEqual(1);
+      expect(gateway.processKeys.length).assertEqual(0);
+
+      const result = await pending;
+      expect(result.rawInput).assertEqual('n');
+      expect(gateway.processKeys.join('')).assertEqual('n');
+    });
+
     it('sharesOverlappingAsyncInitializationAndDestroysAStaleHandle', 0, async () => {
       const gateway = new AsyncNativeGateway();
       const engineCoordinator = new EngineCoordinator(gateway);
@@ -1038,6 +1069,22 @@ export default function stage2ControllerTest() {
       expect(imeService.enterCount).assertEqual(1);
       expect(imeService.hideCount).assertEqual(1);
       expect(store.getSnapshot().keyboardVisible).assertEqual(false);
+    });
+
+    it('keyboardControllerRoutesLiftLayerCursorMovementThroughInputClient', 0, async () => {
+      const store = new InputSessionStore();
+      const imeService = new FakeImeInputService();
+      store.markSessionStarted();
+      store.markKeyboardVisible();
+      const sessionController = new InputSessionController(store, imeService, createFakeEngineCoordinator());
+      const controller = new KeyboardController(sessionController, new FakeNativeGateway());
+
+      await controller.handleAction({ type: KeyboardActionType.MOVE_CURSOR_LEFT });
+      await controller.handleAction({ type: KeyboardActionType.MOVE_CURSOR_RIGHT });
+
+      expect(imeService.cursorDirections.length).assertEqual(2);
+      expect(imeService.cursorDirections[0]).assertEqual(inputMethodEngine.Direction.CURSOR_LEFT);
+      expect(imeService.cursorDirections[1]).assertEqual(inputMethodEngine.Direction.CURSOR_RIGHT);
     });
 
     it('keyboardControllerSerializesRapidLettersInArrivalOrder', 0, async () => {
@@ -1241,7 +1288,7 @@ export default function stage2ControllerTest() {
       const defaultGateway = new ReloadableSchemeGateway();
       const defaultEngine = new EngineCoordinator(defaultGateway);
       expect(defaultEngine.initialize().success).assertTrue();
-      expect(defaultGateway.configs[0].candidatePageSize).assertEqual(7);
+      expect(defaultGateway.configs[0].candidatePageSize).assertEqual(50);
 
       const smallGateway = new ReloadableSchemeGateway();
       const smallEngine = new EngineCoordinator(smallGateway);

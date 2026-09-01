@@ -21,6 +21,10 @@ pub fn statistics_json(categories: &[CategoryBuild], totals: &BuildStatistics) -
             ),
             ("user_additions", JsonValue::Number(category.stats.user_add)),
             (
+                "user_direct_entries",
+                JsonValue::Number(category.stats.user_direct),
+            ),
+            (
                 "user_deletions",
                 JsonValue::Number(category.stats.user_delete),
             ),
@@ -81,7 +85,7 @@ pub fn statistics_json(categories: &[CategoryBuild], totals: &BuildStatistics) -
         .flat_map(|category| category.rejected.iter())
         .map(rejected_json);
     json::serialize(&JsonValue::object([
-        ("report_version", JsonValue::string("1.0.0")),
+        ("report_version", JsonValue::string("1.1.0")),
         (
             "statistics_scope",
             JsonValue::string("one deterministic production build"),
@@ -100,6 +104,7 @@ pub fn statistics_json(categories: &[CategoryBuild], totals: &BuildStatistics) -
         ),
         ("ordinary_records", JsonValue::Number(totals.ordinary)),
         ("user_additions", JsonValue::Number(totals.user_add)),
+        ("user_direct_entries", JsonValue::Number(totals.user_direct)),
         ("user_deletions", JsonValue::Number(totals.user_delete)),
         ("user_fixed", JsonValue::Number(totals.user_fixed)),
         ("user_positions", JsonValue::Number(totals.user_position)),
@@ -151,8 +156,12 @@ pub fn human_report(
     text.push_str(&format!("- 输入文件：{}\n", totals.input_file_count));
     text.push_str(&format!("- 普通记录：{}\n", totals.ordinary));
     text.push_str(&format!(
-        "- 用户新增/删除/固顶/位置：{}/{}/{}/{}\n",
-        totals.user_add, totals.user_delete, totals.user_fixed, totals.user_position
+        "- 用户新增/直通/删除/固顶/位置：{}/{}/{}/{}/{}\n",
+        totals.user_add,
+        totals.user_direct,
+        totals.user_delete,
+        totals.user_fixed,
+        totals.user_position
     ));
     text.push_str(&format!(
         "- 接受/转换/延期/拒绝：{}/{}/{}/{}\n",

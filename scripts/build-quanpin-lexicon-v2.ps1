@@ -12,10 +12,12 @@ $sourceRoot = Join-Path $repoRoot 'dictionaries\source\quanpin-v2'
 $catalogPath = Join-Path $sourceRoot 'source-catalog.json'
 $filterPath = Join-Path $sourceRoot 'filter-policy.txt'
 $baseProduction = Join-Path $repoRoot 'dictionaries\generated\production.normalized.tsv'
+$matureProduction = Join-Path $repoRoot 'dictionaries\generated\jieba-0.42.1.normalized.tsv'
 $shortSentences = Join-Path $repoRoot 'dictionaries\source\stage11_5_short_sentences.tsv'
 $generatedRoot = Join-Path $repoRoot 'dictionaries\generated\quanpin-v2'
 $artifactRoot = Join-Path $repoRoot 'artifacts\quanpin-lexicon-v2'
 $rawProduction = Join-Path $repoRoot 'entry\src\main\resources\rawfile\production.lex'
+$rawContextModel = Join-Path $repoRoot 'entry\src\main\resources\rawfile\quanpin-context-v2.qng'
 $utf8 = [Text.UTF8Encoding]::new($false)
 $invariant = [Globalization.CultureInfo]::InvariantCulture
 $dateStyles = [Globalization.DateTimeStyles]::None
@@ -185,7 +187,10 @@ $sourceManifest = [ordered]@{
     schemaVersion='quanpin-v2-source-manifest/1'; asOfDate=$AsOfDate; catalogSha256=(Get-FileHash $catalogPath -Algorithm SHA256).Hash.ToLowerInvariant()
     inheritedSources=@(
         [ordered]@{ path='dictionaries/source/rime-pinyin-simp/pinyin_simp.dict.yaml'; sha256=(Get-FileHash (Join-Path $repoRoot 'dictionaries\source\rime-pinyin-simp\pinyin_simp.dict.yaml') -Algorithm SHA256).Hash.ToLowerInvariant(); license='Apache-2.0' },
-        [ordered]@{ path='dictionaries/source/stage11_5_short_sentences.tsv'; sha256=(Get-FileHash $shortSentences -Algorithm SHA256).Hash.ToLowerInvariant(); license='Apache-2.0' }
+        [ordered]@{ path='dictionaries/source/stage11_5_short_sentences.tsv'; sha256=(Get-FileHash $shortSentences -Algorithm SHA256).Hash.ToLowerInvariant(); license='Apache-2.0' },
+        [ordered]@{ path='dictionaries/source/jieba-0.42.1/dict.txt'; sha256=(Get-FileHash (Join-Path $repoRoot 'dictionaries\source\jieba-0.42.1\dict.txt') -Algorithm SHA256).Hash.ToLowerInvariant(); license='MIT' },
+        [ordered]@{ path='dictionaries/source/pypinyin-0.55.0/pypinyin-0.55.0-py2.py3-none-any.whl'; sha256=(Get-FileHash (Join-Path $repoRoot 'dictionaries\source\pypinyin-0.55.0\pypinyin-0.55.0-py2.py3-none-any.whl') -Algorithm SHA256).Hash.ToLowerInvariant(); license='MIT' },
+        [ordered]@{ path='dictionaries/generated/jieba-0.42.1.normalized.tsv'; sha256=(Get-FileHash $matureProduction -Algorithm SHA256).Hash.ToLowerInvariant(); license='MIT' }
     )
     v2Sources=@($sourceRecords)
     frequencyTiers=[ordered]@{ base=$frequencyByLayer.base; domain=$frequencyByLayer.domain; hot=$frequencyByLayer.hot }
@@ -196,7 +201,7 @@ $sourceManifest = [ordered]@{
 if ($CheckOnly) { Write-Host "QUANPIN_V2_CHECK=PASS accepted=$($accepted.Count) base=$($baseRows.Count)"; exit 0 }
 
 function Invoke-LexiconBuild([string]$additionPath, [string]$outputPath) {
-    & cargo run --release --manifest-path $rustManifest -p lexicon-builder -- --input $baseProduction --input $shortSentences --input $additionPath --output $outputPath --lexicon-version 200 --strict --verify
+    & cargo run --release --manifest-path $rustManifest -p lexicon-builder -- --input $baseProduction --input $shortSentences --input $matureProduction --input $additionPath --output $outputPath --lexicon-version 300 --strict --verify
     if ($LASTEXITCODE -ne 0) { throw "lexicon builder failed for $outputPath" }
 }
 
@@ -222,6 +227,22 @@ foreach ($profile in $profiles.Keys) {
 }
 Copy-Item -LiteralPath (Join-Path $generatedRoot "$ProductionProfile.lex") -Destination $rawProduction -Force
 
+# The context model header is bound to the lexicon version. Rebuild it with
+# every production dictionary so a release never silently disables reranking
+# because a stale model still carries the previous lexicon identity.
+$contextFirst = Join-Path $tempRoot 'quanpin-context-first.qng'
+$contextSecond = Join-Path $tempRoot 'quanpin-context-second.qng'
+foreach ($contextOutput in @($contextFirst, $contextSecond)) {
+    & cargo run --release --manifest-path $rustManifest -p quanpin-context-model-builder -- derive $rawProduction $contextOutput
+    if ($LASTEXITCODE -ne 0) { throw "quanpin context model build failed for $contextOutput" }
+}
+$contextFirstHash = (Get-FileHash $contextFirst -Algorithm SHA256).Hash.ToLowerInvariant()
+$contextSecondHash = (Get-FileHash $contextSecond -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($contextFirstHash -ne $contextSecondHash -or (Get-Item $contextFirst).Length -ne (Get-Item $contextSecond).Length) {
+    throw 'non-deterministic quanpin context model'
+}
+Copy-Item -LiteralPath $contextFirst -Destination $rawContextModel -Force
+
 $categoryCounts = [ordered]@{}
 $domainCounts = [ordered]@{}
 $layerCounts = [ordered]@{}
@@ -231,11 +252,12 @@ foreach ($row in $accepted) {
     if (-not $layerCounts.Contains($row.layer)) { $layerCounts[$row.layer] = 0 }; $layerCounts[$row.layer]++
 }
 $buildManifest = [ordered]@{
-    schemaVersion='quanpin-v2-build-manifest/1'; lexiconVersion=200; builderVersion=1; asOfDate=$AsOfDate
+    schemaVersion='quanpin-production-build-manifest/3'; lexiconVersion=300; builderVersion=1; asOfDate=$AsOfDate
     sourceManifestSha256=(Get-FileHash (Join-Path $artifactRoot 'source-manifest.json') -Algorithm SHA256).Hash.ToLowerInvariant()
     deterministic=$true; repetitions=2; defaultDomainsEnabled=@(); packagedProductionProfile=$ProductionProfile; activeHotwordPolicy='expiresAt >= asOfDate'
     mergePolicy='existing text+pinyin wins; V2 conflicts prefer base then active hot then domain, then maximum tier frequency, then lexicographically smallest sourceId; stable pinyin/text/source sort'
     categoryCounts=$categoryCounts; domainCounts=$domainCounts; layerCounts=$layerCounts; outputs=@($outputs)
+    contextModel=[ordered]@{ path='entry/src/main/resources/rawfile/quanpin-context-v2.qng'; bytes=(Get-Item $rawContextModel).Length; sha256=$contextFirstHash }
 }
 [IO.File]::WriteAllText((Join-Path $artifactRoot 'build-manifest.json'), ($buildManifest | ConvertTo-Json -Depth 10), $utf8)
 Write-Host "QUANPIN_V2_BUILD=PASS added=$($accepted.Count) default=$($baseRows.Count) productionProfile=$ProductionProfile production=$rawProduction"

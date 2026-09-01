@@ -5,7 +5,7 @@
     "files":  [
                   {
                       "file":  "environment.json",
-                      "sha256":  "7706bf97619fa11b075f046144d73d4a2f5fa37c1450ae0509bb28ffdd064e3d",
+                      "sha256":  "f971c27ce98bf149cb12a98df6c5812438e2d3279e6947c868a4fdb91793ed57",
                       "byte_identical_across_two_runs":  true
                   },
                   {
@@ -15,27 +15,27 @@
                   },
                   {
                       "file":  "flypy-double-pinyin-h.json",
-                      "sha256":  "63a2eb2372f36021661b8aa8e37a5a2d289e15e017b403a8e0feb0f1b4975cad",
+                      "sha256":  "43bae393569b25f7250bc9c613eac7e9ced8eb39b8c36d8cb88398fdf9fecbe7",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "single-key-baseline.json",
-                      "sha256":  "9a52d8a7e6d48c4f124e5d4b3457018730cb1f0ada0cec677c4fcac0608d0e81",
+                      "sha256":  "c7f5f7872e2c5731759bdf3574de2278eafb4be2b3d1ca14261f0d3c4b62c240",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "double-key-baseline.json",
-                      "sha256":  "29e12ab1f7cbf07cbf3cad3f1cbd7bf0568bbbc7fb537a25cbb0336bd61f21b4",
+                      "sha256":  "cb0999f3fb15bb686a82ab834740949d8debed3eda2d90efa7ead6d6e21b726c",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "sentence-baseline.json",
-                      "sha256":  "c9789cf8fbb35dc619f89d4a85ed9eae734e7a81730ce4a77673a96d4843364c",
+                      "sha256":  "d27eb4d96cb9ca39264aba4f30b6b2c48ecafef8fc8339b297f2b839523493bf",
                       "byte_identical_across_two_runs":  true
                   },
                   {
                       "file":  "interaction-baseline.json",
-                      "sha256":  "764712cbd8e41bbdb67aed40c86664a3ff7d0f9834fb69d1cd6be27391ace6c5",
+                      "sha256":  "47e5583d929935e0462efb1596559478899ddccd6bee1420daee0ba67d134bff",
                       "byte_identical_across_two_runs":  true
                   }
               ]

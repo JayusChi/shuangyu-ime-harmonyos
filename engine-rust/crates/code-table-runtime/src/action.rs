@@ -9,6 +9,7 @@ use crate::sha256::sha256;
 pub const ACTION_TABLE_FORMAT_VERSION: u64 = 1;
 pub const MAX_ACTION_ID_LEN: usize = 64;
 pub const MAX_ACTION_TEXT_BYTES: usize = 128;
+pub const MAX_PRODUCTION_ACTION_TEXT_BYTES: usize = 512;
 pub const MAX_PAIR_CURSOR_OFFSET_UTF16: u32 = 16;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -107,16 +108,24 @@ pub struct FunctionalActionTable {
 }
 
 impl FunctionalActionTable {
-    /// Production actions are deliberately compiled into the trusted runtime.
-    /// The source tables contain platform-private `$cmd` expressions; those
-    /// expressions remain rejected and are never interpreted at runtime.
+    /// Production guide actions stay in the trusted runtime, while ordinary
+    /// direct-action codes, labels, ordering and typed payloads come from the
+    /// normalized customer table. The raw platform `$cmd` syntax is converted
+    /// offline and is never interpreted here.
     pub fn production_defaults() -> Self {
-        let records = vec![
+        let mut records = vec![
             guide_record(
-                "symbol-colon",
-                ";",
+                "symbol-colon-default",
+                "_",
                 "：",
                 FunctionalAction::StaticSymbol("：".to_owned()),
+                0,
+            ),
+            guide_record(
+                "symbol-semicolon",
+                ";",
+                "；",
+                FunctionalAction::StaticSymbol("；".to_owned()),
                 0,
             ),
             guide_record(
@@ -319,314 +328,16 @@ impl FunctionalActionTable {
                 FunctionalAction::StaticSymbol("@".to_owned()),
                 26,
             ),
-            direct_record(
-                "direct-oba",
-                "oba",
-                "横_一",
-                FunctionalAction::StaticText("一".to_owned()),
-                0,
-            ),
-            direct_record(
-                "date-iso",
-                "orq",
-                "日期 YYYY-MM-DD",
-                FunctionalAction::DateTimeText(DateTimeFormatId::DateIso),
-                1,
-            ),
-            direct_record(
-                "date-local",
-                "orq",
-                "日期 YYYY年M月D日",
-                FunctionalAction::DateTimeText(DateTimeFormatId::DateLocalUnpadded),
-                2,
-            ),
-            direct_record(
-                "time-weekday",
-                "ouj",
-                "时间与星期",
-                FunctionalAction::DateTimeText(DateTimeFormatId::TimeWeekday),
-                3,
-            ),
-            direct_record(
-                "time-local-hm",
-                "ouj",
-                "中文时间",
-                FunctionalAction::DateTimeText(DateTimeFormatId::TimeLocalHm),
-                4,
-            ),
-            direct_record(
-                "unix-timestamp",
-                "ouji",
-                "Unix 时间戳",
-                FunctionalAction::DateTimeText(DateTimeFormatId::UnixTimestamp),
-                5,
-            ),
-            direct_record(
-                "poem-jing-ye-si",
-                "jysi",
-                "「静夜思」",
-                FunctionalAction::StaticText(
-                    "　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n"
-                        .to_owned(),
-                ),
-                6,
-            ),
-            direct_record(
-                "lexicon-preset-experienced",
-                "ojj",
-                "<熟手词库>",
-                FunctionalAction::DirectControl {
-                    action: "category.preset".to_owned(),
-                    target: "experienced".to_owned(),
-                },
-                7,
-            ),
-            direct_record(
-                "lexicon-preset-standard",
-                "ojj",
-                "<常规词库>",
-                FunctionalAction::DirectControl {
-                    action: "category.preset".to_owned(),
-                    target: "standard".to_owned(),
-                },
-                8,
-            ),
-            direct_record(
-                "lexicon-preset-beginner",
-                "ojj",
-                "<初学词库>",
-                FunctionalAction::DirectControl {
-                    action: "category.preset".to_owned(),
-                    target: "beginner".to_owned(),
-                },
-                9,
-            ),
-            direct_record(
-                "two-key-secondary-enable",
-                "oej",
-                "<二简次选>",
-                FunctionalAction::DirectControl {
-                    action: "category.enable".to_owned(),
-                    target: "two-key-secondary".to_owned(),
-                },
-                10,
-            ),
-            direct_record(
-                "two-key-secondary-disable",
-                "oej",
-                "[关闭二简次选]",
-                FunctionalAction::DirectControl {
-                    action: "category.disable".to_owned(),
-                    target: "two-key-secondary".to_owned(),
-                },
-                11,
-            ),
-            direct_record(
-                "import-user-lexicon",
-                "odr",
-                "[导入用户词库]",
-                FunctionalAction::ImportUserLexicon,
-                12,
-            ),
-            direct_record(
-                "lunar-date-festival",
-                "onl",
-                "农历日期",
-                FunctionalAction::DateTimeText(DateTimeFormatId::LunarDateFestival),
-                13,
-            ),
-            direct_record(
-                "flypy-home-open",
-                "xhgw",
-                "「小鹤官网」",
-                FunctionalAction::DirectControl {
-                    action: "url.open".to_owned(),
-                    target: "flypy-home".to_owned(),
-                },
-                14,
-            ),
-            direct_record(
-                "flypy-home-text",
-                "xhg",
-                "https://flypy.cc",
-                FunctionalAction::StaticText("https://flypy.cc".to_owned()),
-                15,
-            ),
-            direct_record(
-                "flypy-help-open",
-                "xhrm",
-                "「小鹤入门」",
-                FunctionalAction::DirectControl {
-                    action: "url.open".to_owned(),
-                    target: "flypy-help".to_owned(),
-                },
-                16,
-            ),
-            direct_record(
-                "flypy-help-mobile-open",
-                "orm",
-                "「手机入门」",
-                FunctionalAction::DirectControl {
-                    action: "url.open".to_owned(),
-                    target: "flypy-help-mobile".to_owned(),
-                },
-                17,
-            ),
-            direct_record(
-                "settings-open",
-                "ocd",
-                "「设置菜单」",
-                FunctionalAction::DirectControl {
-                    action: "app.open".to_owned(),
-                    target: "settings".to_owned(),
-                },
-                18,
-            ),
-            direct_record(
-                "user-lexicon-open",
-                "oyh",
-                "「用户词库」",
-                FunctionalAction::DirectControl {
-                    action: "app.open".to_owned(),
-                    target: "user-lexicon".to_owned(),
-                },
-                19,
-            ),
-            direct_record(
-                "delete-current-line",
-                "oui",
-                "[删行]",
-                FunctionalAction::DirectControl {
-                    action: "editor.delete-line".to_owned(),
-                    target: String::new(),
-                },
-                20,
-            ),
-            direct_record(
-                "delete-current-line-alias",
-                "oiu",
-                "[删行]",
-                FunctionalAction::DirectControl {
-                    action: "editor.delete-line".to_owned(),
-                    target: String::new(),
-                },
-                21,
-            ),
-            direct_record(
-                "smart-punctuation-enable",
-                "ovn",
-                "[智能标点 600ms]",
-                FunctionalAction::DirectControl {
-                    action: "settings.smart-period".to_owned(),
-                    target: "600".to_owned(),
-                },
-                22,
-            ),
-            direct_record(
-                "smart-punctuation-disable",
-                "ovn",
-                "[关闭智能标点]",
-                FunctionalAction::DirectControl {
-                    action: "settings.smart-period".to_owned(),
-                    target: "0".to_owned(),
-                },
-                23,
-            ),
-            direct_record(
-                "traditional-toggle",
-                "ojf",
-                "[简繁切换]",
-                FunctionalAction::DirectControl {
-                    action: "settings.traditional".to_owned(),
-                    target: "toggle".to_owned(),
-                },
-                24,
-            ),
-            direct_record(
-                "punctuation-toggle",
-                "ovy",
-                "[中英标点切换]",
-                FunctionalAction::DirectControl {
-                    action: "settings.punctuation".to_owned(),
-                    target: "toggle".to_owned(),
-                },
-                25,
-            ),
-            direct_record(
-                "fullwidth-toggle",
-                "oqb",
-                "[全半角切换]",
-                FunctionalAction::DirectControl {
-                    action: "settings.fullwidth".to_owned(),
-                    target: "toggle".to_owned(),
-                },
-                26,
-            ),
-            direct_record(
-                "numeric-period-enable",
-                "osz",
-                "[数字标点]",
-                FunctionalAction::DirectControl {
-                    action: "settings.numeric-period".to_owned(),
-                    target: "enabled".to_owned(),
-                },
-                27,
-            ),
-            direct_record(
-                "numeric-period-disable",
-                "osz",
-                "[关闭数字标点]",
-                FunctionalAction::DirectControl {
-                    action: "settings.numeric-period".to_owned(),
-                    target: "disabled".to_owned(),
-                },
-                28,
-            ),
-            direct_record(
-                "empty-clear-four",
-                "oqma",
-                "[4码空码自动清]",
-                FunctionalAction::DirectControl {
-                    action: "settings.empty-clear".to_owned(),
-                    target: "4".to_owned(),
-                },
-                29,
-            ),
-            direct_record(
-                "empty-clear-twelve",
-                "oqma",
-                "[12码空码自动清]",
-                FunctionalAction::DirectControl {
-                    action: "settings.empty-clear".to_owned(),
-                    target: "12".to_owned(),
-                },
-                30,
-            ),
-            direct_record(
-                "top-screen-four",
-                "odp",
-                "[四码后顶]",
-                FunctionalAction::DirectControl {
-                    action: "settings.commit-policy".to_owned(),
-                    target: "top-screen".to_owned(),
-                },
-                31,
-            ),
-            direct_record(
-                "auto-commit-four",
-                "odp",
-                "[四码唯一自动上屏]",
-                FunctionalAction::DirectControl {
-                    action: "settings.commit-policy".to_owned(),
-                    target: "auto-commit".to_owned(),
-                },
-                32,
-            ),
         ];
+        let direct_bytes = include_bytes!("../data/production-direct-actions.json");
+        let direct_hash = hex(sha256(direct_bytes));
+        let direct = Self::load_production_bytes(direct_bytes, direct_hash.clone())
+            .expect("generated production direct-action table must be valid");
+        records.extend(direct.records);
         Self {
             fixture_only: false,
             records,
-            file_sha256: "built-in-production-actions-v3".to_owned(),
+            file_sha256: direct_hash,
         }
     }
 
@@ -770,6 +481,167 @@ impl FunctionalActionTable {
         })
     }
 
+    /// Loads the deterministic, offline-normalized direct-action table used by
+    /// production. This format contains typed records only: source `$cmd`
+    /// expressions are deliberately absent and can never reach runtime.
+    pub fn load_production_bytes(
+        bytes: &[u8],
+        file_sha256: String,
+    ) -> Result<Self, CodeTableError> {
+        let root = object(
+            json::parse(bytes)
+                .map_err(|detail| action_error(CodeTableErrorKind::InvalidManifest, detail))?,
+        )?;
+        reject_unknown(
+            &root,
+            &[
+                "formatVersion",
+                "fixtureOnly",
+                "source",
+                "sourceRecordCount",
+                "rejectedRecordCount",
+                "records",
+            ],
+        )?;
+        if number(required(&root, "formatVersion")?, "formatVersion")?
+            != ACTION_TABLE_FORMAT_VERSION
+        {
+            return Err(action_error(
+                CodeTableErrorKind::UnsupportedVersion,
+                "action table format version is unsupported",
+            ));
+        }
+        if boolean(required(&root, "fixtureOnly")?, "fixtureOnly")? {
+            return Err(action_error(
+                CodeTableErrorKind::InvalidManifest,
+                "production action data cannot be fixture-only",
+            ));
+        }
+        let source = string(required(&root, "source")?, "source")?;
+        if source.is_empty() || !source.ends_with("5.直通.txt") {
+            return Err(field("source", "expected customer direct-table provenance"));
+        }
+        let source_count = usize::try_from(number(
+            required(&root, "sourceRecordCount")?,
+            "sourceRecordCount",
+        )?)
+        .map_err(|_| field("sourceRecordCount", "value exceeds usize"))?;
+        let rejected_count = usize::try_from(number(
+            required(&root, "rejectedRecordCount")?,
+            "rejectedRecordCount",
+        )?)
+        .map_err(|_| field("rejectedRecordCount", "value exceeds usize"))?;
+        let JsonValue::Array(values) = required(&root, "records")? else {
+            return Err(field("records", "expected array"));
+        };
+        if source_count != values.len().saturating_add(rejected_count) {
+            return Err(field(
+                "sourceRecordCount",
+                "accepted and rejected record counts do not cover the source table",
+            ));
+        }
+
+        let mut ids = BTreeSet::new();
+        let mut records = Vec::with_capacity(values.len());
+        for (index, value) in values.iter().enumerate() {
+            let record = object_ref(value, "records[]")?;
+            reject_unknown(
+                record,
+                &[
+                    "id",
+                    "scope",
+                    "code",
+                    "label",
+                    "type",
+                    "text",
+                    "formatId",
+                    "cursorOffsetUtf16",
+                    "action",
+                    "target",
+                ],
+            )?;
+            let id = string(required(record, "id")?, "records.id")?.to_owned();
+            validate_ascii_id(&id, "records.id")?;
+            if !ids.insert(id.clone()) {
+                return Err(field("records.id", "duplicate action id"));
+            }
+            if string(required(record, "scope")?, "records.scope")? != "DIRECT" {
+                return Err(field("records.scope", "production records must use DIRECT"));
+            }
+            let code = string(required(record, "code")?, "records.code")?.to_owned();
+            if code.is_empty()
+                || code.len() > lexicon_core::MAX_CODE_LEN
+                || !code.bytes().all(|byte| byte.is_ascii_lowercase())
+            {
+                return Err(field(
+                    "records.code",
+                    "code must be 1..=64 lowercase ASCII letters",
+                ));
+            }
+            let label = string(required(record, "label")?, "records.label")?.to_owned();
+            validate_production_label(&label)?;
+            let kind = string(required(record, "type")?, "records.type")?;
+            let action = match kind {
+                "STATIC_TEXT" => {
+                    reject_present(
+                        record,
+                        &["formatId", "cursorOffsetUtf16", "action", "target"],
+                    )?;
+                    let text = string(required(record, "text")?, "records.text")?.to_owned();
+                    validate_production_static_text(&text)?;
+                    FunctionalAction::StaticText(text)
+                }
+                "DATE_TIME_TEXT" => {
+                    reject_present(record, &["text", "cursorOffsetUtf16", "action", "target"])?;
+                    let format_id = DateTimeFormatId::parse(string(
+                        required(record, "formatId")?,
+                        "records.formatId",
+                    )?)
+                    .ok_or_else(|| field("records.formatId", "unknown date/time format id"))?;
+                    FunctionalAction::DateTimeText(format_id)
+                }
+                "DIRECT_CONTROL" => {
+                    reject_present(record, &["text", "formatId", "cursorOffsetUtf16"])?;
+                    let action = string(required(record, "action")?, "records.action")?.to_owned();
+                    let target = string(required(record, "target")?, "records.target")?.to_owned();
+                    if !trusted_direct_control(&action, &target) {
+                        return Err(field(
+                            "records.action",
+                            "direct-control action/target is not approved",
+                        ));
+                    }
+                    FunctionalAction::DirectControl { action, target }
+                }
+                "IMPORT_USER_LEXICON" => {
+                    reject_present(
+                        record,
+                        &["text", "formatId", "cursorOffsetUtf16", "action", "target"],
+                    )?;
+                    FunctionalAction::ImportUserLexicon
+                }
+                _ => {
+                    return Err(field(
+                        "records.type",
+                        "unknown or unsafe production action type",
+                    ))
+                }
+            };
+            records.push(ActionRecord {
+                id,
+                code,
+                label,
+                source_order: index as u32,
+                scope: ActionScope::Direct,
+                action,
+            });
+        }
+        Ok(Self {
+            fixture_only: false,
+            records,
+            file_sha256,
+        })
+    }
+
     pub fn query_exact_or_prefix(&self, code: &str) -> Vec<&ActionRecord> {
         self.query_guide_exact_or_prefix(code)
     }
@@ -854,20 +726,63 @@ fn guide_record(
     production_record(id, code, label, action, source_order, ActionScope::Guide)
 }
 
-fn direct_record(
-    id: &str,
-    code: &str,
-    label: &str,
-    action: FunctionalAction,
-    source_order: u32,
-) -> ActionRecord {
-    production_record(id, code, label, action, source_order, ActionScope::Direct)
-}
-
 fn required_text(object: &BTreeMap<String, JsonValue>) -> Result<String, CodeTableError> {
     let value = string(required(object, "text")?, "records.text")?.to_owned();
     validate_text(&value, "records.text")?;
     Ok(value)
+}
+
+fn validate_production_label(value: &str) -> Result<(), CodeTableError> {
+    if value.is_empty()
+        || value.len() > MAX_ACTION_TEXT_BYTES
+        || value.chars().any(char::is_control)
+        || value.to_ascii_lowercase().contains("$cmd")
+    {
+        return Err(field(
+            "records.label",
+            "label is empty, too long, contains control data, or leaks command syntax",
+        ));
+    }
+    Ok(())
+}
+
+fn validate_production_static_text(value: &str) -> Result<(), CodeTableError> {
+    let lower = value.to_ascii_lowercase();
+    let forbidden_control = value
+        .chars()
+        .any(|character| character.is_control() && character != '\r' && character != '\n');
+    let unsafe_network = lower.contains("://") && value != "https://flypy.cc";
+    if value.is_empty()
+        || value.len() > MAX_PRODUCTION_ACTION_TEXT_BYTES
+        || forbidden_control
+        || lower.contains("$cmd")
+        || lower.contains("$ddcmd")
+        || unsafe_network
+    {
+        return Err(field(
+            "records.text",
+            "production static text is empty, too long, or unsafe",
+        ));
+    }
+    Ok(())
+}
+
+fn trusted_direct_control(action: &str, target: &str) -> bool {
+    match action {
+        "category.enable" | "category.disable" => target == "two-key-secondary",
+        "category.preset" => matches!(target, "experienced" | "standard" | "beginner"),
+        "settings.smart-period" => matches!(target, "0" | "600"),
+        "settings.punctuation" | "settings.fullwidth" | "settings.traditional" => {
+            target == "toggle"
+        }
+        "settings.numeric-period" => matches!(target, "enabled" | "disabled"),
+        "settings.empty-clear" => matches!(target, "4" | "12"),
+        "settings.commit-policy" => matches!(target, "top-screen" | "auto-commit"),
+        "url.open" => matches!(target, "flypy-home" | "flypy-help" | "flypy-help-mobile"),
+        "app.open" => matches!(target, "settings" | "user-lexicon"),
+        "editor.delete-line" => target.is_empty(),
+        _ => false,
+    }
 }
 
 fn validate_text(value: &str, field_name: &'static str) -> Result<(), CodeTableError> {
@@ -1043,29 +958,51 @@ mod tests {
             FunctionalAction::StaticSymbol(ref text) if text == "→"
         ));
         assert!(table.query_exact_or_prefix("oba").is_empty());
-        let direct = table.query_direct_exact_or_prefix("oba");
-        assert_eq!(direct[0].label, "横_一");
-        assert!(matches!(
-            direct[0].action,
-            FunctionalAction::StaticText(ref text) if text == "一"
-        ));
+        assert!(table.query_direct_exact_or_prefix("oba").is_empty());
+        assert_eq!(
+            table
+                .records
+                .iter()
+                .filter(|record| record.scope == ActionScope::Direct)
+                .count(),
+            31
+        );
+        assert_eq!(table.file_sha256.len(), 64);
         assert!(matches!(
             table.query_direct_exact_or_prefix("xhgw")[0].action,
             FunctionalAction::DirectControl { ref action, ref target }
                 if action == "url.open" && target == "flypy-home"
         ));
+        assert_eq!(
+            table.query_direct_exact_or_prefix("xhgw")[0].label,
+            "「小鹤官网」"
+        );
         assert!(matches!(
             table.query_direct_exact_or_prefix("oui")[0].action,
             FunctionalAction::DirectControl { ref action, ref target }
                 if action == "editor.delete-line" && target.is_empty()
         ));
+        assert!(table.query_direct_exact_or_prefix("oiz").is_empty());
+    }
+
+    #[test]
+    fn production_direct_data_rejects_raw_commands_and_unapproved_targets() {
+        let cases = [
+            r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"DIRECT","code":"abc","label":"x","type":"STATIC_TEXT","text":"$cmd(run(calc))"}]}"#.as_bytes(),
+            r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"DIRECT","code":"abc","label":"x","type":"DIRECT_CONTROL","action":"url.open","target":"unapproved"}]}"#.as_bytes(),
+            r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"GUIDE","code":"abc","label":"x","type":"IMPORT_USER_LEXICON"}]}"#.as_bytes(),
+        ];
+        for input in cases {
+            assert!(FunctionalActionTable::load_production_bytes(input, "00".repeat(32)).is_err());
+        }
     }
 
     #[test]
     fn production_quick_symbols_match_the_clearwind_kf_map() {
         let table = FunctionalActionTable::production_defaults();
         let expected = [
-            (";", "："),
+            ("_", "："),
+            (";", "；"),
             ("q", "：“"),
             ("w", "？"),
             ("e", "（"),

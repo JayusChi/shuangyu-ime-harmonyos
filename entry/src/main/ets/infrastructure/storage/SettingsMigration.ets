@@ -1,6 +1,7 @@
 import {
   CURRENT_SETTINGS_SCHEMA_VERSION,
   DEFAULT_AI_ACTIONS,
+  DEFAULT_LONG_PRESS_DURATION_MS,
   DEFAULT_SMART_PERIOD_TIMEOUT_MS,
   SettingsRaw,
   XIAOHE_YINXING_CATEGORY_IDS,
@@ -9,7 +10,10 @@ import {
 } from '../../domain/settings/ImeSettings';
 import { keyboardProfileForLegacy } from '../../domain/keyboard/KeyboardProfile';
 import { DEFAULT_SMART_PUNCTUATION_SYMBOLS } from '../../domain/keyboard/SmartPunctuation';
-import { DEFAULT_LETTER_SWIPE_SYMBOLS } from '../../domain/keyboard/LetterSwipeSymbols';
+import {
+  DEFAULT_LETTER_SWIPE_SYMBOLS,
+  hasOnlyEmptyLetterSwipeSymbols
+} from '../../domain/keyboard/LetterSwipeSymbols';
 
 export class SettingsMigration {
   migrate(raw: SettingsRaw): SettingsRaw {
@@ -94,13 +98,18 @@ export class SettingsMigration {
     if (!migrated.smartPeriodTimeoutMs) {
       migrated.smartPeriodTimeoutMs = `${DEFAULT_SMART_PERIOD_TIMEOUT_MS}`;
     }
+    if (!migrated.longPressDurationMs) {
+      migrated.longPressDurationMs = `${DEFAULT_LONG_PRESS_DURATION_MS}`;
+    }
     if (migrated.smartPunctuationSymbols === undefined) {
       migrated.smartPunctuationSymbols = JSON.stringify(DEFAULT_SMART_PUNCTUATION_SYMBOLS);
     }
-    if (migrated.chineseLetterSwipeSymbols === undefined) {
+    if (migrated.chineseLetterSwipeSymbols === undefined ||
+      (parsedVersion < 15 && hasOnlyEmptyLetterSwipeSymbols(migrated.chineseLetterSwipeSymbols))) {
       migrated.chineseLetterSwipeSymbols = DEFAULT_LETTER_SWIPE_SYMBOLS;
     }
-    if (migrated.englishLetterSwipeSymbols === undefined) {
+    if (migrated.englishLetterSwipeSymbols === undefined ||
+      (parsedVersion < 15 && hasOnlyEmptyLetterSwipeSymbols(migrated.englishLetterSwipeSymbols))) {
       migrated.englishLetterSwipeSymbols = DEFAULT_LETTER_SWIPE_SYMBOLS;
     }
     if (migrated.keyboardLiftLayerEnabled === undefined) {
@@ -252,6 +261,7 @@ export class SettingsMigration {
       spellingCorrectionEnabled: raw.spellingCorrectionEnabled,
       fuzzyOptions: raw.fuzzyOptions,
       smartPeriodTimeoutMs: raw.smartPeriodTimeoutMs,
+      longPressDurationMs: raw.longPressDurationMs,
       smartPunctuationSymbols: raw.smartPunctuationSymbols,
       chineseLetterSwipeSymbols: raw.chineseLetterSwipeSymbols,
       englishLetterSwipeSymbols: raw.englishLetterSwipeSymbols,

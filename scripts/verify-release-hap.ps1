@@ -19,12 +19,12 @@ $sourceRoot = if ([string]::IsNullOrWhiteSpace($SourceRoot)) {
     [IO.Path]::GetFullPath($SourceRoot)
 }
 $debugAcceptanceText = -join (@(0x8C03, 0x8BD5, 0x4E0E, 0x9A8C, 0x6536) | ForEach-Object { [char]$_ })
-$expectedProductionLexiconSize = 3751923
-$expectedProductionLexiconSha256 = 'e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365'
-$expectedQuanpinContextModelSize = 37659
-$expectedQuanpinContextModelSha256 = '91b2beda854209b9476ef70689bd76ac8b229692c761f14a1aa8f7d83ffc3c7c'
-$expectedYinxingBundleSize = 56184164
-$expectedYinxingBundleSha256 = 'f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7'
+$expectedProductionLexiconSize = 24049458
+$expectedProductionLexiconSha256 = '005169f6050d45f93dd511d7de183338419419b67fb3556065b15432b0522a41'
+$expectedQuanpinContextModelSize = 64300
+$expectedQuanpinContextModelSha256 = '15b55101d77a87a64d2d414f96147291f7e260a138c98ecbea1d38af2f17b05f'
+$expectedYinxingBundleSize = 56104660
+$expectedYinxingBundleSha256 = '263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09'
 $releaseForbiddenPermissions = @(
     'ohos.permission.INTERNET',
     'ohos.permission.MICROPHONE'

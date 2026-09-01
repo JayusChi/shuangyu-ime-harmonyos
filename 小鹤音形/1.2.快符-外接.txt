@@ -1,5 +1,5 @@
 ## 快符（分号引导，编码不含入口分号）
-：	;
+：	_
 ：“	q
 ？	w
 （	e
@@ -26,3 +26,4 @@ $cmd(〔〕keyboard(<21>),〔〕)	l
 $cmd(looppush,[a|b])	b
 $cmd(keyboard(<123>),[End])	n
 @	m
+；	;

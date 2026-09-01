@@ -12,6 +12,7 @@ ArkTS InputMethodExtensionAbility -> C++ Node-API -> Rust C ABI
 
 ## 当前状态
 
+- 2026-08-31 已按客户澄清把 0.6.0 第 1～6 点统一纳入实体键盘验收：补齐 PC 新旧按键 API 的按键相位去重，避免 `o→oo`、`ok→okk`；客户 `5.直通.txt` 直接生成可增删的受控动作词条数据，不再逐编码固化；浮动候选窗中的输入码取消下划线，嵌入/固定展示位继续用下划线表达未上屏。signed 0.6.0 HAP 已在 x86_64 2in1 模拟器以系统按键注入逐项通过，Phone 固定候选栏下划线对照通过；真实 USB/蓝牙/内置键盘仍未验收。详见 [0.6.0 实体键盘反馈矩阵](docs/features/input-method/PHYSICAL_KEYBOARD_0_6_0_FEEDBACK.md)与[模拟器验收证据](docs/evidence/2026-08-31-v0.6.0-physical-keyboard/README.md)。
 - 2026-08-27 已完成 `0.5.1` 客户反馈闭环修复：复制后使用原生光标移动收起选区，并以受控进程内副本兼容 HarmonyOS 6.1 的扩展粘贴权限限制；删行/恢复不再依赖部分宿主失效的范围选择；中文输入码统一只在候选区域以实线下划线显示；小鹤音形万能键不再被 UI 二次过滤。Rust workspace（FFI `39/39`）、Release 资源/实包门禁及 Phone/Pad/2in1 复验通过；最新 ArkTS `567` 项源码编译通过，但 Windows Previewer 因 AMD OpenGL 驱动崩溃未生成最终执行报告，最近一次完整报告为 `565/565 PASS`。完整证据见 [0.5.1 客户反馈闭环](docs/evidence/2026-08-27-v0.5.1-customer-feedback/README.md)。
 - 2026-08-27 皮肤键盘新增可开关架高层：左侧系统输入法、右侧隐藏键盘，中间集中键盘菜单；数字/符号入口统一为 `ϟ12`，辅键盘返回统一左下，逗号/句号分列空格两侧并支持第三/第二候选快捷选择。
 - 2026-08-27 已加入皮肤键盘编辑手势：回删键上滑撤销上屏、下滑删行；回车键上滑重复上屏、下滑安全恢复最近删除。26 键字母下滑符号可在“键盘结构与皮肤”页按中英文分别设置，符号不显示在键面。
@@ -25,8 +26,8 @@ ArkTS InputMethodExtensionAbility -> C++ Node-API -> Rust C ABI
 - 2026-08-25 工程版本已升级为 `0.5.0`（`versionCode=5000000`），用于客户测试发布；本版纳入 26 键全拼、9 键拼音、六项直通编码、全领域词库和小鹤音形冷启动/内存优化，并修复横屏 T9 首次面板创建及实体键盘智能句号连续输入。AGC 上传前仍需核对应用身份、完成软件包基础检测和所需设备矩阵。
 - 当前四个拼音正式档案：`xiaohe-17`、默认 `xiaohe-26`、`quanpin-26`、`pinyin-9`；小鹤音形另以 `xiaohe-yinxing-17/26` 隔离提供。
 - 阶段 12 已加入直通命令、`Ctrl+Alt+0～9` 实体键盘预设、11 类音形词库正式开关，以及支持普通/隐藏/固顶/第 N 位和批量导入导出的用户词库管理页；详见 [阶段 12 文档](docs/features/direct-control/STAGE12_DIRECT_CONTROL_USER_LEXICON.md)。
-- 中文组合输入码由 Rust 输出两码展示段，候选栏以下划线显示未上屏状态；例如 `vegewtyijkjj` 显示为 `ve'ge'wt'yi'jk'jj`。显示分隔符不参与查询、学习或上屏。
-- 当前生产词库：3,751,923 bytes，SHA-256 `E4DEAD906109136470691D0E463C2ADA34C8E5BB9B3FC62BB2DE552ED751D365`；正式随包启用全拼 V2 基础、时效热词与六类专业领域词条。
+- 中文组合输入码由 Rust 输出两码展示段；嵌入/固定展示位以下划线表示未上屏，输入码与候选共同显示在浮动窗时不加下划线。例如 `vegewtyijkjj` 显示为 `ve'ge'wt'yi'jk'jj`，显示分隔符不参与查询、学习或上屏。
+- 当前生产词库：366,660 条、274,865 个拼音键、24,049,458 bytes，SHA-256 `005169F6050D45F93DD511D7DE183338419419B67FB3556065B15432B0522A41`；正式随包启用 Rime 基础层、Jieba+pypinyin 成熟词库层、时效热词与六类专业领域词条。
 - 当前码表基础：严格 bundle、精确/前缀查询、11 分类合同、分类内 `#固/#直`、原子分类快照、分号引导动作运行时、四码唯一提交、第五键顶屏、空码清屏及冻结的正/反向空码切分均已实现。
 - 小鹤音形精准输入：当前编码精确命中时只显示同码候选；未命中但存在严格更长编码时，按词库源顺序固定只显示第 1 项精准匹配提示及未输入编码后缀，不提供数量选项，且提示不参与自动上屏、第五键顶屏或空码切分。四码过滤后唯一时仍只自动上屏一次，真实重码等待选择。Phone/Pad x86_64 模拟器上的既有 signed Release 矩阵已通过；本轮固定单项提示尚未执行设备验收，ARM64 真机仍未验收。
 - 当前开发入口：11.6.7 与 11.6.8 已完成主机和 x86_64 模拟器范围；默认方案仍为小鹤双拼，正式设置页可选择小鹤音形，正式 bundle 由 HAP 原子安装并校验。详见 [项目计划书阶段 11.6](docs/product/planning/PROJECT_PLAN.md#阶段-116正式小鹤音形双链路2026-07-22-重启)。
@@ -132,7 +133,25 @@ $env:DEVECO_SDK_HOME='C:\Program Files\Huawei\DevEco Studio\sdk'
 当前 `default` 产品已引用发布签名配置，构建会同时保留
 `build/outputs/default/HarmonyOS_Input-default-signed.app` 和对应 unsigned 中间产物。
 上传候选只能使用 signed APP；上传前仍必须用签名检查工具复核证书/Profile/包名，确认
-`com.corrosion.shuangyuime`、vendor、`0.5.0`/`5000000` 需与 AGC 正式应用记录一致，并通过 AGC 软件包基础检测。
+Profile 为 `type=release` 且 APP ID 为 `6917611076350696172`，同时确认
+`com.corrosion.shuangyuime`、vendor、`0.6.0`/`6000000` 与 AGC 正式应用记录一致，并通过 AGC 软件包基础检测；调试 Profile 即使本地验签通过，也会被 AGC 以错误码 `993` 拒绝。
+
+向开发设备安装当前 signed HAP：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\install-signed-hap.ps1 -AllConnected
+```
+
+如果设备曾安装同包名但不同证书的旧 Debug 包，系统会返回 `9568332 / install sign info inconsistent`。
+这种证书切换无法保留旧应用沙箱，`bm uninstall -k` 也会保留旧签名绑定而继续失败；先导出需要的数据，
+再显式执行一次签名重置。脚本会在重装后恢复原有输入法启用状态和当前输入法选择：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\install-signed-hap.ps1 -AllConnected -ResetSignature
+```
+
+完成一次迁移后，继续使用 `default` 产品生成的固定 Release 签名包即可直接覆盖，不要再让同一包名混用
+DevEco 自动 Debug 证书。
 
 阶段 3 验证：
 

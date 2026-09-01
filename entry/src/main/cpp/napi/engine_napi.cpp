@@ -20,6 +20,14 @@ struct AsyncEngineCreateContext {
     EngineBridgeCreateResult result = {IME_ENGINE_INTERNAL_ERROR, 0};
 };
 
+struct AsyncProcessKeyContext {
+    napi_async_work work = nullptr;
+    napi_deferred deferred = nullptr;
+    uint32_t handle = 0;
+    std::string key;
+    RustCallResult result = {IME_ENGINE_INTERNAL_ERROR, RustBuffer()};
+};
+
 #ifndef IME_NATIVE_ABI
 #define IME_NATIVE_ABI "unknown"
 #endif
@@ -34,7 +42,7 @@ void ThrowNativeError(napi_env env, int32_t code, const std::string& message) {
     napi_throw_error(env, std::to_string(code).c_str(), message.c_str());
 }
 
-void RejectEngineCreate(napi_env env, napi_deferred deferred, int32_t code, const std::string& message) {
+void RejectAsyncOperation(napi_env env, napi_deferred deferred, int32_t code, const std::string& message) {
     napi_value codeValue = nullptr;
     napi_value messageValue = nullptr;
     napi_value error = nullptr;
@@ -60,9 +68,9 @@ void CompleteCreateEngine(napi_env env, napi_status status, void* data) {
         if (context->result.code == IME_SUCCESS && context->result.id > 0) {
             DestroyRegisteredEngine(context->result.id);
         }
-        RejectEngineCreate(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "asynchronous engine creation failed");
+        RejectAsyncOperation(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "asynchronous engine creation failed");
     } else if (context->result.code != IME_SUCCESS) {
-        RejectEngineCreate(
+        RejectAsyncOperation(
             env,
             context->deferred,
             context->result.code,
@@ -71,13 +79,45 @@ void CompleteCreateEngine(napi_env env, napi_status status, void* data) {
         napi_value id = nullptr;
         if (napi_create_uint32(env, context->result.id, &id) != napi_ok) {
             DestroyRegisteredEngine(context->result.id);
-            RejectEngineCreate(
+            RejectAsyncOperation(
                 env,
                 context->deferred,
                 IME_NATIVE_BRIDGE_ERROR,
                 "unable to return asynchronous engine handle");
         } else if (napi_resolve_deferred(env, context->deferred, id) != napi_ok) {
             DestroyRegisteredEngine(context->result.id);
+        }
+    }
+    napi_delete_async_work(env, context->work);
+    delete context;
+}
+
+void ExecuteProcessKey(napi_env, void* data) {
+    auto* context = static_cast<AsyncProcessKeyContext*>(data);
+    context->result = ProcessRegisteredEngineKey(context->handle, context->key);
+}
+
+void CompleteProcessKey(napi_env env, napi_status status, void* data) {
+    auto* context = static_cast<AsyncProcessKeyContext*>(data);
+    if (status != napi_ok) {
+        RejectAsyncOperation(
+            env,
+            context->deferred,
+            IME_NATIVE_BRIDGE_ERROR,
+            "asynchronous key processing failed");
+    } else {
+        napi_value result = context->result.code == IME_SUCCESS
+            ? ConvertCompositionJsonToArkObject(env, context->result.payload)
+            : CreateCompositionErrorResult(
+                  env,
+                  context->result.code,
+                  ErrorMessageForCode(context->result.code));
+        if (napi_resolve_deferred(env, context->deferred, result) != napi_ok) {
+            RejectAsyncOperation(
+                env,
+                context->deferred,
+                IME_NATIVE_BRIDGE_ERROR,
+                "unable to resolve asynchronous key result");
         }
     }
     napi_delete_async_work(env, context->work);
@@ -540,13 +580,13 @@ napi_value CreateEngineAsync(napi_env env, napi_callback_info info) {
             CompleteCreateEngine,
             context,
             &context->work) != napi_ok) {
-        RejectEngineCreate(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to create engine async work");
+        RejectAsyncOperation(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to create engine async work");
         delete context;
         return promise;
     }
     if (napi_queue_async_work(env, context->work) != napi_ok) {
         napi_delete_async_work(env, context->work);
-        RejectEngineCreate(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to queue engine async work");
+        RejectAsyncOperation(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to queue engine async work");
         delete context;
     }
     return promise;
@@ -590,6 +630,58 @@ napi_value ProcessKey(napi_env env, napi_callback_info info) {
         return CreateCompositionErrorResult(env, result.code, ErrorMessageForCode(result.code));
     }
     return ConvertCompositionJsonToArkObject(env, result.payload);
+}
+
+napi_value ProcessKeyAsync(napi_env env, napi_callback_info info) {
+    uint32_t handle = 0;
+    std::string key;
+    if (!ReadHandleAndStringArguments(env, info, handle, key)) {
+        ThrowNativeError(env, IME_INVALID_ARGUMENT, "processKeyAsync requires handle and key");
+        return nullptr;
+    }
+    if (!IsSingleCodeTableKey(key)) {
+        ThrowNativeError(
+            env,
+            IME_INVALID_ARGUMENT,
+            "processKeyAsync requires one lowercase ASCII letter, T9 digit, guide key, or universal key");
+        return nullptr;
+    }
+
+    auto* context = new (std::nothrow) AsyncProcessKeyContext();
+    if (context == nullptr) {
+        ThrowNativeError(env, IME_BUFFER_ALLOCATION_FAILED, "unable to allocate asynchronous key context");
+        return nullptr;
+    }
+    context->handle = handle;
+    context->key = std::move(key);
+
+    napi_value promise = nullptr;
+    if (napi_create_promise(env, &context->deferred, &promise) != napi_ok) {
+        delete context;
+        ThrowNativeError(env, IME_NATIVE_BRIDGE_ERROR, "unable to create key promise");
+        return nullptr;
+    }
+
+    napi_value resourceName = nullptr;
+    napi_create_string_utf8(env, "processKeyAsync", NAPI_AUTO_LENGTH, &resourceName);
+    if (napi_create_async_work(
+            env,
+            nullptr,
+            resourceName,
+            ExecuteProcessKey,
+            CompleteProcessKey,
+            context,
+            &context->work) != napi_ok) {
+        RejectAsyncOperation(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to create key async work");
+        delete context;
+        return promise;
+    }
+    if (napi_queue_async_work(env, context->work) != napi_ok) {
+        napi_delete_async_work(env, context->work);
+        RejectAsyncOperation(env, context->deferred, IME_NATIVE_BRIDGE_ERROR, "unable to queue key async work");
+        delete context;
+    }
+    return promise;
 }
 
 napi_value InsertSegmentBoundary(napi_env env, napi_callback_info info) {

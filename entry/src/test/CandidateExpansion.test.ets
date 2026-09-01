@@ -80,9 +80,14 @@ function availability(): CandidateExpansionAvailability {
 
 export default function candidateExpansionTest() {
   describe('candidate improvement stage 2 expansion and paging', () => {
-    it('does not open an empty panel and toggles when candidates exist', 0, () => {
+    it('opens only when at least three candidates exist', 0, () => {
       const store = readyStore();
       expect(store.setCandidatePanelExpanded(true)).assertFalse();
+      store.updateComposition(makeComposition(makeCandidates(2)));
+      expect(store.setCandidatePanelExpanded(true)).assertFalse();
+      store.updateComposition(makeComposition(makeCandidates(3)));
+      expect(store.setCandidatePanelExpanded(true)).assertTrue();
+      store.setCandidatePanelExpanded(false);
       store.updateComposition(makeComposition(makeCandidates(50), 0, false, true));
       expect(store.setCandidatePanelExpanded(true)).assertTrue();
       expect(store.getSnapshot().candidatePanelExpanded).assertTrue();
@@ -177,6 +182,30 @@ export default function candidateExpansionTest() {
       expect(canExpandCandidates(shortPage)).assertTrue();
       expect(canNavigateCandidatePage(shortPage, CandidatePageDirection.PREVIOUS)).assertFalse();
       expect(canNavigateCandidatePage(shortPage, CandidatePageDirection.NEXT)).assertFalse();
+
+      const tooShort: CandidateExpansionAvailability = {
+        sessionActive: first.sessionActive,
+        keyboardVisible: first.keyboardVisible,
+        candidateBarVisible: first.candidateBarVisible,
+        candidateCount: 2,
+        hasPreviousPage: false,
+        hasNextPage: false,
+        pageLoading: false,
+        hasError: false
+      };
+      expect(canExpandCandidates(tooShort)).assertFalse();
+
+      const shortFinalPage: CandidateExpansionAvailability = {
+        sessionActive: first.sessionActive,
+        keyboardVisible: first.keyboardVisible,
+        candidateBarVisible: first.candidateBarVisible,
+        candidateCount: 1,
+        hasPreviousPage: true,
+        hasNextPage: false,
+        pageLoading: false,
+        hasError: false
+      };
+      expect(canNavigateCandidatePage(shortFinalPage, CandidatePageDirection.PREVIOUS)).assertTrue();
     });
 
     it('uses compact phone grids and a 50-cell pad first screen', 0, () => {

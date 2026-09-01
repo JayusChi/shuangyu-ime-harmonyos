@@ -15,4 +15,7 @@
 *.hsyx filter=lfs diff=lfs merge=lfs -text
 *.lex filter=lfs diff=lfs merge=lfs -text
 *.qng filter=lfs diff=lfs merge=lfs -text
+*.whl filter=lfs diff=lfs merge=lfs -text
+dictionaries/source/jieba-0.42.1/dict.txt filter=lfs diff=lfs merge=lfs -text
+dictionaries/generated/jieba-0.42.1.normalized.tsv filter=lfs diff=lfs merge=lfs -text
 dictionaries/generated/xiaohe-yinxing-production/trace-index.jsonl filter=lfs diff=lfs merge=lfs -text

@@ -1,6 +1,8 @@
 {
   "schema_version": "candidate-baseline/performance-host-release/1",
   "profile": "release",
+  "requested_page_size": 9,
+  "effective_page_size": 9,
   "warmup_count": 10,
   "sample_count": 100,
   "filesystem_cache": "not controlled; explicit warmup performed",
@@ -8,46 +10,46 @@
     {
       "id": "double_pinyin_h_cold_query",
       "unit": "ns",
-      "p50": 92900,
-      "p95": 142200,
-      "max": 204900
+      "p50": 15108100,
+      "p95": 17683000,
+      "max": 21489800
     },
     {
       "id": "double_pinyin_h_hot_query",
       "unit": "ns",
-      "p50": 9300,
-      "p95": 26500,
-      "max": 43900
+      "p50": 80900,
+      "p95": 107300,
+      "max": 195600
     },
     {
       "id": "flypy_shape_h_cold_state_query",
       "unit": "ns",
-      "p50": 1376600,
-      "p95": 2003000,
-      "max": 2511500
+      "p50": 1267500,
+      "p95": 1898500,
+      "max": 2186600
     },
     {
       "id": "flypy_shape_h_hot_state_query",
       "unit": "ns",
-      "p50": 1154100,
-      "p95": 1843400,
-      "max": 2380500
+      "p50": 1084700,
+      "p95": 1733400,
+      "max": 1919100
     }
   ],
   "candidate_counts": {
-    "double_pinyin_h": 64,
+    "double_pinyin_h": 512,
     "flypy_shape_h": 512
   },
   "cross_language_current_page_json_bytes": {
-    "double_pinyin_h": 1176,
-    "flypy_shape_h": 1186
+    "double_pinyin_h": 1522,
+    "flypy_shape_h": 669
   },
   "memory": {
-    "process_start_working_set_bytes": 4096000,
-    "after_resource_load_working_set_bytes": 72794112,
-    "after_candidate_snapshots_working_set_bytes": 81104896,
-    "candidate_snapshot_working_set_delta_bytes": 8310784,
-    "peak_working_set_bytes": 149012480
+    "process_start_working_set_bytes": 4124672,
+    "after_resource_load_working_set_bytes": 253431808,
+    "after_candidate_snapshots_working_set_bytes": 362057728,
+    "candidate_snapshot_working_set_delta_bytes": 108625920,
+    "peak_working_set_bytes": 411922432
   },
   "not_run": [
     {

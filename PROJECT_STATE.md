@@ -1,8 +1,20 @@
 # Project State
 
-更新时间：2026-08-27
+更新时间：2026-09-01
 
 ## 当前阶段
+
+**0.6.0 小鹤音形四码边界修复 IMPLEMENTED / HOST_VALIDATED / DEVICE_NOT_RUN（2026-09-01）** — 客户再次确认自动上屏、顶屏均以四码和“无有效后续编码”为边界，空码只允许四码清屏或不清屏。运行时已删除会把 `niuo / ladj` 拆成短码提交与尾码重放的空码切分路径；顶屏在普通码表、用户词库、OK 拼字和直通动作上统一检查有效后续；实体键盘浮动窗也会在 `jda` 这类三码空候选状态保留输入码展示。清码直通候选改为“[四码空码清] / [空码不清]”。码表运行时 `83/83`、码表协议 `24/24`、正式小鹤音形 `21/21`、FFI `39/39`、ArkTS 全量测试任务及 Rust fmt/严格 Clippy PASS；设备实机未运行。
+
+**0.6.0 开发设备签名迁移 PARTIAL_DEVICE_VALIDATED（2026-08-31）** — DevEco 错误 `9568332` 已确认不是业务代码或设备类型差异，而是 0.5.1 开发安装使用 Debug 证书、当前 `default` 产物使用固定 Release 证书所致。新增统一安装脚本，默认只尝试安全覆盖，只有显式 `-ResetSignature` 才删除旧签名应用并恢复输入法启用/选中状态；设备实测证明 `bm uninstall -k` 会保留旧签名绑定，不能跨证书迁移。两台在线 x86_64 Phone/Pad 环境已清除旧 0.5.1 沙箱、安装 0.6.0 并再次覆盖 PASS；旧沙箱和受保护目录中的旧 HAP 未能导出，不能从本次迁移记录恢复。第三台设备因 HDC 尚未在设备侧授权而未修改。以后签名迁移前，所需用户数据必须先从应用内导出。
+
+**0.6.0 客户反馈第 1～6 点实体键盘复核 IMPLEMENTED / HOST_VALIDATED / X86_64_SIMULATOR_VALIDATED / REAL_HARDWARE_NOT_RUN（2026-08-31）** — 已确认第 1～6 点全部以实体键盘为验收范围。第 1～3 点经实体分号实时路由、实体字母串行队列及正式码表引导状态共同生效。第 5 点已纠正为两类数据：分类内 `#直` 由 bundle 加载；客户 `5.直通.txt` 则直接生成实体键盘直通动作数据表，编码、候选标题与顺序来自客户行，不再逐编码写死在 Rust。当前 44 行接受 31 行受支持语义、明确隔离 13 行未实现或不安全语义，原始 `$cmd/$ddcmd` 不进入运行时。复核发现第 4 点此前只修复触屏组件身份，并未覆盖实体键盘：PC 宿主的新旧按键 API 若按完整 DOWN/UP 对交错派发，单槽去重会漏掉较早的 DOWN，造成 `o→oo`、`ok→okk`；现按键码与按下/抬起相位保存 80 ms 有界记录并跨通道一次性配对，同通道长按重复保持正常。第 6 点由展示位置显式控制：输入码和候选同处浮动窗时无下划线，嵌入/固定展示位保留下划线；不修改组合、查询或提交数据。ArkTS 全量、转换器 `24/24`、码表运行时 `104/104`、正式音形 `19/19`、fmt/严格 Clippy、双 ABI OHOS Native PASS。signed 0.6.0 HAP 已安全覆盖安装到 x86_64 Phone/2in1 模拟器；2in1 使用系统 `uitest keyEvent` 从 `HARDWARE_READY` 实体按键路由逐项通过 `;q`、唯一候选分号顶屏、`; Space`、`;;`、`o/ok`、分类 `#直` 与 `5.直通.txt` 动作词条，Phone 固定候选栏完成下划线对照。模拟器注入不能替代真实 USB/蓝牙/内置键盘的新旧 API 双通道时序证明，真实硬件仍未运行。详细矩阵见 `docs/features/input-method/PHYSICAL_KEYBOARD_0_6_0_FEEDBACK.md`，证据见 `docs/evidence/2026-08-31-v0.6.0-physical-keyboard/`。
+
+**0.6.0 客户反馈分类直通词条化 IMPLEMENTED / HOST_VALIDATED / DEVICE_NOT_RUN（2026-08-31）** — 分类内 `#直` 保留原词条、完整编码、候选提示、所属分类和 `Direct` 类型，可由外部同词同码 `#删` 隐藏。独立 `5.直通.txt` 不再仅作审计：导入器以整份客户文件为来源生成 `production-direct-actions.json`，增删受支持行后重新导入即可同步候选，不必查找并修改内置编码；当前 44 行转换 31 行、隔离 13 行，转换报告逐行记录编码和原因。运行时只接收离线生成的类型化记录，并继续拒绝原始命令、任意网络目标和未授权动作。
+
+**0.6.0 客户反馈 `o` 起始编码重复修复 IMPLEMENTED / HOST_VALIDATED / DEVICE_NOT_RUN（2026-08-31）** — 已确认正式引擎不会自行补码，异常来自触屏组合刷新把 `rawInput` 纳入 ArkUI 键盘行身份，导致行组件在一次触摸尚未结束时重建并偶发重复派发末键。现已使键盘行身份与组合码无关，并缓存只依赖编辑器、键盘模式、方案与自定义配置的布局；单击 `o` 保持 `rawInput=o`，再按 `k` 保持 `rawInput=ok`，`ocd` 设置菜单等 `o` 前缀直通继续可达。正式音形专项 `19/19`、ArkTS `574/574` PASS；bundle 未改，仍为 `56,184,505` bytes、SHA-256 `EDEDA1CF055CB959B01F26683A7FC850737A061E0E6D12420A043B4C2A670C60`。设备触屏复验未运行。
+
+**0.6.0 客户测试包与安装图标修复 HOST_RELEASE_VALIDATED / DEVICE_NOT_RUN（2026-08-28）** — 应用版本已升级为 `0.6.0`（`versionCode=6000000`），并将 AGC 展示使用的白色环形双羽图标同步写入应用级、Entry/输入法模块和启动窗口资源，修复此前只更新 AGC 展示图而 HAP 继续携带旧图标的问题。首次候选误用了 DevEco 自动生成的调试 Profile，导致 AGC 返回 `993`；现已切回正式发布材料，最终 APP/HAP 内嵌 Profile 均为 `type=release`，包名 `com.corrosion.shuangyuime`、APP ID `6917611076350696172`，无调试设备白名单，有效期至 2029-07-17。双 ABI Native、clean Release HAP、signed APP、Release 资源输入门禁、unsigned/signed/APP 内嵌 HAP 内容门禁及 APP 签名复核均 PASS。unsigned HAP 为 `92,637,226` bytes、SHA-256 `A090FC2D2DFF13B6C1927AEB28366BBC1CF1A9B30738C6B2313B50BA39B23426`；最终 signed HAP 为 `92,800,195` bytes、SHA-256 `17732794B8EE202456029F453E987936AC93738AB049EB7AF381C0368AE8735E`；最终 signed APP 为 `24,741,084` bytes、SHA-256 `DD27260C3068139D5055A491E725F29D1808B20D8AD0178BECAA4AC8B35BB80A`。本轮未执行设备安装与功能回归。
 
 **0.5.1 客户反馈闭环修复 IMPLEMENTED / HOST_RELEASE_VALIDATED / THREE_DEVICE_REGRESSION_PASS / WINDOWS_PREVIEWER_BLOCKED（2026-08-27）** — 已修复 0.5.0 复验中仍未通过或未完全通过的四项：复制命令给宿主保留 500 ms 异步读取窗口、用原生光标移动收起选区，并以内存副本兼容独立宿主的扩展粘贴权限限制；删行改用光标两侧删除并支持失败回滚，回车下滑可按上下文恢复；中文组合码不再交给宿主绘制，统一只在候选区域显示实线下划线；小鹤音形万能键候选不再被精确码 UI 二次过滤。完整 Rust workspace（FFI `39/39`）、发布资源正负门禁、Release 构建与实包审计均 PASS。最新 ArkTS `567` 项测试源码已通过 `UnitTestArkTS` 编译，但 Windows Previewer 在执行前崩溃于 AMD OpenGL 驱动，最近一次完整执行报告仍为新增两项回归前的 `565/565 PASS`，不伪报 `567/567`。应用版本为 `0.5.1`（`versionCode=5001000`）；unsigned/signed HAP 分别为 `71,296,141`/`71,450,631` bytes，SHA-256 分别为 `EA94F3F1776CCC7BE991A506EB672C4473370C0B411D0A4FD70BEAE1957E8A83`、`230536B8189C9BA7F3D7255BD1734D3743A61953FD0CE1828616C68A36E8A840`。2in1 Stage 4、Pad 四条专项和 ARM64 Phone 系统浏览器输入码隔离 smoke 均 PASS；证据见 `docs/evidence/2026-08-27-v0.5.1-customer-feedback/README.md`。
 

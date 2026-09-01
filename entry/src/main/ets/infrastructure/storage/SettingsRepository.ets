@@ -47,6 +47,7 @@ interface SettingsPreferenceKeys {
   SPELLING_CORRECTION_ENABLED: string;
   FUZZY_OPTIONS: string;
   SMART_PERIOD_TIMEOUT_MS: string;
+  LONG_PRESS_DURATION_MS: string;
   SMART_PUNCTUATION_SYMBOLS: string;
   CHINESE_LETTER_SWIPE_SYMBOLS: string;
   ENGLISH_LETTER_SWIPE_SYMBOLS: string;
@@ -93,6 +94,7 @@ const KEYS: SettingsPreferenceKeys = {
   SPELLING_CORRECTION_ENABLED: 'quanpin_spelling_correction_enabled',
   FUZZY_OPTIONS: 'quanpin_fuzzy_options',
   SMART_PERIOD_TIMEOUT_MS: 'smart_period_timeout_ms',
+  LONG_PRESS_DURATION_MS: 'long_press_duration_ms',
   SMART_PUNCTUATION_SYMBOLS: 'smart_punctuation_symbols',
   CHINESE_LETTER_SWIPE_SYMBOLS: 'chinese_letter_swipe_symbols',
   ENGLISH_LETTER_SWIPE_SYMBOLS: 'english_letter_swipe_symbols',
@@ -282,6 +284,7 @@ export class SettingsRepository implements SettingsRepositoryContract {
       spellingCorrectionEnabled: await this.readString(storage, KEYS.SPELLING_CORRECTION_ENABLED),
       fuzzyOptions: await this.readString(storage, KEYS.FUZZY_OPTIONS),
       smartPeriodTimeoutMs: await this.readString(storage, KEYS.SMART_PERIOD_TIMEOUT_MS),
+      longPressDurationMs: await this.readString(storage, KEYS.LONG_PRESS_DURATION_MS),
       smartPunctuationSymbols: await this.readString(storage, KEYS.SMART_PUNCTUATION_SYMBOLS),
       chineseLetterSwipeSymbols: await this.readString(storage, KEYS.CHINESE_LETTER_SWIPE_SYMBOLS),
       englishLetterSwipeSymbols: await this.readString(storage, KEYS.ENGLISH_LETTER_SWIPE_SYMBOLS),
@@ -335,6 +338,7 @@ export class SettingsRepository implements SettingsRepositoryContract {
     await this.putString(storage, KEYS.SPELLING_CORRECTION_ENABLED, raw.spellingCorrectionEnabled);
     await this.putString(storage, KEYS.FUZZY_OPTIONS, raw.fuzzyOptions);
     await this.putString(storage, KEYS.SMART_PERIOD_TIMEOUT_MS, raw.smartPeriodTimeoutMs);
+    await this.putString(storage, KEYS.LONG_PRESS_DURATION_MS, raw.longPressDurationMs);
     await this.putString(storage, KEYS.SMART_PUNCTUATION_SYMBOLS, raw.smartPunctuationSymbols);
     await this.putString(storage, KEYS.CHINESE_LETTER_SWIPE_SYMBOLS, raw.chineseLetterSwipeSymbols);
     await this.putString(storage, KEYS.ENGLISH_LETTER_SWIPE_SYMBOLS, raw.englishLetterSwipeSymbols);
@@ -471,6 +475,7 @@ export class SettingsRepository implements SettingsRepositoryContract {
       `candidateFontSizeMode=${settings.candidateFontSizeMode}, hapticLevel=${settings.hapticLevel}, ` +
       `keySoundEnabled=${settings.keySoundEnabled}, userLearningEnabled=${settings.userLearningEnabled}, ` +
       `smartPeriodTimeoutMs=${settings.smartPeriodTimeoutMs}, ` +
+      `longPressDurationMs=${settings.longPressDurationMs}, ` +
       `smartPunctuationSymbols=${JSON.stringify(settings.smartPunctuationSymbols)}, ` +
       `inputPresentationPreference=${settings.inputPresentationPreference}, ` +
       `candidatePresentationMode=${settings.candidatePresentationMode}, ` +

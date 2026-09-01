@@ -152,6 +152,61 @@ fn terminal_n_prefers_common_prefix_candidates_in_production() {
 }
 
 #[test]
+fn high_homophone_syllable_exposes_a_full_page_and_more_pages() {
+    let mut engine = engine();
+    let first = type_text(&mut engine, "ji");
+    let first_texts = first
+        .candidates
+        .iter()
+        .map(|candidate| candidate.text.as_str())
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        first_texts.len(),
+        50,
+        "ji must not be truncated to a compact UI row"
+    );
+    assert!(
+        first.has_next_page,
+        "ji should expose its remaining homophones"
+    );
+    for expected in ["及", "级", "即", "几", "机", "既", "急", "集", "记", "极"] {
+        assert!(
+            first_texts.contains(&expected),
+            "missing common ji candidate {expected}"
+        );
+    }
+
+    let second = engine.next_candidate_page().expect("second ji page");
+    assert_eq!(second.candidate_page, 1);
+    assert!(!second.candidates.is_empty());
+    assert!(second
+        .candidates
+        .iter()
+        .all(|candidate| !first_texts.contains(&candidate.text.as_str())));
+}
+
+#[test]
+fn mature_imported_words_are_available_in_formal_quanpin() {
+    let mut engine = engine();
+    for (raw, expected) in [
+        ("erciyuan", "二次元"),
+        ("pengyouquan", "朋友圈"),
+        ("zhibojian", "直播间"),
+    ] {
+        engine.reset();
+        let result = type_text(&mut engine, raw);
+        assert!(
+            result
+                .candidates
+                .iter()
+                .any(|candidate| candidate.text == expected),
+            "missing imported word {expected} for {raw}"
+        );
+    }
+}
+
+#[test]
 fn long_compositions_remain_editable_until_the_user_commits() {
     let input = "jintianxingqiyiniweishenmezheyangshuo";
     let mut engine = engine();

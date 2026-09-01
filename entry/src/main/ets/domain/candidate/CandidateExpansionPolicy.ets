@@ -24,12 +24,13 @@ export interface CandidateExpansionLayout {
 }
 
 const PANEL_CHROME_HEIGHT: number = 76;
+export const MIN_CANDIDATES_FOR_EXPANSION: number = 3;
 
 export function canExpandCandidates(state: CandidateExpansionAvailability): boolean {
   return state.sessionActive &&
     state.keyboardVisible &&
     state.candidateBarVisible &&
-    state.candidateCount > 0 &&
+    state.candidateCount >= MIN_CANDIDATES_FOR_EXPANSION &&
     !state.hasError;
 }
 
@@ -37,7 +38,12 @@ export function canNavigateCandidatePage(
   state: CandidateExpansionAvailability,
   direction: CandidatePageDirection
 ): boolean {
-  if (!canExpandCandidates(state) || state.pageLoading) {
+  const hasOpenPanelContent = state.sessionActive &&
+    state.keyboardVisible &&
+    state.candidateBarVisible &&
+    state.candidateCount > 0 &&
+    !state.hasError;
+  if (!hasOpenPanelContent || state.pageLoading) {
     return false;
   }
   return direction === CandidatePageDirection.PREVIOUS

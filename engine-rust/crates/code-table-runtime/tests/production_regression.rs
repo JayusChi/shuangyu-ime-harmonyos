@@ -10,12 +10,12 @@ use code_table_runtime::{
 };
 use user_lexicon::UserLexiconAction;
 
-const ARCHIVE_SHA256: &str = "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7";
+const ARCHIVE_SHA256: &str = "263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09";
 const SNAPSHOT: &str = include_str!("data/xiaohe_yinxing_stage11_6_3.tsv");
 const CATEGORY_PROFILE: [(&str, usize); 12] = [
     ("core", 68_568),
     ("category-secondary", 1_690),
-    ("quick-symbol", 16),
+    ("quick-symbol", 17),
     ("one-key-secondary", 26),
     ("two-key-secondary", 66),
     ("out-of-table-character", 362),
@@ -71,7 +71,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     let path = bundle_path();
     assert_eq!(
         fs::metadata(&path).expect("bundle metadata").len(),
-        56_184_164
+        56_104_660
     );
     let bundle =
         CodeTableBundle::load_frozen_production_file(&path).expect("load frozen production bundle");
@@ -111,7 +111,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        162_694
+        162_695
     );
     for category in &bundle.categories {
         assert_eq!(
@@ -167,7 +167,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
                 true,
                 false,
                 true,
-                16,
+                17,
             ),
             (
                 "one-key-secondary",
@@ -404,12 +404,12 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
         .expect("load frozen production bundle");
     let rules = bundle.user_rules.as_ref().expect("embedded rules");
     let stats = rules.stats();
-    assert_eq!(stats.accepted, 37);
-    assert_eq!(stats.effective, 37);
+    assert_eq!(stats.accepted, 301);
+    assert_eq!(stats.effective, 301);
     assert_eq!(stats.added, 1);
     assert_eq!(stats.deleted, 0);
     assert_eq!(stats.fixed, 36);
-    assert_eq!(stats.positioned, 0);
+    assert_eq!(stats.positioned, 264);
     assert_eq!(
         rules
             .entries()
@@ -421,7 +421,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
     let direct = rules
         .entries()
         .iter()
-        .find(|entry| matches!(entry.action, UserLexiconAction::Add))
+        .find(|entry| matches!(entry.action, UserLexiconAction::Direct))
         .expect("one embedded direct entry");
     assert_eq!(direct.text, "给予");
     assert_eq!(direct.code, "gwyu");
@@ -439,7 +439,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
             .map(|entry| (entry.code.as_str(), entry.text.as_str()))
             .collect::<BTreeSet<_>>()
             .len(),
-        37
+        301
     );
     let groups =
         rules
@@ -449,15 +449,15 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
                 *groups.entry(entry.code.as_str()).or_default() += 1;
                 groups
             });
-    assert_eq!(groups.len(), 37);
-    assert_eq!(groups.values().copied().max(), Some(1));
+    assert_eq!(groups.len(), 80);
+    assert_eq!(groups.values().copied().max(), Some(29));
     assert_eq!(
         bundle
             .categories
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        162_694
+        162_695
     );
 }
 

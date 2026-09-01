@@ -5,6 +5,7 @@ import { KeyboardColorPalette } from '../design/KeyboardPalette';
 import { OrientationMetrics } from '../design/KeyboardMetrics';
 import { KeyboardAction, KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
 import { ShiftState } from '../../../domain/editor/EditorContext';
+import { DEFAULT_LONG_PRESS_DURATION_MS } from '../../../domain/settings/ImeSettings';
 
 /**
  * 字母按键组件
@@ -17,6 +18,7 @@ export struct LetterKey {
   @Prop metrics: OrientationMetrics;
   @Prop keyboardMode: KeyboardMode = KeyboardMode.ENGLISH;
   @Prop shiftState: ShiftState = ShiftState.LOWERCASE;
+  @Prop longPressDurationMs: number = DEFAULT_LONG_PRESS_DURATION_MS;
   @State private showPreview: boolean = false;
 
   onKeyClick?: (spec: KeyboardKeySpec) => void;
@@ -48,6 +50,7 @@ export struct LetterKey {
         metrics: this.metrics,
         keyboardMode: this.keyboardMode,
         shiftState: this.shiftState,
+        longPressDurationMs: this.longPressDurationMs,
         onKeyPress: (spec: KeyboardKeySpec) => this.handlePress(spec),
         onKeyRelease: (spec: KeyboardKeySpec) => this.handleRelease(spec),
         onKeyClick: (spec: KeyboardKeySpec) => this.handleClick(spec),

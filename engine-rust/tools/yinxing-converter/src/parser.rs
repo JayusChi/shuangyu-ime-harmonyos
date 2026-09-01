@@ -33,6 +33,7 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
     let mut actions = Vec::new();
     let mut rejected = Vec::new();
     let mut duplicate_keys = BTreeSet::new();
+    let mut source_positions = std::collections::BTreeMap::<String, u16>::new();
 
     for (index, raw_line) in text.split_terminator('\n').enumerate() {
         let physical_line = index as u64 + 1;
@@ -57,30 +58,41 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             ));
         }
         let digest = sha256::hex(line.trim().as_bytes());
-        if let Some(finding) = contract
-            .command_findings
-            .get(&(input.spec.source_path.clone(), physical_line))
-        {
-            if finding.summary_sha256 != digest {
-                return Err(ConverterError::new(
-                    ErrorCode::ContractInvalid,
-                    format!(
-                        "command_policy_digest_mismatch source_file_id={} physical_line={}",
-                        input.spec.source_file_id, physical_line
-                    ),
-                ));
+        // The customer symbol table uses `$cmd(commit,display)` as a legacy
+        // spelling for a typed, static candidate.  Recognize only that exact,
+        // non-nested form and turn it into ordinary bundle data below.  No raw
+        // command expression reaches runtime and every other `$cmd` remains
+        // subject to the frozen command policy.
+        let static_command = (input.spec.category_id == "symbol")
+            .then(|| parse_static_candidate_command(line))
+            .flatten()
+            .filter(|value| is_component_candidate_code(value.code));
+        if static_command.is_none() {
+            if let Some(finding) = contract
+                .command_findings
+                .get(&(input.spec.source_path.clone(), physical_line))
+            {
+                if finding.summary_sha256 != digest {
+                    return Err(ConverterError::new(
+                        ErrorCode::ContractInvalid,
+                        format!(
+                            "command_policy_digest_mismatch source_file_id={} physical_line={}",
+                            input.spec.source_file_id, physical_line
+                        ),
+                    ));
+                }
+                record_policy_finding(
+                    finding,
+                    &input.spec.source_file_id,
+                    physical_line,
+                    &digest,
+                    line,
+                    &mut stats,
+                    &mut actions,
+                    &mut rejected,
+                )?;
+                continue;
             }
-            record_policy_finding(
-                finding,
-                &input.spec.source_file_id,
-                physical_line,
-                &digest,
-                line,
-                &mut stats,
-                &mut actions,
-                &mut rejected,
-            )?;
-            continue;
         }
         if line.is_empty() {
             stats.empty += 1;
@@ -94,7 +106,7 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             stats.comments += 1;
             continue;
         }
-        if line.contains("$ddcmd") || line.contains("$cmd") {
+        if static_command.is_none() && (line.contains("$ddcmd") || line.contains("$cmd")) {
             let syntax = if line.contains("$ddcmd") {
                 "ddcmd"
             } else {
@@ -163,8 +175,9 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             );
             continue;
         }
-        let text_field = fields[0];
-        let code_field = fields[1];
+        let (text_field, code_field, static_display_text) = static_command
+            .map(|value| (value.commit_text, value.code, Some(value.display_text)))
+            .unwrap_or((fields[0], fields[1], None));
         if text_field.trim() != text_field || code_field.trim() != code_field {
             reject(
                 &mut stats,
@@ -178,7 +191,9 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             continue;
         }
         let is_direct = code_field.ends_with("#直");
-        let (commit_text, display_text) = if is_direct {
+        let (commit_text, display_text) = if static_display_text.is_some() {
+            (text_field, static_display_text)
+        } else if is_direct {
             match text_field.split_once(',') {
                 Some((commit_text, display_text))
                     if !commit_text.is_empty() && !display_text.is_empty() =>
@@ -288,10 +303,23 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             input.spec.role.as_str(),
             "user_addition" | "user_mixed_rule"
         );
-        if action.is_some() || force_user_add {
-            let action = action.unwrap_or(UserAction::Add);
+        if static_command.is_some() || action.is_some() || force_user_add {
+            let action = if static_command.is_some() {
+                stats.cmd += 1;
+                let position = source_positions.entry(code.clone()).or_default();
+                *position = position.checked_add(1).ok_or_else(|| {
+                    ConverterError::new(
+                        ErrorCode::InvalidRecord,
+                        "static candidate position overflow",
+                    )
+                })?;
+                UserAction::Position(*position)
+            } else {
+                action.unwrap_or(UserAction::Add)
+            };
             match action {
                 UserAction::Add => stats.user_add += 1,
+                UserAction::Direct => stats.user_direct += 1,
                 UserAction::Delete => stats.user_delete += 1,
                 UserAction::Fixed => stats.user_fixed += 1,
                 UserAction::Position(_) => stats.user_position += 1,
@@ -321,6 +349,10 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
             stats.duplicates += 1;
             continue;
         }
+        let position = source_positions.entry(code.clone()).or_default();
+        *position = position.checked_add(1).ok_or_else(|| {
+            ConverterError::new(ErrorCode::InvalidRecord, "candidate position overflow")
+        })?;
         let source_order = u32::try_from(system_records.len()).map_err(|_| {
             ConverterError::new(ErrorCode::InvalidRecord, "system source_order overflow")
         })?;
@@ -357,6 +389,51 @@ pub fn parse_category(input: &SourceInput, contract: &ValidatedContract) -> Resu
         rejected,
         stats,
     })
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct StaticCandidateCommand<'a> {
+    commit_text: &'a str,
+    display_text: &'a str,
+    code: &'a str,
+}
+
+/// Parses the one legacy command form that is data-only by construction.
+/// Parentheses, `$` and additional commas are rejected inside the arguments,
+/// so nested operations can never be mistaken for static text.
+fn parse_static_candidate_command(line: &str) -> Option<StaticCandidateCommand<'_>> {
+    let (expression, code) = line.split_once('\t')?;
+    if code.is_empty()
+        || code.contains('\t')
+        || !expression.starts_with("$cmd(")
+        || !expression.ends_with(')')
+    {
+        return None;
+    }
+    let inner = &expression[5..expression.len().checked_sub(1)?];
+    let (commit_text, display_text) = inner.split_once(',')?;
+    if commit_text.is_empty()
+        || display_text.is_empty()
+        || display_text.contains(',')
+        || [commit_text, display_text]
+            .iter()
+            .any(|value| value.contains(['$', '(', ')']))
+    {
+        return None;
+    }
+    Some(StaticCandidateCommand {
+        commit_text,
+        display_text,
+        code,
+    })
+}
+
+fn is_component_candidate_code(code: &str) -> bool {
+    let bytes = code.as_bytes();
+    bytes.len() == 3
+        && bytes[0] == b'o'
+        && matches!(bytes[1], b'b' | b'x')
+        && bytes[2].is_ascii_lowercase()
 }
 
 /// The customer quick-symbol format reserves `_` for the bare guide prefix and
@@ -426,12 +503,10 @@ fn parse_code_and_action(
         return Err("REJECT_USER_RULE_INVALID");
     }
     let action = match marker {
-        // `#直` is a source-table-only spelling for an exact-input entry that
-        // must stay out of universal-key lookup.  The production bundle stores
-        // it in the isolated user-rule layer as an Add record; ordinary exact
-        // queries merge that layer, while wildcard queries intentionally read
-        // system categories only.
-        "直" => UserAction::Add,
+        // Keep `#直` as a first-class data action in the bundle. This makes a
+        // customer category file a finished input product: no per-entry lookup
+        // or hard-coded functional-action conversion is required.
+        "直" => UserAction::Direct,
         "删" => UserAction::Delete,
         "固" => UserAction::Fixed,
         digits if digits.bytes().all(|byte| byte.is_ascii_digit()) => {
@@ -565,6 +640,14 @@ mod tests {
         source
     }
 
+    fn symbol_input(bytes: &[u8]) -> SourceInput {
+        let mut source = input(bytes);
+        source.spec.category_id = "symbol".into();
+        source.spec.role = "symbol_table".into();
+        source.spec.source_path = "小鹤音形/2.6.符号.txt".into();
+        source
+    }
+
     fn ok_spelling_input(bytes: &[u8]) -> SourceInput {
         let mut source = input(bytes);
         source.spec.category_id = "ok-spelling".into();
@@ -587,7 +670,7 @@ mod tests {
         assert_eq!(parse_code_and_action("AbCd").unwrap(), ("AbCd", None));
         assert_eq!(
             parse_code_and_action("abc#直").unwrap().1,
-            Some(UserAction::Add)
+            Some(UserAction::Direct)
         );
         assert_eq!(
             parse_code_and_action("abc#删").unwrap().1,
@@ -622,8 +705,9 @@ mod tests {
         assert_eq!(result.user_rules.len(), 1);
         assert_eq!(result.user_rules[0].text, "直通词");
         assert_eq!(result.user_rules[0].display_text, None);
-        assert_eq!(result.user_rules[0].action, UserAction::Add);
-        assert_eq!(result.stats.user_add, 1);
+        assert_eq!(result.user_rules[0].action, UserAction::Direct);
+        assert_eq!(result.stats.user_add, 0);
+        assert_eq!(result.stats.user_direct, 1);
 
         let core = parse_category(
             &input("普通词\tabcd\n给予,给ʲⁱ̌予\tgwyu#直\n".as_bytes()),
@@ -633,6 +717,8 @@ mod tests {
         assert_eq!(core.user_rules[0].text, "给予");
         assert_eq!(core.user_rules[0].display_text.as_deref(), Some("给ʲⁱ̌予"));
         assert_eq!(core.user_rules[0].category_id, "core");
+        assert_eq!(core.user_rules[0].action, UserAction::Direct);
+        assert_eq!(core.stats.user_direct, 1);
 
         let rejected = parse_category(
             &input("普通词\tabcd\n,空上屏\tgwyu#直\n空提示,\tgwyv#直\n".as_bytes()),
@@ -644,6 +730,61 @@ mod tests {
             .rejected
             .iter()
             .all(|record| record.reason_code == "REJECT_DIRECT_TEXT_INVALID"));
+    }
+
+    #[test]
+    fn symbol_static_commands_become_ordered_typed_candidates() {
+        let bytes = concat!(
+            "$cmd(一,横_一)\toba\n",
+            "$cmd(鱼,鱼)\toba\n",
+            "$cmd(乀,捺_乀)\tobn\n",
+            "⺧\tobn\n",
+            "既左\tobg\n",
+            "$cmd(艮,艮)\tobg\n",
+            "$cmd(set(value),危险)\tobx\n",
+        )
+        .as_bytes();
+        let source = symbol_input(bytes);
+        let mut policy = contract();
+        let first_line = "$cmd(一,横_一)\toba";
+        policy.command_findings.insert(
+            (source.spec.source_path.clone(), 1),
+            CommandFinding {
+                source_file: source.spec.source_path.clone(),
+                physical_line: 1,
+                finding_type: "STATIC_COMMAND".into(),
+                summary_sha256: sha256::hex(first_line.as_bytes()),
+                decision: "REJECTED".into(),
+                reason_code: "REJECT_UNSUPPORTED_COMMAND".into(),
+            },
+        );
+
+        let result = parse_category(&source, &policy).unwrap();
+        assert_eq!(result.stats.cmd, 5);
+        assert_eq!(result.stats.user_position, 4);
+        assert_eq!(result.stats.rejected, 1);
+        assert_eq!(
+            result
+                .user_rules
+                .iter()
+                .map(|rule| (
+                    rule.text.as_str(),
+                    rule.display_text.as_deref(),
+                    rule.code.as_str(),
+                    rule.action.clone(),
+                ))
+                .collect::<Vec<_>>(),
+            [
+                ("一", Some("横_一"), "oba", UserAction::Position(1)),
+                ("鱼", Some("鱼"), "oba", UserAction::Position(2)),
+                ("乀", Some("捺_乀"), "obn", UserAction::Position(1)),
+                ("艮", Some("艮"), "obg", UserAction::Position(2)),
+            ]
+        );
+        assert!(result
+            .rejected
+            .iter()
+            .any(|record| record.reason_code == "REJECT_UNSUPPORTED_COMMAND"));
     }
 
     #[test]

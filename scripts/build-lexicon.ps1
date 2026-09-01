@@ -6,21 +6,33 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $source = Join-Path $repoRoot 'dictionaries\source\rime-pinyin-simp\pinyin_simp.dict.yaml'
 $shortSentenceSource = Join-Path $repoRoot 'dictionaries\source\stage11_5_short_sentences.tsv'
+$jiebaSource = Join-Path $repoRoot 'dictionaries\source\jieba-0.42.1\dict.txt'
+$pypinyinWheel = Join-Path $repoRoot 'dictionaries\source\pypinyin-0.55.0\pypinyin-0.55.0-py2.py3-none-any.whl'
+$jiebaImporter = Join-Path $repoRoot 'scripts\import-jieba-quanpin.py'
 $manifestPath = Join-Path $repoRoot 'dictionaries\manifest.json'
 $licensePath = Join-Path $repoRoot 'dictionaries\LICENSES\rime-pinyin-simp-Apache-2.0.txt'
+$jiebaLicensePath = Join-Path $repoRoot 'dictionaries\LICENSES\jieba-MIT.txt'
+$pypinyinLicensePath = Join-Path $repoRoot 'dictionaries\LICENSES\pypinyin-MIT.txt'
 $generatedDir = Join-Path $repoRoot 'dictionaries\generated'
 $normalized = Join-Path $generatedDir 'production.normalized.tsv'
+$jiebaNormalized = Join-Path $generatedDir 'jieba-0.42.1.normalized.tsv'
+$jiebaImportReport = Join-Path $generatedDir 'jieba-0.42.1.import-report.json'
+$projectProductionAdditions = Join-Path $repoRoot 'artifacts\quanpin-lexicon-v2\evaluation-all-domains.normalized.tsv'
 $output = Join-Path $generatedDir 'production.lex'
 $rawfile = Join-Path $repoRoot 'entry\src\main\resources\rawfile\production.lex'
 $evidenceDir = Join-Path $repoRoot 'docs\evidence\stage11_5'
 $corpusDir = Join-Path $repoRoot 'engine-rust\tests\fixtures\production_corpus'
 $tempDir = Join-Path $repoRoot '.stage11_5_tmp'
 $utf8NoBom = [Text.UTF8Encoding]::new($false)
+$productionLexiconVersion = 300
 
 foreach ($directory in @($generatedDir, (Split-Path $rawfile), $evidenceDir, $corpusDir, $tempDir)) {
     New-Item -ItemType Directory -Force $directory | Out-Null
 }
-foreach ($required in @($source, $shortSentenceSource, $manifestPath, $licensePath)) {
+foreach ($required in @(
+    $source, $shortSentenceSource, $jiebaSource, $pypinyinWheel, $jiebaImporter, $projectProductionAdditions,
+    $manifestPath, $licensePath, $jiebaLicensePath, $pypinyinLicensePath
+)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "required lexicon input missing: $required" }
 }
 
@@ -43,6 +55,38 @@ $shortSentenceCount = @(
 ).Count
 if ($shortSentenceCount -ne $shortSentenceRecord.entryCount) {
     throw "short sentence entry count mismatch: expected $($shortSentenceRecord.entryCount), actual $shortSentenceCount"
+}
+$jiebaRecord = $manifest.sources | Where-Object { $_.sourceId -eq 'jieba-0.42.1' }
+if ($null -eq $jiebaRecord -or -not $jiebaRecord.redistributionAllowed) {
+    throw 'Jieba source manifest is missing or forbids redistribution'
+}
+$actualJiebaHash = (Get-FileHash -LiteralPath $jiebaSource -Algorithm SHA256).Hash
+if ($actualJiebaHash -ne $jiebaRecord.sourceChecksum) {
+    throw "Jieba source checksum mismatch: expected $($jiebaRecord.sourceChecksum), actual $actualJiebaHash"
+}
+$jiebaSourceCount = @([IO.File]::ReadLines($jiebaSource, [Text.Encoding]::UTF8) | Where-Object { $_ }).Count
+if ($jiebaSourceCount -ne $jiebaRecord.entryCount) {
+    throw "Jieba entry count mismatch: expected $($jiebaRecord.entryCount), actual $jiebaSourceCount"
+}
+$pypinyinRecord = $manifest.sources | Where-Object { $_.sourceId -eq 'pypinyin-0.55.0' }
+if ($null -eq $pypinyinRecord -or -not $pypinyinRecord.redistributionAllowed) {
+    throw 'pypinyin source manifest is missing or forbids redistribution'
+}
+$actualPypinyinHash = (Get-FileHash -LiteralPath $pypinyinWheel -Algorithm SHA256).Hash
+if ($actualPypinyinHash -ne $pypinyinRecord.sourceChecksum) {
+    throw "pypinyin wheel checksum mismatch: expected $($pypinyinRecord.sourceChecksum), actual $actualPypinyinHash"
+}
+$projectProductionRecord = $manifest.sources | Where-Object { $_.sourceId -eq 'project-quanpin-v2-production' }
+if ($null -eq $projectProductionRecord -or -not $projectProductionRecord.redistributionAllowed) {
+    throw 'project production source manifest is missing or forbids redistribution'
+}
+$actualProjectProductionHash = (Get-FileHash -LiteralPath $projectProductionAdditions -Algorithm SHA256).Hash
+if ($actualProjectProductionHash -ne $projectProductionRecord.sourceChecksum) {
+    throw "project production additions checksum mismatch: expected $($projectProductionRecord.sourceChecksum), actual $actualProjectProductionHash"
+}
+$projectProductionCount = @([IO.File]::ReadLines($projectProductionAdditions, [Text.Encoding]::UTF8) | Where-Object { $_ }).Count
+if ($projectProductionCount -ne $projectProductionRecord.entryCount) {
+    throw "project production additions count mismatch: expected $($projectProductionRecord.entryCount), actual $projectProductionCount"
 }
 
 $inventoryText = Get-Content -LiteralPath (Join-Path $repoRoot 'engine-rust\crates\pinyin-syllable\src\inventory.rs') -Raw -Encoding UTF8
@@ -103,8 +147,26 @@ if ($accepted.Count -lt 3000) { throw "production source produced too few valid 
 [IO.File]::WriteAllLines($normalized, $accepted, $utf8NoBom)
 $rejected | ConvertTo-Json -Depth 4 | ForEach-Object { [IO.File]::WriteAllText((Join-Path $evidenceDir 'lexicon_rejections.json'), $_, $utf8NoBom) }
 
+& python $jiebaImporter `
+    --input $jiebaSource `
+    --pypinyin-wheel $pypinyinWheel `
+    --inventory (Join-Path $repoRoot 'engine-rust\crates\pinyin-syllable\src\inventory.rs') `
+    --existing $normalized `
+    --existing $shortSentenceSource `
+    --output $jiebaNormalized `
+    --report $jiebaImportReport
+if ($LASTEXITCODE -ne 0) { throw "Jieba full-pinyin import failed: $LASTEXITCODE" }
+$jiebaReport = Get-Content -LiteralPath $jiebaImportReport -Raw -Encoding UTF8 | ConvertFrom-Json
+if ($jiebaReport.acceptedRows -ne $jiebaRecord.generatedEntryCount) {
+    throw "Jieba generated entry count mismatch: expected $($jiebaRecord.generatedEntryCount), actual $($jiebaReport.acceptedRows)"
+}
+$actualJiebaGeneratedHash = (Get-FileHash -LiteralPath $jiebaNormalized -Algorithm SHA256).Hash
+if ($actualJiebaGeneratedHash -ne $jiebaRecord.generatedChecksum) {
+    throw "Jieba generated checksum mismatch: expected $($jiebaRecord.generatedChecksum), actual $actualJiebaGeneratedHash"
+}
+
 if ($Check) {
-    Write-Host "LEXICON_CHECK=PASS accepted=$($accepted.Count) rejected=$($rejected.Count)"
+    Write-Host "LEXICON_CHECK=PASS base=$($accepted.Count) imported=$($jiebaReport.acceptedRows) rejected=$($rejected.Count + $jiebaReport.rejectedRows)"
     exit 0
 }
 
@@ -112,9 +174,9 @@ $first = Join-Path $tempDir 'production-first.lex'
 $second = Join-Path $tempDir 'production-second.lex'
 Push-Location $repoRoot
 try {
-    & cargo run --manifest-path engine-rust\Cargo.toml -p lexicon-builder -- --input $normalized --input $shortSentenceSource --output $first --lexicon-version 115 --strict --verify
+    & cargo run --manifest-path engine-rust\Cargo.toml -p lexicon-builder -- --input $normalized --input $shortSentenceSource --input $jiebaNormalized --input $projectProductionAdditions --output $first --lexicon-version $productionLexiconVersion --strict --verify
     if ($LASTEXITCODE -ne 0) { throw "first lexicon build failed: $LASTEXITCODE" }
-    & cargo run --manifest-path engine-rust\Cargo.toml -p lexicon-builder -- --input $normalized --input $shortSentenceSource --output $second --lexicon-version 115 --strict --verify
+    & cargo run --manifest-path engine-rust\Cargo.toml -p lexicon-builder -- --input $normalized --input $shortSentenceSource --input $jiebaNormalized --input $projectProductionAdditions --output $second --lexicon-version $productionLexiconVersion --strict --verify
     if ($LASTEXITCODE -ne 0) { throw "second lexicon build failed: $LASTEXITCODE" }
 } finally { Pop-Location }
 $firstHash = (Get-FileHash $first -Algorithm SHA256).Hash
@@ -231,13 +293,20 @@ foreach ($record in $acceptedRecords) {
 $polyphonic = 0; foreach ($readingSet in $readingsByWord.Values) { if ($readingSet.Count -gt 1) { $polyphonic++ } }
 $rejectionCounts = @{}; foreach ($item in $rejected) { $key = [string]$item['errorType']; if (-not $rejectionCounts.ContainsKey($key)) { $rejectionCounts[$key] = 0 }; $rejectionCounts[$key]++ }
 $stats = [ordered]@{
-    sourceRows=$accepted.Count + $rejected.Count + $shortSentenceCount; acceptedRows=$accepted.Count + $shortSentenceCount; rejectedRows=$rejected.Count
-    entryCount=$accepted.Count + $shortSentenceCount; singleCharacter=$singleCount; doubleWord=$doubleCount
+    sourceRows=$accepted.Count + $rejected.Count + $shortSentenceCount + $jiebaReport.inputRows
+    acceptedRows=$accepted.Count + $shortSentenceCount + $jiebaReport.acceptedRows
+    rejectedRows=$rejected.Count + $jiebaReport.rejectedRows
+    mergedDuplicates=6
+    entryCount=$accepted.Count + $shortSentenceCount + $jiebaReport.acceptedRows + $projectProductionCount - 6
+    matureImportedEntries=$jiebaReport.acceptedRows; singleCharacter=$singleCount; doubleWord=$doubleCount
     threeCharacter=$threeCount; fourOrMore=$fourOrMoreCount + $shortSentenceCount; shortSentenceEntries=$shortSentenceCount
     uniqueCharacters=$uniqueChars.Count; polyphonicWords=$polyphonic; uniquePinyinSequences=$bestByReading.Count + $shortSentenceCount; uniqueShuangpinCodes=$uniqueShuangpinCodes.Count + $shortSentenceCount
     regressionCases=$cases.Count + 30 + $idiomCases.Count + $shortSentenceCases.Count + $safetyCases.Count; classifiedIdiomEntries=$idiomCases.Count; idiomCorpusCases=$idiomCases.Count; shortSentenceCorpusCases=$shortSentenceCases.Count; safetyCorpusCases=$safetyCases.Count
-    binaryBytes=(Get-Item $output).Length; binarySha256=$firstHash; formatVersion='1.0'; lexiconVersion=115
-    sourceSha256=$actualSourceHash; shortSentenceSourceSha256=$actualShortSentenceHash; deterministic=$true; rejectedByReason=@($rejectionCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ reason=$_.Name; count=$_.Value } })
+    binaryBytes=(Get-Item $output).Length; binarySha256=$firstHash; formatVersion='1.0'; lexiconVersion=$productionLexiconVersion
+    sourceSha256=$actualSourceHash; shortSentenceSourceSha256=$actualShortSentenceHash
+    jiebaSourceSha256=$actualJiebaHash; pypinyinWheelSha256=$actualPypinyinHash; jiebaGeneratedSha256=$actualJiebaGeneratedHash
+    projectProductionAdditionsSha256=$actualProjectProductionHash; projectProductionAdditions=$projectProductionCount
+    deterministic=$true; rejectedByReason=@($rejectionCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ reason=$_.Name; count=$_.Value } })
 }
 $stats | ConvertTo-Json -Depth 6 | ForEach-Object { [IO.File]::WriteAllText((Join-Path $evidenceDir 'lexicon_statistics.json'), $_, $utf8NoBom) }
-Write-Host "LEXICON_BUILD=PASS entries=$($accepted.Count + $shortSentenceCount) rejected=$($rejected.Count) bytes=$($stats.binaryBytes) sha256=$firstHash corpus=$($stats.regressionCases)"
+Write-Host "LEXICON_BUILD=PASS entries=$($stats.entryCount) imported=$($jiebaReport.acceptedRows) rejected=$($stats.rejectedRows) bytes=$($stats.binaryBytes) sha256=$firstHash corpus=$($stats.regressionCases)"

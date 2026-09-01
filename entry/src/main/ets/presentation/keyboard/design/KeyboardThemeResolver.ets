@@ -16,6 +16,7 @@ export class KeyboardThemeResolver {
     const images = skin.images;
     return {
       useDarkMedia: base.useDarkMedia,
+      useDanranKeyImages: false,
       panelBackgroundImage: this.assetPath(assetRoot, images.panelBackground),
       letterKeyBackgroundImage: this.assetPath(assetRoot, images.letterKey),
       functionKeyBackgroundImage: this.assetPath(assetRoot, images.functionKey),

@@ -615,13 +615,13 @@ fn stage11_6_7_multiple_candidates_and_valid_continuation_do_not_auto_commit() {
 fn stage11_6_7_user_delete_prevents_auto_commit_and_fixed_rule_changes_top_screen() {
     let mut deleted = engine_with_rules("测\taowk#删\n", 9);
     input(&mut deleted, "aow");
-    let split = deleted.process_key('k');
+    let cleared = deleted.process_key('k');
     // Deleting the full-code candidate prevents that candidate's auto-commit.
-    // The frozen forward-split rule can still commit the longest legal prefix
-    // and preserve the suffix, so assert the transient split result here.
-    assert_eq!(split.commit_text, "共享同码同词000001");
-    assert_eq!(split.raw_input, "owk");
-    assert!(split.candidates.is_empty());
+    // The resulting empty full code clears without committing a shorter
+    // prefix or replaying a suffix.
+    assert!(cleared.commit_text.is_empty());
+    assert!(cleared.raw_input.is_empty());
+    assert!(cleared.candidates.is_empty());
 
     let mut fixed = engine_with_rules("用户首选\tzzzz#固\n", 9);
     input(&mut fixed, "zzzz");
@@ -631,14 +631,14 @@ fn stage11_6_7_user_delete_prevents_auto_commit_and_fixed_rule_changes_top_scree
 }
 
 #[test]
-fn stage11_6_7_forward_and_reverse_empty_code_splits_cross_engine_protocol() {
+fn empty_full_codes_clear_without_forward_or_reverse_split_commits() {
     let mut forward = engine_with_rules("正向切分段\twxq\n正向右段\tr\n", 9);
     input(&mut forward, "wxq");
     let forward_result = forward.process_key('r');
     assert!(forward_result.success);
-    assert_eq!(forward_result.commit_text, "正向切分段");
-    assert_eq!(forward_result.raw_input, "r");
-    assert_eq!(forward_result.candidates[0].text, "正向右段");
+    assert!(forward_result.commit_text.is_empty());
+    assert!(forward_result.raw_input.is_empty());
+    assert!(forward_result.candidates.is_empty());
     assert!(forward_result.action.is_none());
     assert!(!forward_result.composition_finished);
 
@@ -646,9 +646,9 @@ fn stage11_6_7_forward_and_reverse_empty_code_splits_cross_engine_protocol() {
     input(&mut reverse, "qrs");
     let reverse_result = reverse.process_key('t');
     assert!(reverse_result.success);
-    assert_eq!(reverse_result.commit_text, "q");
-    assert_eq!(reverse_result.raw_input, "rst");
-    assert_eq!(reverse_result.candidates[0].text, "反向合法后段");
+    assert!(reverse_result.commit_text.is_empty());
+    assert!(reverse_result.raw_input.is_empty());
+    assert!(reverse_result.candidates.is_empty());
     assert!(reverse_result.action.is_none());
     assert!(!reverse_result.composition_finished);
 }

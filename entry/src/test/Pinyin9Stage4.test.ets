@@ -30,7 +30,7 @@ export default function pinyin9Stage4Test() {
       expect(layout.rows[4].keys[1].longPressAction?.type)
         .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
       expect(layout.rows[4].keys[1].swipeUpAction?.type)
-        .assertEqual(KeyboardActionType.TOGGLE_LANGUAGE);
+        .assertEqual(KeyboardActionType.EXPAND_CANDIDATES);
       expect(layout.rows[4].keys[3].action.type).assertEqual(KeyboardActionType.ENTER);
     });
 

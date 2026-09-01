@@ -15,6 +15,7 @@ import {
   CandidatePageDirection
 } from '../domain/candidate/CandidateExpansionPolicy';
 import { SmartPeriodInputAction } from './SmartPeriodController';
+import { inputMethodEngine } from '@kit.IMEKit';
 import { AiAction } from '../domain/ai/AiContracts';
 import { AssistAvailability } from '../domain/security/InputMethodCapabilityState';
 import {
@@ -229,6 +230,39 @@ export class KeyboardController {
     });
   }
 
+  /**
+   * Resolves Xiaohe Yinxing's physical semicolon against the live composition
+   * after older hardware keys have drained from the serial queue. This avoids
+   * routing a rapidly typed semicolon from a stale pre-candidate snapshot.
+   */
+  async handlePhysicalCodeTableSemicolon(): Promise<InputOperationResult> {
+    return this.enqueueInputOperation('hardware_code_table_semicolon', async (
+      generation: number
+    ): Promise<InputOperationResult> => {
+      const state = this.sessionController.getState();
+      if (state.rawInput.startsWith(';')) {
+        return this.sessionController.insertCharacter(';', generation);
+      }
+      if (state.candidates.length >= 2) {
+        return this.sessionController.commitCandidate(1, generation);
+      }
+      if (state.candidates.length === 1) {
+        const committed = await this.sessionController.commitCandidate(0, generation);
+        if (!committed.success || !this.sessionController.isInputSessionGenerationCurrent(generation)) {
+          return committed;
+        }
+        return this.sessionController.insertCharacter(';', generation);
+      }
+      if (state.rawInput.length > 0) {
+        const cancelled = await this.sessionController.cancelComposition(generation);
+        if (!cancelled.success || !this.sessionController.isInputSessionGenerationCurrent(generation)) {
+          return cancelled;
+        }
+      }
+      return this.sessionController.insertCharacter(';', generation);
+    });
+  }
+
   async insertPhysicalPunctuation(character: string): Promise<InputOperationResult> {
     return this.enqueueInputOperation('hardware_punctuation', async (
       generation: number,
@@ -402,6 +436,18 @@ export class KeyboardController {
         break;
       case KeyboardActionType.HIDE_KEYBOARD:
         return this.sessionController.hideKeyboard(generation);
+      case KeyboardActionType.MOVE_CURSOR_LEFT:
+        result = await this.sessionController.moveEditorCursor(
+          inputMethodEngine.Direction.CURSOR_LEFT,
+          generation
+        );
+        break;
+      case KeyboardActionType.MOVE_CURSOR_RIGHT:
+        result = await this.sessionController.moveEditorCursor(
+          inputMethodEngine.Direction.CURSOR_RIGHT,
+          generation
+        );
+        break;
       case KeyboardActionType.SECOND_CANDIDATE_OR_PUNCTUATION: {
         const state = this.sessionController.getState();
         if (state.rawInput.length > 0 && !state.rawInput.startsWith(';') && state.candidates.length >= 2) {

@@ -493,7 +493,7 @@ mod tests {
     }
 
     #[test]
-    fn stage1167_empty_code_splits_serialize_one_commit_and_one_remaining_segment() {
+    fn empty_full_code_clear_serializes_without_a_shorter_prefix_commit() {
         let bundle = code_table_bundle_path();
         let forward_user_path = std::env::temp_dir().join(format!(
             "stage11-6-7-ime-ffi-forward-split-{}.txt",
@@ -516,21 +516,16 @@ mod tests {
         );
         let mut out = ImeBuffer::empty();
         let mut forward_json = String::new();
-        let mut forward_steps = Vec::new();
         for key in [b'v', b'v', b'v', b'v'] {
             assert_eq!(
                 ime_engine_process_key(forward_handle, &key, 1, &mut out),
                 ImeErrorCode::Success.as_i32()
             );
             forward_json = take_buffer(out);
-            forward_steps.push(forward_json.clone());
             out = ImeBuffer::empty();
         }
-        assert!(
-            forward_json.contains("\"commitText\":\"正向切分段\""),
-            "{forward_steps:?}"
-        );
-        assert!(forward_json.contains("\"rawInput\":\"vv\""));
+        assert!(forward_json.contains("\"commitText\":\"\""), "{forward_json}");
+        assert!(forward_json.contains("\"rawInput\":\"\""));
         assert!(forward_json.contains("\"action\":null"));
         assert!(forward_json.contains("\"compositionFinished\":false"));
         assert_eq!(
@@ -566,11 +561,8 @@ mod tests {
             reverse_json = take_buffer(out);
             out = ImeBuffer::empty();
         }
-        assert!(
-            reverse_json.contains("\"commitText\":\"u\""),
-            "{reverse_json}"
-        );
-        assert!(reverse_json.contains("\"rawInput\":\"vvv\""));
+        assert!(reverse_json.contains("\"commitText\":\"\""), "{reverse_json}");
+        assert!(reverse_json.contains("\"rawInput\":\"\""));
         assert!(reverse_json.contains("\"action\":null"));
         assert!(reverse_json.contains("\"compositionFinished\":false"));
         assert_eq!(

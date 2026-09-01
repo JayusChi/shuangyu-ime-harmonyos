@@ -9,10 +9,10 @@ const RAW_LEXICON_NAME = 'production.lex';
 // Bump the installed name whenever the audited production lexicon identity
 // changes. This prevents a valid file from the previous release from being
 // reused after an app upgrade.
-const INSTALLED_LEXICON_NAME = 'production-v118.lex';
-const EXPECTED_PRODUCTION_LEXICON_BYTES = 3751923;
+const INSTALLED_LEXICON_NAME = 'production-v300-005169f6.lex';
+const EXPECTED_PRODUCTION_LEXICON_BYTES = 24049458;
 const EXPECTED_PRODUCTION_LEXICON_SHA256 =
-  'e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365';
+  '005169f6050d45f93dd511d7de183338419419b67fb3556065b15432b0522a41';
 const HASH_BUFFER_BYTES = 64 * 1024;
 const VALIDATION_RECEIPT_SUFFIX = '.verified-v1';
 const VALIDATION_RECEIPT_VERSION = 'production-lexicon-receipt/1';

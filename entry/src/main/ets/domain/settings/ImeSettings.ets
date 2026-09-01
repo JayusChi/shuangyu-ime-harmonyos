@@ -28,9 +28,35 @@ export enum EffectiveTheme {
 }
 
 export enum KeyboardHeightMode {
+  EXTRA_COMPACT = 'extraCompact',
   COMPACT = 'compact',
   STANDARD = 'standard',
-  TALL = 'tall'
+  TALL = 'tall',
+  EXTRA_TALL = 'extraTall'
+}
+
+export const KEYBOARD_HEIGHT_MODE_OPTIONS: KeyboardHeightMode[] = [
+  KeyboardHeightMode.EXTRA_COMPACT,
+  KeyboardHeightMode.COMPACT,
+  KeyboardHeightMode.STANDARD,
+  KeyboardHeightMode.TALL,
+  KeyboardHeightMode.EXTRA_TALL
+];
+
+export function keyboardHeightScale(mode: KeyboardHeightMode): number {
+  if (mode === KeyboardHeightMode.EXTRA_COMPACT) {
+    return 0.8;
+  }
+  if (mode === KeyboardHeightMode.COMPACT) {
+    return 0.9;
+  }
+  if (mode === KeyboardHeightMode.TALL) {
+    return 1.1;
+  }
+  if (mode === KeyboardHeightMode.EXTRA_TALL) {
+    return 1.2;
+  }
+  return 1;
 }
 
 export enum CandidateFontSizeMode {
@@ -105,6 +131,7 @@ export interface ImeSettings {
   spellingCorrectionEnabled: boolean;
   fuzzyOptions: QuanpinFuzzyOption[];
   smartPeriodTimeoutMs: number;
+  longPressDurationMs: number;
   smartPunctuationSymbols: string;
   chineseLetterSwipeSymbols: string;
   englishLetterSwipeSymbols: string;
@@ -148,6 +175,7 @@ export interface SettingsRaw {
   spellingCorrectionEnabled?: string;
   fuzzyOptions?: string;
   smartPeriodTimeoutMs?: string;
+  longPressDurationMs?: string;
   smartPunctuationSymbols?: string;
   chineseLetterSwipeSymbols?: string;
   englishLetterSwipeSymbols?: string;
@@ -173,10 +201,14 @@ export interface ShuangpinSchemeOption {
   displayName: string;
 }
 
-export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 14;
+export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 16;
 export const DEFAULT_AI_ACTIONS: string[] = ['continue', 'concise', 'polite', 'formal', 'translate'];
 export const DEFAULT_SMART_PERIOD_TIMEOUT_MS: number = 500;
 export const SMART_PERIOD_TIMEOUT_OPTIONS_MS: number[] = [0, 300, 500, 800, 1000];
+export const DEFAULT_LONG_PRESS_DURATION_MS: number = 300;
+export const MIN_LONG_PRESS_DURATION_MS: number = 150;
+export const MAX_LONG_PRESS_DURATION_MS: number = 1000;
+export const LONG_PRESS_DURATION_OPTIONS_MS: number[] = [200, 300, 500, 700];
 export const XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: number = 5;
 export const XIAOHE_YINXING_CATEGORY_IDS: string[] = [
   'core',
@@ -250,6 +282,7 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   spellingCorrectionEnabled: false,
   fuzzyOptions: [],
   smartPeriodTimeoutMs: DEFAULT_SMART_PERIOD_TIMEOUT_MS,
+  longPressDurationMs: DEFAULT_LONG_PRESS_DURATION_MS,
   smartPunctuationSymbols: DEFAULT_SMART_PUNCTUATION_SYMBOLS,
   chineseLetterSwipeSymbols: DEFAULT_LETTER_SWIPE_SYMBOLS,
   englishLetterSwipeSymbols: DEFAULT_LETTER_SWIPE_SYMBOLS,
@@ -313,6 +346,7 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled,
     fuzzyOptions: settings.fuzzyOptions.slice(),
     smartPeriodTimeoutMs: settings.smartPeriodTimeoutMs,
+    longPressDurationMs: settings.longPressDurationMs,
     smartPunctuationSymbols: settings.smartPunctuationSymbols,
     chineseLetterSwipeSymbols: settings.chineseLetterSwipeSymbols,
     englishLetterSwipeSymbols: settings.englishLetterSwipeSymbols,
@@ -364,6 +398,7 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.voicePunctuationEnabled === right.voicePunctuationEnabled &&
     left.spellingCorrectionEnabled === right.spellingCorrectionEnabled &&
     left.smartPeriodTimeoutMs === right.smartPeriodTimeoutMs &&
+    left.longPressDurationMs === right.longPressDurationMs &&
     left.smartPunctuationSymbols === right.smartPunctuationSymbols &&
     left.chineseLetterSwipeSymbols === right.chineseLetterSwipeSymbols &&
     left.englishLetterSwipeSymbols === right.englishLetterSwipeSymbols &&
@@ -425,6 +460,7 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     spellingCorrectionEnabled: settings.spellingCorrectionEnabled ? 'true' : 'false',
     fuzzyOptions: JSON.stringify(settings.fuzzyOptions),
     smartPeriodTimeoutMs: `${settings.smartPeriodTimeoutMs}`,
+    longPressDurationMs: `${settings.longPressDurationMs}`,
     smartPunctuationSymbols: JSON.stringify(
       normalizeSmartPunctuationSymbols(settings.smartPunctuationSymbols)
     ),

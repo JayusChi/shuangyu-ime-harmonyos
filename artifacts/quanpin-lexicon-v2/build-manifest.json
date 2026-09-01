@@ -1,9 +1,9 @@
 {
-    "schemaVersion":  "quanpin-v2-build-manifest/1",
-    "lexiconVersion":  200,
+    "schemaVersion":  "quanpin-production-build-manifest/3",
+    "lexiconVersion":  300,
     "builderVersion":  1,
     "asOfDate":  "2026-08-14",
-    "sourceManifestSha256":  "2e4ff523df467cd88c08382646a036feb9ecfd27aa9ef640c7f0e31a462bc5a0",
+    "sourceManifestSha256":  "2abace47ff275a2f71cf9a442e52aaac74c0ed32d0ccb8b02c0651977b8962f3",
     "deterministic":  true,
     "repetitions":  2,
     "defaultDomainsEnabled":  [
@@ -41,8 +41,8 @@
 
                                            },
                         "entriesAdded":  65,
-                        "bytes":  3746486,
-                        "sha256":  "5096f142117bb399f63a918a3c10802ec35aa1f356305b62586a1c1f9e33a201"
+                        "bytes":  24044135,
+                        "sha256":  "c0fee01abfaf2d7406086df65078938a0e5acc04a6471f77b622fc66dba2be00"
                     },
                     {
                         "profile":  "all_domains",
@@ -55,8 +55,8 @@
                                                "technology"
                                            ],
                         "entriesAdded":  131,
-                        "bytes":  3751923,
-                        "sha256":  "e4dead906109136470691d0e463c2ada34c8e5bb9b3fc62bb2de552ed751d365"
+                        "bytes":  24049458,
+                        "sha256":  "005169f6050d45f93dd511d7de183338419419b67fb3556065b15432b0522a41"
                     },
                     {
                         "profile":  "education",
@@ -64,8 +64,8 @@
                                                "education"
                                            ],
                         "entriesAdded":  76,
-                        "bytes":  3747431,
-                        "sha256":  "afc4d124f14e9a8092c827cf14cc1bb8a8d3159c03e10392b0ad103da11bd518"
+                        "bytes":  24045080,
+                        "sha256":  "24b2c5dc298d365ddaf3b57fe17360275901ca1b8b5b300dad82e37ad40d7e75"
                     },
                     {
                         "profile":  "finance",
@@ -73,8 +73,8 @@
                                                "finance"
                                            ],
                         "entriesAdded":  77,
-                        "bytes":  3747501,
-                        "sha256":  "9c7904e61f92cd6ec8d0dd6e159ecefe8cd3a735b33ebe0c6ecd983af1d8e84e"
+                        "bytes":  24045150,
+                        "sha256":  "2b03644a1a7fb2365d7b4cd8499d98c8a55ac03abd99398e766e3dd1883e6613"
                     },
                     {
                         "profile":  "legal",
@@ -82,8 +82,8 @@
                                                "legal"
                                            ],
                         "entriesAdded":  73,
-                        "bytes":  3747149,
-                        "sha256":  "c649e982401f060aae37aca7b50a8879de6ee1d1b9c9146a4cab08dc43125630"
+                        "bytes":  24044684,
+                        "sha256":  "f8d3e49d33b8f6fd28af771c278fcbab75635ce36c7e469d3a79fd8b38f14d92"
                     },
                     {
                         "profile":  "medical",
@@ -91,8 +91,8 @@
                                                "medical"
                                            ],
                         "entriesAdded":  76,
-                        "bytes":  3747391,
-                        "sha256":  "6dd305ee7891e2c3993bbe14f5d22446bacd4d4d4796a83d035e32eb8e2e8392"
+                        "bytes":  24045040,
+                        "sha256":  "20e3d1e979b4e0c4e9af0f46d3256940cbb199cce6a4d9a70c64ac3fb344aa74"
                     },
                     {
                         "profile":  "software",
@@ -100,8 +100,8 @@
                                                "software"
                                            ],
                         "entriesAdded":  77,
-                        "bytes":  3747454,
-                        "sha256":  "073d5bcbc0a09f558dec670f9692ac571a013a0649f79fcc7fca8188d58d6fdc"
+                        "bytes":  24045103,
+                        "sha256":  "f678779bdbe9a89d3a34c201c2d9639a7004d01f480039fa051d9ffc4ee4409f"
                     },
                     {
                         "profile":  "technology",
@@ -109,8 +109,13 @@
                                                "technology"
                                            ],
                         "entriesAdded":  77,
-                        "bytes":  3747512,
-                        "sha256":  "05cba5d056e5f56537b43e06b509499f2526ede78ecf3f7b561a06e2bef8fcd1"
+                        "bytes":  24045161,
+                        "sha256":  "71143d33982d745e6e2ed699fe0b9349d1d40d70f108dff7d3c4a65c6f5fadac"
                     }
-                ]
+                ],
+    "contextModel":  {
+                         "path":  "entry/src/main/resources/rawfile/quanpin-context-v2.qng",
+                         "bytes":  64300,
+                         "sha256":  "15b55101d77a87a64d2d414f96147291f7e260a138c98ecbea1d38af2f17b05f"
+                     }
 }

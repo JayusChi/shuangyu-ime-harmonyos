@@ -20,9 +20,10 @@ const INTERFACE_VERSION = 11;
 const QUANPIN_CONFIG_VERSION = 1;
 const QUANPIN_CONTEXT_RERANKING_CONFIG_VERSION = 2;
 const DEFAULT_SCHEME_ID = 'xiaohe';
-// Keep a desktop page compact enough for every rendered item to remain visible.
-// The physical 1-9 selector contract still safely rejects/consumes empty slots.
-const DEFAULT_CANDIDATE_PAGE_SIZE = 7;
+// A formal phonetic page must expose enough of the production lexicon for the
+// scrollable candidate bar and expansion grid. Physical 1-9 selection remains
+// limited by its own selector contract and does not require truncating recall.
+const DEFAULT_CANDIDATE_PAGE_SIZE = 50;
 
 export class EngineCoordinator {
   private readonly gateway: NativeEngineGatewayContract;
@@ -278,6 +279,24 @@ export class EngineCoordinator {
       return this.lastResult;
     }
     this.lastResult = this.applyOutputMode(this.gateway.processKey(this.handle, key));
+    return this.lastResult;
+  }
+
+  async processKeyAsync(key: string): Promise<CompositionResult> {
+    if (!this.ensureInitialized()) {
+      return this.lastResult;
+    }
+    if (this.activeSchemeId !== 'quanpin' || this.gateway.processKeyAsync === undefined) {
+      return this.processKey(key);
+    }
+
+    const handle = this.handle;
+    const generation = this.lifecycleGeneration;
+    const nativeResult = await this.gateway.processKeyAsync(handle, key);
+    if (generation !== this.lifecycleGeneration || handle !== this.handle || !this.initialized) {
+      return this.lastResult;
+    }
+    this.lastResult = this.applyOutputMode(nativeResult);
     return this.lastResult;
   }
 

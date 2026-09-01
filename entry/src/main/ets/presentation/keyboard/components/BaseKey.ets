@@ -1,9 +1,18 @@
 import { KeyboardKeySpec, KeyboardKeyKind } from '../model/KeyboardLayoutSpec';
-import { KeyboardColorPalette } from '../design/KeyboardPalette';
+import {
+  DanranKeyBackgroundKind,
+  KeyboardColorPalette,
+  resolveDanranKeyBackgroundSlice
+} from '../design/KeyboardPalette';
 import { OrientationMetrics } from '../design/KeyboardMetrics';
 import { KeyboardAction, KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
 import { ShiftState } from '../../../domain/editor/EditorContext';
-import { AlternateKeyGestureController } from '../../../application/AlternateKeyGestureController';
+import { DEFAULT_LONG_PRESS_DURATION_MS } from '../../../domain/settings/ImeSettings';
+import {
+  AlternateKeyGestureController,
+  KEY_SWIPE_UP_THRESHOLD_VP,
+  LETTER_KEY_SWIPE_THRESHOLD_VP
+} from '../../../application/AlternateKeyGestureController';
 
 /**
  * 按键状态
@@ -22,6 +31,7 @@ export interface BaseKeyProps {
   keyboardMode: KeyboardMode;
   shiftState?: ShiftState;
   longPressEnabled?: boolean;
+  longPressDurationMs?: number;
   onKeyPress?: (spec: KeyboardKeySpec) => void;
   onKeyRelease?: (spec: KeyboardKeySpec) => void;
   onKeyClick?: (spec: KeyboardKeySpec) => void;
@@ -40,6 +50,7 @@ export struct BaseKey {
   @Prop keyboardMode: KeyboardMode = KeyboardMode.ENGLISH;
   @Prop shiftState: ShiftState = ShiftState.LOWERCASE;
   @Prop longPressEnabled: boolean = true;
+  @Prop @Watch('resetGestureController') longPressDurationMs: number = DEFAULT_LONG_PRESS_DURATION_MS;
   @State private isPressed: boolean = false;
 
   private gestureController: AlternateKeyGestureController | null = null;
@@ -49,12 +60,20 @@ export struct BaseKey {
   onLongPressAction?: (action: KeyboardAction) => void;
 
   aboutToAppear(): void {
+    this.resetGestureController();
+  }
+
+  private resetGestureController(): void {
+    this.gestureController?.destroy();
     this.gestureController = new AlternateKeyGestureController(
       (): void => this.dispatchShortPress(),
       (): void => this.dispatchLongPress(),
       (): void => this.dispatchSwipeUp(),
-      undefined,
-      (): void => this.dispatchSwipeDown()
+      this.longPressDurationMs,
+      (): void => this.dispatchSwipeDown(),
+      this.spec.kind === KeyboardKeyKind.LETTER
+        ? LETTER_KEY_SWIPE_THRESHOLD_VP
+        : KEY_SWIPE_UP_THRESHOLD_VP
     );
   }
 
@@ -97,6 +116,9 @@ export struct BaseKey {
    * 获取按键背景色
    */
   private getBackgroundColor(): string {
+    if (this.palette.useDanranKeyImages) {
+      return '#00000000';
+    }
     if (this.isPressed) {
       return this.getPressedBackgroundColor();
     }
@@ -144,7 +166,66 @@ export struct BaseKey {
     }
   }
 
-  private getBackgroundImage(): string {
+  private getDanranBackgroundKind(): DanranKeyBackgroundKind {
+    switch (this.spec.kind) {
+      case KeyboardKeyKind.LETTER:
+      case KeyboardKeyKind.T9_DIGIT:
+        return DanranKeyBackgroundKind.LETTER;
+      case KeyboardKeyKind.SPACE:
+        return DanranKeyBackgroundKind.SPACE;
+      case KeyboardKeyKind.ENTER:
+        return DanranKeyBackgroundKind.ENTER;
+      default:
+        return DanranKeyBackgroundKind.FUNCTION;
+    }
+  }
+
+  private getDanranBackgroundImage(): ResourceStr {
+    const dark = this.palette.useDarkMedia;
+    switch (this.getDanranBackgroundKind()) {
+      case DanranKeyBackgroundKind.LETTER:
+        if (dark) {
+          return this.isPressed
+            ? $r('app.media.danran_key_pressed_dark')
+            : $r('app.media.danran_key_dark');
+        }
+        return this.isPressed
+          ? $r('app.media.danran_key_pressed')
+          : $r('app.media.danran_key');
+      case DanranKeyBackgroundKind.SPACE:
+        if (dark) {
+          return this.isPressed
+            ? $r('app.media.danran_space_pressed_dark')
+            : $r('app.media.danran_space_dark');
+        }
+        return this.isPressed
+          ? $r('app.media.danran_space_pressed')
+          : $r('app.media.danran_space');
+      case DanranKeyBackgroundKind.ENTER:
+        if (this.isPressed) {
+          return dark
+            ? $r('app.media.danran_function_pressed_dark')
+            : $r('app.media.danran_function_pressed');
+        }
+        return dark
+          ? $r('app.media.danran_enter_dark')
+          : $r('app.media.danran_enter');
+      default:
+        if (dark) {
+          return this.isPressed
+            ? $r('app.media.danran_function_pressed_dark')
+            : $r('app.media.danran_function_dark');
+        }
+        return this.isPressed
+          ? $r('app.media.danran_function_pressed')
+          : $r('app.media.danran_function');
+    }
+  }
+
+  private getBackgroundImage(): ResourceStr {
+    if (this.palette.useDanranKeyImages) {
+      return this.getDanranBackgroundImage();
+    }
     if (this.isPressed) {
       return '';
     }
@@ -159,6 +240,19 @@ export struct BaseKey {
       default:
         return this.palette.functionKeyBackgroundImage;
     }
+  }
+
+  private getBackgroundResizableOptions(): ResizableOptions {
+    if (!this.palette.useDanranKeyImages) {
+      return {};
+    }
+    return {
+      slice: resolveDanranKeyBackgroundSlice(
+        this.getDanranBackgroundKind(),
+        this.palette.useDarkMedia,
+        this.isPressed
+      )
+    };
   }
 
   /**
@@ -224,17 +318,26 @@ export struct BaseKey {
           .objectFit(ImageFit.Contain)
           .accessibilityText(this.spec.accessibilityLabel)
       } else if (this.spec.kind === KeyboardKeyKind.SHIFT) {
-        Image(this.palette.useDarkMedia
-          ? (this.isShiftLocked()
-            ? $r('app.media.danran_caps_lock_dark')
-            : $r('app.media.danran_shift_dark'))
-          : (this.isShiftLocked()
-            ? $r('app.media.danran_caps_lock')
-            : $r('app.media.danran_shift')))
-          .width(24)
-          .height(24)
-          .objectFit(ImageFit.Contain)
-          .accessibilityText(this.spec.accessibilityLabel)
+        if (this.keyboardMode === KeyboardMode.ENGLISH &&
+          this.shiftState === ShiftState.ONE_SHOT_UPPERCASE) {
+          Text('En')
+            .fontSize(this.metrics.functionFontSize + 1)
+            .fontColor(this.palette.functionKeyText)
+            .fontWeight(FontWeight.Medium)
+            .accessibilityText(this.spec.accessibilityLabel)
+        } else {
+          Image(this.palette.useDarkMedia
+            ? (this.isShiftLocked()
+              ? $r('app.media.danran_caps_lock_dark')
+              : $r('app.media.danran_shift_dark'))
+            : (this.isShiftLocked()
+              ? $r('app.media.danran_caps_lock')
+              : $r('app.media.danran_shift')))
+            .width(24)
+            .height(24)
+            .objectFit(ImageFit.Contain)
+            .accessibilityText(this.spec.accessibilityLabel)
+        }
       } else if (this.spec.upperLabel) {
         Column({ space: 1 }) {
           Text(this.spec.upperLabel)
@@ -281,8 +384,9 @@ export struct BaseKey {
     .backgroundColor(this.getBackgroundColor())
     .backgroundImage(this.getBackgroundImage(), ImageRepeat.NoRepeat)
     .backgroundImageSize({ width: '100%', height: '100%' })
-    .border({ width: 1, color: this.palette.keyBorder })
-    .borderRadius(this.metrics.keyBorderRadius)
+    .backgroundImageResizable(this.getBackgroundResizableOptions())
+    .border({ width: this.palette.useDanranKeyImages ? 0 : 1, color: this.palette.keyBorder })
+    .borderRadius(this.palette.useDanranKeyImages ? 0 : this.metrics.keyBorderRadius)
     .accessibilityText(this.spec.accessibilityLabel)
     .onTouch((event: TouchEvent) => {
       if (event.type === TouchType.Down) {

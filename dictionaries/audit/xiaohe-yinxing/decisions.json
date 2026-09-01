@@ -348,21 +348,10 @@
       "source_file": "小鹤音形/2.5.全码词.txt",
       "physical_line_or_range": "all",
       "role": "full_code_word",
-      "decision": "TRANSFORM",
-      "reason_code": "TRANSFORM_REQUIRED",
-      "reason": "security-matched records must be isolated before otherwise eligible content is converted",
-      "next_stage_action": "apply only the explicit 11.6.2C transform"
-    },
-    {
-      "decision_id": "record-b960cdef2bda-cmd",
-      "scope": "record_category",
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line_or_range": "504",
-      "role": "cmd",
-      "decision": "REJECTED",
-      "reason_code": "REJECT_UNSUPPORTED_COMMAND",
-      "reason": "isolate and require explicit support",
-      "next_stage_action": "isolate and require explicit support"
+      "decision": "ACCEPTED",
+      "reason_code": "ACCEPT_APPROVED_ROLE",
+      "reason": "approved table role and byte format",
+      "next_stage_action": "11.6.2C may read only after all contract blockers close"
     },
     {
       "decision_id": "record-b960cdef2bda-comment",
@@ -370,28 +359,6 @@
       "source_file": "小鹤音形/2.5.全码词.txt",
       "physical_line_or_range": "1",
       "role": "comment",
-      "decision": "DEFERRED",
-      "reason_code": "IGNORE_NON_DATA_LINE",
-      "reason": "exclude from candidate records",
-      "next_stage_action": "exclude from candidate records"
-    },
-    {
-      "decision_id": "record-b960cdef2bda-direct_add",
-      "scope": "record_category",
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line_or_range": "511",
-      "role": "direct_add",
-      "decision": "TRANSFORM",
-      "reason_code": "TRANSFORM_DIRECT_ADD",
-      "reason": "convert through frozen user rule policy",
-      "next_stage_action": "convert through frozen user rule policy"
-    },
-    {
-      "decision_id": "record-b960cdef2bda-empty",
-      "scope": "record_category",
-      "source_file": "小鹤音形/2.5.全码词.txt",
-      "physical_line_or_range": "502",
-      "role": "empty",
       "decision": "DEFERRED",
       "reason_code": "IGNORE_NON_DATA_LINE",
       "reason": "exclude from candidate records",

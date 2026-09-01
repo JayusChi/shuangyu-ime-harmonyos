@@ -27,7 +27,8 @@ import {
   LETTER_SWIPE_KEYS,
   MAX_LETTER_SWIPE_SYMBOL_UNITS,
   normalizeLetterSwipeSymbol,
-  parseLetterSwipeSymbols
+  parseLetterSwipeSymbols,
+  RECOMMENDED_LETTER_SWIPE_SYMBOLS
 } from '../../domain/keyboard/LetterSwipeSymbols';
 
 type CustomizationKind = 'structure' | 'skin';
@@ -204,6 +205,15 @@ export struct KeyboardCustomizationPage {
     }
   }
 
+  private applyRecommendedSwipeSymbols(): void {
+    const recommended = parseLetterSwipeSymbols(RECOMMENDED_LETTER_SWIPE_SYMBOLS);
+    if (this.swipeSymbolMode === 'chinese') {
+      this.chineseSwipeSymbols = recommended;
+    } else {
+      this.englishSwipeSymbols = recommended;
+    }
+  }
+
   private async saveSwipeSymbols(): Promise<void> {
     if (this.busy) {
       return;
@@ -362,14 +372,20 @@ export struct KeyboardCustomizationPage {
             .borderRadius(14)
             .backgroundColor(this.theme.cardBackground)
 
-            Row({ space: 10 }) {
-              Button('清空当前键盘')
+            Row({ space: 8 }) {
+              Button('推荐预设')
+                .layoutWeight(1)
+                .enabled(!this.busy)
+                .fontColor(this.theme.primaryText)
+                .backgroundColor(this.theme.chipBackground)
+                .onClick((): void => this.applyRecommendedSwipeSymbols())
+              Button('清空')
                 .layoutWeight(1)
                 .enabled(!this.busy)
                 .fontColor(this.theme.danger)
                 .backgroundColor(this.theme.chipBackground)
                 .onClick((): void => this.clearSwipeSymbols())
-              Button('保存下滑符号')
+              Button('保存')
                 .layoutWeight(1)
                 .enabled(!this.busy)
                 .fontColor(Color.White)

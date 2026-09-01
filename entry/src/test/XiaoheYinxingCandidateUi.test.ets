@@ -25,12 +25,15 @@ export default function xiaoheYinxingCandidateUiTest() {
       expect(resolveCandidateUiMode('unknown')).assertEqual(CandidateUiMode.BROWSABLE);
     });
 
-    it('keeps shuangpin expansion and hides it for precise match candidates', 0, () => {
+    it('requires three candidates and allows precise-mode expansion only for universal input', 0, () => {
       expect(allowsCandidateBrowsing(CandidateUiMode.BROWSABLE)).assertTrue();
       expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 50)).assertTrue();
-      expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 0)).assertFalse();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 2)).assertFalse();
       expect(allowsCandidateBrowsing(CandidateUiMode.PRECISE_MATCH)).assertFalse();
-      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 3)).assertFalse();
+      expect(allowsCandidateBrowsing(CandidateUiMode.PRECISE_MATCH, 'ju`')).assertTrue();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 3, 'ju')).assertFalse();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 2, 'ju`')).assertFalse();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 3, 'ju`')).assertTrue();
     });
 
     it('describes recoverable empty precise states without creating candidates', 0, () => {

@@ -80,6 +80,7 @@ class Stage3SessionController extends InputSessionController {
   previousPageCount: number = 0;
   physicalLetters: string[] = [];
   physicalContinuationFlags: boolean[] = [];
+  insertedCharacters: string[] = [];
   pairJumpCount: number = 0;
 
   constructor(store: InputSessionStore) {
@@ -103,6 +104,14 @@ class Stage3SessionController extends InputSessionController {
   ): Promise<InputOperationResult> {
     this.committedIndices.push(candidateIndex);
     this.stage3Store.clearComposition();
+    return inputOperationOk();
+  }
+
+  async insertCharacter(
+    character: string | undefined,
+    _generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    this.insertedCharacters.push(character ?? '');
     return inputOperationOk();
   }
 
@@ -440,6 +449,19 @@ export default function computerStage3PhysicalKeyboardTest() {
       const letter = resolvePhysicalKeyCommand(key(2017), noSecondCandidate);
       expect(letter.type).assertEqual(PhysicalKeyCommandType.LETTER);
       expect(resolveSymbolGuide(letter.letter ?? '')).assertEqual('……');
+    });
+
+    it('resolves a code-table semicolon from the live unique candidate and arms the guide', 0, async () => {
+      const fixture = createControllerFixture();
+      const liveComposition = composition();
+      liveComposition.candidates = liveComposition.candidates.slice(0, 1);
+      fixture.store.updateComposition(liveComposition);
+
+      const result = await fixture.controller.handlePhysicalCodeTableSemicolon();
+
+      expect(result.success).assertTrue();
+      expect(fixture.sessionController.committedIndices.join(',')).assertEqual('0');
+      expect(fixture.sessionController.insertedCharacters.join('')).assertEqual(';');
     });
 
     it('apostrophe selects the third candidate or inserts a syllable boundary', 0, () => {

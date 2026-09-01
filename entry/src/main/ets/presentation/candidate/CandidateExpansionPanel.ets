@@ -38,6 +38,7 @@ export struct CandidateExpansionPanel {
   @Prop highlightedIndex: number = -1;
   @Prop panelWidth: string = '100%';
   @Prop fillAvailableHeight: boolean = false;
+  @Prop collapseActionVisible: boolean = false;
   @Prop layout: CandidateExpansionLayout = {
     columnCount: 5,
     visibleRowCount: 4,
@@ -49,6 +50,7 @@ export struct CandidateExpansionPanel {
   onCandidateClick?: (candidate: Candidate, index: number) => void;
   onPreviousPage?: () => void;
   onNextPage?: () => void;
+  onCollapse?: () => void;
 
   private resetGridPosition(): void {
     this.gridScroller.scrollTo({ xOffset: 0, yOffset: 0 });
@@ -105,6 +107,22 @@ export struct CandidateExpansionPanel {
 
   build() {
     Column({ space: 4 }) {
+      if (this.collapseActionVisible) {
+        Row() {
+          Blank()
+          Button('收起候选')
+            .height(32)
+            .fontSize(12)
+            .fontColor(this.palette.functionKeyText)
+            .backgroundColor(this.palette.functionKeyBackground)
+            .borderRadius(6)
+            .accessibilityText('收起候选')
+            .onClick(() => this.onCollapse?.())
+        }
+        .width('100%')
+        .height(36)
+        .alignItems(VerticalAlign.Center)
+      }
       if (this.preeditView().visible) {
         Text(this.preeditView().displayText)
           .width('100%')
@@ -154,6 +172,21 @@ export struct CandidateExpansionPanel {
       .layoutWeight(1)
       .width('100%')
       .scrollBar(BarState.Auto)
+      if (this.hasPreviousPage || this.hasNextPage || this.candidatePage > 0) {
+        Row({ space: 8 }) {
+          this.PreviousPageButton()
+          Text(`第 ${this.candidatePage + 1} 页`)
+            .fontSize(12)
+            .fontColor(this.palette.candidateReading)
+            .textAlign(TextAlign.Center)
+            .layoutWeight(1)
+            .accessibilityText(`候选第 ${this.candidatePage + 1} 页`)
+          this.NextPageButton()
+        }
+        .width('100%')
+        .height(40)
+        .alignItems(VerticalAlign.Center)
+      }
     }
     .width(this.panelWidth)
     .height(this.fillAvailableHeight ? '100%' : this.layout.panelHeight)

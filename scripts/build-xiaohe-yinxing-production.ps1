@@ -32,8 +32,8 @@ function Assert-Sha256([string]$Path, [string]$Expected, [string]$Code) {
     }
 }
 
-Assert-Sha256 $sourceManifest '4dd2304ce2a2f7ffa48f38c7a707e11d9d2318b1bc32c8ded7dc264a2458048f' 'SOURCE_MANIFEST_IDENTITY'
-Assert-Sha256 $contract '27894e17bed11e267504e3ddae20f82348ab89e07e3a813b6236d80d29739caa' 'CONVERSION_CONTRACT_IDENTITY'
+Assert-Sha256 $sourceManifest 'f054132eb8b5e008601f215db50cf337214c35bf2100fcb03f63180b2c9252b8' 'SOURCE_MANIFEST_IDENTITY'
+Assert-Sha256 $contract '025240e58548bf0c14dedb16fea075a2b42b722396d63cbc91947c1d7bddfaa3' 'CONVERSION_CONTRACT_IDENTITY'
 Assert-Sha256 $sanitizedConfiguration 'e777399836e35b20fddaa108b32793aa6121b25f13a3adc048761cb7f27a4d90' 'SANITIZED_CONFIGURATION_IDENTITY'
 
 Push-Location (Join-Path $projectPath 'engine-rust')

@@ -5,6 +5,7 @@ import {
   DELETE_ACTION,
   DELETE_CURRENT_LINE_ACTION,
   ENTER_ACTION,
+  EXPAND_CANDIDATES_ACTION,
   INSERT_SEGMENT_BOUNDARY_ACTION,
   KeyboardAction,
   SPACE_ACTION,
@@ -82,9 +83,10 @@ function enterKey(context: EditorContext): KeyboardKeySpec {
  */
 export function createPinyin9KeyboardLayout(context: EditorContext): KeyboardLayoutSpec {
   const space = key('space', '空格', KeyboardKeyKind.SPACE, 4.6, SPACE_ACTION,
-    '空格，上滑或长按切换中英文', '中/英');
+    '空格，长按切换中英文，候选不少于三个时上滑展开候选');
+  space.upperLabel = '中文';
   space.longPressAction = TOGGLE_LANGUAGE_ACTION;
-  space.swipeUpAction = TOGGLE_LANGUAGE_ACTION;
+  space.swipeUpAction = EXPAND_CANDIDATES_ACTION;
   const numberKey = key('t9-number', 'ϟ12', KeyboardKeyKind.MODE_SWITCH, 1, TOGGLE_NUMBER_ACTION,
     '点击进入数字键盘，长按进入符号键盘');
   numberKey.longPressAction = TOGGLE_SYMBOL_ACTION;

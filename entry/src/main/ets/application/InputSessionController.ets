@@ -8,6 +8,7 @@ import {
 } from '../infrastructure/ime/InputMethodSwitcher';
 import { InputOperationResult, inputOperationFailed, inputOperationOk } from './InputOperationResult';
 import { InputSessionCompositionController } from './InputSessionCompositionController';
+import { inputMethodEngine } from '@kit.IMEKit';
 
 export { ImeInputService } from './ImeInputService';
 
@@ -138,6 +139,40 @@ export class InputSessionController extends InputSessionCompositionController {
     if (!sent) {
       this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor rejected extend action');
       return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor rejected extend action');
+    }
+    this.store.clearError();
+    return inputOperationOk();
+  }
+
+  async moveEditorCursor(
+    direction: inputMethodEngine.Direction,
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('move editor cursor');
+    }
+    const sessionCheck = this.ensureInputSession('move editor cursor');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+    const preparation = await this.finishCompositionBeforeUserModeSwitch(generation);
+    if (!preparation.success || !this.isInputSessionGenerationCurrent(generation)) {
+      return preparation.success
+        ? this.staleInputAction('move editor cursor preparation')
+        : preparation;
+    }
+    if (!this.imeService.moveCursor) {
+      this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor cursor movement is unavailable');
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor cursor movement is unavailable');
+    }
+    try {
+      await this.imeService.moveCursor(direction);
+    } catch (_) {
+      this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor rejected cursor movement');
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'editor rejected cursor movement');
+    }
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('move editor cursor completion');
     }
     this.store.clearError();
     return inputOperationOk();

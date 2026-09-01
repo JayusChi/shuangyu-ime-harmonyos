@@ -12,10 +12,9 @@ use crate::bundle::CodeTableBundle;
 use crate::category::CategorySelectionSnapshot;
 use crate::error::{CodeTableError, CodeTableErrorKind};
 use crate::query::{
-    exact_system_candidates, has_longer_system_code_in_category, longer_system_candidates,
-    longer_system_codes, query_isolated_table, query_with_strategy_and_snapshot,
-    wildcard_system_candidates, CodeTableCandidate, CodeTableMatch, CodeTableQueryStrategy,
-    QuerySnapshot,
+    exact_system_candidates, longer_system_candidates, longer_system_codes, query_isolated_table,
+    query_with_strategy_and_snapshot, wildcard_system_candidates, CodeTableCandidate,
+    CodeTableMatch, CodeTableQueryStrategy, QuerySnapshot,
 };
 
 const PRECISE_HINT_CANDIDATE_LIMIT: usize = 1;
@@ -23,8 +22,8 @@ const PRECISE_HINT_CANDIDATE_LIMIT: usize = 1;
 const MAX_CODE_TABLE_SOURCE_CANDIDATES: usize = 4096;
 const GUIDE_PREFIX_DEFAULT_CODE: &str = "_";
 const GUIDE_REPEAT_CODE: &str = ";";
-const OK_SPELLING_CATEGORY_ID: &str = "ok-spelling";
-const OK_SPELLING_PREFIX: &str = "ok";
+const FUNCTIONAL_CATEGORY_ID: &str = "functional";
+const QUICK_SYMBOL_CATEGORY_ID: &str = "quick-symbol";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CodeTableInputState {
@@ -46,7 +45,6 @@ pub struct CodeTableCommitPolicy {
     pub top_screen_length: usize,
     pub empty_code_clear_length: usize,
     pub normal_code_max_length: usize,
-    pub empty_code_split_max_length: usize,
 }
 
 impl CodeTableCommitPolicy {
@@ -63,25 +61,6 @@ impl CodeTableCommitPolicy {
             top_screen_length,
             empty_code_clear_length,
             normal_code_max_length,
-            empty_code_split_max_length: normal_code_max_length,
-        };
-        policy.validate()?;
-        Ok(policy)
-    }
-
-    pub fn new_with_split_limit(
-        auto_commit_length: usize,
-        top_screen_length: usize,
-        empty_code_clear_length: usize,
-        normal_code_max_length: usize,
-        empty_code_split_max_length: usize,
-    ) -> Result<Self, CodeTableError> {
-        let policy = Self {
-            auto_commit_length,
-            top_screen_length,
-            empty_code_clear_length,
-            normal_code_max_length,
-            empty_code_split_max_length,
         };
         policy.validate()?;
         Ok(policy)
@@ -93,10 +72,6 @@ impl CodeTableCommitPolicy {
             ("top_screen_length", self.top_screen_length),
             ("empty_code_clear_length", self.empty_code_clear_length),
             ("normal_code_max_length", self.normal_code_max_length),
-            (
-                "empty_code_split_max_length",
-                self.empty_code_split_max_length,
-            ),
         ];
         for (name, value) in lengths {
             if !(1..=MAX_CODE_LEN).contains(&value) {
@@ -114,14 +89,6 @@ impl CodeTableCommitPolicy {
                 ));
             }
         }
-        if self.empty_code_split_max_length < self.empty_code_clear_length
-            || self.empty_code_split_max_length > self.normal_code_max_length
-        {
-            return Err(CodeTableError::new(
-                CodeTableErrorKind::InvalidCommitPolicy,
-                "empty_code_split_max_length must be between empty_code_clear_length and normal_code_max_length",
-            ));
-        }
         Ok(())
     }
 }
@@ -133,15 +100,8 @@ impl Default for CodeTableCommitPolicy {
             top_screen_length: Self::FROZEN_DEFAULT_LENGTH,
             empty_code_clear_length: Self::FROZEN_DEFAULT_LENGTH,
             normal_code_max_length: MAX_CODE_LEN,
-            empty_code_split_max_length: MAX_CODE_LEN,
         }
     }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-struct EmptyCodeSplit {
-    commit_text: String,
-    remaining_code: String,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -334,8 +294,11 @@ impl CodeTableStateMachine {
         }
         if self.input_state == CodeTableInputState::NormalCode
             && self.raw_code.len() >= self.commit_policy.top_screen_length
-            && !self.should_continue_ok_spelling(&self.raw_code, &category_snapshot)
-            && !self.has_direct_action_path(&self.raw_code)
+            && !self.has_valid_continuation_for_snapshots(
+                &self.raw_code,
+                &category_snapshot,
+                &user_snapshot,
+            )
         {
             outcome.commit_text = self
                 .exact_candidates_for_snapshots(&self.raw_code, &category_snapshot, &user_snapshot)
@@ -361,6 +324,10 @@ impl CodeTableStateMachine {
         ) {
             self.input_state = CodeTableInputState::GuideCode;
             self.requery_guide();
+            if let Some(commit_text) = self.unique_exact_quick_symbol_text() {
+                outcome.commit_text = Some(commit_text);
+                self.reset();
+            }
         } else {
             self.input_state = CodeTableInputState::NormalCode;
             self.requery_with_snapshots(&category_snapshot, &user_snapshot);
@@ -380,18 +347,12 @@ impl CodeTableStateMachine {
                 && !has_direct_exact
                 && !has_continuation
             {
-                if let Some(split) = self.empty_code_split_for_snapshots(
-                    &self.raw_code,
-                    &category_snapshot,
-                    &user_snapshot,
-                ) {
-                    outcome.commit_text = Some(split.commit_text);
-                    self.raw_code = split.remaining_code;
-                    self.input_state = CodeTableInputState::NormalCode;
-                    self.requery_with_snapshots(&category_snapshot, &user_snapshot);
-                } else {
-                    self.reset();
-                }
+                // An empty full code is never split into a shorter candidate
+                // plus a replayed tail. Such a split made the fourth key look
+                // like an early top-screen commit (for example `niu` + `o`).
+                // The customer contract is binary here: clear the four-code
+                // composition when enabled, otherwise preserve it.
+                self.reset();
             } else if outcome.commit_text.is_none()
                 && self.raw_code.len() >= self.commit_policy.auto_commit_length
                 && exact.len() == 1
@@ -403,6 +364,32 @@ impl CodeTableStateMachine {
             }
         }
         Ok(outcome)
+    }
+
+    /// One-letter quick symbols are confirmation keys, not a second-stage
+    /// candidate composition. Commit the sole exact text result immediately;
+    /// functional commands and ambiguous same-code rows still wait for an
+    /// explicit candidate selection so no action can fire accidentally.
+    fn unique_exact_quick_symbol_text(&self) -> Option<String> {
+        let query = self.query_cache.as_ref()?;
+        if query.match_type != Some(CodeTableMatch::Exact) || query.candidates.len() != 1 {
+            return None;
+        }
+        let candidate = query.candidates.first()?;
+        if candidate.category_id == QUICK_SYMBOL_CATEGORY_ID {
+            return Some(candidate.text.clone());
+        }
+        if candidate.category_id != FUNCTIONAL_CATEGORY_ID {
+            return None;
+        }
+        let action_id = candidate.id.strip_prefix("action:")?;
+        let action = &self.action_table.as_ref()?.record(action_id)?.action;
+        match action {
+            FunctionalAction::StaticText(text)
+            | FunctionalAction::StaticSymbol(text)
+            | FunctionalAction::QuickSymbol(text) => Some(text.clone()),
+            _ => None,
+        }
     }
 
     pub fn backspace(&mut self) {
@@ -676,63 +663,6 @@ impl CodeTableStateMachine {
                     .exact_candidates_for_snapshots(&code, selection, user_snapshot)
                     .is_empty()
             })
-    }
-
-    fn should_continue_ok_spelling(
-        &self,
-        code: &str,
-        selection: &CategorySelectionSnapshot,
-    ) -> bool {
-        code.starts_with(OK_SPELLING_PREFIX)
-            && has_longer_system_code_in_category(
-                &self.bundle,
-                selection,
-                OK_SPELLING_CATEGORY_ID,
-                code,
-            )
-    }
-
-    fn empty_code_split_for_snapshots(
-        &self,
-        code: &str,
-        selection: &CategorySelectionSnapshot,
-        user_snapshot: &UserLexiconSnapshot,
-    ) -> Option<EmptyCodeSplit> {
-        if code.len() < 2 || code.len() > self.commit_policy.empty_code_split_max_length {
-            return None;
-        }
-
-        for split_at in (1..code.len()).rev() {
-            let prefix = &code[..split_at];
-            let Some(candidate) = self
-                .exact_candidates_for_snapshots(prefix, selection, user_snapshot)
-                .into_iter()
-                .next()
-            else {
-                continue;
-            };
-            return Some(EmptyCodeSplit {
-                commit_text: candidate.text,
-                remaining_code: code[split_at..].to_owned(),
-            });
-        }
-
-        for split_at in 1..code.len() {
-            let suffix = &code[split_at..];
-            let suffix_is_visible = !self
-                .exact_candidates_for_snapshots(suffix, selection, user_snapshot)
-                .is_empty()
-                || self.has_direct_action_exact(suffix)
-                || self.has_valid_continuation_for_snapshots(suffix, selection, user_snapshot);
-            if suffix_is_visible {
-                return Some(EmptyCodeSplit {
-                    commit_text: code[..split_at].to_owned(),
-                    remaining_code: suffix.to_owned(),
-                });
-            }
-        }
-
-        None
     }
 
     fn requery(&mut self) {
@@ -1052,10 +982,6 @@ impl CodeTableStateMachine {
         self.action_table
             .as_ref()
             .is_some_and(|table| table.has_direct_continuation(code))
-    }
-
-    fn has_direct_action_path(&self, code: &str) -> bool {
-        self.has_direct_action_exact(code) || self.has_direct_action_continuation(code)
     }
 
     fn exact_candidates_for(&self, code: &str) -> Vec<CodeTableCandidate> {

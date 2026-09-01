@@ -4,7 +4,11 @@ import {
   KeyboardKeyAlternativeSpec,
   KeyboardKeySpec
 } from '../model/KeyboardLayoutSpec';
-import { KeyboardColorPalette } from '../design/KeyboardPalette';
+import {
+  DanranKeyBackgroundKind,
+  KeyboardColorPalette,
+  resolveDanranKeyBackgroundSlice
+} from '../design/KeyboardPalette';
 import { OrientationMetrics } from '../design/KeyboardMetrics';
 
 @Component
@@ -17,6 +21,33 @@ export struct SegmentedKey {
   @State private pressed: boolean = false;
 
   onAction?: (action: KeyboardAction) => void;
+
+  private getBackgroundImage(): ResourceStr {
+    if (!this.palette.useDanranKeyImages) {
+      return this.pressed ? '' : this.palette.letterKeyBackgroundImage;
+    }
+    if (this.palette.useDarkMedia) {
+      return this.pressed
+        ? $r('app.media.danran_key_pressed_dark')
+        : $r('app.media.danran_key_dark');
+    }
+    return this.pressed
+      ? $r('app.media.danran_key_pressed')
+      : $r('app.media.danran_key');
+  }
+
+  private getBackgroundResizableOptions(): ResizableOptions {
+    if (!this.palette.useDanranKeyImages) {
+      return {};
+    }
+    return {
+      slice: resolveDanranKeyBackgroundSlice(
+        DanranKeyBackgroundKind.LETTER,
+        this.palette.useDarkMedia,
+        this.pressed
+      )
+    };
+  }
 
   build() {
     Row() {
@@ -37,13 +68,14 @@ export struct SegmentedKey {
     .height('100%')
     .layoutWeight(this.spec.weight)
     .alignItems(VerticalAlign.Center)
-    .backgroundColor(this.pressed
-      ? this.palette.letterKeyPressedBackground
-      : this.palette.letterKeyBackground)
-    .backgroundImage(this.pressed ? '' : this.palette.letterKeyBackgroundImage, ImageRepeat.NoRepeat)
+    .backgroundColor(this.palette.useDanranKeyImages
+      ? '#00000000'
+      : (this.pressed ? this.palette.letterKeyPressedBackground : this.palette.letterKeyBackground))
+    .backgroundImage(this.getBackgroundImage(), ImageRepeat.NoRepeat)
     .backgroundImageSize({ width: '100%', height: '100%' })
-    .border({ width: 1, color: this.palette.keyBorder })
-    .borderRadius(this.metrics.keyBorderRadius)
+    .backgroundImageResizable(this.getBackgroundResizableOptions())
+    .border({ width: this.palette.useDanranKeyImages ? 0 : 1, color: this.palette.keyBorder })
+    .borderRadius(this.palette.useDanranKeyImages ? 0 : this.metrics.keyBorderRadius)
     .accessibilityText(this.spec.accessibilityLabel)
     .onTouch((event: TouchEvent): void => {
       if (event.type === TouchType.Down) {

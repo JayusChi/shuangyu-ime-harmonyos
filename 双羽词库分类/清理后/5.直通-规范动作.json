@@ -1,0 +1,279 @@
+{
+  "formatVersion": 1,
+  "fixtureOnly": false,
+  "source": "双羽词库分类/双羽词库/5.直通.txt",
+  "sourceRecordCount": 44,
+  "rejectedRecordCount": 13,
+  "records": [
+    {
+      "id": "customer-direct-001-orq",
+      "scope": "DIRECT",
+      "code": "orq",
+      "label": "{time}:yyyy年M月d日",
+      "type": "DATE_TIME_TEXT",
+      "formatId": "DATE_LOCAL_UNPADDED"
+    },
+    {
+      "id": "customer-direct-002-orq",
+      "scope": "DIRECT",
+      "code": "orq",
+      "label": "{time}:yyyy-MM-dd",
+      "type": "DATE_TIME_TEXT",
+      "formatId": "DATE_ISO"
+    },
+    {
+      "id": "customer-direct-003-onl",
+      "scope": "DIRECT",
+      "code": "onl",
+      "label": "{cttg}:yMdHm",
+      "type": "DATE_TIME_TEXT",
+      "formatId": "LUNAR_DATE_FESTIVAL"
+    },
+    {
+      "id": "customer-direct-004-ouj",
+      "scope": "DIRECT",
+      "code": "ouj",
+      "label": "{time}:HH:mm ddd",
+      "type": "DATE_TIME_TEXT",
+      "formatId": "TIME_WEEKDAY"
+    },
+    {
+      "id": "customer-direct-005-ouj",
+      "scope": "DIRECT",
+      "code": "ouj",
+      "label": "{time}:H点m分",
+      "type": "DATE_TIME_TEXT",
+      "formatId": "TIME_LOCAL_HM"
+    },
+    {
+      "id": "customer-direct-006-xhgw",
+      "scope": "DIRECT",
+      "code": "xhgw",
+      "label": "「小鹤官网」",
+      "type": "DIRECT_CONTROL",
+      "action": "url.open",
+      "target": "flypy-home"
+    },
+    {
+      "id": "customer-direct-007-xhg",
+      "scope": "DIRECT",
+      "code": "xhg",
+      "label": "https://flypy.cc",
+      "type": "STATIC_TEXT",
+      "text": "https://flypy.cc"
+    },
+    {
+      "id": "customer-direct-009-xhrm",
+      "scope": "DIRECT",
+      "code": "xhrm",
+      "label": "「入门」",
+      "type": "DIRECT_CONTROL",
+      "action": "url.open",
+      "target": "flypy-help"
+    },
+    {
+      "id": "customer-direct-010-orm",
+      "scope": "DIRECT",
+      "code": "orm",
+      "label": "「入门」",
+      "type": "DIRECT_CONTROL",
+      "action": "url.open",
+      "target": "flypy-help-mobile"
+    },
+    {
+      "id": "customer-direct-011-ocd",
+      "scope": "DIRECT",
+      "code": "ocd",
+      "label": "「设置菜单」",
+      "type": "DIRECT_CONTROL",
+      "action": "app.open",
+      "target": "settings"
+    },
+    {
+      "id": "customer-direct-016-oyh",
+      "scope": "DIRECT",
+      "code": "oyh",
+      "label": "「打开用户词库」",
+      "type": "DIRECT_CONTROL",
+      "action": "app.open",
+      "target": "user-lexicon"
+    },
+    {
+      "id": "customer-direct-017-odr",
+      "scope": "DIRECT",
+      "code": "odr",
+      "label": "「导入用户词库」",
+      "type": "IMPORT_USER_LEXICON"
+    },
+    {
+      "id": "customer-direct-018-ojf",
+      "scope": "DIRECT",
+      "code": "ojf",
+      "label": "[简繁切换]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.traditional",
+      "target": "toggle"
+    },
+    {
+      "id": "customer-direct-019-ovy",
+      "scope": "DIRECT",
+      "code": "ovy",
+      "label": "[中英标点切换]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.punctuation",
+      "target": "toggle"
+    },
+    {
+      "id": "customer-direct-020-oqb",
+      "scope": "DIRECT",
+      "code": "oqb",
+      "label": "[全半角切换]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.fullwidth",
+      "target": "toggle"
+    },
+    {
+      "id": "customer-direct-021-oui",
+      "scope": "DIRECT",
+      "code": "oui",
+      "label": "[删行]",
+      "type": "DIRECT_CONTROL",
+      "action": "editor.delete-line",
+      "target": ""
+    },
+    {
+      "id": "customer-direct-022-oiu",
+      "scope": "DIRECT",
+      "code": "oiu",
+      "label": "[删行]",
+      "type": "DIRECT_CONTROL",
+      "action": "editor.delete-line",
+      "target": ""
+    },
+    {
+      "id": "customer-direct-026-ovn",
+      "scope": "DIRECT",
+      "code": "ovn",
+      "label": "[智能标点]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.smart-period",
+      "target": "600"
+    },
+    {
+      "id": "customer-direct-027-ovn",
+      "scope": "DIRECT",
+      "code": "ovn",
+      "label": "[关闭]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.smart-period",
+      "target": "0"
+    },
+    {
+      "id": "customer-direct-028-osz",
+      "scope": "DIRECT",
+      "code": "osz",
+      "label": "[数字标点]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.numeric-period",
+      "target": "enabled"
+    },
+    {
+      "id": "customer-direct-029-osz",
+      "scope": "DIRECT",
+      "code": "osz",
+      "label": "[关闭]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.numeric-period",
+      "target": "disabled"
+    },
+    {
+      "id": "customer-direct-034-oqma",
+      "scope": "DIRECT",
+      "code": "oqma",
+      "label": "[四码空码清]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.empty-clear",
+      "target": "4"
+    },
+    {
+      "id": "customer-direct-035-oqma",
+      "scope": "DIRECT",
+      "code": "oqma",
+      "label": "[空码不清]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.empty-clear",
+      "target": "12"
+    },
+    {
+      "id": "customer-direct-036-odp",
+      "scope": "DIRECT",
+      "code": "odp",
+      "label": "[四码后顶]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.commit-policy",
+      "target": "top-screen"
+    },
+    {
+      "id": "customer-direct-037-odp",
+      "scope": "DIRECT",
+      "code": "odp",
+      "label": "[四码唯一自动上屏]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.commit-policy",
+      "target": "auto-commit"
+    },
+    {
+      "id": "customer-direct-038-ojj",
+      "scope": "DIRECT",
+      "code": "ojj",
+      "label": "[熟手]",
+      "type": "DIRECT_CONTROL",
+      "action": "category.preset",
+      "target": "experienced"
+    },
+    {
+      "id": "customer-direct-039-ojj",
+      "scope": "DIRECT",
+      "code": "ojj",
+      "label": "[常规]",
+      "type": "DIRECT_CONTROL",
+      "action": "category.preset",
+      "target": "standard"
+    },
+    {
+      "id": "customer-direct-040-ojj",
+      "scope": "DIRECT",
+      "code": "ojj",
+      "label": "[初学]",
+      "type": "DIRECT_CONTROL",
+      "action": "category.preset",
+      "target": "beginner"
+    },
+    {
+      "id": "customer-direct-041-oej",
+      "scope": "DIRECT",
+      "code": "oej",
+      "label": "启用<二简次选>",
+      "type": "DIRECT_CONTROL",
+      "action": "category.enable",
+      "target": "two-key-secondary"
+    },
+    {
+      "id": "customer-direct-042-oej",
+      "scope": "DIRECT",
+      "code": "oej",
+      "label": "[关闭]",
+      "type": "DIRECT_CONTROL",
+      "action": "category.disable",
+      "target": "two-key-secondary"
+    },
+    {
+      "id": "customer-direct-043-jysi",
+      "scope": "DIRECT",
+      "code": "jysi",
+      "label": "『静夜思』",
+      "type": "STATIC_TEXT",
+      "text": "　　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n"
+    }
+  ]
+}

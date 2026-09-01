@@ -6,7 +6,9 @@ import {
   DEFAULT_IME_SETTINGS,
   HapticLevel,
   ImeSettings,
+  KEYBOARD_HEIGHT_MODE_OPTIONS,
   KeyboardHeightMode,
+  LONG_PRESS_DURATION_OPTIONS_MS,
   SMART_PERIOD_TIMEOUT_OPTIONS_MS,
   QUANPIN_SCHEME_ID,
   QuanpinFuzzyOption,
@@ -361,9 +363,10 @@ export struct SettingsPage {
           })
           Divider().color(this.theme.divider)
           ChoiceSettingRow({
-            title: $r('app.string.keyboard_height'), description: '',
-            values: [KeyboardHeightMode.COMPACT, KeyboardHeightMode.STANDARD, KeyboardHeightMode.TALL],
-            labels: ['紧凑', '标准', '较高'], currentValue: this.settings.keyboardHeightMode,
+            title: $r('app.string.keyboard_height'),
+            description: '1.0× 为原始高度，比例同时调整字母键和架空行',
+            values: KEYBOARD_HEIGHT_MODE_OPTIONS,
+            labels: ['0.8×', '0.9×', '1.0×', '1.1×', '1.2×'], currentValue: this.settings.keyboardHeightMode,
             primaryTextColor: this.theme.primaryText, secondaryTextColor: this.theme.secondaryText,
             chipBackground: this.theme.chipBackground, selectedChipBackground: this.theme.selectedChipBackground,
             accentColor: this.theme.accent,
@@ -372,7 +375,7 @@ export struct SettingsPage {
           Divider().color(this.theme.divider)
           SwitchSettingRow({
             title: '键盘架高层',
-            description: '底部显示输入法切换、键盘菜单和收起键；设备已有系统底栏时可关闭',
+            description: '底部显示输入法选择、标点、左右移光标和收起键；设备已有系统底栏时可关闭',
             checked: this.settings.keyboardLiftLayerEnabled,
             disabled: this.busy,
             primaryTextColor: this.theme.primaryText,
@@ -395,7 +398,7 @@ export struct SettingsPage {
           Divider().color(this.theme.divider)
           ChoiceSettingRow({
             title: $r('app.string.candidate_presentation'),
-            description: '',
+            description: '选择“输入框下方”时，固定候选栏整行会自动隐藏',
             values: [
               CandidatePresentationMode.BAR,
               CandidatePresentationMode.FLOATING
@@ -416,6 +419,22 @@ export struct SettingsPage {
 
         this.SectionHeader($r('app.string.feedback'))
         Column({ space: 22 }) {
+          ChoiceSettingRow({
+            title: '长按时间',
+            description: '控制长按符号、输入法切换和连续删除的触发速度',
+            values: LONG_PRESS_DURATION_OPTIONS_MS.map((value: number): string => `${value}`),
+            labels: ['200 毫秒', '300 毫秒', '500 毫秒', '700 毫秒'],
+            currentValue: `${this.settings.longPressDurationMs}`,
+            primaryTextColor: this.theme.primaryText,
+            secondaryTextColor: this.theme.secondaryText,
+            chipBackground: this.theme.chipBackground,
+            selectedChipBackground: this.theme.selectedChipBackground,
+            accentColor: this.theme.accent,
+            onValueChange: (value: string) => this.controller.setLongPressDurationMs(
+              Number.parseInt(value)
+            ).then((r) => this.finish(r))
+          })
+          Divider().color(this.theme.divider)
           ChoiceSettingRow({
             title: $r('app.string.haptic'), description: '',
             values: [HapticLevel.OFF, HapticLevel.LIGHT, HapticLevel.MEDIUM, HapticLevel.STRONG],

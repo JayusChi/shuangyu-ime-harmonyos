@@ -18,43 +18,43 @@
             "text": "啊",
             "reading": "a",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-a-啊"
+            "stable_id": "lex-v300-a-啊"
           },
           {
             "text": "阿",
             "reading": "a",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-a-阿"
+            "stable_id": "lex-v300-a-阿"
           },
           {
             "text": "吖",
             "reading": "a",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-a-吖"
+            "stable_id": "lex-v300-a-吖"
           },
           {
             "text": "呵",
             "reading": "a",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-a-呵"
+            "stable_id": "lex-v300-a-呵"
           },
           {
             "text": "腌",
             "reading": "a",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-a-腌"
+            "stable_id": "lex-v300-a-腌"
           },
           {
             "text": "嗄",
             "reading": "a",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-a-嗄"
+            "stable_id": "lex-v300-a-嗄"
           },
           {
             "text": "锕",
             "reading": "a",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-a-锕"
+            "stable_id": "lex-v300-a-锕"
           }
         ],
         "candidate_page": 0,
@@ -81,55 +81,55 @@
             "text": "和",
             "reading": "he",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-he-和"
+            "stable_id": "lex-v300-he-和"
           },
           {
             "text": "好",
             "reading": "hao",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-hao-好"
+            "stable_id": "lex-v300-hao-好"
           },
           {
             "text": "还",
             "reading": "hai",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-hai-还"
+            "stable_id": "lex-v300-hai-还"
           },
           {
             "text": "呵呵",
             "reading": "he he",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-he_he-呵呵"
+            "stable_id": "lex-v300-he_he-呵呵"
           },
           {
             "text": "会",
             "reading": "hui",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-hui-会"
+            "stable_id": "lex-v300-hui-会"
           },
           {
             "text": "回复日期",
             "reading": "hui fu ri qi",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-hui_fu_ri_qi-回复日期"
+            "stable_id": "lex-v300-hui_fu_ri_qi-回复日期"
           },
           {
             "text": "还是",
             "reading": "hai shi",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-hai_shi-还是"
+            "stable_id": "lex-v300-hai_shi-还是"
           },
           {
             "text": "很",
             "reading": "hen",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-hen-很"
+            "stable_id": "lex-v300-hen-很"
           },
           {
             "text": "后",
             "reading": "hou",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-hou-后"
+            "stable_id": "lex-v300-hou-后"
           }
         ],
         "candidate_page": 0,
@@ -156,13 +156,13 @@
             "text": "嗯",
             "reading": "n",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-n-嗯"
+            "stable_id": "lex-v300-n-嗯"
           },
           {
             "text": "唔",
             "reading": "n",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-n-唔"
+            "stable_id": "lex-v300-n-唔"
           }
         ],
         "candidate_page": 0,
@@ -189,55 +189,55 @@
             "text": "是",
             "reading": "shi",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shi-是"
+            "stable_id": "lex-v300-shi-是"
           },
           {
             "text": "说",
             "reading": "shuo",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shuo-说"
+            "stable_id": "lex-v300-shuo-说"
           },
           {
             "text": "什么",
             "reading": "shen me",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shen_me-什么"
+            "stable_id": "lex-v300-shen_me-什么"
           },
           {
             "text": "上",
             "reading": "shang",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shang-上"
+            "stable_id": "lex-v300-shang-上"
           },
           {
             "text": "时候",
             "reading": "shi hou",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shi_hou-时候"
+            "stable_id": "lex-v300-shi_hou-时候"
           },
           {
             "text": "时",
             "reading": "shi",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shi-时"
+            "stable_id": "lex-v300-shi-时"
           },
           {
             "text": "所以",
             "reading": "suo yi",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-suo_yi-所以"
+            "stable_id": "lex-v300-suo_yi-所以"
           },
           {
             "text": "时间",
             "reading": "shi jian",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shi_jian-时间"
+            "stable_id": "lex-v300-shi_jian-时间"
           },
           {
             "text": "使用",
             "reading": "shi yong",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-shi_yong-使用"
+            "stable_id": "lex-v300-shi_yong-使用"
           }
         ],
         "candidate_page": 0,
@@ -264,55 +264,55 @@
             "text": "在",
             "reading": "zai",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zai-在"
+            "stable_id": "lex-v300-zai-在"
           },
           {
             "text": "这个",
             "reading": "zhe ge",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zhe_ge-这个"
+            "stable_id": "lex-v300-zhe_ge-这个"
           },
           {
             "text": "中",
             "reading": "zhong",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zhong-中"
+            "stable_id": "lex-v300-zhong-中"
           },
           {
             "text": "自己",
             "reading": "zi ji",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zi_ji-自己"
+            "stable_id": "lex-v300-zi_ji-自己"
           },
           {
             "text": "这",
             "reading": "zhe",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zhe-这"
+            "stable_id": "lex-v300-zhe-这"
           },
           {
             "text": "怎么",
             "reading": "zen me",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zen_me-怎么"
+            "stable_id": "lex-v300-zen_me-怎么"
           },
           {
             "text": "做",
             "reading": "zuo",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zuo-做"
+            "stable_id": "lex-v300-zuo-做"
           },
           {
             "text": "知道",
             "reading": "zhi dao",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zhi_dao-知道"
+            "stable_id": "lex-v300-zhi_dao-知道"
           },
           {
             "text": "这样",
             "reading": "zhe yang",
             "source": "rime_pinyin_simp",
-            "stable_id": "lex-v115-zhe_yang-这样"
+            "stable_id": "lex-v300-zhe_yang-这样"
           }
         ],
         "candidate_page": 0,
