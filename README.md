@@ -17,7 +17,7 @@
 | 默认输入方案 | 26 键小鹤双拼（`xiaohe-26`） |
 | 应用包名 | `com.corrosion.shuangyuime` |
 
-**版本验证范围：** 2026-09-15 已完成 0.13.0 正式签名 APP 构建，以及双 ABI、签名、升级身份、版本和资源检查。功能验证沿用打包前的模拟器记录；本轮未重新安装 0.13.0，也未上传 AppGallery Connect（AGC）。具体范围见 [0.13.0 发布核查](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/outputs/release-0.13.0/RELEASE_READINESS.md)，持续更新的实现与设备验证状态见 [PROJECT_STATE.md](PROJECT_STATE.md)。
+**版本验证范围：** 2026-09-15 已完成 0.13.0 正式签名 APP 构建，以及双 ABI、签名、升级身份、版本和资源检查。功能验证沿用打包前的模拟器记录；本轮未重新安装 0.13.0，也未上传 AppGallery Connect（AGC）。具体范围见 [0.13.0 发布核查](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/542ab009c7ada6bbaa57f2f699e24392bd0f5947/outputs/release-0.13.0/RELEASE_READINESS.md)，持续更新的实现与设备验证状态见 [PROJECT_STATE.md](PROJECT_STATE.md)。
 
 APP、HAP 安装包及本机签名材料不随 Git 仓库分发；克隆源码后需配置本地构建环境。
 
@@ -154,7 +154,7 @@ powershell -ExecutionPolicy Bypass -File scripts\verify-release-hap.ps1
 | `entry/build/artifacts/entry-release-unsigned.hap` | Release 内容校验 |
 | `entry/build/artifacts/entry-debug-unsigned.hap` | 内部 Debug 构建检查 |
 
-市场发布需进一步构建 `release` 产品的 signed APP，并复核签名、应用身份及分发渠道要求。当前版本的构建与核查记录见 [0.13.0 发布核查](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/outputs/release-0.13.0/RELEASE_READINESS.md)。
+市场发布需进一步构建 `release` 产品的 signed APP，并复核签名、应用身份及分发渠道要求。当前版本的构建与核查记录见 [0.13.0 发布核查](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/542ab009c7ada6bbaa57f2f699e24392bd0f5947/outputs/release-0.13.0/RELEASE_READINESS.md)。
 
 ### 常用检查
 

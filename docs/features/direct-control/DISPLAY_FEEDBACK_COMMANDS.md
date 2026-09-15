@@ -25,6 +25,6 @@
 
 新增动作沿用正式直通转换流程：原表命令映射为闭集动作及参数，再由 Rust 和 ArkTS 分别校验。原始 `$cmd(...)` 字符串不会被解释执行。
 
-测试与构建记录见 [2026-09-09 验证报告](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/docs/evidence/2026-09-09-direct-display-settings/README.md)。
+测试与构建记录见 [2026-09-09 验证报告](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/542ab009c7ada6bbaa57f2f699e24392bd0f5947/docs/evidence/2026-09-09-direct-display-settings/README.md)。
 
 `ojz` 的字号用于键帽字母和数字，功能键文字保持略小；键高、固定候选字号和浮动候选字号独立保存。选择后立即刷新键盘，旋转屏幕、切换键盘结构或重新启动输入法后继续使用保存值。

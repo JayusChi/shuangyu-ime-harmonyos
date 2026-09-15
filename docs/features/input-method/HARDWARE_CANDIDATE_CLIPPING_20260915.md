@@ -30,7 +30,7 @@
 
 本次验收针对已复现的默认五项、字号 17 场景；更长候选、更多候选或更大字号超出屏幕时，仍保留原有横向滚动及高亮自动显露行为。本次按用户要求未继续验收 QQ。
 
-详细日志、截图、布局树、可重跑的设备验收脚本与证据复核脚本见 [本轮验收目录](https://github.com/JayusChi/shuangyu-ime-harmonyos/tree/f343416795303a3e844bcc80463191d122856c32/outputs/hardware-candidate-clipping-fix-20260915)。
+详细日志、截图、布局树、可重跑的设备验收脚本与证据复核脚本见 [本轮验收目录](https://github.com/JayusChi/shuangyu-ime-harmonyos/tree/542ab009c7ada6bbaa57f2f699e24392bd0f5947/outputs/hardware-candidate-clipping-fix-20260915)。
 
 ## 安装包
 
