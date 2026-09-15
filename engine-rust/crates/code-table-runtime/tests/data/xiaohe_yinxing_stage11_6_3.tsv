@@ -1,4 +1,4 @@
-META	bundle_sha256	263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09
+META	bundle_sha256	7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0
 HEADER	case_id	raw_code	match_type	before_dedup	expected_total_count	expected_category_id	expected_source_order	expected_candidate_id	expected_first_candidates	expected_categories	selection_reason
 CASE	exact_1	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest sorted exact code
 CASE	exact_2	aa	Exact	1	1	core	5	ct:xiaohe-yinxing-production:core:5	阿	core	smallest sorted exact code
@@ -9,7 +9,7 @@ CASE	prefix_fallback	aab	Prefix	4	4	core	152	ct:xiaohe-yinxing-production:core:1
 CASE	no_result	aaaa	Prefix	0	0						smallest four-letter code with no exact or prefix record
 CASE	cross_two	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact code spanning at least two categories
 CASE	cross_three	bcbn	Exact	3	3	core	1454	ct:xiaohe-yinxing-production:core:1454	报表|保镖|鸨	category-secondary|core|full-code-character	smallest exact code spanning at least three categories
-CASE	cross_duplicate	gzx	Prefix	10	9	core	15929	ct:xiaohe-yinxing-production:core:15929	勾选|构想|购销|构陷|构型|狗血|狗熊|工作需要	core	smallest exact-or-prefix query with cross-record duplicate text
+CASE	cross_duplicate	gzx	Prefix	10	9	core	15930	ct:xiaohe-yinxing-production:core:15930	勾选|构想|购销|构陷|构型|狗血|狗熊|工作需要	core	smallest exact-or-prefix query with cross-record duplicate text
 CASE	same_category_multi	bibb	Exact	4	4	core	961	ct:xiaohe-yinxing-production:core:961	毖|皕|比|毙	core|full-code-character|rare-character	smallest exact code with adjacent same-category candidates
 CASE	category_core	a	Exact	2	2	core	0	ct:xiaohe-yinxing-production:core:0	啊|安装	core|one-key-secondary	smallest exact query exposing this category
 CASE	category_prefix_core	aab	Prefix	4	4	core	152	ct:xiaohe-yinxing-production:core:152	阿爸|阿伯|傲岸不群|皑皑白雪	core	smallest non-exact prefix exposing this category
@@ -26,9 +26,9 @@ CASE	category_prefix_symbol	oia	Prefix	6	6	symbol	260	ct:xiaohe-yinxing-producti
 CASE	category_symbol-group	ofbd	Exact	22	22	symbol-group	0	ct:xiaohe-yinxing-production:symbol-group:0	．|。|，|、|；|：|？|！	symbol-group	smallest exact query exposing this category
 CASE	category_prefix_symbol-group	ofb	Prefix	22	22	symbol-group	0	ct:xiaohe-yinxing-production:symbol-group:0	．|。|，|、|；|：|？|！	symbol-group	smallest non-exact prefix exposing this category
 CASE	category_rare-character	aofe	Exact	2	2	core	67	ct:xiaohe-yinxing-production:core:67	聱|嶅	core|rare-character	smallest exact query exposing this category
-CASE	category_prefix_rare-character	ihj	Prefix	11	11	core	20843	ct:xiaohe-yinxing-production:core:20843	常见|场景|长江|长街|长久|长卷|猖獗|长句	core|rare-character	smallest non-exact prefix exposing this category
+CASE	category_prefix_rare-character	ihj	Prefix	11	11	core	20844	ct:xiaohe-yinxing-production:core:20844	常见|场景|长江|长街|长久|长卷|猖獗|长句	core|rare-character	smallest non-exact prefix exposing this category
 CASE	category_full-code-character	aifu	Exact	2	2	core	281	ct:xiaohe-yinxing-production:core:281	爱抚|挨	core|full-code-character	smallest exact query exposing this category
-CASE	category_prefix_full-code-character	deb	Prefix	8	8	core	7397	ct:xiaohe-yinxing-production:core:7397	第二遍|第二步|第二波|当耳边风|得病|嘚吧|大恩不言谢|的	core|full-code-character	smallest non-exact prefix exposing this category
+CASE	category_prefix_full-code-character	deb	Prefix	8	8	core	7398	ct:xiaohe-yinxing-production:core:7398	第二遍|第二步|第二波|当耳边风|得病|嘚吧|大恩不言谢|的	core|full-code-character	smallest non-exact prefix exposing this category
 CASE	category_ok-spelling	okaald	Exact	1	1	ok-spelling	53860	ct:xiaohe-yinxing-production:ok-spelling:53860	𬯩	ok-spelling	smallest exact query exposing this category
 CASE	category_prefix_ok-spelling	oka	Prefix	92	92	ok-spelling	702	ct:xiaohe-yinxing-production:ok-spelling:702	兕|嗸|娿|嫯|嶅|嶴|摮|案	ok-spelling	smallest non-exact prefix exposing this category
 CASE	unicode_extension	ana	Exact	1	1	core	79	ct:xiaohe-yinxing-production:core:79	𩽾	core	smallest exact query exposing a supplementary-plane scalar

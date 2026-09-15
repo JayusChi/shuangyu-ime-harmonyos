@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>双羽 · 键盘皮肤工坊</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/zip-no-worker.min.js"></script>
+  <script defer src="format.js"></script>
+  <script defer src="defaults.js"></script>
+  <script defer src="package-io.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">双</span><div><h1>键盘皮肤工坊</h1><p>双羽输入法 · 本地编辑器</p></div></div>
+    <div class="header-actions"><button id="import-button">打开已有模板</button><button id="export-skin" class="primary">导出皮肤包</button><button id="export-layout">导出结构包</button></div>
+    <input id="import-file" type="file" accept=".sy-skin,.sy-layout,.zip,.json" hidden>
+  </header>
+  <main class="workspace">
+    <section class="editor" aria-label="模板编辑">
+      <nav class="tabs" aria-label="编辑类别"><button data-tab="colors" aria-pressed="true">配色</button><button data-tab="images" aria-pressed="false">图片</button><button data-tab="layout" aria-pressed="false">结构</button></nav>
+      <section id="skin-identity" class="identity">
+        <label>皮肤名称<input id="skin-name" maxlength="64" value="我的纯色皮肤"></label>
+        <label>皮肤 ID<input id="skin-id" maxlength="64" spellcheck="false" value="my.skin.blue"></label>
+        <p class="hint">同一 ID 再次导入会更新皮肤；另存一款请修改 ID。</p>
+      </section>
+      <section id="tab-colors" class="tab-panel">
+        <div class="section-head"><h2>从一组配色开始</h2><span>切换会替换当前颜色</span></div>
+        <div class="presets"><button data-preset="blue"><i style="background:#9CB8D9"></i>晴空蓝</button><button data-preset="pink"><i style="background:#DFA0B5"></i>樱花粉</button><button data-preset="dark"><i style="background:#6A5A88"></i>墨紫夜色</button></div>
+        <div id="color-fields"></div>
+      </section>
+      <section id="tab-images" class="tab-panel" hidden>
+        <h2>替换背景与键帽</h2><p class="hint">支持 PNG、JPG、WebP。图片铺满对应区域，文字由键盘叠加；按下时显示按下状态颜色。</p>
+        <div id="image-fields"></div>
+        <p class="hint">不透明图片会遮住背景色。暂不支持逐键图片、按下态图片或字体替换。</p>
+      </section>
+      <section id="tab-layout" class="tab-panel" hidden>
+        <div class="identity"><label>结构名称<input id="layout-name" maxlength="64"></label><label>结构 ID<input id="layout-id" maxlength="64" spellcheck="false"></label></div>
+        <h2>点选按键，再调整</h2><p class="hint">右侧点选一个键，编辑宽度、显示文字和位置。可拖动按键交换位置；仅应用于 26 键文字布局。</p>
+        <div class="key-inspector">
+          <div class="section-head"><strong id="selected-title">空格</strong><code id="selected-id">space</code></div>
+          <label>相对宽度<input id="key-weight" type="number" min="0.4" max="8" step="any"></label>
+          <label>显示文字<input id="key-label" maxlength="8" placeholder="留空使用默认文字"></label>
+          <div class="move-buttons"><button id="move-left">← 左移</button><button id="move-right">右移 →</button><button id="move-up">↑ 上一行</button><button id="move-down">↓ 下一行</button></div>
+        </div>
+        <p class="hint">字母和必要功能键不可删除。空格与逗号、句号放在同一行，可以避免设备自动补充标点键。此版支持编辑已有行，新增行可通过导入结构模板完成。</p>
+      </section>
+      <details class="help"><summary>怎么交给输入法使用？</summary><ol><li>在这里修改颜色、图片或结构。</li><li>点击上方“导出皮肤包”或“导出结构包”。</li><li>将下载的文件传到设备，打开输入法“设置 → 数据管理 → 键盘结构与皮肤”。</li><li>选择对应的导入按钮，导入刚下载的文件。</li></ol><p>只改外观时，导出皮肤包即可。要继续编辑，重新打开导出的文件。请在关闭窗口前导出保存。</p></details>
+    </section>
+    <section class="preview-area" aria-label="键盘效果预览">
+      <div class="preview-toolbar"><div><span class="eyebrow">LIVE PREVIEW</span><h2>边改，边看</h2></div><div class="preview-options"><label>宽度<select id="preview-width"><option value="390">手机 · 390</option><option value="360">小屏 · 360</option><option value="680">平板 · 680</option></select></label><label>文字<select id="preview-language"><option value="chinese">中文</option><option value="english">英文</option></select></label><label>系统底色<select id="preview-theme"><option value="light">浅色</option><option value="dark">深色</option></select></label></div></div>
+      <div class="preview-stage">
+        <div id="device" class="device">
+          <div class="device-top"><span>双羽预览</span><span aria-hidden="true">•••</span></div>
+          <div class="conversation"><div class="message">把喜欢的颜色，放进每天的输入里。</div><div id="demo-output" class="demo-output" aria-live="polite">今天也有好心情</div><div class="input-example"><span>试试你的新皮肤</span><span>↑</span></div></div>
+          <div id="keyboard-panel" class="keyboard-panel"><div id="candidates" class="candidates"><div id="reading">shuang yu</div><div class="candidate-list"><span>双羽</span><span>双语</span><span>双鱼</span><span>⌄</span></div></div><div id="keyboard" class="keyboard" aria-label="点击按键查看按下效果"></div><div class="keyboard-bottom"><span>双羽输入法</span><span id="keyboard-mode">中文</span></div></div>
+        </div>
+      </div>
+      <div class="preview-caption"><span id="preview-name">我的纯色皮肤</span><p>外观近似预览：按住键可看按下状态。设备字体、图标、尺寸和候选状态以实际输入法为准。这里不运行输入引擎。</p></div>
+      <div id="status" class="status" role="status" aria-live="polite">已准备好。可以直接修改并导出，无需联网。</div>
+    </section>
+  </main>
+</body>
+</html>

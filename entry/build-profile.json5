@@ -43,6 +43,8 @@
       "source": {
         "pages": [
           "pages/Index",
+          "pages/ShapeLookup",
+          "pages/FlypyWeb",
           "pages/UserLexicon",
           "pages/KeyboardCustomization",
           "pages/XiaoheYinxingCategoryManagerPage",
@@ -59,6 +61,8 @@
         "pages": [
           "pages/DebugIndex",
           "pages/Index",
+          "pages/ShapeLookup",
+          "pages/FlypyWeb",
           "pages/UserLexicon",
           "pages/KeyboardCustomization",
           "pages/XiaoheYinxingCategoryManagerPage",

@@ -14,6 +14,13 @@ interface PhysicalKeyDecisionRecord {
   handled: boolean;
 }
 
+// The two HarmonyOS keyboard-delegate APIs are not dispatched in the same UI
+// turn on every device. The nova 12 / HarmonyOS 6.1 path has been observed to
+// deliver the matching callback 88-96 ms later, so one scheduler-length 80 ms
+// window is insufficient. Keep the window bounded while covering two such
+// dispatch intervals.
+const DEFAULT_CROSS_CHANNEL_DUPLICATE_WINDOW_MS = 160;
+
 const KEYCODE_ALT_LEFT = 2045;
 const KEYCODE_ALT_RIGHT = 2046;
 const KEYCODE_SHIFT_LEFT = 2047;
@@ -86,7 +93,7 @@ export class PhysicalKeyEventDeduplicator {
   private recentDecisions: PhysicalKeyDecisionRecord[] = [];
   private readonly duplicateWindowMs: number;
 
-  constructor(duplicateWindowMs: number = 80) {
+  constructor(duplicateWindowMs: number = DEFAULT_CROSS_CHANNEL_DUPLICATE_WINDOW_MS) {
     this.duplicateWindowMs = duplicateWindowMs;
   }
 
@@ -96,7 +103,10 @@ export class PhysicalKeyEventDeduplicator {
     timestampMs: number
   ): boolean | undefined {
     this.prune(timestampMs);
-    for (let index = this.recentDecisions.length - 1; index >= 0; index -= 1) {
+    // Match the oldest eligible callback first. A held key can emit several
+    // same-channel repeats before the other delegate catches up; FIFO pairing
+    // preserves every real repeat while suppressing only its delayed mirror.
+    for (let index = 0; index < this.recentDecisions.length; index += 1) {
       const decision = this.recentDecisions[index];
       if (decision.channel !== channel && decision.keyCode === key.keyCode &&
         decision.isDown === key.isDown) {

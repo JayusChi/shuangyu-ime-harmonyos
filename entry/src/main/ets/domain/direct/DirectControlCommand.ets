@@ -23,6 +23,22 @@ const CATEGORY_ACTIONS: string[] = [
 export function parseDirectControlCommand(action: string, target: string): DirectControlParseResult {
   const normalizedAction = action.trim().toLowerCase();
   const normalizedTarget = target.trim().toLowerCase();
+  const displayTargets: Record<string, string[]> = {
+    'settings.candidate-position': ['bar', 'floating'],
+    'settings.keyboard-height': ['default', 'increase', 'decrease'],
+    'settings.keyboard-font': ['default', 'increase', 'decrease'],
+    'settings.candidate-font': ['default', 'increase', 'decrease'],
+    'settings.floating-font': ['default', 'increase', 'decrease'],
+    'settings.keyboard-profile': ['xiaohe-26', 'xiaohe-yinxing-26', 'quanpin-26'],
+    'settings.haptic': ['enabled', 'disabled'],
+    'settings.key-sound': ['enabled', 'disabled']
+  };
+  const targets = displayTargets[normalizedAction];
+  if (targets !== undefined) {
+    return targets.indexOf(normalizedTarget) >= 0 ?
+      { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } } :
+      { success: false, message: '直通设置参数无效' };
+  }
   if (normalizedAction === 'scheme.set') {
     if (!isAvailableScheme(normalizedTarget)) {
       return { success: false, message: '方案标识无效' };
@@ -73,6 +89,12 @@ export function parseDirectControlCommand(action: string, target: string): Direc
   if (normalizedAction === 'settings.empty-clear') {
     if (normalizedTarget !== '4' && normalizedTarget !== '12') {
       return { success: false, message: '清码阈值无效' };
+    }
+    return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
+  }
+  if (normalizedAction === 'settings.split-mode') {
+    if (normalizedTarget !== 'traditional' && normalizedTarget !== 'split') {
+      return { success: false, message: '切分模式无效' };
     }
     return { success: true, message: '', command: { action: normalizedAction, target: normalizedTarget } };
   }

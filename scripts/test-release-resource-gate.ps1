@@ -12,6 +12,8 @@ $resourceRoot = Join-Path $sourceRoot 'resources'
 $rawfile = Join-Path $resourceRoot 'rawfile'
 New-Item -ItemType Directory -Path $rawfile -Force | Out-Null
 $production = Join-Path $rawfile 'production.lex'
+Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\resources\rawfile\keyboard-skin-editor.html') `
+    -Destination (Join-Path $rawfile 'keyboard-skin-editor.html')
 Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\resources\rawfile\production.lex') `
     -Destination $production
 Copy-Item -LiteralPath (Join-Path $repoRoot 'entry\src\main\resources\rawfile\xiaohe-yinxing-production.hsyx') `
@@ -49,6 +51,31 @@ try {
     & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-release-hap.ps1') `
         -ResourceInputOnly -ResourceRoot $resourceRoot -SourceRoot $sourceRoot
     if ($LASTEXITCODE -ne 0) { throw 'Release gate rejected the production-only control case.' }
+
+    $editorPath = Join-Path $rawfile 'keyboard-skin-editor.html'
+    $editorOriginal = [IO.File]::ReadAllBytes($editorPath)
+    Remove-Item -LiteralPath $editorPath
+    Invoke-NegativeGate 'missing-offline-skin-editor'
+    [IO.File]::WriteAllText($editorPath, '<html>outdated editor</html>')
+    Invoke-NegativeGate 'outdated-offline-skin-editor'
+    [IO.File]::WriteAllBytes($editorPath, $editorOriginal)
+
+    $modulePath = Join-Path $sourceRoot 'module.json5'
+    $moduleOriginal = [IO.File]::ReadAllText($modulePath, [Text.Encoding]::UTF8)
+    [IO.File]::WriteAllText($modulePath,
+        $moduleOriginal.Replace('flypy-web-v1', 'unapproved-web-profile'), [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'unapproved-web-permission-profile'
+    [IO.File]::WriteAllText($modulePath,
+        $moduleOriginal.Replace('ohos.permission.VIBRATE', 'ohos.permission.CAMERA'), [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'web-profile-extra-permission'
+    [IO.File]::WriteAllText($modulePath,
+        ($moduleOriginal -replace '(?s)("name": "FlypyWebAbility".*?"exported": )false', '${1}true'), [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'web-ability-exported'
+    [IO.File]::WriteAllText($modulePath, $moduleOriginal, [Text.Encoding]::UTF8)
+    [IO.File]::WriteAllText($modulePath,
+        $moduleOriginal.Replace('ohos.permission.VIBRATE', 'ohos.permission.READ_PASTEBOARD'), [Text.Encoding]::UTF8)
+    Invoke-NegativeGate 'clipboard-permission-prevents-normal-apl-install'
+    [IO.File]::WriteAllText($modulePath, $moduleOriginal, [Text.Encoding]::UTF8)
 
     $productionBytes = [IO.File]::ReadAllBytes($production)
     $productionBytes[$productionBytes.Length - 1] = $productionBytes[$productionBytes.Length - 1] -bxor 0x01

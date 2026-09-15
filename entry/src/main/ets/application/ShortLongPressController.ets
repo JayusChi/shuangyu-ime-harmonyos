@@ -51,6 +51,10 @@ export class ShortLongPressController {
     }
   }
 
+  stopLongPressTimer(): void {
+    this.clearTimer();
+  }
+
   click(): void {
     // ArkUI may deliver onClick before TouchType.Up for injected/accessibility clicks, and
     // accessibility activation may produce only onClick. Both are valid short presses.

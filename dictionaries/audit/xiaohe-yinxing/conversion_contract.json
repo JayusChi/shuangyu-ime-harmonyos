@@ -4,7 +4,7 @@
   "bundle_id": "xiaohe-yinxing-production",
   "data_version": "source-receipt-1",
   "converter_version": "yinxing-converter/0-not-implemented",
-  "audit_manifest_sha256": "f054132eb8b5e008601f215db50cf337214c35bf2100fcb03f63180b2c9252b8",
+  "audit_manifest_sha256": "39386e1879db80921e80c2da42778485394ff0594bcf12efc2523fd668778e53",
   "source_roots": [
     "码表",
     "小鹤音形"
@@ -12,7 +12,7 @@
   "source_files": [
     {
       "source": "小鹤音形/0.0.小鹤.txt",
-      "sha256": "e78c063a971a53bbf68112fa681ef99e624907690235b32ce9cd374f78ba810e",
+      "sha256": "6d0305bb26de36a6fac2b4921d645c8e00ae880eda71b72de1b36bbcb482b57a",
       "role": "core_code_table",
       "decision": "TRANSFORM",
       "conversion_input": true

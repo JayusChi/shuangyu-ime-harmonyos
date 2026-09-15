@@ -10,6 +10,7 @@ import {
 } from '../../domain/settings/ImeSettings';
 import { SettingsMigration } from './SettingsMigration';
 import { SettingsValidator } from './SettingsValidator';
+import { SharedSettingsFile } from './SharedSettingsFile';
 
 const LOGGER = new Logger('SettingsRepository');
 const PREFERENCES_NAME = 'ime_settings';
@@ -29,8 +30,14 @@ interface SettingsPreferenceKeys {
   KEYBOARD_STRUCTURE_ID: string;
   KEYBOARD_SKIN_ID: string;
   KEYBOARD_HEIGHT_MODE: string;
+  KEYBOARD_FONT_SIZE: string;
+  UPPER_LABEL_RIGHT_MARGIN: string;
   KEYBOARD_LIFT_LAYER_ENABLED: string;
   CANDIDATE_FONT_SIZE_MODE: string;
+  CANDIDATE_FONT_SIZE: string;
+  CANDIDATE_DISPLAY_COUNT: string;
+  FLOATING_CANDIDATE_FONT_SIZE: string;
+  KEY_SOUND_VOLUME: string;
   HAPTIC_LEVEL: string;
   KEY_SOUND_ENABLED: string;
   USER_LEARNING_ENABLED: string;
@@ -57,8 +64,10 @@ interface SettingsPreferenceKeys {
   TRADITIONAL_OUTPUT_ENABLED: string;
   CODE_TABLE_EMPTY_CLEAR_LENGTH: string;
   CODE_TABLE_AUTO_COMMIT_ENABLED: string;
+  CODE_TABLE_REVERSE_SPLIT_ENABLED: string;
   INPUT_PRESENTATION_PREFERENCE: string;
   CANDIDATE_PRESENTATION_MODE: string;
+  INLINE_PREEDIT_ENABLED: string;
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: string;
   XIAOHE_YINXING_ENABLED_CATEGORY_IDS: string;
   LEXICON_SOURCES: string;
@@ -76,8 +85,14 @@ const KEYS: SettingsPreferenceKeys = {
   KEYBOARD_STRUCTURE_ID: 'keyboard_structure_id',
   KEYBOARD_SKIN_ID: 'keyboard_skin_id',
   KEYBOARD_HEIGHT_MODE: 'keyboard_height_mode',
+  KEYBOARD_FONT_SIZE: 'keyboard_font_size',
+  UPPER_LABEL_RIGHT_MARGIN: 'upper_label_right_margin',
   KEYBOARD_LIFT_LAYER_ENABLED: 'keyboard_lift_layer_enabled',
   CANDIDATE_FONT_SIZE_MODE: 'candidate_font_size_mode',
+  CANDIDATE_FONT_SIZE: 'candidate_font_size',
+  CANDIDATE_DISPLAY_COUNT: 'candidate_display_count',
+  FLOATING_CANDIDATE_FONT_SIZE: 'floating_candidate_font_size',
+  KEY_SOUND_VOLUME: 'key_sound_volume',
   HAPTIC_LEVEL: 'haptic_level',
   KEY_SOUND_ENABLED: 'key_sound_enabled',
   USER_LEARNING_ENABLED: 'user_learning_enabled',
@@ -104,8 +119,10 @@ const KEYS: SettingsPreferenceKeys = {
   TRADITIONAL_OUTPUT_ENABLED: 'traditional_output_enabled',
   CODE_TABLE_EMPTY_CLEAR_LENGTH: 'code_table_empty_clear_length',
   CODE_TABLE_AUTO_COMMIT_ENABLED: 'code_table_auto_commit_enabled',
+  CODE_TABLE_REVERSE_SPLIT_ENABLED: 'code_table_reverse_split_enabled',
   INPUT_PRESENTATION_PREFERENCE: 'input_presentation_preference',
   CANDIDATE_PRESENTATION_MODE: 'candidate_presentation_mode',
+  INLINE_PREEDIT_ENABLED: 'inline_preedit_enabled',
   XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION: 'xiaohe_yinxing_category_schema_version',
   XIAOHE_YINXING_ENABLED_CATEGORY_IDS: 'xiaohe_yinxing_enabled_category_ids',
   LEXICON_SOURCES: 'lexicon_sources',
@@ -135,10 +152,12 @@ export class SettingsRepository implements SettingsRepositoryContract {
   private storage?: preferences.Preferences;
   private sharedStorage?: dataShare.DataProxyHandle;
   private processName: string = 'unknown';
+  private context?: common.Context;
   private lastPersisted?: ImeSettings;
   private readonly migration: SettingsMigration;
   private readonly validator: SettingsValidator;
   private readonly recordCodec: SettingsRepositoryRecordCodec = new SettingsRepositoryRecordCodec();
+  private readonly sharedFile: SharedSettingsFile = new SharedSettingsFile();
 
   constructor(
     migration: SettingsMigration = new SettingsMigration(),
@@ -149,17 +168,23 @@ export class SettingsRepository implements SettingsRepositoryContract {
   }
 
   async load(context: common.Context): Promise<ImeSettings> {
+    this.context = context;
     this.processName = context.processName;
+    try {
+      await this.sharedFile.initialize(context);
+    } catch (err) {
+      LOGGER.warn(`settings shared directory unavailable: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+    }
     await this.openSharedStorage();
-    const sharedSnapshot = await this.readSharedSnapshot(context);
+    const sharedSnapshot = await this.readSharedSnapshot(context) ?? this.readSharedFileSnapshot();
     if (sharedSnapshot) {
       if (this.processName === MAIN_PROCESS_NAME) {
         try {
           const storage = await this.openPreferences(context);
           await this.writeRaw(storage, settingsToRaw(sharedSnapshot));
           await storage.flush();
+          this.sharedFile.write(this.recordCodec.encode(sharedSnapshot));
         } catch (err) {
-          this.storage = undefined;
           LOGGER.warn(`settings snapshot mirror failed: ${JSON.stringify(err)}`);
         }
       }
@@ -210,13 +235,28 @@ export class SettingsRepository implements SettingsRepositoryContract {
         this.lastPersisted = copyImeSettings(settings);
         LOGGER.info(`settings saved: process=${this.processName}, ${this.describe(settings)}`);
         return true;
-      } catch (err) {
+      } catch (sharedErr) {
+        const context = this.context;
+        if (context) {
+          try {
+            const storage = await this.openPreferences(context);
+            await this.writeRaw(storage, settingsToRaw(settings));
+            await storage.flush();
+            this.lastPersisted = copyImeSettings(settings);
+            LOGGER.info(
+              `settings saved to process-local fallback: process=${this.processName}, ${this.describe(settings)}`
+            );
+            return true;
+          } catch (fallbackErr) {
+            LOGGER.warn(`settings process-local fallback save failed: ${JSON.stringify(fallbackErr)}`);
+          }
+        }
         try {
           await this.writeSharedSnapshot(previous);
         } catch (rollbackErr) {
           LOGGER.warn(`settings snapshot rollback failed: ${JSON.stringify(rollbackErr)}`);
         }
-        LOGGER.warn(`settings save failed: ${JSON.stringify(err)}`);
+        LOGGER.warn(`settings save failed: ${JSON.stringify(sharedErr)}`);
         return false;
       }
     }
@@ -266,8 +306,14 @@ export class SettingsRepository implements SettingsRepositoryContract {
       keyboardStructureId: await this.readString(storage, KEYS.KEYBOARD_STRUCTURE_ID),
       keyboardSkinId: await this.readString(storage, KEYS.KEYBOARD_SKIN_ID),
       keyboardHeightMode: await this.readString(storage, KEYS.KEYBOARD_HEIGHT_MODE),
+      keyboardFontSize: await this.readString(storage, KEYS.KEYBOARD_FONT_SIZE),
+      upperLabelRightMargin: await this.readString(storage, KEYS.UPPER_LABEL_RIGHT_MARGIN),
       keyboardLiftLayerEnabled: await this.readString(storage, KEYS.KEYBOARD_LIFT_LAYER_ENABLED),
       candidateFontSizeMode: await this.readString(storage, KEYS.CANDIDATE_FONT_SIZE_MODE),
+      candidateFontSize: await this.readString(storage, KEYS.CANDIDATE_FONT_SIZE),
+      candidateDisplayCount: await this.readString(storage, KEYS.CANDIDATE_DISPLAY_COUNT),
+      floatingCandidateFontSize: await this.readString(storage, KEYS.FLOATING_CANDIDATE_FONT_SIZE),
+      keySoundVolume: await this.readString(storage, KEYS.KEY_SOUND_VOLUME),
       hapticLevel: await this.readString(storage, KEYS.HAPTIC_LEVEL),
       keySoundEnabled: await this.readString(storage, KEYS.KEY_SOUND_ENABLED),
       userLearningEnabled: await this.readString(storage, KEYS.USER_LEARNING_ENABLED),
@@ -294,8 +340,10 @@ export class SettingsRepository implements SettingsRepositoryContract {
       traditionalOutputEnabled: await this.readString(storage, KEYS.TRADITIONAL_OUTPUT_ENABLED),
       codeTableEmptyClearLength: await this.readString(storage, KEYS.CODE_TABLE_EMPTY_CLEAR_LENGTH),
       codeTableAutoCommitEnabled: await this.readString(storage, KEYS.CODE_TABLE_AUTO_COMMIT_ENABLED),
+      codeTableReverseSplitEnabled: await this.readString(storage, KEYS.CODE_TABLE_REVERSE_SPLIT_ENABLED),
       inputPresentationPreference: await this.readString(storage, KEYS.INPUT_PRESENTATION_PREFERENCE),
       candidatePresentationMode: await this.readString(storage, KEYS.CANDIDATE_PRESENTATION_MODE),
+      inlinePreeditEnabled: await this.readString(storage, KEYS.INLINE_PREEDIT_ENABLED),
       xiaoheYinxingCategorySchemaVersion: await this.readString(
         storage,
         KEYS.XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION
@@ -320,8 +368,14 @@ export class SettingsRepository implements SettingsRepositoryContract {
     await this.putString(storage, KEYS.KEYBOARD_STRUCTURE_ID, raw.keyboardStructureId);
     await this.putString(storage, KEYS.KEYBOARD_SKIN_ID, raw.keyboardSkinId);
     await this.putString(storage, KEYS.KEYBOARD_HEIGHT_MODE, raw.keyboardHeightMode);
+    await this.putString(storage, KEYS.KEYBOARD_FONT_SIZE, raw.keyboardFontSize);
+    await this.putString(storage, KEYS.UPPER_LABEL_RIGHT_MARGIN, raw.upperLabelRightMargin);
     await this.putString(storage, KEYS.KEYBOARD_LIFT_LAYER_ENABLED, raw.keyboardLiftLayerEnabled);
     await this.putString(storage, KEYS.CANDIDATE_FONT_SIZE_MODE, raw.candidateFontSizeMode);
+    await this.putString(storage, KEYS.CANDIDATE_FONT_SIZE, raw.candidateFontSize);
+    await this.putString(storage, KEYS.CANDIDATE_DISPLAY_COUNT, raw.candidateDisplayCount);
+    await this.putString(storage, KEYS.FLOATING_CANDIDATE_FONT_SIZE, raw.floatingCandidateFontSize);
+    await this.putString(storage, KEYS.KEY_SOUND_VOLUME, raw.keySoundVolume);
     await this.putString(storage, KEYS.HAPTIC_LEVEL, raw.hapticLevel);
     await this.putString(storage, KEYS.KEY_SOUND_ENABLED, raw.keySoundEnabled);
     await this.putString(storage, KEYS.USER_LEARNING_ENABLED, raw.userLearningEnabled);
@@ -348,8 +402,10 @@ export class SettingsRepository implements SettingsRepositoryContract {
     await this.putString(storage, KEYS.TRADITIONAL_OUTPUT_ENABLED, raw.traditionalOutputEnabled);
     await this.putString(storage, KEYS.CODE_TABLE_EMPTY_CLEAR_LENGTH, raw.codeTableEmptyClearLength);
     await this.putString(storage, KEYS.CODE_TABLE_AUTO_COMMIT_ENABLED, raw.codeTableAutoCommitEnabled);
+    await this.putString(storage, KEYS.CODE_TABLE_REVERSE_SPLIT_ENABLED, raw.codeTableReverseSplitEnabled);
     await this.putString(storage, KEYS.INPUT_PRESENTATION_PREFERENCE, raw.inputPresentationPreference);
     await this.putString(storage, KEYS.CANDIDATE_PRESENTATION_MODE, raw.candidatePresentationMode);
+    await this.putString(storage, KEYS.INLINE_PREEDIT_ENABLED, raw.inlinePreeditEnabled);
     await this.putString(
       storage,
       KEYS.XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
@@ -402,6 +458,9 @@ export class SettingsRepository implements SettingsRepositoryContract {
       preferences.removePreferencesFromCacheSync(context, options);
       const storage = await preferences.getPreferences(context, options);
       const raw = await this.readRaw(storage);
+      if (!raw.schemaVersion && !raw.keyboardProfileId) {
+        return undefined;
+      }
       if (!raw.keyboardProfileId) {
         raw.legacyKeyboardLayout = await this.readLegacyKeyboardLayout(context);
       }
@@ -435,6 +494,25 @@ export class SettingsRepository implements SettingsRepositoryContract {
     }
   }
 
+  private readSharedFileSnapshot(): ImeSettings | undefined {
+    try {
+      const record = this.sharedFile.read();
+      if (!record) {
+        return undefined;
+      }
+      const raw = this.recordCodec.decode(record);
+      if (!raw || !raw.schemaVersion || !raw.keyboardProfileId) {
+        throw new Error('invalid shared settings record');
+      }
+      const snapshot = this.validator.validate(this.migration.migrate(raw));
+      LOGGER.info(`settings shared file loaded: process=${this.processName}, ${this.describe(snapshot)}`);
+      return snapshot;
+    } catch (err) {
+      LOGGER.warn(`settings shared file read failed: ${JSON.stringify(err)}`);
+      return undefined;
+    }
+  }
+
   private async writeSharedSnapshot(settings: ImeSettings): Promise<void> {
     if (!this.sharedStorage) {
       throw new Error('settings shared storage is unavailable');
@@ -448,6 +526,9 @@ export class SettingsRepository implements SettingsRepositoryContract {
       }], SHARED_SETTINGS_CONFIG);
       if (results.length !== 1 || results[0].result !== dataShare.DataProxyErrorCode.SUCCESS) {
         throw new Error('shared settings publish was rejected');
+      }
+      if (this.processName === MAIN_PROCESS_NAME) {
+        this.sharedFile.write(record);
       }
     } catch (err) {
       const detail = err instanceof Error ? err.message : JSON.stringify(err);

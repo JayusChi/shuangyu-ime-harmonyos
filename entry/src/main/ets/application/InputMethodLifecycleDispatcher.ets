@@ -1,3 +1,4 @@
+import { isConvenienceInput } from '../domain/keyboard/ConvenienceInput';
 import { inputMethodEngine, InputMethodExtensionContext } from '@kit.IMEKit';
 import { Logger } from '../common/logging/Logger';
 import { InputPanelController } from './InputPanelController';
@@ -18,7 +19,9 @@ import {
   PhysicalKeyCommandType,
   PhysicalKeyConsumptionTracker,
   PhysicalEditorSuffixTracker,
+  PhysicalShiftLanguageToggleTracker,
   PhysicalKeySnapshot,
+  isPhysicalShiftKey,
   resolveUnmodifiedPhysicalLetter,
   resolvePhysicalKeyCommand
 } from '../domain/keyboard/PhysicalKeyboardRouting';
@@ -26,7 +29,8 @@ import {
   DELETE_ACTION,
   INSERT_SEGMENT_BOUNDARY_ACTION,
   KeyboardAction,
-  KeyboardActionType
+  KeyboardActionType,
+  KeyboardMode
 } from '../domain/keyboard/KeyboardAction';
 import { resolveSymbolGuide } from '../domain/keyboard/SymbolGuideMap';
 import {
@@ -52,6 +56,9 @@ import {
   isSmartPunctuationEnabled,
   smartPunctuationTarget
 } from '../domain/keyboard/SmartPunctuation';
+import { resolveInputMethodSubtypeTarget } from '../domain/keyboard/InputMethodSubtypeRouting';
+import { getSharedSettingsController, SettingsController } from './SettingsController';
+import { InputMethodSubtypeSynchronizer } from '../infrastructure/ime/InputMethodSubtypeSynchronizer';
 
 const TAG = 'InputMethodLifecycle';
 const LOGGER = new Logger(TAG);
@@ -67,18 +74,25 @@ export class InputMethodLifecycleDispatcher {
   private readonly physicalKeyboard: PhysicalKeyboardStateProvider;
   private readonly directControl: DirectControlService;
   private readonly securityModeProvider: InputMethodSecurityModeProvider;
+  private readonly settingsController: SettingsController;
+  private readonly subtypeSynchronizer: InputMethodSubtypeSynchronizer;
   private imeAbility?: inputMethodEngine.InputMethodAbility;
   private presentationMode: InputPresentationMode = InputPresentationMode.TOUCH;
   private presentationState: InputPresentationState = InputPresentationState.INACTIVE;
   private readonly physicalKeyConsumption = new PhysicalKeyConsumptionTracker();
   private readonly physicalEditorSuffix = new PhysicalEditorSuffixTracker();
+  private readonly physicalShiftLanguageToggle = new PhysicalShiftLanguageToggleTracker();
   private pendingPhysicalOperationCount: number = 0;
+  private conveniencePendingRaw: string | undefined = undefined;
   private physicalOperationGeneration: number = 0;
   private inputActive: boolean = false;
   private symbolGuideActive: boolean = false;
   private lastPhysicalSmartPunctuationTarget?: string;
   private lastPhysicalSmartPunctuationTimestampMs?: number;
-  private readonly onSettingsChanged = (): void => this.reconcilePresentationMode('settings');
+  private readonly onSettingsChanged = (): void => {
+    this.reconcilePresentationMode('settings');
+    this.synchronizePlatformSubtype('settings');
+  };
   private readonly onPhysicalKeyboardChanged = (_present: boolean): void => {
     this.reconcilePresentationMode('physicalKeyboard');
   };
@@ -94,7 +108,9 @@ export class InputMethodLifecycleDispatcher {
     settingsStore: SettingsStore = getSharedSettingsStore(),
     physicalKeyboard: PhysicalKeyboardStateProvider = new PhysicalKeyboardMonitor(),
     directControl: DirectControlService = getSharedDirectControlService(),
-    securityModeProvider: InputMethodSecurityModeProvider = new InputMethodSecurityModeProvider()
+    securityModeProvider: InputMethodSecurityModeProvider = new InputMethodSecurityModeProvider(),
+    settingsController: SettingsController = getSharedSettingsController(),
+    subtypeSynchronizer: InputMethodSubtypeSynchronizer = new InputMethodSubtypeSynchronizer()
   ) {
     this.sessionController = sessionController;
     this.panelController = panelController ?? new InputPanelController(sessionController);
@@ -108,6 +124,8 @@ export class InputMethodLifecycleDispatcher {
     this.physicalKeyboard = physicalKeyboard;
     this.directControl = directControl;
     this.securityModeProvider = securityModeProvider;
+    this.settingsController = settingsController;
+    this.subtypeSynchronizer = subtypeSynchronizer;
     this.physicalKeyboardController = new KeyboardController(sessionController);
   }
 
@@ -119,12 +137,22 @@ export class InputMethodLifecycleDispatcher {
     this.imeAbility = imeAbility;
     const capabilityState = this.securityModeProvider.probe(imeAbility, false, false);
     await this.sessionController.handleAbilityCreated(context, settingsReady, capabilityState);
+    await this.subtypeSynchronizer.syncForKeyboardProfile(this.settingsStore.getSnapshot().keyboardProfileId);
     this.refreshScreenMetrics(undefined, 'abilityCreate');
     this.panelController.bindAbility(imeAbility, context, settingsReady);
     this.floatingCandidateController.bindAbility(imeAbility, context);
     this.settingsStore.subscribe(this.onSettingsChanged);
     this.physicalKeyboard.start(this.onPhysicalKeyboardChanged);
     LOGGER.info('ability lifecycle created');
+  }
+
+  private synchronizePlatformSubtype(source: string): void {
+    const profileId = this.settingsStore.getSnapshot().keyboardProfileId;
+    this.subtypeSynchronizer.syncForKeyboardProfile(profileId).then((synchronized: boolean): void => {
+      if (synchronized) {
+        LOGGER.info(`platform input method subtype synchronized: source=${source}, profile=${profileId}`);
+      }
+    });
   }
 
   handleInputStart(
@@ -142,6 +170,7 @@ export class InputMethodLifecycleDispatcher {
     this.inputActive = true;
     this.presentationMode = this.resolvePresentationMode();
     this.presentationState = readyStateForMode(this.presentationMode);
+    this.updateHardwareCandidatePaging(this.presentationMode);
     this.panelController.handleInputStart(this.presentationMode);
     this.floatingCandidateController.handleInputStart(this.presentationMode);
     const state = this.sessionController.getState();
@@ -162,15 +191,16 @@ export class InputMethodLifecycleDispatcher {
   }
 
   handleKeyboardShow(): void {
+    this.panelController.showKeyboardPanel();
     if (this.presentationMode === InputPresentationMode.HARDWARE) {
       LOGGER.info('keyboardShow ignored in HARDWARE_READY');
       return;
     }
-    this.panelController.showKeyboardPanel();
     this.floatingCandidateController.handleKeyboardShow();
   }
 
   handleKeyboardHide(): void {
+    this.panelController.hideKeyboardPanel();
     if (this.presentationMode === InputPresentationMode.HARDWARE) {
       // The fixed panel is intentionally non-destructive in hardware mode, but
       // assist results must never survive a platform keyboard-hide boundary.
@@ -179,7 +209,6 @@ export class InputMethodLifecycleDispatcher {
       return;
     }
     this.sessionController.handleKeyboardHide();
-    this.panelController.hideKeyboardPanel();
     this.floatingCandidateController.handleKeyboardHide();
   }
 
@@ -208,6 +237,38 @@ export class InputMethodLifecycleDispatcher {
 
   handleCursorContextChange(x: number, y: number, height: number): void {
     this.floatingCandidateController.handleCursorContextChange(x, y, height);
+  }
+
+  async handleInputMethodSubtype(subtypeId: string): Promise<boolean> {
+    const target = resolveInputMethodSubtypeTarget(subtypeId, this.settingsStore.getSnapshot().keyboardProfileId);
+    if (!target) {
+      LOGGER.warn(`unknown input method subtype ignored: id=${subtypeId}`);
+      return false;
+    }
+
+    // Finish any live composition before replacing its engine scheme. The
+    // language preference is also remembered when setSubtype arrives before
+    // the next inputStart callback.
+    const modeResult = await this.sessionController.selectInputMethodSubtypeMode(target.keyboardMode);
+    if (!modeResult.success) {
+      LOGGER.warn(`input method subtype mode rejected: id=${subtypeId}, message=${modeResult.errorMessage}`);
+      return false;
+    }
+    if (!target.keyboardProfileId) {
+      LOGGER.info(`input method subtype applied: id=${subtypeId}, mode=${target.keyboardMode}`);
+      return true;
+    }
+
+    const profileResult = await this.settingsController.setKeyboardProfile(target.keyboardProfileId);
+    if (!profileResult.success) {
+      LOGGER.warn(`input method subtype profile rejected: id=${subtypeId}, message=${profileResult.message}`);
+      return false;
+    }
+    LOGGER.info(
+      `input method subtype applied: id=${subtypeId}, mode=${target.keyboardMode}, ` +
+        `profile=${target.keyboardProfileId}`
+    );
+    return true;
   }
 
   handlePhysicalKeyEvent(event: KeyEvent): boolean {
@@ -239,6 +300,27 @@ export class InputMethodLifecycleDispatcher {
   }
 
   handlePhysicalKeySnapshot(key: PhysicalKeySnapshot): boolean {
+    const shouldToggleLanguage = this.physicalShiftLanguageToggle.observe(key);
+    if (isPhysicalShiftKey(key.keyCode)) {
+      if (!shouldToggleLanguage) {
+        // Keep Shift DOWN and all Shift chords available to the host editor.
+        return false;
+      }
+      const state = this.sessionController.getState();
+      const isTextLanguageMode = state.keyboardMode === KeyboardMode.CHINESE ||
+        state.keyboardMode === KeyboardMode.ENGLISH;
+      const canToggle = state.sessionActive && state.editorConnected && isTextLanguageMode &&
+        state.editorContext.chineseModeAllowed && !state.editorContext.isPassword;
+      if (!canToggle) {
+        return false;
+      }
+      this.symbolGuideActive = false;
+      this.clearPhysicalSmartPunctuation();
+      this.physicalKeyboardController.noteExternalInputAction();
+      LOGGER.info(`standalone physical Shift toggles language: keyCode=${key.keyCode}`);
+      this.observePhysicalOperation(this.physicalKeyboardController.togglePhysicalLanguageMode());
+      return true;
+    }
     if (!key.isDown) {
       return this.physicalKeyConsumption.consumeRelease(key.keyCode);
     }
@@ -263,6 +345,7 @@ export class InputMethodLifecycleDispatcher {
     }
     const state = this.sessionController.getState();
     const rapidPhysicalContinuation = this.pendingPhysicalOperationCount > 0;
+    if (!rapidPhysicalContinuation) { this.conveniencePendingRaw = undefined; }
     const keyTimestampMs = Date.now();
     if (state.rawInput.length === 0 && this.pendingPhysicalOperationCount === 0) {
       this.physicalEditorSuffix.reset();
@@ -273,9 +356,12 @@ export class InputMethodLifecycleDispatcher {
       chineseInputAllowed: state.editorContext.chineseModeAllowed && !state.editorContext.isPassword,
       candidateBarVisible: state.candidateBarVisible,
       keyboardMode: state.keyboardMode,
+      universalKeyEnabled: this.settingsStore.getSnapshot().schemeId === XIAOHE_YINXING_SCHEME_ID,
+      codeTableSemicolonEnabled: this.settingsStore.getSnapshot().schemeId === XIAOHE_YINXING_SCHEME_ID,
       rawInput: state.rawInput,
       candidateCount: state.candidates.length,
       compositionPending: rapidPhysicalContinuation,
+      conveniencePendingRaw: this.conveniencePendingRaw,
       pairJumpAvailable: this.sessionController.canJumpOutPair(),
       smartPunctuationContinuation: this.continuingPhysicalSmartPunctuation(keyTimestampMs)
     });
@@ -285,6 +371,29 @@ export class InputMethodLifecycleDispatcher {
       this.clearPhysicalSmartPunctuation();
       this.physicalKeyboardController.noteExternalInputAction();
       return false;
+    }
+    if (command.type === PhysicalKeyCommandType.CONVENIENCE) {
+      const raw = this.conveniencePendingRaw ?? state.rawInput;
+      const character = command.character ?? '';
+      this.conveniencePendingRaw = raw.length === 1 && raw === character ? '' : raw + character;
+      if (character === '=' && raw.length > 1 && state.candidates.length > 0) {
+        this.conveniencePendingRaw = '';
+      }
+      this.symbolGuideActive = false;
+      this.physicalEditorSuffix.reset();
+      this.clearPhysicalSmartPunctuation();
+      this.physicalKeyConsumption.recordConsumedDown(key.keyCode);
+      const action: KeyboardAction = { type: KeyboardActionType.CONVENIENCE_GUIDE, character };
+      this.observePhysicalOperation(this.physicalKeyboardController.handleAction(action));
+      return true;
+    }
+    if (isConvenienceInput(this.conveniencePendingRaw ?? state.rawInput)) {
+      if (command.type === PhysicalKeyCommandType.DELETE) {
+        this.conveniencePendingRaw = (this.conveniencePendingRaw ?? state.rawInput).slice(0, -1);
+      } else if (command.type === PhysicalKeyCommandType.SPACE || command.type === PhysicalKeyCommandType.ENTER ||
+        command.type === PhysicalKeyCommandType.CANCEL || command.type === PhysicalKeyCommandType.SECOND_CANDIDATE) {
+        this.conveniencePendingRaw = '';
+      }
     }
     const physicalPunctuationWillReplace = command.type === PhysicalKeyCommandType.PUNCTUATION
       ? this.willReplacePhysicalSmartPunctuation(command.character ?? '', keyTimestampMs)
@@ -364,6 +473,16 @@ export class InputMethodLifecycleDispatcher {
         this.symbolGuideActive = true;
         LOGGER.info('symbol guide mode activated');
       }
+      return true;
+    }
+    if (command.type === PhysicalKeyCommandType.UNIVERSAL) {
+      this.observePhysicalOperation(
+        this.physicalKeyboardController.handleAction({ type: KeyboardActionType.UNIVERSAL_KEY })
+      );
+      return true;
+    }
+    if (command.type === PhysicalKeyCommandType.TAB) {
+      this.observePhysicalOperation(this.physicalKeyboardController.handlePhysicalTab());
       return true;
     }
     if (command.type === PhysicalKeyCommandType.CANCEL) {
@@ -449,8 +568,10 @@ export class InputMethodLifecycleDispatcher {
     this.physicalOperationGeneration += 1;
     this.physicalKeyConsumption.reset();
     this.physicalEditorSuffix.reset();
+    this.physicalShiftLanguageToggle.reset();
     this.clearPhysicalSmartPunctuation();
     this.pendingPhysicalOperationCount = 0;
+    this.conveniencePendingRaw = undefined;
   }
 
   private willReplacePhysicalSmartPunctuation(character: string, timestampMs: number): boolean {
@@ -491,6 +612,12 @@ export class InputMethodLifecycleDispatcher {
     this.lastPhysicalSmartPunctuationTimestampMs = undefined;
   }
 
+  private updateHardwareCandidatePaging(mode: InputPresentationMode): void {
+    const settings = this.settingsStore.getSnapshot();
+    this.sessionController.setHardwareCandidatePageSize(mode === InputPresentationMode.HARDWARE
+      ? settings.candidateDisplayCount : 0, settings.schemeId);
+  }
+
   private resolvePresentationMode(): InputPresentationMode {
     const preference = this.settingsStore.getSnapshot().inputPresentationPreference ??
       InputPresentationPreference.AUTO;
@@ -502,6 +629,7 @@ export class InputMethodLifecycleDispatcher {
       return;
     }
     const next = this.resolvePresentationMode();
+    this.updateHardwareCandidatePaging(next);
     if (next === this.presentationMode) {
       return;
     }

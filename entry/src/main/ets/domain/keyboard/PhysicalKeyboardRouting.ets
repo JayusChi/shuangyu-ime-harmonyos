@@ -1,12 +1,16 @@
+import { isConvenienceInput } from './ConvenienceInput';
 import { KeyboardMode } from './KeyboardAction';
 import { chinesePunctuationForEnglishTarget } from './SmartPunctuation';
 
 export enum PhysicalKeyCommandType {
   NONE = 'none',
+  CONVENIENCE = 'convenience',
   LETTER = 'letter',
+  UNIVERSAL = 'universal',
   DELETE = 'delete',
   SPACE = 'space',
   ENTER = 'enter',
+  TAB = 'tab',
   SEGMENT_BOUNDARY = 'segment_boundary',
   CANDIDATE = 'candidate',
   SECOND_CANDIDATE = 'second_candidate',
@@ -38,10 +42,14 @@ export interface PhysicalKeySessionSnapshot {
   chineseInputAllowed?: boolean;
   candidateBarVisible: boolean;
   keyboardMode: KeyboardMode;
+  universalKeyEnabled?: boolean;
+  /** Only code-table schemes use semicolon for candidate selection and symbol guidance. */
+  codeTableSemicolonEnabled?: boolean;
   rawInput: string;
   candidateCount: number;
   /** True while an earlier consumed hardware key is still queued. */
   compositionPending?: boolean;
+  conveniencePendingRaw?: string;
   /** True while a verified pair insertion can still jump over its right delimiter. */
   pairJumpAvailable?: boolean;
   /** English key whose previous Chinese punctuation can still be replaced. */
@@ -75,6 +83,8 @@ const KEYCODE_A = 2017;
 const KEYCODE_Z = 2042;
 const KEYCODE_0 = 2000;
 const KEYCODE_9 = 2009;
+export const KEYCODE_SHIFT_LEFT = 2047;
+export const KEYCODE_SHIFT_RIGHT = 2048;
 
 const NO_COMMAND: PhysicalKeyCommand = { type: PhysicalKeyCommandType.NONE };
 
@@ -96,6 +106,14 @@ export function resolveUnmodifiedPhysicalLetter(key: PhysicalKeySnapshot): strin
 
 function punctuationFromKeyCode(keyCode: number): string {
   switch (keyCode) {
+    case 2010: return '*';
+    case 2066: return '+';
+    case 2113: return '/';
+    case 2114: return '*';
+    case 2115: return '-';
+    case 2116: return '+';
+    case 2117: return '.';
+    case 2120: return '=';
     case 2043:
       return ',';
     case 2044:
@@ -143,7 +161,8 @@ export function resolvePhysicalKeyCommand(
 ): PhysicalKeyCommand {
   if (!key.isDown || key.ctrlKey || key.altKey || key.logoKey ||
     !session.sessionActive || !session.editorConnected ||
-    session.keyboardMode !== KeyboardMode.CHINESE || session.chineseInputAllowed === false) {
+    (session.keyboardMode !== KeyboardMode.CHINESE && !isConvenienceInput(session.rawInput) &&
+      !isConvenienceInput(session.conveniencePendingRaw ?? '')) || session.chineseInputAllowed === false) {
     return NO_COMMAND;
   }
 
@@ -152,12 +171,41 @@ export function resolvePhysicalKeyCommand(
   // still providing a standard KeyCode. Preserve the same routing contract.
   if (character.length === 0 && key.keyCode >= KEYCODE_A && key.keyCode <= KEYCODE_Z) {
     character = String.fromCharCode(97 + key.keyCode - KEYCODE_A);
+    if (key.shiftKey === true) { character = character.toUpperCase(); }
   } else if (character.length === 0 && key.keyCode >= KEYCODE_0 && key.keyCode <= KEYCODE_9) {
     character = String.fromCharCode(48 + key.keyCode - KEYCODE_0);
   } else if (character.length === 0 && key.keyCode >= KEYCODE_NUMPAD_0 && key.keyCode <= KEYCODE_NUMPAD_9) {
     character = String.fromCharCode(48 + key.keyCode - KEYCODE_NUMPAD_0);
   } else if (character.length === 0) {
     character = punctuationFromKeyCode(key.keyCode);
+    if (key.keyCode === 2056 && key.shiftKey === true) { character = '~'; }
+    if (key.keyCode === 2062 && key.shiftKey === true) { character = ':'; }
+    if (key.keyCode === KEYCODE_LEFT_BRACKET && key.shiftKey === true) { character = '{'; }
+    if (key.keyCode === KEYCODE_RIGHT_BRACKET && key.shiftKey === true) { character = '}'; }
+  }
+
+  const convenienceRaw = session.conveniencePendingRaw ?? session.rawInput;
+  const convenienceActive = isConvenienceInput(convenienceRaw);
+  if (character === '`' && key.shiftKey !== true && session.universalKeyEnabled === true &&
+    !convenienceActive && session.keyboardMode === KeyboardMode.CHINESE) {
+    return { type: PhysicalKeyCommandType.UNIVERSAL };
+  }
+  if (convenienceActive) {
+    if (key.unicodeChar === 0 && key.shiftKey === true) {
+      if (key.keyCode === 2058) { character = '+'; }
+      if (key.keyCode === 2008) { character = '*'; }
+      if (key.keyCode === 2057) { character = '_'; }
+    }
+    // Digits edit the expression/date instead of selecting candidate slots.
+    if (character.length === 1 && /^[a-zA-Z0-9='.+*/_@-]$/.test(character)) {
+      return { type: PhysicalKeyCommandType.CONVENIENCE, character };
+    }
+    if (character === ';') {
+      return { type: PhysicalKeyCommandType.SECOND_CANDIDATE, candidateIndex: 1 };
+    }
+  } else if (character === "'" && key.shiftKey !== true &&
+    convenienceRaw.length === 0 && (session.compositionPending !== true || session.conveniencePendingRaw !== undefined)) {
+    return { type: PhysicalKeyCommandType.CONVENIENCE, character };
   }
 
   // Input ownership must follow the editor policy, never the transient
@@ -172,7 +220,8 @@ export function resolvePhysicalKeyCommand(
     return { type: PhysicalKeyCommandType.LETTER, letter: character.toLowerCase() };
   }
 
-  const hasComposition = session.rawInput.length > 0 || session.compositionPending === true;
+  const hasComposition = convenienceRaw.length > 0 ||
+    (session.compositionPending === true && session.conveniencePendingRaw === undefined);
   // The first punctuation may have committed the candidate and emptied the
   // composition before the second DOWN event. Continue only the same selected
   // intelligsymbol key so the replacement remains atomic in the IME.
@@ -184,10 +233,12 @@ export function resolvePhysicalKeyCommand(
     };
   }
 
-  // Semicolon is the physical second-candidate key. When no second candidate
-  // exists it arms the one-shot symbol guide instead of inserting punctuation.
-  // With exactly one candidate it commits the first and arms the guide.
+  // Phonetic schemes insert punctuation; code-table schemes retain their
+  // second-candidate / one-shot symbol-guide contract.
   if (character === ';') {
+    if (session.codeTableSemicolonEnabled !== true) {
+      return { type: PhysicalKeyCommandType.PUNCTUATION, character: normalizeChinesePunctuation(character) };
+    }
     if (session.rawInput.startsWith(';')) {
       return { type: PhysicalKeyCommandType.SYMBOL_GUIDE };
     }
@@ -203,7 +254,7 @@ export function resolvePhysicalKeyCommand(
   const isTab = key.keyCode === KEYCODE_TAB || character === String.fromCharCode(9);
   if (isTab) {
     if (hasComposition) {
-      return { type: PhysicalKeyCommandType.CANCEL };
+      return { type: PhysicalKeyCommandType.TAB };
     }
     return session.pairJumpAvailable === true
       ? { type: PhysicalKeyCommandType.JUMP_OUT_PAIR }
@@ -221,10 +272,10 @@ export function resolvePhysicalKeyCommand(
   // Match desktop Chinese IMEs: while composing, the unmodified bracket
   // keys page the candidate window instead of leaking punctuation into the
   // editor. unicodeChar=0 drivers are covered by punctuationFromKeyCode().
-  if (character === '[') {
+  if (character === '[' && key.shiftKey !== true) {
     return { type: PhysicalKeyCommandType.PREVIOUS_PAGE };
   }
-  if (character === ']') {
+  if (character === ']' && key.shiftKey !== true) {
     return { type: PhysicalKeyCommandType.NEXT_PAGE };
   }
 
@@ -302,6 +353,61 @@ export class PhysicalKeyConsumptionTracker {
 
   reset(): void {
     this.consumedKeyCodes = [];
+  }
+}
+
+/** True for the two platform physical Shift keys. */
+export function isPhysicalShiftKey(keyCode: number): boolean {
+  return keyCode === KEYCODE_SHIFT_LEFT || keyCode === KEYCODE_SHIFT_RIGHT;
+}
+
+/**
+ * Recognizes a standalone Shift press without stealing Shift combinations.
+ * DOWN is always returned to the host; a matching UP toggles the IME only when
+ * no other key participated while Shift was held.
+ */
+export class PhysicalShiftLanguageToggleTracker {
+  private pressedShiftKeyCodes: number[] = [];
+  private standaloneCandidate: boolean = false;
+
+  observe(key: PhysicalKeySnapshot): boolean {
+    if (!isPhysicalShiftKey(key.keyCode)) {
+      if (key.isDown && this.pressedShiftKeyCodes.length > 0) {
+        this.standaloneCandidate = false;
+      }
+      return false;
+    }
+
+    const pressedIndex = this.pressedShiftKeyCodes.indexOf(key.keyCode);
+    if (key.isDown) {
+      if (pressedIndex >= 0) {
+        return false;
+      }
+      if (this.pressedShiftKeyCodes.length === 0) {
+        this.standaloneCandidate = !key.ctrlKey && !key.altKey && !key.logoKey;
+      } else {
+        // Two Shift keys form a modifier chord, not a standalone tap.
+        this.standaloneCandidate = false;
+      }
+      this.pressedShiftKeyCodes.push(key.keyCode);
+      return false;
+    }
+
+    if (pressedIndex < 0) {
+      return false;
+    }
+    this.pressedShiftKeyCodes.splice(pressedIndex, 1);
+    if (this.pressedShiftKeyCodes.length > 0) {
+      return false;
+    }
+    const shouldToggle = this.standaloneCandidate && !key.ctrlKey && !key.altKey && !key.logoKey;
+    this.standaloneCandidate = false;
+    return shouldToggle;
+  }
+
+  reset(): void {
+    this.pressedShiftKeyCodes = [];
+    this.standaloneCandidate = false;
   }
 }
 

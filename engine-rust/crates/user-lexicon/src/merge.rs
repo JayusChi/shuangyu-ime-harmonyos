@@ -167,7 +167,7 @@ where
 }
 
 fn is_direct_entry(entry: &UserLexiconEntry) -> bool {
-    matches!(entry.action, UserLexiconAction::Direct)
+    entry.action.is_direct()
         || (matches!(entry.action, UserLexiconAction::Add) && entry.category_id.is_some())
 }
 
@@ -248,7 +248,10 @@ where
         let key = (entry.code.clone(), entry.text.clone());
         match entry.action {
             UserLexiconAction::Delete => {}
-            UserLexiconAction::Add | UserLexiconAction::Direct => {
+            UserLexiconAction::Add
+            | UserLexiconAction::Direct
+            | UserLexiconAction::OpenUrl
+            | UserLexiconAction::OpenDirectory => {
                 let _ = existing.remove(&key);
                 added.push(make_user_candidate(entry));
             }
@@ -348,7 +351,10 @@ where
         let mut take_existing = || existing.remove(&entry.text);
         match entry.action {
             UserLexiconAction::Delete => {}
-            UserLexiconAction::Add | UserLexiconAction::Direct => {
+            UserLexiconAction::Add
+            | UserLexiconAction::Direct
+            | UserLexiconAction::OpenUrl
+            | UserLexiconAction::OpenDirectory => {
                 // A normal user entry replaces an identical system candidate so
                 // its source remains visibly the user overlay.
                 let _ = take_existing();

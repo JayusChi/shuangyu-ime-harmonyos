@@ -1,3 +1,4 @@
+import { isExternalDirectTarget } from '../../domain/direct/ExternalDirectTarget';
 import imeBridge from 'libime_bridge.so';
 import { ImeErrorCode } from '../../common/error/ImeError';
 import { Logger } from '../../common/logging/Logger';
@@ -198,6 +199,17 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     }
   }
 
+  reverseLookup(handle: number, text: string): string[] {
+    try {
+      const values = JSON.parse(imeBridge.reverseLookup(handle, text)) as string[];
+      if (!Array.isArray(values) || values.length > 64 ||
+        values.some((code: string): boolean => typeof code !== 'string' || !/^[a-z]{1,4}$/.test(code))) {
+        return [];
+      }
+      return values.filter((code: string, index: number): boolean => values.indexOf(code) === index);
+    } catch (_) { return []; }
+  }
+
   getLocalAssociations(handle: number): string[] {
     try {
       const json: string = imeBridge.getLocalAssociations(handle);
@@ -245,7 +257,8 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
   setCodeTableCommitPolicy(
     handle: number,
     autoCommitEnabled: boolean,
-    emptyClearLength: number
+    emptyClearLength: number,
+    reverseSplitEnabled: boolean = false
   ): CompositionResult {
     if ((emptyClearLength !== 4 && emptyClearLength !== 12)) {
       return this.createCompositionFailure(ImeErrorCode.INVALID_ARGUMENT, 'Commit policy is invalid');
@@ -253,7 +266,8 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     try {
       const policyJson = JSON.stringify({
         autoCommitLength: autoCommitEnabled ? 4 : 64,
-        emptyClearLength
+        emptyClearLength,
+        reverseSplitEnabled
       });
       const nativeResult = imeBridge.setCodeTableCommitPolicy(handle, policyJson) as CompositionResult;
       return this.normalizeCompositionResult(nativeResult);
@@ -433,6 +447,11 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
         return this.createCompositionFailure(ImeErrorCode.SERIALIZATION_ERROR,
           'Native candidate displayText is invalid');
       }
+      // 兼容旧码表的默认字号标签；动作与上屏文本仍由原始协议处理。
+      if (nativeResult.rawInput === 'ojz' && candidate.source === 'functional' &&
+        candidate.text === '[键字12号]') {
+        candidate.displayText = '[自适应字号]';
+      }
       if (candidate.consumedRawLen === undefined) {
         candidate.consumedRawLen = 0;
       } else if (!Number.isInteger(candidate.consumedRawLen) || candidate.consumedRawLen < 0) {
@@ -495,6 +514,10 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
       };
     }
     if (value.type === 'DIRECT_CONTROL' && value.cursorOffsetUtf16 === 0 &&
+      typeof value.text === 'string' && isExternalDirectTarget(value.formatId, value.text)) {
+      return { type: 'DIRECT_CONTROL', formatId: value.formatId, text: value.text, cursorOffsetUtf16: 0 };
+    }
+    if (value.type === 'DIRECT_CONTROL' && value.cursorOffsetUtf16 === 0 &&
       (value.formatId === 'category.enable' || value.formatId === 'category.disable' ||
         value.formatId === 'category.toggle' || value.formatId === 'category.set' ||
         value.formatId === 'category.all' || value.formatId === 'category.core' ||
@@ -502,8 +525,14 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
         value.formatId === 'settings.punctuation' || value.formatId === 'settings.fullwidth' ||
         value.formatId === 'settings.traditional' || value.formatId === 'settings.numeric-period' ||
         value.formatId === 'settings.empty-clear' || value.formatId === 'settings.commit-policy' ||
+        value.formatId === 'settings.split-mode' ||
+        value.formatId === 'settings.candidate-position' || value.formatId === 'settings.keyboard-height' ||
+        value.formatId === 'settings.keyboard-font' ||
+        value.formatId === 'settings.candidate-font' || value.formatId === 'settings.floating-font' ||
+        value.formatId === 'settings.keyboard-profile' || value.formatId === 'settings.haptic' ||
+        value.formatId === 'settings.key-sound' ||
         value.formatId === 'url.open' || value.formatId === 'app.open' ||
-        value.formatId === 'editor.delete-line') &&
+        value.formatId === 'editor.delete-line' || value.formatId === 'clipboard.reverse') &&
       typeof value.text === 'string' && value.text.length <= 512 && /^[a-z0-9,-]*$/.test(value.text) &&
       this.isTrustedDirectControl(value.formatId, value.text)) {
       return {
@@ -526,6 +555,20 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
   }
 
   private isTrustedDirectControl(action: string, target: string): boolean {
+    if (action === 'clipboard.reverse') { return target.length === 0; }
+    if (action === 'settings.candidate-position') {
+      return target === 'bar' || target === 'floating';
+    }
+    if (action === 'settings.keyboard-height' || action === 'settings.candidate-font' ||
+      action === 'settings.floating-font' || action === 'settings.keyboard-font') {
+      return target === 'default' || target === 'increase' || target === 'decrease';
+    }
+    if (action === 'settings.keyboard-profile') {
+      return target === 'xiaohe-26' || target === 'xiaohe-yinxing-26' || target === 'quanpin-26';
+    }
+    if (action === 'settings.haptic' || action === 'settings.key-sound') {
+      return target === 'enabled' || target === 'disabled';
+    }
     if (action === 'category.enable' || action === 'category.disable' || action === 'category.toggle' ||
       action === 'category.set' || action === 'category.all' || action === 'category.core') {
       return true;
@@ -549,8 +592,11 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
     if (action === 'settings.commit-policy') {
       return target === 'top-screen' || target === 'auto-commit';
     }
+    if (action === 'settings.split-mode') {
+      return target === 'traditional' || target === 'split';
+    }
     if (action === 'url.open') {
-      return target === 'flypy-home' || target === 'flypy-help' || target === 'flypy-help-mobile';
+      return target === 'flypy-home' || target === 'flypy-help' || target === 'flypy-help-mobile' || target === 'flypy-shape';
     }
     if (action === 'app.open') {
       return target === 'settings' || target === 'user-lexicon';
@@ -693,7 +739,7 @@ export class NativeEngineGateway implements NativeEngineGatewayContract {
   }
 
   private isUserLexiconAction(value: string): boolean {
-    return value === 'ADD' || value === 'DIRECT' || value === 'DELETE' ||
+    return value === 'ADD' || value === 'DIRECT' || value === 'OPEN_URL' || value === 'OPEN_DIRECTORY' || value === 'DELETE' ||
       value === 'FIXED' || value === 'POSITION';
   }
 

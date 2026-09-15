@@ -1,1 +1,1 @@
-263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09  dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx
+7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0  dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx

@@ -33,7 +33,7 @@ export function resolveInputPresentationMode(
   }
   const normalizedDeviceType = deviceType.trim().toLowerCase();
   return normalizedDeviceType === '2in1' ||
-    (normalizedDeviceType === 'tablet' && physicalKeyboardPresent)
+    physicalKeyboardPresent
     ? InputPresentationMode.HARDWARE
     : InputPresentationMode.TOUCH;
 }

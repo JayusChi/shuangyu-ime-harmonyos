@@ -12,9 +12,9 @@ pub const CONVERSION_CONTRACT_VERSION: &str = "1.1.0";
 pub const AUDITOR_VERSION: &str = "yinxing-source-auditor/1.1.0";
 pub const FROZEN_CONVERTER_PLACEHOLDER: &str = "yinxing-converter/0-not-implemented";
 pub const SOURCE_MANIFEST_SHA256: &str =
-    "f054132eb8b5e008601f215db50cf337214c35bf2100fcb03f63180b2c9252b8";
+    "39386e1879db80921e80c2da42778485394ff0594bcf12efc2523fd668778e53";
 pub const CONVERSION_CONTRACT_SHA256: &str =
-    "025240e58548bf0c14dedb16fea075a2b42b722396d63cbc91947c1d7bddfaa3";
+    "0d2de22b8870114ee5b775f40a83192bcbfbb0766dafc18523603a8b779d9868";
 pub const SANITIZED_CONFIGURATION_SHA256: &str =
     "e777399836e35b20fddaa108b32793aa6121b25f13a3adc048761cb7f27a4d90";
 pub const CATEGORY_COUNT: usize = 12;

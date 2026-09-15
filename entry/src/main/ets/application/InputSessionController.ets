@@ -1,3 +1,4 @@
+import { isConvenienceInput } from '../domain/keyboard/ConvenienceInput';
 import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
 import { EditorExtendAction, KeyboardMode } from '../domain/keyboard/KeyboardAction';
@@ -47,6 +48,17 @@ export class InputSessionController extends InputSessionCompositionController {
     const target = currentLanguageMode === KeyboardMode.ENGLISH
       ? KeyboardMode.CHINESE
       : KeyboardMode.ENGLISH;
+    return this.switchKeyboardMode(target, generation);
+  }
+
+  /** Applies a language selected by the HarmonyOS input-method subtype picker. */
+  async selectInputMethodSubtypeMode(
+    target: KeyboardMode,
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (target !== KeyboardMode.CHINESE && target !== KeyboardMode.ENGLISH) {
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'input method subtype mode is unsupported');
+    }
     return this.switchKeyboardMode(target, generation);
   }
 
@@ -122,7 +134,9 @@ export class InputSessionController extends InputSessionCompositionController {
     if (!sessionCheck.success) {
       return sessionCheck;
     }
-    const preparation = await this.finishCompositionBeforeUserModeSwitch(generation);
+    const preparation = isConvenienceInput(this.store.getSnapshot().rawInput)
+      ? inputOperationOk()
+      : await this.finishCompositionBeforeUserModeSwitch(generation);
     if (!preparation.success || !this.isInputSessionGenerationCurrent(generation)) {
       return preparation.success
         ? this.staleInputAction('editor extend action preparation')

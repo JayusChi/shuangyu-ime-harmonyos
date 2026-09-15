@@ -11,6 +11,8 @@ export enum KeyboardActionType {
   LETTER = 'letter',
   T9_PINYIN_DIGIT = 't9_pinyin_digit',
   CHARACTER = 'character',
+  CONVENIENCE_GUIDE = 'convenience_guide',
+  SECOND_CANDIDATE_OR_PASTE = 'second_candidate_or_paste',
   DELETE = 'delete',
   SPACE = 'space',
   ENTER = 'enter',
@@ -57,6 +59,8 @@ export interface KeyboardAction {
   character?: string;
   /** Bypasses punctuation/full-width conversion so an upper-deck key outputs its printed value. */
   literal?: boolean;
+  /** UTF-16 units to move left after inserting a literal pair. */
+  cursorOffsetUtf16?: number;
 }
 
 export function createLetterInputAction(letter: string): KeyboardAction {
@@ -78,6 +82,18 @@ export function createLiteralCharacterInputAction(character: string): KeyboardAc
     type: KeyboardActionType.CHARACTER,
     character,
     literal: true
+  };
+}
+
+export function createLiteralPairInputAction(
+  text: string,
+  cursorOffsetUtf16: number
+): KeyboardAction {
+  return {
+    type: KeyboardActionType.CHARACTER,
+    character: text,
+    literal: true,
+    cursorOffsetUtf16
   };
 }
 
@@ -219,3 +235,10 @@ export function isSingleAsciiLetter(value: string | undefined): boolean {
 
   return /^[a-zA-Z]$/.test(value);
 }
+
+export const CONVENIENCE_GUIDE_ACTION: KeyboardAction = {
+  type: KeyboardActionType.CONVENIENCE_GUIDE, character: '='
+};
+export const SECOND_CANDIDATE_OR_PASTE_ACTION: KeyboardAction = {
+  type: KeyboardActionType.SECOND_CANDIDATE_OR_PASTE
+};

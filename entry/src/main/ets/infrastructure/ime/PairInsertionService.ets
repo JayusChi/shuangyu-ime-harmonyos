@@ -1,5 +1,6 @@
 import { inputMethodEngine } from '@kit.IMEKit';
 import { Logger } from '../../common/logging/Logger';
+import { HarmonyPairCursorClient, PairCursorPositioner } from './PairCursorPositioner';
 import {
   CompositionTextManager,
   HarmonyCompositionInputClient
@@ -23,6 +24,7 @@ export enum PairInsertResult {
 
 export class PairInsertionService {
   private pendingJumps: PendingPairJump[] = [];
+  private readonly cursorPositioner: PairCursorPositioner = new PairCursorPositioner();
 
   async insert(
     inputClient: inputMethodEngine.InputClient | undefined,
@@ -50,23 +52,10 @@ export class PairInsertionService {
       return PairInsertResult.CURSOR_FAILED;
     }
     try {
-      // HarmonyOS can resolve the editor write promise one or more render
-      // turns before getTextIndexAtCursor observes the replacement of the
-      // active preview range. Waiting here never repeats the insertion; it
-      // only prevents positioning from using the stale pre-commit cursor.
-      await this.waitForEditorCommit();
-      if (!stillCurrent()) {
-        this.clear();
-        return PairInsertResult.CURSOR_FAILED;
-      }
-      const cursor = await inputClient.getTextIndexAtCursor();
-      const target = cursor - cursorOffsetUtf16;
-      if (!stillCurrent() || target < 0) {
-        this.clear();
-        return PairInsertResult.CURSOR_FAILED;
-      }
-      await inputClient.selectByRange({ start: target, end: target });
-      if (!stillCurrent()) {
+      const positioned = await this.cursorPositioner.position(
+        new HarmonyPairCursorClient(inputClient), text, cursorOffsetUtf16, stillCurrent
+      );
+      if (!positioned || !stillCurrent()) {
         this.clear();
         return PairInsertResult.CURSOR_FAILED;
       }
@@ -77,8 +66,7 @@ export class PairInsertionService {
         expiresAtMs: Date.now() + PAIR_JUMP_TTL_MS
       });
       LOGGER.info(
-        `pair cursor positioned: cursorAfterInsert=${cursor}, target=${target}, ` +
-          `offsetUtf16=${cursorOffsetUtf16}, textUtf16Length=${text.length}`
+        `pair cursor verified: offsetUtf16=${cursorOffsetUtf16}, textUtf16Length=${text.length}`
       );
       return PairInsertResult.SUCCESS;
     } catch (err) {
@@ -108,17 +96,12 @@ export class PairInsertionService {
       return false;
     }
     try {
-      const cursor = await inputClient.getTextIndexAtCursor();
-      const afterCursor = await inputClient.getBackward(pending.rightText.length);
-      if (!stillCurrent() || afterCursor !== pending.rightText) {
+      const jumped = await this.cursorPositioner.advance(
+        new HarmonyPairCursorClient(inputClient), pending.rightText, stillCurrent
+      );
+      if (!jumped || !stillCurrent()) {
         this.clear();
-        LOGGER.info('pair jump discarded because editor cursor or delimiter changed');
-        return false;
-      }
-      const target = cursor + pending.rightText.length;
-      await inputClient.selectByRange({ start: target, end: target });
-      if (!stillCurrent()) {
-        this.clear();
+        LOGGER.info('pair jump could not verify cursor movement');
         return false;
       }
       this.pendingJumps.pop();
@@ -143,9 +126,4 @@ export class PairInsertionService {
     }
   }
 
-  private waitForEditorCommit(): Promise<void> {
-    return new Promise<void>((resolve: () => void) => {
-      setTimeout(resolve, 80);
-    });
-  }
 }

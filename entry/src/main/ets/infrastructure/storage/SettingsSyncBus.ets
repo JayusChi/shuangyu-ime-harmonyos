@@ -1,6 +1,8 @@
 import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
 import { ImeSettings, SettingsRaw, settingsToRaw } from '../../domain/settings/ImeSettings';
 import { Logger } from '../../common/logging/Logger';
+import common from '@ohos.app.ability.common';
+import { SharedSettingsFile } from './SharedSettingsFile';
 
 const LOGGER = new Logger('SettingsSyncBus');
 const BUNDLE_NAME = 'com.corrosion.shuangyuime';
@@ -8,6 +10,8 @@ const SETTINGS_CHANGED_EVENT = `${BUNDLE_NAME}.event.SETTINGS_CHANGED`;
 
 export class SettingsSyncBus {
   private subscriber?: commonEventManager.CommonEventSubscriber;
+  private sharedFileTimer?: number;
+  private subscriptionGeneration: number = 0;
 
   async publish(settings: ImeSettings): Promise<boolean> {
     const data = JSON.stringify(settingsToRaw(settings));
@@ -28,7 +32,10 @@ export class SettingsSyncBus {
     });
   }
 
-  async subscribe(listener: (raw: SettingsRaw) => void): Promise<boolean> {
+  async subscribe(listener: (raw: SettingsRaw) => void, readOnlyContext?: common.Context): Promise<boolean> {
+    if (readOnlyContext) {
+      return this.subscribeSharedFile(readOnlyContext, listener);
+    }
     try {
       if (this.subscriber) {
         return true;
@@ -63,7 +70,45 @@ export class SettingsSyncBus {
     }
   }
 
+  private async subscribeSharedFile(context: common.Context, listener: (raw: SettingsRaw) => void): Promise<boolean> {
+    this.unsubscribe();
+    const generation = this.subscriptionGeneration;
+    const file = new SharedSettingsFile();
+    try {
+      await file.initialize(context);
+      if (generation !== this.subscriptionGeneration) {
+        return false;
+      }
+      let lastRecord: string | undefined;
+      this.sharedFileTimer = setInterval((): void => {
+        try {
+          const record = file.read();
+          if (record && record !== lastRecord) {
+            const raw = JSON.parse(record) as SettingsRaw;
+            if (!raw || !raw.schemaVersion || !raw.keyboardProfileId) {
+              return;
+            }
+            listener(raw);
+            lastRecord = record;
+          }
+        } catch (_err) {
+          // Keep the last valid state through missing or interrupted snapshots.
+        }
+      }, 1000);
+      LOGGER.info('settings shared file subscribed (read-only)');
+      return true;
+    } catch (err) {
+      LOGGER.warn(`settings shared file subscription failed: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+      return false;
+    }
+  }
+
   unsubscribe(): void {
+    this.subscriptionGeneration += 1;
+    if (this.sharedFileTimer !== undefined) {
+      clearInterval(this.sharedFileTimer);
+      this.sharedFileTimer = undefined;
+    }
     const subscriber = this.subscriber;
     this.subscriber = undefined;
     if (!subscriber) {

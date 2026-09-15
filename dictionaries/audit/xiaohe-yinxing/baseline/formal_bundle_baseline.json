@@ -4,9 +4,9 @@
   "bundle_id": "xiaohe-yinxing-production",
   "bundle_path": "dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx",
   "bundle_file_name": "xiaohe-yinxing-production.hsyx",
-  "bundle_byte_size": 56104660,
-  "bundle_mib": 53.505573,
-  "bundle_sha256": "263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09",
+  "bundle_byte_size": 56104310,
+  "bundle_mib": 53.505239,
+  "bundle_sha256": "7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0",
   "bundle_magic": "HSPYXP01",
   "bundle_format_version": "1.0",
   "nested_lexicon_format_version": "HSPLEX01 1.1",
@@ -20,11 +20,11 @@
       "category_id": "core",
       "display_name": "首选",
       "order": 0,
-      "entry_count": 68568,
+      "entry_count": 68567,
       "default_enabled": true,
       "required": true,
       "file": "categories/core.lex",
-      "sha256": "b46d48f4b44068afadbbfe62c3a2fe6a4c894b3856b3dc9af8ccdd757521e0cf"
+      "sha256": "a204db8607e4728a051e27b867e9317142a3c9cc5ace733b19a52fe79239faa4"
     },
     {
       "category_id": "category-secondary",
@@ -137,7 +137,7 @@
       "sha256": "68b11dc0c9a7c65418a8f8f5fb2ff69bfdaa7dd1256bd12458b3fd2bb6bac1e7"
     }
   ],
-  "ordinary_record_count": 162695,
+  "ordinary_record_count": 162694,
   "embedded_rule_count": 1008,
   "embedded_fixed_rule_count": 36,
   "core_required": true,

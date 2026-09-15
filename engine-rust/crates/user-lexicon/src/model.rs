@@ -5,16 +5,32 @@ pub enum UserLexiconAction {
     /// `display_text`, and is excluded from wildcard enumeration by the
     /// code-table query path.
     Direct,
+    OpenUrl,
+    OpenDirectory,
     Delete,
     Fixed,
     Position(u16),
 }
 
+impl UserLexiconAction {
+    pub fn is_direct(&self) -> bool {
+        matches!(self, Self::Direct | Self::OpenUrl | Self::OpenDirectory)
+    }
+
+    pub fn external_action(&self) -> Option<&'static str> {
+        match self {
+            Self::OpenUrl => Some("url.open"),
+            Self::OpenDirectory => Some("directory.open"),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UserLexiconEntry {
     pub text: String,
-    /// Optional candidate-only label. Selecting the candidate always commits
-    /// `text`; this value is presentation metadata for direct words.
+    /// Optional candidate-only label. Text actions commit `text`; external
+    /// shortcuts use it as their URI and never commit the label or URI.
     pub display_text: Option<String>,
     pub code: String,
     pub action: UserLexiconAction,

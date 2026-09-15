@@ -10,6 +10,7 @@ export const KEY_SWIPE_DOWN_THRESHOLD_VP: number = KEY_SWIPE_UP_THRESHOLD_VP;
 // upper-deck symbol while function-key gestures retain their existing reach.
 export const LETTER_KEY_SWIPE_THRESHOLD_VP: number = 28;
 export const KEY_SWIPE_VERTICAL_DOMINANCE_RATIO: number = 1.35;
+export const KEY_SWIPE_INTENT_THRESHOLD_VP: number = 6;
 
 /**
  * Keeps tap, long-press and vertical swipes mutually exclusive for a key.
@@ -24,6 +25,8 @@ export class AlternateKeyGestureController {
   private startX: number = 0;
   private startY: number = 0;
   private swipeTriggered: boolean = false;
+  private swipeIntentDetected: boolean = false;
+  private readonly onSwipeIntent: () => void;
 
   constructor(
     onShortPress: () => void,
@@ -31,7 +34,8 @@ export class AlternateKeyGestureController {
     onSwipeUp: () => void,
     longPressThresholdMs?: number,
     onSwipeDown: () => void = (): void => {},
-    swipeThresholdVp: number = KEY_SWIPE_UP_THRESHOLD_VP
+    swipeThresholdVp: number = KEY_SWIPE_UP_THRESHOLD_VP,
+    onSwipeIntent: () => void = (): void => {}
   ) {
     this.pressController = new ShortLongPressController(
       onShortPress,
@@ -41,12 +45,14 @@ export class AlternateKeyGestureController {
     this.onSwipeUp = onSwipeUp;
     this.onSwipeDown = onSwipeDown;
     this.swipeThresholdVp = swipeThresholdVp;
+    this.onSwipeIntent = onSwipeIntent;
   }
 
   start(x: number, y: number): void {
     this.startX = x;
     this.startY = y;
     this.swipeTriggered = false;
+    this.swipeIntentDetected = false;
     this.pressController.start();
   }
 
@@ -57,6 +63,12 @@ export class AlternateKeyGestureController {
     const verticalDistance = y - this.startY;
     const absoluteVerticalDistance = Math.abs(verticalDistance);
     const horizontalDistance = Math.abs(x - this.startX);
+    if (!this.swipeIntentDetected && absoluteVerticalDistance >= KEY_SWIPE_INTENT_THRESHOLD_VP &&
+      absoluteVerticalDistance >= horizontalDistance * KEY_SWIPE_VERTICAL_DOMINANCE_RATIO) {
+      this.swipeIntentDetected = true;
+      this.pressController.stopLongPressTimer();
+      this.onSwipeIntent();
+    }
     if (absoluteVerticalDistance < this.swipeThresholdVp ||
       absoluteVerticalDistance < horizontalDistance * KEY_SWIPE_VERTICAL_DOMINANCE_RATIO) {
       return false;

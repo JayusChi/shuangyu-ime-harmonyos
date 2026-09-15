@@ -1,5 +1,9 @@
 # API 契约
 
+## 2026-09-07：音形逆切分设置
+
+`setCodeTableCommitPolicy` 的既有 JSON 增加可选布尔字段 `reverseSplitEnabled`，缺省 `false`。C ABI 签名及 interface/ABI 11 不变；新增 `DIRECT_CONTROL / settings.split-mode / traditional|split` 闭合动作。合成候选继续使用 `text`（完整上屏）、`displayText`（显示）、`reading`（四码）和 `consumedRawLen=4`。详见 [逆切分模式](features/code-table/REVERSE_SPLIT_MODE.md)。
+
 ## 26 键全拼有界纠错与模糊音配置
 
 当前 ArkTS interface version 与 Rust ABI version 同步为 `9`，engine version 为
@@ -17,7 +21,7 @@ fuzzyOptions?: FuzzyOptionId[]      // 缺省 []，最多 8 项
 错误配置版本或超过 8 项均拒绝创建。纠错后的拼音不进入跨层结果，`rawInput` 始终保留
 用户原始按键，纠错/模糊候选的 `consumedRawLen` 覆盖原始输入长度。
 
-设置 schema version 为 `12`。迁移缺省关闭全拼纠错/模糊音，智能标点窗口缺省为 500 毫秒；设置变更通过创建并恢复完整运行时
+设置 schema version 为 `12`。迁移缺省关闭全拼纠错/模糊音，智能标点窗口当前缺省为 300 毫秒；设置变更通过创建并恢复完整运行时
 状态的新 Rust handle 事务式应用，成功后才替换旧 handle 和持久化快照。创建或持久化失败
 时恢复最后有效配置。输入法进程冷启动从共享的同一 schema 12 快照恢复；非 `quanpin`
 profile 不执行扩展，切回 `quanpin` 时继续使用已保存的全拼设置。
@@ -166,7 +170,7 @@ Pad/Phone 输入法切换完全位于 ArkTS `InputMethodSwitcher` 适配器与 I
 Preferences。Preferences 或共享快照任一步保存失败时必须恢复上一个持久化快照；不能发布一个
 Native 未生效或只在单进程可见的方案状态。完整决策见 ADR 0019。
 
-`smartPeriodTimeoutMs` 作为兼容字段继续表示智能标点时间窗，取值为 `0..2000` 的整数，`0` 表示关闭，默认为 `500`。`smartPunctuationSymbols` 保存可选的 ASCII 标点集合，默认对应 `intelligsymbol=,./;\\!:?"$()[]^_<>`。同一个已启用的中文标点的两次按键到达间隔不大于时间窗、且两次之间没有其他输入动作时，输入法才核对并尝试将光标前的中文标点替换为对应的单个英文标点；核对失败、标点未选中或超时时保留原输入。
+`smartPeriodTimeoutMs` 作为兼容字段继续表示智能标点时间窗，取值为 `0..2000` 的整数，`0` 表示关闭，默认为 `300` 毫秒。`smartPunctuationSymbols` 保存可选的 ASCII 标点集合，默认对应 `intelligsymbol=,./;\\!:?"$()[]^_<>`。同一个已启用的中文标点的两次按键到达间隔不大于时间窗、且两次之间没有其他输入动作时，输入法才核对并尝试将光标前的中文标点替换为对应的单个英文标点；核对失败、标点未选中或超时时保留原输入。
 
 `chineseLetterSwipeSymbols` 与 `englishLetterSwipeSymbols` 分别保存 26 键中文、英文键盘的字母下滑映射。两者都是按 `qwertyuiopasdfghjklzxcvbnm` 顺序排列的 26 项 JSON 字符串数组；空项禁用对应字母的下滑动作，单项最多 8 个 UTF-16 单元且不能包含回车、换行或制表符。映射只产生原样字符上屏动作，不改变键帽文字。
 
@@ -515,8 +519,15 @@ int32_t ime_engine_get_test_candidates(const char* input_utf8, ImeBuffer* out_bu
 ## 输入规则
 
 - `processKey` 在 `xiaohe/quanpin` 接受单个小写 ASCII 字母，在 `pinyin-9` 只接受单个 `2`～`9`；码表后端另外接受单个 `;` 进入/重启 Rust 引导状态，`xiaohe` 对 `;` 返回明确错误。
+- 正式 `xiaohe-yinxing` 在分号引导后收到第一个字母时，若结果为唯一精确项，则本次 `processKey` 直接返回非空 `commitText` 或唯一非空 `action`，同时返回空组合并结束引导；调用方必须立即执行该结果，不能再要求空格或候选选择。文本与动作仍严格互斥，多字母及歧义结果继续返回候选。
 - ArkTS 可传入大小写字母，应用层在中文模式下规范化为小写再调用 Native。
 - 空字符串、多个字符、当前 scheme 不接受的字符和非法 UTF-8 都返回参数或编码错误，不导致 Native 崩溃。
 - 正式 scheme 为 `xiaohe`、`quanpin`、`pinyin-9`、`xiaohe-yinxing`；内部 `code-table-fixture` 只允许测试和 internalDebug 验收。
 
 阶段 11.6.4 当时只改变 Rust 内部快照组成，不增加配置字段、结果字段或 C ABI 函数，interface/ABI version 继续为 2。阶段 11.6.5 新增分类配置读取/替换函数并升级为 3；阶段 11.6.6 新增单动作结果并升级为 4。受控分号只在码表后端和 internalDebug fixture 验收，Debug-only `xiaohe-yinxing` 仍不得被调用方视为已经开放的产品设置接口。
+
+## 复制反查（ofi）
+
+新增只读 N-API `reverseLookup(handle, text): string`，返回 JSON 编码数组。C ABI 对应 `ime_engine_reverse_lookup(handle, text_utf8, text_len, out_buffer)`；输入为单个 UTF-8 汉字（最多 4 字节），无匹配或非码表方案返回 `[]`，非法 UTF-8、超限输入和无效句柄返回既有错误码。输出 buffer 仍由 `ime_engine_free_buffer` 释放。此为增量接口，既有结构和函数签名不变，版本继续为 11。
+
+内置 `ofi` 候选使用 `DIRECT_CONTROL`，`formatId=clipboard.reverse`、`text=''`、`cursorOffsetUtf16=0`。ArkTS 在剪贴板读取后调用只读反查接口，并在同一输入会话中保存显示／上屏快照；选择动作不将原始表达式或 `[复制反查]` 上屏。详情见 [复制反查直通](features/direct-control/CLIPBOARD_REVERSE_LOOKUP.md)。

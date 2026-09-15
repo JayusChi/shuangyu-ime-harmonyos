@@ -1,10 +1,31 @@
 {
   "subtypes": [
     {
-      "icon": "$media:layered_image",
-      "id": "shuangyu_zh_cn",
-      "label": "$string:Stage0InputMethodAbility_label",
+      "icon": "$media:shuangyu_input_method_raster",
+      "id": "shuangyu_quanpin_zh_cn",
+      "label": "$string:input_method_subtype_quanpin",
       "locale": "zh-CN",
+      "mode": "lower"
+    },
+    {
+      "icon": "$media:shuangyu_input_method_raster",
+      "id": "shuangyu_zh_cn",
+      "label": "$string:input_method_subtype_shuangpin",
+      "locale": "zh-CN",
+      "mode": "double"
+    },
+    {
+      "icon": "$media:shuangyu_input_method_raster",
+      "id": "shuangyu_yinxing_zh_cn",
+      "label": "$string:input_method_subtype_yinxing",
+      "locale": "zh-CN",
+      "mode": "wubi"
+    },
+    {
+      "icon": "$media:shuangyu_input_method_raster",
+      "id": "shuangyu_en_us",
+      "label": "$string:input_method_subtype_english",
+      "locale": "en-US",
       "mode": "lower"
     }
   ]

@@ -2,7 +2,7 @@ import {
   DirectControlCommand,
   parseDirectControlCommand
 } from '../domain/direct/DirectControlCommand';
-import { XIAOHE_YINXING_CATEGORY_IDS } from '../domain/settings/ImeSettings';
+import { CandidatePresentationMode, XIAOHE_YINXING_CATEGORY_IDS } from '../domain/settings/ImeSettings';
 import {
   getSharedSettingsController,
   SettingsController,
@@ -44,6 +44,33 @@ export class DirectControlService {
   }
 
   async execute(command: DirectControlCommand): Promise<DirectControlResult> {
+    const parsed = parseDirectControlCommand(command.action, command.target);
+    if (!parsed.success || parsed.command === undefined) {
+      return { success: false, message: parsed.message };
+    }
+    command = parsed.command;
+    if (command.action === 'settings.candidate-position') {
+      return this.settings.setCandidatePresentationMode(command.target === 'floating' ?
+        CandidatePresentationMode.FLOATING : CandidatePresentationMode.BAR);
+    }
+    if (command.action === 'settings.keyboard-height') {
+      return this.settings.adjustKeyboardHeight(command.target);
+    }
+    if (command.action === 'settings.keyboard-font') {
+      return this.settings.adjustKeyboardFontSize(command.target);
+    }
+    if (command.action === 'settings.candidate-font' || command.action === 'settings.floating-font') {
+      return this.settings.adjustCandidateFontSize(command.action === 'settings.floating-font', command.target);
+    }
+    if (command.action === 'settings.keyboard-profile') {
+      return this.settings.setKeyboardProfile(command.target);
+    }
+    if (command.action === 'settings.haptic') {
+      return this.settings.setHapticEnabled(command.target === 'enabled');
+    }
+    if (command.action === 'settings.key-sound') {
+      return this.settings.setKeySoundEnabled(command.target === 'enabled');
+    }
     if (command.action === 'status.get') {
       const snapshot = this.settings.getSettings();
       return {
@@ -88,6 +115,9 @@ export class DirectControlService {
         current.codeTableAutoCommitEnabled,
         Number(command.target)
       );
+    }
+    if (command.action === 'settings.split-mode') {
+      return this.settings.setCodeTableReverseSplitEnabled(command.target === 'split');
     }
     if (command.action === 'settings.commit-policy') {
       const current = this.settings.getSettings();

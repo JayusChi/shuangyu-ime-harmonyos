@@ -111,6 +111,13 @@ RustCallResult EngineRegistry::PreviousCandidatePage(uint32_t id) {
     return found->second.PreviousCandidatePage();
 }
 
+RustCallResult EngineRegistry::ReverseLookup(uint32_t id, const std::string& text) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto found = engines_.find(id);
+    if (found == engines_.end()) { return {IME_INVALID_HANDLE, RustBuffer()}; }
+    return found->second.ReverseLookup(text);
+}
+
 RustCallResult EngineRegistry::GetLocalAssociations(uint32_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto found = engines_.find(id);

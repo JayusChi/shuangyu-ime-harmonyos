@@ -22,6 +22,7 @@ static napi_value Init(napi_env env, napi_value exports) {
         {"nextCandidatePage", nullptr, NextCandidatePage, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"previousCandidatePage", nullptr, PreviousCandidatePage, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getLocalAssociations", nullptr, GetLocalAssociations, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"reverseLookup", nullptr, ReverseLookup, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getCodeTableCategoryConfig", nullptr, GetCodeTableCategoryConfig, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"setCodeTableCategories", nullptr, SetCodeTableCategories, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"setCodeTableCommitPolicy", nullptr, SetCodeTableCommitPolicy, nullptr, nullptr, nullptr, napi_default, nullptr},

@@ -122,6 +122,7 @@ declare const imeBridge: {
   nextCandidatePage(handle: number): CompositionResult;
   previousCandidatePage(handle: number): CompositionResult;
   getLocalAssociations(handle: number): string;
+  reverseLookup(handle: number, text: string): string;
   getCodeTableCategoryConfig(handle: number): string;
   setCodeTableCategories(handle: number, enabledCategoryIds: string[]): CompositionResult;
   setCodeTableCommitPolicy(handle: number, policyJson: string): CompositionResult;
@@ -153,6 +154,7 @@ export const selectPinyinCombination: (handle: number, combinationIndex: number)
 export const nextCandidatePage: (handle: number) => CompositionResult;
 export const previousCandidatePage: (handle: number) => CompositionResult;
 export const getLocalAssociations: (handle: number) => string;
+export const reverseLookup: (handle: number, text: string) => string;
 export const getCodeTableCategoryConfig: (handle: number) => string;
 export const setCodeTableCategories: (handle: number, enabledCategoryIds: string[]) => CompositionResult;
 export const setCodeTableCommitPolicy: (handle: number, policyJson: string) => CompositionResult;

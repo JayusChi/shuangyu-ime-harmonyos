@@ -4,9 +4,12 @@ import { ShuangpinKeyboardLayout } from '../../../domain/keyboard/ShuangpinKeybo
 import {
   createCharacterInputAction,
   createLiteralCharacterInputAction,
+  createLiteralPairInputAction,
   createLetterInputAction,
   CANCEL_COMPOSITION_ACTION,
   COPY_ACTION,
+  CONVENIENCE_GUIDE_ACTION,
+  SECOND_CANDIDATE_OR_PASTE_ACTION,
   CUT_ACTION,
   DELETE_ACTION,
   DELETE_CURRENT_LINE_ACTION,
@@ -24,7 +27,6 @@ import {
   TOGGLE_NUMBER_ACTION,
   TOGGLE_SYMBOL_ACTION,
   UNIVERSAL_KEY_ACTION,
-  SWITCH_INPUT_METHOD_ACTION,
   SECOND_CANDIDATE_OR_PERIOD_ACTION,
   THIRD_CANDIDATE_OR_COMMA_ACTION,
   REPEAT_LAST_COMMIT_ACTION,
@@ -103,6 +105,14 @@ function upperCharacter(character: string): UpperDeckSpec {
   };
 }
 
+function smartUpperCharacter(character: string): UpperDeckSpec {
+  return {
+    label: character,
+    action: createCharacterInputAction(character),
+    accessibilityLabel: `输入智能标点 ${character}`
+  };
+}
+
 function upperDeckForLetter(letter: string, chineseMode: boolean): UpperDeckSpec | undefined {
   const topIndex = QWERTY_TOP_ROW.indexOf(letter);
   if (topIndex >= 0) {
@@ -138,9 +148,9 @@ function upperDeckForLetter(letter: string, chineseMode: boolean): UpperDeckSpec
     case 'b':
       return upperCharacter('_');
     case 'n':
-      return upperCharacter(chineseMode ? '`' : '\\');
+      return chineseMode ? smartUpperCharacter('、') : upperCharacter('\\');
     case 'm':
-      return upperCharacter(chineseMode ? '：' : ':');
+      return chineseMode ? smartUpperCharacter('：') : upperCharacter(':');
     default:
       return undefined;
   }
@@ -165,6 +175,18 @@ function literalSymbolKey(label: string, character: string, id: string): Keyboar
     1,
     createLiteralCharacterInputAction(character),
     `输入符号 ${label}`
+  );
+}
+
+function literalSymbolPairKey(left: string, right: string, id: string): KeyboardKeySpec {
+  const text = `${left}${right}`;
+  return key(
+    `symbol-${id}`,
+    text,
+    KeyboardKeyKind.FUNCTION,
+    1,
+    createLiteralPairInputAction(text, right.length),
+    `输入成对符号 ${text}，光标位于中间`
   );
 }
 
@@ -261,8 +283,8 @@ function inputMethodSwitchKey(weight: number = KEY_WEIGHTS.MODE_SWITCH): Keyboar
     '',
     KeyboardKeyKind.INPUT_METHOD_SWITCH,
     weight,
-    SWITCH_INPUT_METHOD_ACTION,
-    '切换输入法'
+    SHOW_INPUT_METHOD_PICKER_ACTION,
+    '选择输入法'
   );
   switchKey.longPressAction = SHOW_INPUT_METHOD_PICKER_ACTION;
   return switchKey;
@@ -308,7 +330,9 @@ function periodKey(chineseMode: boolean, weight: number = 0.9): KeyboardKeySpec 
     chineseMode ? '有第二候选时选择第二候选，否则输入句号' : '输入句号'
   );
   const upperCharacterValue = chineseMode ? '？' : '?';
-  const upperAction = createLiteralCharacterInputAction(upperCharacterValue);
+  const upperAction = chineseMode
+    ? createCharacterInputAction(upperCharacterValue)
+    : createLiteralCharacterInputAction(upperCharacterValue);
   spec.upperLabel = upperCharacterValue;
   spec.longPressAction = upperAction;
   spec.swipeUpAction = upperAction;
@@ -385,7 +409,8 @@ function createChineseLetterRows(
 function createTextBottomRow(
   context: EditorContext,
   chineseMode: boolean,
-  showInputMethodSwitchKey: boolean = false
+  showInputMethodSwitchKey: boolean = false,
+  chineseCapsLock: boolean = false
 ): KeyboardRowSpec {
   const keys: KeyboardKeySpec[] = [];
   if (context.numberModeAllowed) {
@@ -399,7 +424,7 @@ function createTextBottomRow(
     : KEY_WEIGHTS.SPACE;
   const space = key('space', '空格', KeyboardKeyKind.SPACE, spaceWeight, SPACE_ACTION,
     '空格，长按切换中英文，候选不少于三个时上滑展开候选');
-  space.upperLabel = chineseMode ? '中文' : 'EN';
+  space.upperLabel = chineseMode && !chineseCapsLock ? '中文' : 'EN';
   space.longPressAction = TOGGLE_LANGUAGE_ACTION;
   space.swipeUpAction = EXPAND_CANDIDATES_ACTION;
   keys.push(commaKey(chineseMode));
@@ -417,47 +442,50 @@ function createEighteenKeyTextLayout(
   compositionActive: boolean
 ): KeyboardLayoutSpec {
   const letterShiftState = chineseMode ? ShiftState.ONE_SHOT_UPPERCASE : shiftState;
+  const leadingKey = chineseMode
+    ? (compositionActive ? escapeKey() : chineseShiftKey(chineseCapsLock))
+    : shiftKey(shiftState);
+  leadingKey.weight = 1;
   return {
     rows: [
       {
         keys: [
-          groupedLetterKey('q', 'Q', letterShiftState, 0.9),
-          groupedLetterKey('we', 'WE', letterShiftState, 1.25),
-          groupedLetterKey('rt', 'RT', letterShiftState, 1.25),
-          groupedLetterKey('y', 'Y', letterShiftState, 0.9),
-          groupedLetterKey('u', 'U', letterShiftState, 0.9),
-          groupedLetterKey('io', 'IO', letterShiftState, 1.25),
-          groupedLetterKey('p', 'P', letterShiftState, 0.9)
+          groupedLetterKey('q', 'Q', letterShiftState, 1),
+          groupedLetterKey('we', 'WE', letterShiftState, 1),
+          groupedLetterKey('rt', 'RT', letterShiftState, 1),
+          groupedLetterKey('y', 'Y', letterShiftState, 1),
+          groupedLetterKey('u', 'U', letterShiftState, 1),
+          groupedLetterKey('io', 'IO', letterShiftState, 1),
+          groupedLetterKey('p', 'P', letterShiftState, 1)
         ],
         kind: KeyboardRowKind.TOP_LETTERS
       },
       {
         keys: [
-          groupedLetterKey('a', 'A', letterShiftState, 0.9),
-          groupedLetterKey('sd', 'SD', letterShiftState, 1.25),
-          groupedLetterKey('fg', 'FG', letterShiftState, 1.25),
-          groupedLetterKey('h', 'H', letterShiftState, 0.9),
-          groupedLetterKey('jk', 'JK', letterShiftState, 1.25),
-          groupedLetterKey('l', 'L', letterShiftState, 0.9)
+          groupedLetterKey('a', 'A', letterShiftState, 1),
+          groupedLetterKey('sd', 'SD', letterShiftState, 1),
+          groupedLetterKey('fg', 'FG', letterShiftState, 1),
+          groupedLetterKey('h', 'H', letterShiftState, 1),
+          groupedLetterKey('jk', 'JK', letterShiftState, 1),
+          groupedLetterKey('l', 'L', letterShiftState, 1)
         ],
-        kind: KeyboardRowKind.MIDDLE_LETTERS
+        kind: KeyboardRowKind.MIDDLE_LETTERS,
+        uniformKeyColumns: 7
       },
       {
         keys: [
-          chineseMode
-            ? (compositionActive ? escapeKey() : chineseShiftKey(chineseCapsLock))
-            : shiftKey(shiftState),
-          groupedLetterKey('z', 'Z', letterShiftState, 0.9),
-          groupedLetterKey('xc', 'XC', letterShiftState, 1.25),
-          groupedLetterKey('v', 'V', letterShiftState, 0.9),
-          groupedLetterKey('bn', 'BN', letterShiftState, 1.25),
-          groupedLetterKey('m', 'M', letterShiftState, 0.9),
-          deleteKey(KEY_WEIGHTS.DELETE)
+          leadingKey,
+          groupedLetterKey('z', 'Z', letterShiftState, 1),
+          groupedLetterKey('xc', 'XC', letterShiftState, 1),
+          groupedLetterKey('v', 'V', letterShiftState, 1),
+          groupedLetterKey('bn', 'BN', letterShiftState, 1),
+          groupedLetterKey('m', 'M', letterShiftState, 1),
+          deleteKey(1)
         ],
         kind: KeyboardRowKind.BOTTOM_LETTERS
       },
       {
-        keys: createEighteenKeyBottomKeys(context, chineseMode),
+        keys: createEighteenKeyBottomKeys(context, chineseMode, chineseCapsLock),
         kind: KeyboardRowKind.BOTTOM_ACTIONS
       }
     ]
@@ -466,11 +494,12 @@ function createEighteenKeyTextLayout(
 
 function createEighteenKeyBottomKeys(
   context: EditorContext,
-  chineseMode: boolean
+  chineseMode: boolean,
+  chineseCapsLock: boolean
 ): KeyboardKeySpec[] {
   const space = key('space', '空格', KeyboardKeyKind.SPACE, 3.5, SPACE_ACTION,
     '空格，长按切换中英文，候选不少于三个时上滑展开候选');
-  space.upperLabel = chineseMode ? '中文' : 'EN';
+  space.upperLabel = chineseMode && !chineseCapsLock ? '中文' : 'EN';
   space.longPressAction = TOGGLE_LANGUAGE_ACTION;
   space.swipeUpAction = EXPAND_CANDIDATES_ACTION;
   return [
@@ -491,7 +520,7 @@ function createChineseLayout(
   return {
     rows: [
       ...createChineseLetterRows(chineseCapsLock, compositionActive),
-      createTextBottomRow(context, true, showInputMethodSwitchKey)
+      createTextBottomRow(context, true, showInputMethodSwitchKey, chineseCapsLock)
     ]
   };
 }
@@ -540,13 +569,15 @@ function createReferenceNumberLayout(
   showInputMethodSwitchKey: boolean
 ): KeyboardLayoutSpec {
   const bottomKeys: KeyboardKeySpec[] = [
-    key('number-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
-      TOGGLE_NUMBER_ACTION, '返回文字键盘'),
+    upperCharacterKey('/', ';', 'slash'),
     upperCharacterKey(',', '¥', 'comma'),
     upperCharacterKey('0', '$', 'zero'),
     upperCharacterKey('.', '€', 'decimal')
   ];
   if (showInputMethodSwitchKey) {
+    // The lift layer is hidden in this layout; retain its return action here.
+    bottomKeys.push(key('number-return', '返回', KeyboardKeyKind.MODE_SWITCH, 1,
+      TOGGLE_NUMBER_ACTION, '返回文字键盘'));
     bottomKeys.push(inputMethodSwitchKey());
   }
   bottomKeys.push(enterKey(context, 1));
@@ -558,7 +589,7 @@ function createReferenceNumberLayout(
           characterKey('1', 'one'),
           characterKey('2', 'two'),
           characterKey('3', 'three'),
-          upperCharacterKey('/', ';', 'slash')
+          key('number-paste', '粘贴', KeyboardKeyKind.FUNCTION, 1, SECOND_CANDIDATE_OR_PASTE_ACTION)
         ]
       },
       {
@@ -567,7 +598,7 @@ function createReferenceNumberLayout(
           characterKey('4', 'four'),
           characterKey('5', 'five'),
           characterKey('6', 'six'),
-          characterKey('=', 'equals')
+          key('equals', '=', KeyboardKeyKind.FUNCTION, 1, CONVENIENCE_GUIDE_ACTION)
         ]
       },
       {
@@ -660,7 +691,7 @@ function createSymbolLayout(
         literalSymbolKey('`', '`', 'en-grave'),
         literalSymbolKey('^', '^', 'en-caret'),
         literalSymbolKey('-', '-', 'en-minus'),
-        literalSymbolKey('↗', '↗', 'en-arrow')
+        literalSymbolKey('/', '/', 'en-slash')
       ],
       [
         literalSymbolKey('_', '_', 'en-underscore'),
@@ -691,39 +722,39 @@ function createSymbolLayout(
     ]
     : [
       [
-        literalSymbolKey('#', '#', 'zh-hash'),
-        literalSymbolKey('&', '&', 'zh-ampersand'),
-        literalSymbolKey('¥', '¥', 'zh-yen'),
-        literalSymbolKey('……', '…', 'zh-ellipsis'),
-        literalSymbolKey('——', '—', 'zh-em-dash'),
+        literalSymbolKey('＃', '＃', 'zh-hash'),
+        literalSymbolKey('＆', '＆', 'zh-ampersand'),
+        literalSymbolKey('￥', '￥', 'zh-yen'),
+        literalSymbolKey('……', '……', 'zh-ellipsis'),
+        literalSymbolKey('——', '——', 'zh-em-dash'),
         literalSymbolKey('·', '·', 'zh-middle-dot'),
-        literalSymbolKey('↗', '↗', 'zh-arrow')
+        literalSymbolKey('々', '々', 'zh-iteration-mark')
       ],
       [
-        literalSymbolKey('*', '*', 'zh-star'),
+        literalSymbolKey('＊', '＊', 'zh-star'),
         literalSymbolKey('%', '%', 'zh-percent'),
-        literalSymbolKey('<', '<', 'zh-less'),
-        literalSymbolKey('>', '>', 'zh-greater'),
-        literalSymbolKey('〈〉', '〈', 'zh-angle-pair'),
-        literalSymbolKey('“”', '“', 'zh-double-quote-pair'),
-        literalSymbolKey('‘’', '‘', 'zh-single-quote-pair')
+        literalSymbolKey('＜', '＜', 'zh-less'),
+        literalSymbolKey('＞', '＞', 'zh-greater'),
+        literalSymbolPairKey('〔', '〕', 'zh-tortoise-shell-pair'),
+        literalSymbolPairKey('“', '”', 'zh-double-quote-pair'),
+        literalSymbolPairKey('‘', '’', 'zh-single-quote-pair')
       ],
       [
-        literalSymbolKey('【】', '【', 'zh-square-pair'),
-        literalSymbolKey('{}', '{', 'zh-brace-pair'),
-        literalSymbolKey('「」', '「', 'zh-corner-pair'),
-        literalSymbolKey('『』', '『', 'zh-white-corner-pair'),
-        literalSymbolKey('（）', '（', 'zh-parenthesis-pair'),
-        literalSymbolKey('《》', '《', 'zh-book-pair'),
-        literalSymbolKey('〈〉', '〈', 'zh-single-angle-pair')
+        literalSymbolPairKey('【', '】', 'zh-square-pair'),
+        literalSymbolPairKey('｛', '｝', 'zh-brace-pair'),
+        literalSymbolPairKey('「', '」', 'zh-corner-pair'),
+        literalSymbolPairKey('『', '』', 'zh-white-corner-pair'),
+        literalSymbolPairKey('（', '）', 'zh-parenthesis-pair'),
+        literalSymbolPairKey('《', '》', 'zh-book-pair'),
+        literalSymbolPairKey('〈', '〉', 'zh-single-angle-pair')
       ],
       [
-        literalSymbolKey('=', '=', 'zh-equals'),
-        literalSymbolKey('+', '+', 'zh-plus'),
-        literalSymbolKey('-', '-', 'zh-minus'),
+        literalSymbolKey('＝', '＝', 'zh-equals'),
+        literalSymbolKey('＋', '＋', 'zh-plus'),
+        literalSymbolKey('－', '－', 'zh-minus'),
         literalSymbolKey('×', '×', 'zh-times'),
         literalSymbolKey('÷', '÷', 'zh-divide'),
-        literalSymbolKey('~', '~', 'zh-tilde')
+        literalSymbolKey('～', '～', 'zh-tilde')
       ]
     ];
   const bottomKeys = rows[rows.length - 1];
@@ -734,7 +765,11 @@ function createSymbolLayout(
     );
     bottomKeys.push(inputMethodSwitchKey());
   }
-  bottomKeys.push(deleteKey(1));
+  const symbolDelete = deleteKey(1);
+  if (languageMode === KeyboardMode.CHINESE) {
+    symbolDelete.label = '回删';
+  }
+  bottomKeys.push(symbolDelete);
   return {
     rows: rows.map((keys: KeyboardKeySpec[], index: number): KeyboardRowSpec => ({
       keys,

@@ -128,7 +128,9 @@ export default function computerStage2LifecycleTest() {
       const panel = new InputPanelController(session, new SettingsStore(), backend);
 
       panel.handleInputStart(InputPresentationMode.HARDWARE);
+      panel.showKeyboardPanel();
       await panel.waitForLifecycleIdle();
+      expect(backend.createCount).assertEqual(0);
       panel.handlePresentationModeChange(InputPresentationMode.TOUCH);
       await panel.waitForLifecycleIdle();
 
@@ -175,6 +177,7 @@ export default function computerStage2LifecycleTest() {
       const panel = new InputPanelController(session, new SettingsStore(), backend);
 
       panel.handleInputStart(InputPresentationMode.TOUCH);
+      panel.showKeyboardPanel();
       await panel.waitForLifecycleIdle();
       panel.handleInputStart(InputPresentationMode.HARDWARE);
       await panel.waitForLifecycleIdle();

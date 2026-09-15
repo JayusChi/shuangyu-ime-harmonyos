@@ -2,8 +2,10 @@ import { describe, expect, it } from '@ohos/hypium';
 import common from '@ohos.app.ability.common';
 import { EngineCoordinator } from '../main/ets/application/EngineCoordinator';
 import { SettingsController } from '../main/ets/application/SettingsController';
+import { DirectControlService } from '../main/ets/application/DirectControlService';
 import {
   CandidateFontSizeMode,
+  CandidatePresentationMode,
   copyImeSettings,
   CURRENT_SETTINGS_SCHEMA_VERSION,
   DEFAULT_LONG_PRESS_DURATION_MS,
@@ -14,6 +16,7 @@ import {
   imeSettingsEqual,
   ImeSettings,
   KeyboardHeightMode,
+  keyboardHeightScale,
   normalizeXiaoheYinxingCategoryIds,
   resolveEffectiveTheme,
   settingsToRaw,
@@ -89,7 +92,8 @@ import {
   PINYIN_9_PROFILE_ID,
   QUANPIN_26_PROFILE_ID,
   XIAOHE_18_PROFILE_ID,
-  XIAOHE_26_PROFILE_ID
+  XIAOHE_26_PROFILE_ID,
+  XIAOHE_YINXING_26_PROFILE_ID
 } from '../main/ets/domain/keyboard/KeyboardProfile';
 
 class FakeSystemThemeBackend implements SystemThemeBackend {
@@ -300,10 +304,12 @@ class FakeHapticBackend implements HapticBackend {
 
 class FakeSoundBackend implements KeySoundBackend {
   playCount: number = 0;
+  volumes: number[] = [];
   disposeCount: number = 0;
   reject: boolean = false;
-  async play(): Promise<void> {
+  async play(volume: number = 0.16): Promise<void> {
     this.playCount += 1;
+    this.volumes.push(volume);
     if (this.reject) {
       throw new Error('fake sound failure');
     }
@@ -321,6 +327,15 @@ function userModelStatus(enabled: boolean): UserModelStatus {
 }
 
 class FakeSettingsEngine extends EngineCoordinator {
+  commitPolicyCalls: string[] = [];
+  rejectCommitPolicy: boolean = false;
+  setCodeTableCommitPolicy(autoCommitEnabled: boolean, emptyClearLength: number,
+    reverseSplitEnabled: boolean = false): CompositionResult {
+    this.commitPolicyCalls.push(`${autoCommitEnabled}:${emptyClearLength}:${reverseSplitEnabled}`);
+    const result = this.reset();
+    result.success = !this.rejectCommitPolicy;
+    return result;
+  }
   globalValues: boolean[] = [];
   sessionValues: boolean[] = [];
   isReady: boolean = true;
@@ -422,6 +437,298 @@ function candidateComposition(): CompositionResult {
 
 export default function stage11Test() {
   describe('Stage 11 settings, theme and feedback', () => {
+    it('direct display commands switch position and adjust independent font sizes', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const controller = new SettingsController(repo, new SettingsStore(), new FakeSettingsEngine(), new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      expect((await direct.executeRaw('settings.candidate-position', 'floating')).success).assertTrue();
+      expect(controller.getSettings().candidatePresentationMode).assertEqual(CandidatePresentationMode.FLOATING);
+      await direct.executeRaw('settings.candidate-position', 'bar');
+      expect(controller.getSettings().candidatePresentationMode).assertEqual(CandidatePresentationMode.BAR);
+      await Promise.all([
+        direct.executeRaw('settings.candidate-font', 'increase'),
+        direct.executeRaw('settings.candidate-font', 'increase'),
+        direct.executeRaw('settings.floating-font', 'decrease')
+      ]);
+      expect(controller.getSettings().candidateFontSize).assertEqual(19);
+      expect(controller.getSettings().floatingCandidateFontSize).assertEqual(16);
+      await direct.executeRaw('settings.candidate-font', 'default');
+      expect(controller.getSettings().candidateFontSize).assertEqual(15);
+      expect(controller.getSettings().floatingCandidateFontSize).assertEqual(16);
+      await direct.executeRaw('settings.candidate-font', 'decrease');
+      await direct.executeRaw('settings.floating-font', 'increase');
+      expect(controller.getSettings().candidateFontSize).assertEqual(14);
+      expect(controller.getSettings().floatingCandidateFontSize).assertEqual(18);
+      await direct.executeRaw('settings.floating-font', 'default');
+      expect(controller.getSettings().floatingCandidateFontSize).assertEqual(17);
+      expect(repo.settings.candidateFontSize).assertEqual(14);
+      expect(repo.settings.floatingCandidateFontSize).assertEqual(17);
+    });
+
+    it('keyboard font direct actions accumulate, persist and clamp without changing other dimensions', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const store = new SettingsStore();
+      const controller = new SettingsController(repo, store, new FakeSettingsEngine(), new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      await Promise.all([
+        direct.executeRaw('settings.keyboard-font', 'increase'),
+        direct.executeRaw('settings.keyboard-font', 'increase'),
+        direct.executeRaw('settings.keyboard-font', 'decrease')
+      ]);
+      expect(controller.getSettings().keyboardFontSize).assertEqual(15);
+      expect(repo.settings.keyboardFontSize).assertEqual(15);
+      expect(store.getSnapshot().keyboardFontSize).assertEqual(15);
+      expect(controller.getSettings().candidateFontSize).assertEqual(15);
+      expect(controller.getSettings().floatingCandidateFontSize).assertEqual(17);
+      expect(controller.getSettings().keyboardHeightMode).assertEqual(KeyboardHeightMode.STANDARD);
+      for (let i = 0; i < 12; i++) { await direct.executeRaw('settings.keyboard-font', 'increase'); }
+      expect(controller.getSettings().keyboardFontSize).assertEqual(32);
+      for (let i = 0; i < 26; i++) { await direct.executeRaw('settings.keyboard-font', 'decrease'); }
+      expect(controller.getSettings().keyboardFontSize).assertEqual(8);
+      await direct.executeRaw('settings.keyboard-font', 'default');
+      expect(controller.getSettings().keyboardFontSize).assertEqual(12);
+      const saves = repo.saveCount;
+      expect((await direct.executeRaw('settings.keyboard-font', '12')).success).assertFalse();
+      expect((await controller.adjustKeyboardFontSize('invalid')).success).assertFalse();
+      expect(repo.saveCount).assertEqual(saves);
+    });
+
+    it('keyboard font settings drive key metrics across rotations independently from keyboard height', 0, () => {
+      for (const landscape of [false, true]) {
+        const screen = createScreenMetrics({ widthPx: landscape ? 2400 : 1080,
+          heightPx: landscape ? 1080 : 2400, densityPixels: 3 }, landscape);
+        const base = calculateDynamicMetrics(screen, KeyboardHeightMode.STANDARD, 12);
+        const larger = calculateDynamicMetrics(screen, KeyboardHeightMode.STANDARD, 14);
+        expect(base.letterFontSize).assertEqual(12);
+        expect(larger.letterFontSize).assertEqual(14);
+        expect(larger.functionFontSize - base.functionFontSize).assertEqual(2);
+        expect(larger.letterKeyHeight).assertEqual(base.letterKeyHeight);
+        expect(larger.keySpacing).assertEqual(base.keySpacing);
+        expect(calculateDynamicMetrics(screen, KeyboardHeightMode.TALL, 14).letterFontSize).assertEqual(14);
+        expect(getMetricsForOrientation(landscape, KeyboardHeightMode.STANDARD, undefined, 14).letterFontSize).assertEqual(14);
+      }
+      expect(PORTRAIT_METRICS.letterFontSize).assertEqual(12);
+    });
+
+    it('adaptive keyboard fonts follow logical size and preserve offsets across tablet rotation', 0, () => {
+      const phone = createScreenMetrics({ widthPx: 1080, heightPx: 2400, densityPixels: 3 });
+      const samePhone = createScreenMetrics({ widthPx: 1440, heightPx: 3200, densityPixels: 4 });
+      const smallTablet = createScreenMetrics({ widthPx: 1200, heightPx: 1920, densityPixels: 2 });
+      const tablet = createScreenMetrics({ widthPx: 1920, heightPx: 2880, densityPixels: 2 });
+      const rotated = createScreenMetrics({ widthPx: tablet.widthPx, heightPx: tablet.heightPx,
+        densityPixels: tablet.densityPixels }, true);
+      expect(calculateDynamicMetrics(phone).letterFontSize).assertEqual(12);
+      expect(calculateDynamicMetrics(samePhone).letterFontSize).assertEqual(12);
+      expect(calculateDynamicMetrics(smallTablet).letterFontSize).assertEqual(20);
+      expect(calculateDynamicMetrics(tablet).letterFontSize).assertEqual(24);
+      for (const screen of [tablet, rotated]) {
+        expect(calculateDynamicMetrics(screen, KeyboardHeightMode.STANDARD, 14).letterFontSize).assertEqual(26);
+        expect(calculateDynamicMetrics(screen, KeyboardHeightMode.TALL, 11).letterFontSize).assertEqual(23);
+        expect(calculateDynamicMetrics(screen, KeyboardHeightMode.STANDARD, 32).letterFontSize).assertEqual(32);
+      }
+      const invalid = createScreenMetrics({ widthPx: 0, heightPx: 0, densityPixels: 0 });
+      expect(calculateDynamicMetrics(invalid).letterFontSize).assertEqual(12);
+    });
+
+    it('appearance controls persist relative font size and symbol margin with validation', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const store = new SettingsStore();
+      const controller = new SettingsController(repo, store, new FakeSettingsEngine(), new InputSessionStore());
+      expect((await controller.setKeyboardFontSizeOffset(3)).success).assertTrue();
+      expect((await controller.setUpperLabelRightMargin(14)).success).assertTrue();
+      expect(controller.getSettings().keyboardFontSize).assertEqual(15);
+      expect(store.getSnapshot().upperLabelRightMargin).assertEqual(14);
+      const codec = new SettingsRepositoryRecordCodec();
+      const restored = new SettingsValidator().validate(new SettingsMigration().migrate(codec.decode(codec.encode(repo.settings))));
+      expect(imeSettingsEqual(restored, controller.getSettings())).assertTrue();
+      const saves = repo.saveCount;
+      for (const invalid of [-1, 17, 2.5, Number.NaN]) {
+        expect((await controller.setUpperLabelRightMargin(invalid)).success).assertFalse();
+      }
+      for (const invalid of [-5, 21, 2.5, Number.NaN]) {
+        expect((await controller.setKeyboardFontSizeOffset(invalid)).success).assertFalse();
+      }
+      expect(repo.saveCount).assertEqual(saves);
+      expect((await controller.setKeyboardFontSizeOffset(0)).success).assertTrue();
+      expect(controller.getSettings().keyboardFontSize).assertEqual(12);
+      repo.saveSucceeds = false;
+      expect((await controller.setUpperLabelRightMargin(8)).success).assertFalse();
+      expect(store.getSnapshot().upperLabelRightMargin).assertEqual(14);
+    });
+
+    it('symbol margin migrates defaults and changes metrics without altering key dimensions', 0, () => {
+      const validator = new SettingsValidator();
+      const legacy = validator.validate(new SettingsMigration().migrate({ schemaVersion: '23', keyboardFontSize: '15' }));
+      expect(legacy.upperLabelRightMargin).assertEqual(10);
+      expect(legacy.keyboardFontSize).assertEqual(15);
+      for (const invalid of ['-1', '17', 'NaN', '2.5']) {
+        expect(validator.validate({ upperLabelRightMargin: invalid }).upperLabelRightMargin).assertEqual(10);
+      }
+      const screen = createScreenMetrics({ widthPx: 1080, heightPx: 2400, densityPixels: 3 });
+      const base = calculateDynamicMetrics(screen);
+      const changed = getMetricsForOrientation(false, KeyboardHeightMode.STANDARD, screen, 12, 14);
+      expect(base.upperLabelRightMargin).assertEqual(10);
+      expect(changed.upperLabelRightMargin).assertEqual(14);
+      expect(changed.letterKeyHeight).assertEqual(base.letterKeyHeight);
+      expect(changed.letterFontSize).assertEqual(base.letterFontSize);
+      expect(getMetricsForOrientation(false, KeyboardHeightMode.STANDARD, undefined, 12, 0).upperLabelRightMargin).assertEqual(0);
+      const settings = copyImeSettings(DEFAULT_IME_SETTINGS);
+      settings.upperLabelRightMargin = 14;
+      expect(imeSettingsEqual(settings, DEFAULT_IME_SETTINGS)).assertFalse();
+    });
+
+    it('height direct increments accumulate at five percent and stop at supported bounds', 0, async () => {
+      const controller = new SettingsController(new FakeSettingsRepository(), new SettingsStore(),
+        new FakeSettingsEngine(), new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      await Promise.all([
+        direct.executeRaw('settings.keyboard-height', 'increase'),
+        direct.executeRaw('settings.keyboard-height', 'increase')
+      ]);
+      expect(keyboardHeightScale(controller.getSettings().keyboardHeightMode)).assertEqual(1.1);
+      await direct.executeRaw('settings.keyboard-height', 'default');
+      await direct.executeRaw('settings.keyboard-height', 'decrease');
+      expect(keyboardHeightScale(controller.getSettings().keyboardHeightMode)).assertEqual(0.95);
+      await controller.setKeyboardHeightScale(1.2);
+      await direct.executeRaw('settings.keyboard-height', 'increase');
+      expect(keyboardHeightScale(controller.getSettings().keyboardHeightMode)).assertEqual(1.2);
+      await controller.setKeyboardHeightScale(0.8);
+      await direct.executeRaw('settings.keyboard-height', 'decrease');
+      expect(keyboardHeightScale(controller.getSettings().keyboardHeightMode)).assertEqual(0.8);
+      await direct.executeRaw('settings.keyboard-height', 'default');
+      expect(keyboardHeightScale(controller.getSettings().keyboardHeightMode)).assertEqual(1);
+    });
+
+    it('persists the candidate count and rejects invalid values without saving', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const controller = new SettingsController(repo, new SettingsStore(), new FakeSettingsEngine(), new InputSessionStore());
+      expect(controller.getSettings().candidateDisplayCount).assertEqual(5);
+      expect((await controller.setCandidateDisplayCount(8)).success).assertTrue();
+      expect(controller.getSettings().candidateDisplayCount).assertEqual(8);
+      const saves = repo.saveCount;
+      for (const invalid of [0, 11, 2.5, Number.NaN]) {
+        expect((await controller.setCandidateDisplayCount(invalid)).success).assertFalse();
+      }
+      expect(repo.saveCount).assertEqual(saves);
+    });
+
+    it('font adjustments clamp independently and invalid setting commands never save', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const controller = new SettingsController(repo, new SettingsStore(), new FakeSettingsEngine(), new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      await controller.setCandidateFontSize(31);
+      await controller.setCandidateFontSize(10, true);
+      await direct.executeRaw('settings.candidate-font', 'increase');
+      await direct.executeRaw('settings.floating-font', 'decrease');
+      expect(controller.getSettings().candidateFontSize).assertEqual(32);
+      expect(controller.getSettings().floatingCandidateFontSize).assertEqual(10);
+      const saves = repo.saveCount;
+      expect((await direct.executeRaw('settings.candidate-position', 'auto')).success).assertFalse();
+      expect((await direct.executeRaw('settings.keyboard-height', '+0.05')).success).assertFalse();
+      expect((await direct.executeRaw('settings.keyboard-profile', 'unknown-profile')).success).assertFalse();
+      expect((await controller.adjustKeyboardHeight('invalid')).success).assertFalse();
+      expect((await controller.adjustCandidateFontSize(false, 'invalid')).success).assertFalse();
+      expect((await controller.setKeyboardHeightScale(0.79)).success).assertFalse();
+      expect((await controller.setCandidateFontSize(15.5)).success).assertFalse();
+      expect((await controller.setKeySoundVolume(101)).success).assertFalse();
+      expect(repo.saveCount).assertEqual(saves);
+    });
+
+    it('display and sound numeric settings survive serialized migration and preserve explicit legacy fonts', 0, () => {
+      const configured = copyImeSettings(DEFAULT_IME_SETTINGS);
+      configured.keyboardHeightMode = KeyboardHeightMode.SCALE_095;
+      configured.keyboardFontSize = 19;
+      configured.upperLabelRightMargin = 13;
+      configured.candidateFontSize = 21;
+      configured.candidateDisplayCount = 8;
+      configured.floatingCandidateFontSize = 16;
+      configured.keySoundVolume = 75;
+      const codec = new SettingsRepositoryRecordCodec();
+      const restored = new SettingsValidator().validate(new SettingsMigration().migrate(codec.decode(codec.encode(configured))));
+      expect(imeSettingsEqual(restored, configured)).assertTrue();
+      const validator = new SettingsValidator();
+      const standard = validator.validate(new SettingsMigration().migrate({ schemaVersion: '20', candidateFontSizeMode: 'standard' }));
+      expect(standard.candidateFontSize).assertEqual(15);
+      expect(standard.floatingCandidateFontSize).assertEqual(17);
+      expect(standard.keySoundVolume).assertEqual(16);
+      expect(standard.keyboardFontSize).assertEqual(12);
+      for (const invalidSize of ['NaN', '33', '7', '12.5']) {
+        expect(validator.validate({ keyboardFontSize: invalidSize }).keyboardFontSize).assertEqual(12);
+      }
+      const changed = copyImeSettings(DEFAULT_IME_SETTINGS);
+      changed.keyboardFontSize = 14;
+      expect(imeSettingsEqual(changed, DEFAULT_IME_SETTINGS)).assertFalse();
+      const small = validator.validate({ candidateFontSizeMode: 'small' });
+      expect(small.candidateFontSize).assertEqual(12);
+      expect(small.floatingCandidateFontSize).assertEqual(12);
+      const large = validator.validate({ candidateFontSizeMode: 'large' });
+      expect(large.candidateFontSize).assertEqual(17);
+      expect(large.floatingCandidateFontSize).assertEqual(17);
+      const invalid = validator.validate({ candidateFontSize: 'NaN', floatingCandidateFontSize: '33', keySoundVolume: '-1' });
+      expect(invalid.candidateFontSize).assertEqual(15);
+      expect(invalid.floatingCandidateFontSize).assertEqual(17);
+      expect(invalid.keySoundVolume).assertEqual(16);
+    });
+
+    it('direct feedback toggles use persisted sound volume and preserve an enabled haptic level', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const store = new SettingsStore();
+      const controller = new SettingsController(repo, store, new FakeSettingsEngine(), new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      const backend = new FakeSoundBackend();
+      const service = new KeySoundService(backend, store);
+      await direct.executeRaw('settings.key-sound', 'enabled');
+      service.trigger(1000);
+      await controller.setKeySoundVolume(75);
+      service.trigger(1100);
+      await direct.executeRaw('settings.key-sound', 'disabled');
+      service.trigger(1200);
+      expect(backend.volumes.join(',')).assertEqual('0.16,0.75');
+      expect(repo.settings.keySoundVolume).assertEqual(75);
+      await controller.setHapticLevel(HapticLevel.STRONG);
+      await direct.executeRaw('settings.haptic', 'enabled');
+      expect(controller.getSettings().hapticLevel).assertEqual(HapticLevel.STRONG);
+      await direct.executeRaw('settings.haptic', 'disabled');
+      expect(controller.getSettings().hapticLevel).assertEqual(HapticLevel.OFF);
+      await direct.executeRaw('settings.haptic', 'enabled');
+      expect(controller.getSettings().hapticLevel).assertEqual(HapticLevel.LIGHT);
+    });
+
+    it('direct display settings keep the previous snapshot after persistence failure', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      repo.saveSucceeds = false;
+      const controller = new SettingsController(repo, new SettingsStore(), new FakeSettingsEngine(), new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      expect((await direct.executeRaw('settings.keyboard-font', 'increase')).success).assertFalse();
+      expect((await direct.executeRaw('settings.candidate-font', 'increase')).success).assertFalse();
+      expect((await direct.executeRaw('settings.keyboard-height', 'increase')).success).assertFalse();
+      expect((await direct.executeRaw('settings.candidate-position', 'floating')).success).assertFalse();
+      expect(imeSettingsEqual(controller.getSettings(), DEFAULT_IME_SETTINGS)).assertTrue();
+    });
+
+    it('ofa dispatches the exact 26 key profile and persists the scheme boundary', 0, async () => {
+      const repo = new FakeSettingsRepository();
+      const store = new SettingsStore();
+      const initial = copyImeSettings(DEFAULT_IME_SETTINGS);
+      initial.keyboardProfileId = XIAOHE_YINXING_26_PROFILE_ID;
+      initial.schemeId = 'xiaohe-yinxing';
+      store.replace(initial);
+      const engine = new FakeSettingsEngine();
+      engine.simulatedSchemeId = 'xiaohe-yinxing';
+      const controller = new SettingsController(repo, store, engine, new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      expect((await direct.executeRaw('settings.keyboard-profile', 'xiaohe-yinxing-26')).success).assertTrue();
+      expect(controller.getSettings().keyboardProfileId).assertEqual('xiaohe-yinxing-26');
+      expect((await direct.executeRaw('settings.keyboard-profile', 'xiaohe-26')).success).assertTrue();
+      expect(controller.getSettings().keyboardProfileId).assertEqual(XIAOHE_26_PROFILE_ID);
+      expect(repo.settings.schemeId).assertEqual('xiaohe');
+      expect(engine.schemeChanges.join(',')).assertEqual('xiaohe');
+      expect((await direct.executeRaw('settings.keyboard-profile', 'quanpin-26')).success).assertTrue();
+      expect(controller.getSettings().keyboardProfileId).assertEqual('quanpin-26');
+      expect(repo.settings.schemeId).assertEqual('quanpin');
+
+    });
+
     it('locks default settings and Stage 10 visual defaults', 0, () => {
       expect(DEFAULT_IME_SETTINGS.schemaVersion).assertEqual(CURRENT_SETTINGS_SCHEMA_VERSION);
       expect(DEFAULT_IME_SETTINGS.schemeId).assertEqual('xiaohe');
@@ -749,8 +1056,93 @@ export default function stage11Test() {
       settings.keySoundEnabled = true;
       settings.smartPeriodTimeoutMs = 1000;
       settings.longPressDurationMs = 700;
+      settings.codeTableReverseSplitEnabled = true;
       const roundTrip = new SettingsValidator().validate(settingsToRaw(settings));
       expect(imeSettingsEqual(settings, roundTrip)).assertTrue();
+    });
+
+    it('oit and settings share persistent split state and keep existing commit choices', 0, async () => {
+      const repository = new FakeSettingsRepository();
+      const store = new SettingsStore();
+      const engine = new FakeSettingsEngine();
+      engine.categoryMode = true;
+      const controller = new SettingsController(repository, store, engine, new InputSessionStore());
+      const direct = new DirectControlService(controller);
+      expect((await controller.setCodeTableCommitPolicy(false, 12)).success).assertTrue();
+      expect((await direct.executeRaw('settings.split-mode', 'split')).success).assertTrue();
+      expect(controller.getSettings().codeTableReverseSplitEnabled).assertTrue();
+      expect(repository.settings.codeTableReverseSplitEnabled).assertTrue();
+      expect(repository.settings.codeTableAutoCommitEnabled).assertFalse();
+      expect(repository.settings.codeTableEmptyClearLength).assertEqual(12);
+      expect(engine.commitPolicyCalls[1]).assertEqual('false:12:true');
+      expect((await controller.setCodeTableReverseSplitEnabled(false)).success).assertTrue();
+      expect((await direct.executeRaw('settings.split-mode', 'traditional')).success).assertTrue();
+      expect(controller.getSettings().codeTableReverseSplitEnabled).assertFalse();
+      expect(engine.commitPolicyCalls[3]).assertEqual('false:12:false');
+    });
+
+    it('rolls split mode back when persistence fails and rejects runtime failure', 0, async () => {
+      const repository = new FakeSettingsRepository();
+      const engine = new FakeSettingsEngine();
+      engine.categoryMode = true;
+      const controller = new SettingsController(repository, new SettingsStore(), engine, new InputSessionStore());
+      repository.saveSucceeds = false;
+      expect((await controller.setCodeTableReverseSplitEnabled(true)).success).assertFalse();
+      expect(controller.getSettings().codeTableReverseSplitEnabled).assertFalse();
+      expect(engine.commitPolicyCalls.join(',')).assertEqual('true:4:true,true:4:false');
+      engine.rejectCommitPolicy = true;
+      expect((await controller.setCodeTableReverseSplitEnabled(true)).success).assertFalse();
+      expect(repository.saveCount).assertEqual(1);
+    });
+
+    it('serializes split switching behind pending commit policy changes', 0, async () => {
+      const repository = new DelayedSettingsRepository();
+      const engine = new FakeSettingsEngine();
+      engine.isReady = false;
+      const controller = new SettingsController(repository, new SettingsStore(), engine, new InputSessionStore());
+      const first = controller.setCodeTableCommitPolicy(false, 12);
+      await repository.firstSaveStarted.promise;
+      const second = controller.setCodeTableReverseSplitEnabled(true);
+      repository.releaseFirstSave.resolve();
+      expect((await first).success).assertTrue();
+      expect((await second).success).assertTrue();
+      expect(repository.settings.codeTableAutoCommitEnabled).assertFalse();
+      expect(repository.settings.codeTableEmptyClearLength).assertEqual(12);
+      expect(repository.settings.codeTableReverseSplitEnabled).assertTrue();
+      engine.isReady = true;
+      engine.categoryMode = true;
+      controller.applyCurrentSettingsToEngine();
+      expect(engine.commitPolicyCalls[0]).assertEqual('false:12:true');
+    });
+
+    it('recovers split state after a thrown storage error and allows the next change', 0, async () => {
+      const repository = new RejectingFirstSettingsRepository();
+      const engine = new FakeSettingsEngine();
+      engine.categoryMode = true;
+      const controller = new SettingsController(repository, new SettingsStore(), engine, new InputSessionStore());
+      expect((await controller.setCodeTableReverseSplitEnabled(true)).success).assertFalse();
+      expect(controller.getSettings().codeTableReverseSplitEnabled).assertFalse();
+      expect(engine.commitPolicyCalls.join(',')).assertEqual('true:4:true,true:4:false');
+      expect((await controller.setCodeTableReverseSplitEnabled(true)).success).assertTrue();
+      expect(controller.getSettings().codeTableReverseSplitEnabled).assertTrue();
+    });
+
+    it('restores split policy when a failed profile save returns to yinxing', 0, async () => {
+      const repository = new FakeSettingsRepository();
+      repository.saveSucceeds = false;
+      const store = new SettingsStore();
+      const initial = copyImeSettings(DEFAULT_IME_SETTINGS);
+      initial.schemeId = 'xiaohe-yinxing';
+      initial.keyboardProfileId = XIAOHE_YINXING_26_PROFILE_ID;
+      initial.codeTableReverseSplitEnabled = true;
+      store.replace(initial);
+      const engine = new FakeSettingsEngine();
+      engine.simulatedSchemeId = 'xiaohe-yinxing';
+      const controller = new SettingsController(repository, store, engine, new InputSessionStore());
+      expect((await controller.setKeyboardProfile(XIAOHE_26_PROFILE_ID)).success).assertFalse();
+      expect(engine.getActiveSchemeId()).assertEqual('xiaohe-yinxing');
+      expect(engine.commitPolicyCalls[0]).assertEqual('true:4:true');
+      expect(controller.getSettings().codeTableReverseSplitEnabled).assertTrue();
     });
 
     it('SettingsRepository record restores every persisted field', 0, () => {

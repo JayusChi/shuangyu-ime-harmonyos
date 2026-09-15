@@ -87,15 +87,15 @@ impl SentenceCandidate {
         }
     }
 
-    pub(crate) fn from_prefix_edge(edge: &WordEdge, score: i64) -> Self {
+    pub(crate) fn from_prefix_edge(edge: &WordEdge, raw_end: usize, score: i64) -> Self {
         Self {
-            id: stable_candidate_id(edge.end * 2, &edge.reading, &edge.text),
+            id: stable_candidate_id(raw_end, &edge.reading, &edge.text),
             text: edge.text.clone(),
             reading: edge.reading.clone(),
             source: edge.source.clone(),
             consumed_syllables: edge.end,
             raw_start: 0,
-            raw_end: edge.end * 2,
+            raw_end,
             complete_coverage: false,
             score,
             path_key: edge.path_token(),

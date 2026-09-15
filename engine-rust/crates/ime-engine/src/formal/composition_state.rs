@@ -1,4 +1,11 @@
 impl ImeEngine {
+    pub fn reverse_lookup(&self, text: &str) -> Vec<String> {
+        match &self.backend {
+            EngineBackend::CodeTable(machine) => machine.reverse_lookup(text),
+            _ => Vec::new(),
+        }
+    }
+
     pub fn local_associations(&self, limit: usize) -> Vec<String> {
         if !self.current_state().raw_input.is_empty() {
             return Vec::new();
@@ -7,9 +14,17 @@ impl ImeEngine {
     }
 
     pub fn process_key(&mut self, key: char) -> CompositionResult {
+        if self.convenience.active()
+            || (matches!(key, '=' | '\'') && self.current_state().raw_input.is_empty())
+        {
+            return self.convenience.process(key);
+        }
         if let EngineBackend::CodeTable(machine) = &mut self.backend {
             return match machine.process_key(key) {
-                Ok(outcome) => code_table_result_with_commit(machine, outcome.commit_text),
+                Ok(outcome) => match outcome.action {
+                    Some(action) => action_result(action),
+                    None => code_table_result_with_commit(machine, outcome.commit_text),
+                },
                 Err(error) => {
                     code_table_failure(machine, ImeErrorCode::InvalidArgument, &error.to_string())
                 }
@@ -50,6 +65,9 @@ impl ImeEngine {
     }
 
     pub fn insert_segment_boundary(&mut self) -> Result<CompositionResult, EngineOperationError> {
+        if self.convenience.active() {
+            return Err(EngineOperationError::InvalidArgument);
+        }
         if matches!(self.backend, EngineBackend::CodeTable(_)) {
             return Err(EngineOperationError::InvalidArgument);
         }
@@ -63,6 +81,9 @@ impl ImeEngine {
     }
 
     pub fn backspace(&mut self) -> CompositionResult {
+        if self.convenience.active() {
+            return self.convenience.backspace();
+        }
         self.quanpin_context_reranker.clear_context();
         if let EngineBackend::CodeTable(machine) = &mut self.backend {
             machine.backspace();
@@ -73,6 +94,7 @@ impl ImeEngine {
     }
 
     pub fn reset(&mut self) -> CompositionResult {
+        self.convenience.clear();
         self.quanpin_context_reranker.clear_context();
         self.last_t9_joint_stats = T9JointDecoderStats::default();
         self.t9_joint_session.clear();
@@ -89,6 +111,9 @@ impl ImeEngine {
     }
 
     pub fn next_candidate_page(&mut self) -> Result<CompositionResult, EngineOperationError> {
+        if self.convenience.active() {
+            return Err(EngineOperationError::InvalidPage);
+        }
         if let EngineBackend::CodeTable(machine) = &mut self.backend {
             machine
                 .next_page()
@@ -102,6 +127,9 @@ impl ImeEngine {
     }
 
     pub fn previous_candidate_page(&mut self) -> Result<CompositionResult, EngineOperationError> {
+        if self.convenience.active() {
+            return Err(EngineOperationError::InvalidPage);
+        }
         if let EngineBackend::CodeTable(machine) = &mut self.backend {
             machine
                 .previous_page()
@@ -115,6 +143,9 @@ impl ImeEngine {
     }
 
     pub fn current_state(&self) -> CompositionResult {
+        if self.convenience.active() {
+            return self.convenience.state();
+        }
         match &self.backend {
             EngineBackend::CodeTable(machine) => code_table_result(machine),
             EngineBackend::Shuangpin => self.to_composition_result(
@@ -127,6 +158,9 @@ impl ImeEngine {
     }
 
     fn to_composition_result(&self, result: ParseResult) -> CompositionResult {
+        if let Some(command) = self.phonetic_profile_command() {
+            return command;
+        }
         let segment_boundaries = result
             .segment_boundaries
             .iter()
@@ -138,12 +172,29 @@ impl ImeEngine {
             .map(|syllable| syllable.syllable.clone())
             .collect::<Vec<_>>();
         let preedit_text = build_preedit_text(&parsed_syllables, &result.pending_code);
-        let candidates = self
-            .session
-            .current_page()
-            .iter()
-            .map(to_formal_candidate)
-            .collect::<Vec<_>>();
+        let candidates =
+            self.session
+                .current_page()
+                .iter()
+                .map(|candidate| {
+                    let mut result = to_formal_candidate(candidate);
+                    if let Some(entry) = self
+                        .user_lexicon
+                        .entries()
+                        .iter()
+                        .find(|entry| entry.stable_id() == candidate.id)
+                    {
+                        result.display_text = entry.display_text.clone().unwrap_or_else(|| {
+                            match entry.action.external_action() {
+                                Some("url.open") => "打开网页".to_owned(),
+                                Some("directory.open") => "打开目录".to_owned(),
+                                _ => String::new(),
+                            }
+                        });
+                    }
+                    result
+                })
+                .collect::<Vec<_>>();
         CompositionResult::success(
             self.parser.as_ref().expect("phonetic parser").raw_input(),
             &preedit_text,
@@ -162,6 +213,44 @@ impl ImeEngine {
             self.session.page_index() as u32,
             self.session.has_previous_page(),
             self.session.has_next_page(),
+        )
+    }
+
+    // Keep ofa available after switching from Yinxing to 26-key Shuangpin,
+    // so the same direct code can switch back without opening Settings.
+    fn is_phonetic_profile_command(&self) -> bool {
+        matches!(self.scheme_id.as_str(), "xiaohe" | "quanpin")
+            && self
+                .parser
+                .as_ref()
+                .is_some_and(|parser| parser.raw_input() == "ofa")
+    }
+
+    fn phonetic_profile_command(&self) -> Option<CompositionResult> {
+        if !self.is_phonetic_profile_command() {
+            return None;
+        }
+        let candidates = self
+            .session
+            .current_page()
+            .iter()
+            .map(|record| FormalCandidate {
+                id: record.id.clone(),
+                text: record.text.clone(),
+                display_text: String::new(),
+                reading: "ofa".to_owned(),
+                source: "functional".to_owned(),
+                consumed_raw_len: 3,
+            })
+            .collect();
+        Some(
+            CompositionResult::success("ofa", "ofa", Vec::new(), "", ProtocolParserState::Complete)
+                .with_candidates(
+                    candidates,
+                    self.session.page_index() as u32,
+                    self.session.has_previous_page(),
+                    self.session.has_next_page(),
+                ),
         )
     }
 

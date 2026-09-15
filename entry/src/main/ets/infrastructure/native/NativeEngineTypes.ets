@@ -141,7 +141,7 @@ export interface CodeTableCategoryConfig {
   enabledCategoryIds: string[];
 }
 
-export type UserLexiconActionType = 'ADD' | 'DIRECT' | 'DELETE' | 'FIXED' | 'POSITION';
+export type UserLexiconActionType = 'ADD' | 'DIRECT' | 'OPEN_URL' | 'OPEN_DIRECTORY' | 'DELETE' | 'FIXED' | 'POSITION';
 
 export interface UserLexiconEntryRecord {
   id: string;
@@ -203,12 +203,14 @@ export interface NativeEngineGatewayContract {
   nextCandidatePage(handle: number): CompositionResult;
   previousCandidatePage(handle: number): CompositionResult;
   getLocalAssociations?(handle: number): string[];
+  reverseLookup?(handle: number, text: string): string[];
   getCodeTableCategoryConfig(handle: number): CodeTableCategoryConfig;
   setCodeTableCategories(handle: number, enabledCategoryIds: string[]): CompositionResult;
   setCodeTableCommitPolicy?(
     handle: number,
     autoCommitEnabled: boolean,
-    emptyClearLength: number
+    emptyClearLength: number,
+    reverseSplitEnabled?: boolean
   ): CompositionResult;
   reloadUserLexicon(handle: number): CompositionResult;
   loadUserLexicon(path: string): UserLexiconDocument;

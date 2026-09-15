@@ -247,6 +247,35 @@ pub extern "C" fn ime_engine_get_local_associations(
 }
 
 #[no_mangle]
+/// # Safety
+/// `text_utf8` must reference `text_len` readable bytes for the duration of the call.
+pub unsafe extern "C" fn ime_engine_reverse_lookup(
+    handle: *mut ImeEngineOpaque,
+    text_utf8: *const u8,
+    text_len: usize,
+    out_buffer: *mut ImeBuffer,
+) -> i32 {
+    clear_out_buffer(out_buffer);
+    catch_ffi(|| {
+        if text_len > 4 {
+            return ImeErrorCode::InvalidArgument.as_i32();
+        }
+        let text = match read_input_utf8(text_utf8, text_len) {
+            Ok(value) => value,
+            Err(code) => return code.as_i32(),
+        };
+        let engine = match engine_from_handle(handle) {
+            Ok(value) => value,
+            Err(code) => return code.as_i32(),
+        };
+        write_owned_output(
+            out_buffer,
+            association_suggestions_json(&engine.engine.reverse_lookup(&text)),
+        )
+    })
+}
+
+#[no_mangle]
 pub extern "C" fn ime_engine_get_code_table_category_config(
     handle: *mut ImeEngineOpaque,
     out_buffer: *mut ImeBuffer,
@@ -315,13 +344,17 @@ pub extern "C" fn ime_engine_set_code_table_commit_policy(
             Ok(Some(value @ (4 | 12))) => value,
             _ => return ImeErrorCode::InvalidArgument.as_i32(),
         };
+        let reverse_split_enabled = match extract_json_bool(&json, "reverseSplitEnabled") {
+            Ok(value) => value.unwrap_or(false),
+            Err(code) => return code.as_i32(),
+        };
         let engine = match engine_from_handle(handle) {
             Ok(value) => value,
             Err(code) => return code.as_i32(),
         };
         let result = match engine
             .engine
-            .set_code_table_commit_policy(auto_commit_length, empty_code_clear_length)
+            .configure_code_table_commit_policy(auto_commit_length, empty_code_clear_length, reverse_split_enabled)
         {
             Ok(value) => value,
             Err(error) => return error.code().as_i32(),

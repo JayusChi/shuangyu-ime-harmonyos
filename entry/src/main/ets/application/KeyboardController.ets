@@ -1,3 +1,4 @@
+import { isConvenienceInput } from '../domain/keyboard/ConvenienceInput';
 import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
 import { EditorExtendAction, KeyboardAction, KeyboardActionType } from '../domain/keyboard/KeyboardAction';
@@ -115,6 +116,11 @@ export class KeyboardController {
     this.sessionController.beginInputAction(timestampMs);
   }
 
+  refreshClipboardReverseCandidate(): Promise<void> {
+    // Read in the security component click turn, before waiting on an input queue.
+    return this.sessionController.refreshClipboardReverseCandidate();
+  }
+
   async commitCandidate(candidateIndex: number): Promise<InputOperationResult> {
     return this.enqueueInputOperation('candidate', async (generation: number): Promise<InputOperationResult> => {
       const result = await this.sessionController.commitCandidate(candidateIndex, generation);
@@ -198,10 +204,19 @@ export class KeyboardController {
   async handlePhysicalEnter(): Promise<InputOperationResult> {
     return this.enqueueInputOperation('hardware_enter', async (generation: number): Promise<InputOperationResult> => {
       const state = this.sessionController.getState();
-      const index = state.highlightedIndex >= 0 && state.highlightedIndex < state.candidates.length
-        ? state.highlightedIndex
-        : 0;
-      return this.sessionController.sendEnter(generation, index);
+      if (state.rawInput.length === 0 && this.sessionController.canJumpOutPair(generation)) {
+        return this.sessionController.jumpOutPair(generation);
+      }
+      return this.sessionController.sendEnter(generation);
+    });
+  }
+
+  /** Serializes a standalone physical-Shift language toggle with nearby hardware input. */
+  async togglePhysicalLanguageMode(): Promise<InputOperationResult> {
+    return this.enqueueInputOperation('hardware_shift_language_toggle', async (
+      generation: number
+    ): Promise<InputOperationResult> => {
+      return this.sessionController.toggleLanguageMode(generation);
     });
   }
 
@@ -213,6 +228,17 @@ export class KeyboardController {
 
   async cancelPhysicalComposition(): Promise<InputOperationResult> {
     return this.enqueueInputOperation('hardware_cancel', async (generation: number): Promise<InputOperationResult> => {
+      return this.sessionController.cancelComposition(generation);
+    });
+  }
+
+  async handlePhysicalTab(): Promise<InputOperationResult> {
+    return this.enqueueInputOperation('hardware_tab', async (generation: number): Promise<InputOperationResult> => {
+      // A preceding queued symbol commit may have created a pair since key DOWN.
+      if (this.sessionController.getState().rawInput.length === 0 &&
+        this.sessionController.canJumpOutPair(generation)) {
+        return this.sessionController.jumpOutPair(generation);
+      }
       return this.sessionController.cancelComposition(generation);
     });
   }
@@ -288,11 +314,23 @@ export class KeyboardController {
   }
 
   async previousHardwareCandidatePage(): Promise<InputOperationResult> {
-    return this.navigateHardwareCandidatePage(CandidatePageDirection.PREVIOUS);
+    return this.navigateStandaloneCandidatePage(CandidatePageDirection.PREVIOUS, 'hardware');
   }
 
   async nextHardwareCandidatePage(): Promise<InputOperationResult> {
-    return this.navigateHardwareCandidatePage(CandidatePageDirection.NEXT);
+    return this.navigateStandaloneCandidatePage(CandidatePageDirection.NEXT, 'hardware');
+  }
+
+  async previousFloatingCandidatePage(): Promise<InputOperationResult> {
+    return this.navigateStandaloneCandidatePage(CandidatePageDirection.PREVIOUS, 'floating');
+  }
+
+  async nextFloatingCandidatePage(): Promise<InputOperationResult> {
+    return this.navigateStandaloneCandidatePage(CandidatePageDirection.NEXT, 'floating');
+  }
+
+  setFloatingCandidateExpanded(expanded: boolean): boolean {
+    return this.sessionController.setFloatingCandidateExpanded(expanded);
   }
 
   setCandidatePanelExpanded(expanded: boolean): boolean {
@@ -349,19 +387,20 @@ export class KeyboardController {
       });
   }
 
-  private async navigateHardwareCandidatePage(
-    direction: CandidatePageDirection
+  private async navigateStandaloneCandidatePage(
+    direction: CandidatePageDirection,
+    source: string
   ): Promise<InputOperationResult> {
     const label = direction === CandidatePageDirection.NEXT
-      ? 'hardware_candidate_page_next'
-      : 'hardware_candidate_page_previous';
+      ? `${source}_candidate_page_next`
+      : `${source}_candidate_page_previous`;
     return this.enqueueInputOperation(label, async (generation: number): Promise<InputOperationResult> => {
       const state = this.sessionController.getState();
       const available = state.sessionActive && state.editorConnected && state.candidateBarVisible &&
         state.rawInput.length > 0 && state.candidates.length > 0 &&
         (direction === CandidatePageDirection.NEXT ? state.hasNextPage : state.hasPreviousPage);
       if (!available) {
-        return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'hardware candidate page is unavailable');
+        return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'standalone candidate page is unavailable');
       }
       return direction === CandidatePageDirection.NEXT
         ? this.sessionController.nextCandidatePage(generation)
@@ -396,10 +435,31 @@ export class KeyboardController {
       case KeyboardActionType.T9_PINYIN_DIGIT:
         result = await this.sessionController.insertT9PinyinDigit(action.digit, generation);
         break;
+      case KeyboardActionType.CONVENIENCE_GUIDE:
+        result = await this.sessionController.insertConvenienceCharacter(action.character ?? '=', generation);
+        break;
+      case KeyboardActionType.SECOND_CANDIDATE_OR_PASTE:
+        if (this.sessionController.getState().candidates.length > 0) {
+          result = await this.sessionController.commitCandidate(
+            this.sessionController.getState().candidates.length > 1 ? 1 : 0, generation);
+        } else {
+          result = await this.sessionController.performEditorExtendAction(EditorExtendAction.PASTE, generation);
+        }
+        break;
       case KeyboardActionType.CHARACTER:
-        result = action.literal === true
-          ? await this.sessionController.insertLiteralCharacter(action.character, generation)
-          : await this.sessionController.insertCharacter(action.character, generation, inputAction);
+        if (isConvenienceInput(this.sessionController.getState().rawInput) && (action.character ?? '').length === 1) {
+          result = await this.sessionController.insertConvenienceCharacter(action.character ?? '', generation);
+        } else if (action.literal === true && action.cursorOffsetUtf16 !== undefined) {
+          result = await this.sessionController.insertLiteralPair(
+            action.character,
+            action.cursorOffsetUtf16,
+            generation
+          );
+        } else {
+          result = action.literal === true
+            ? await this.sessionController.insertLiteralCharacter(action.character, generation)
+            : await this.sessionController.insertCharacter(action.character, generation, inputAction);
+        }
         break;
       case KeyboardActionType.DELETE:
         result = await this.sessionController.deleteBackward(generation);
@@ -437,18 +497,23 @@ export class KeyboardController {
       case KeyboardActionType.HIDE_KEYBOARD:
         return this.sessionController.hideKeyboard(generation);
       case KeyboardActionType.MOVE_CURSOR_LEFT:
-        result = await this.sessionController.moveEditorCursor(
-          inputMethodEngine.Direction.CURSOR_LEFT,
-          generation
-        );
-        break;
       case KeyboardActionType.MOVE_CURSOR_RIGHT:
-        result = await this.sessionController.moveEditorCursor(
-          inputMethodEngine.Direction.CURSOR_RIGHT,
-          generation
-        );
+        // Read candidates inside the input queue so a preceding letter is included.
+        // Both lift-layer arrows act like Space while candidates are available.
+        result = this.sessionController.getState().candidates.length > 0
+          ? await this.sessionController.insertSpace(generation)
+          : await this.sessionController.moveEditorCursor(
+            action.type === KeyboardActionType.MOVE_CURSOR_LEFT
+              ? inputMethodEngine.Direction.CURSOR_LEFT
+              : inputMethodEngine.Direction.CURSOR_RIGHT,
+            generation
+          );
         break;
       case KeyboardActionType.SECOND_CANDIDATE_OR_PUNCTUATION: {
+        if (this.sessionController.usesPhoneticSemicolon()) {
+          result = await this.sessionController.insertCharacter(';', generation, inputAction);
+          break;
+        }
         const state = this.sessionController.getState();
         if (state.rawInput.length > 0 && !state.rawInput.startsWith(';') && state.candidates.length >= 2) {
           // 有第二候选时，选择第二候选
@@ -484,22 +549,27 @@ export class KeyboardController {
       case KeyboardActionType.THIRD_CANDIDATE_OR_COMMA:
         result = await this.handleCandidatePunctuation(2, '，', generation, inputAction);
         break;
-      case KeyboardActionType.REPEAT_LAST_COMMIT: {
-        const repeated = await this.sessionController.repeatLastCommit(generation);
-        result = repeated
-          ? inputOperationOk()
-          : inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'repeat last commit failed');
-        break;
-      }
+      case KeyboardActionType.REPEAT_LAST_COMMIT:
       case KeyboardActionType.UNDO_LAST_COMMIT: {
-        const undone = await this.sessionController.undoLastCommit(generation);
-        result = undone
+        const prepared = await this.commitCandidateBeforeHistoryAction(generation);
+        if (!prepared.success) {
+          return prepared;
+        }
+        if (!this.sessionController.isInputSessionGenerationCurrent(generation)) {
+          return inputOperationFailed(ImeErrorCode.ENGINE_NOT_INITIALIZED,
+            'input session changed before repeat or undo');
+        }
+        const repeat = action.type === KeyboardActionType.REPEAT_LAST_COMMIT;
+        const succeeded = repeat ? await this.sessionController.repeatLastCommit(generation) :
+          await this.sessionController.undoLastCommit(generation);
+        result = succeeded
           ? inputOperationOk()
-          : inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'undo last commit failed');
+          : inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION,
+            repeat ? 'repeat last commit failed' : 'undo last commit failed');
         break;
       }
       case KeyboardActionType.DELETE_CURRENT_LINE:
-        result = await this.sessionController.deleteCurrentLine(generation);
+        result = await this.sessionController.deleteCurrentLine(generation, true);
         break;
       case KeyboardActionType.RESTORE_LAST_DELETION:
         result = await this.sessionController.restoreLastDeletion(generation);
@@ -528,6 +598,27 @@ export class KeyboardController {
         return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'unsupported keyboard action');
     }
     return result;
+  }
+
+  private async commitCandidateBeforeHistoryAction(generation: number): Promise<InputOperationResult> {
+    const state = this.sessionController.getState();
+    if (state.rawInput.length === 0) {
+      return inputOperationOk();
+    }
+    const index = state.highlightedIndex >= 0 && state.highlightedIndex < state.candidates.length
+      ? state.highlightedIndex : 0;
+    const candidate = state.candidates[index];
+    if (!candidate || candidate.text.length === 0 || candidate.source === 'functional') {
+      // An unfinished code or a command candidate must not act on older text.
+      return inputOperationFailed(ImeErrorCode.INVALID_CANDIDATE,
+        'repeat or undo requires a text candidate');
+    }
+    const committed = await this.sessionController.commitCandidate(index, generation);
+    if (!this.sessionController.isInputSessionGenerationCurrent(generation)) {
+      return inputOperationFailed(ImeErrorCode.ENGINE_NOT_INITIALIZED,
+        'input session changed after candidate commit');
+    }
+    return committed;
   }
 
   private async handleCandidatePunctuation(

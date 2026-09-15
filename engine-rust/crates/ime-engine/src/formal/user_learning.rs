@@ -1,4 +1,58 @@
 impl ImeEngine {
+    /// Only aligned, impossible two-key syllables are eligible. A valid
+    /// sound/final pair and an explicit boundary retain their parser meaning.
+    fn xiaohe_fixed_initial_words(&self, result: &ParseResult) -> Vec<FixedWordConstraint> {
+        if self.scheme_id != "xiaohe" || self.user_lexicon.is_empty() {
+            return Vec::new();
+        }
+        let mut words = Vec::new();
+        let mut raw_offset = 0;
+        for slot in 0..result.logical_syllable_count {
+            let Some(left) = result.syllables.iter().find(|s| s.logical_index == slot) else {
+                continue;
+            };
+            let start = raw_offset;
+            raw_offset += left.raw_code.len();
+            if start % 2 != 0
+                || left.raw_code.len() != 1
+                || !left.final_part.is_empty()
+                || result.segment_boundaries.contains(&(start + 1))
+            {
+                continue;
+            }
+            let Some(right) = result
+                .syllables
+                .iter()
+                .find(|s| s.logical_index == slot + 1)
+            else {
+                continue;
+            };
+            if right.raw_code.len() != 1 || !right.final_part.is_empty() {
+                continue;
+            }
+            let code = format!("{}{}", left.raw_code, right.raw_code);
+            // Source order matches the existing fixed-candidate prefix. Only
+            // literal two-character fixed rules take part in sentence decoding.
+            if let Some(entry) =
+                self.user_lexicon
+                    .entries_for_code(&code)
+                    .into_iter()
+                    .find(|entry| {
+                        matches!(entry.action, UserLexiconAction::Fixed)
+                            && entry.text.chars().count() == 2
+                    })
+            {
+                words.push(FixedWordConstraint {
+                    start: slot,
+                    end: slot + 2,
+                    text: entry.text.clone(),
+                    entry_id: entry.stable_id(),
+                });
+            }
+        }
+        words
+    }
+
     pub fn set_user_model_path(
         &mut self,
         path: &str,
@@ -6,7 +60,8 @@ impl ImeEngine {
         if path.trim().is_empty() {
             return Err(EngineOperationError::InvalidArgument);
         }
-        let status = self.user_model
+        let status = self
+            .user_model
             .set_path(path)
             .map_err(EngineOperationError::UserModel)?;
         self.t9_compatibility_decode_cache.clear();
@@ -14,7 +69,8 @@ impl ImeEngine {
     }
 
     pub fn load_user_model(&mut self) -> Result<UserModelStatus, EngineOperationError> {
-        let status = self.user_model
+        let status = self
+            .user_model
             .load()
             .map(|_| self.user_model.status())
             .map_err(EngineOperationError::UserModel)?;
@@ -29,7 +85,8 @@ impl ImeEngine {
     }
 
     pub fn clear_user_model(&mut self) -> Result<UserModelStatus, EngineOperationError> {
-        let status = self.user_model
+        let status = self
+            .user_model
             .clear()
             .map_err(EngineOperationError::UserModel)?;
         self.t9_compatibility_decode_cache.clear();
@@ -93,7 +150,12 @@ impl ImeEngine {
             } else {
                 entry.code.clone()
             },
-            source: "user-lexicon".to_owned(),
+            source: if entry.action.external_action().is_some() {
+                "functional"
+            } else {
+                "user-lexicon"
+            }
+            .to_owned(),
             consumed_raw_len: raw_len,
             learning_key: None,
             // An imported user lexicon is a fixed candidate source. It may be
@@ -174,7 +236,6 @@ impl ImeEngine {
         )
         .ok()
     }
-
 }
 
 fn load_user_lexicon(path: &str) -> UserLexiconSnapshot {
@@ -182,4 +243,3 @@ fn load_user_lexicon(path: &str) -> UserLexiconSnapshot {
         .map(|report| report.snapshot)
         .unwrap_or_default()
 }
-

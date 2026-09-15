@@ -5,13 +5,17 @@ import {
   KeyboardMode
 } from '../main/ets/domain/keyboard/KeyboardAction';
 import {
-  DEFAULT_LETTER_SWIPE_SYMBOLS,
+  DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS,
+  DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS,
   EMPTY_LETTER_SWIPE_SYMBOLS,
   LETTER_SWIPE_KEYS,
   normalizeLetterSwipeSymbols,
+  parseLetterSwipeSymbolProfile,
   parseLetterSwipeSymbols,
-  RECOMMENDED_LETTER_SWIPE_SYMBOLS,
+  RECOMMENDED_CHINESE_LETTER_SWIPE_SYMBOLS,
+  RECOMMENDED_ENGLISH_LETTER_SWIPE_SYMBOLS,
   resolveLetterSwipeSymbol,
+  serializeLetterSwipeSymbolProfile,
   updateLetterSwipeSymbol
 } from '../main/ets/domain/keyboard/LetterSwipeSymbols';
 import { createStage10KeyboardLayout } from '../main/ets/presentation/keyboard/layouts/Stage10KeyboardLayouts';
@@ -105,15 +109,34 @@ export default function keyboardSwipeActionsTest() {
       expect(q?.swipeDownAction?.literal === true).assertTrue();
     });
 
-    it('ships the reference down-swipe symbols as an editable default preset', 0, () => {
-      expect(DEFAULT_LETTER_SWIPE_SYMBOLS).assertEqual(RECOMMENDED_LETTER_SWIPE_SYMBOLS);
-      expect(resolveLetterSwipeSymbol(DEFAULT_LETTER_SWIPE_SYMBOLS, 'q')).assertEqual('[');
-      expect(resolveLetterSwipeSymbol(DEFAULT_LETTER_SWIPE_SYMBOLS, 'a')).assertEqual('_');
-      expect(resolveLetterSwipeSymbol(DEFAULT_LETTER_SWIPE_SYMBOLS, 'f')).assertEqual('《');
-      expect(resolveLetterSwipeSymbol(DEFAULT_LETTER_SWIPE_SYMBOLS, 'b')).assertEqual('🍀');
-      expect(resolveLetterSwipeSymbol(DEFAULT_LETTER_SWIPE_SYMBOLS, 'n')).assertEqual('乚');
-      expect(resolveLetterSwipeSymbol(DEFAULT_LETTER_SWIPE_SYMBOLS, 'm')).assertEqual('→');
-      expect(resolveLetterSwipeSymbol(DEFAULT_LETTER_SWIPE_SYMBOLS, 'z')).assertEqual('');
+    it('ships the customer-confirmed language-specific down-swipe presets', 0, () => {
+      expect(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS)
+        .assertEqual(RECOMMENDED_CHINESE_LETTER_SWIPE_SYMBOLS);
+      expect(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS)
+        .assertEqual(RECOMMENDED_ENGLISH_LETTER_SWIPE_SYMBOLS);
+
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'a')).assertEqual('——');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 's')).assertEqual('……');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'h')).assertEqual('“');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'j')).assertEqual('”');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'k')).assertEqual('（');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'l')).assertEqual('）');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'z')).assertEqual('\t');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'x')).assertEqual('');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'c')).assertEqual('');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'v')).assertEqual('');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'b')).assertEqual('');
+      expect(resolveLetterSwipeSymbol(DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS, 'n')).assertEqual('');
+
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'a')).assertEqual('—');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 's')).assertEqual('…');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'f')).assertEqual('¥');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'g')).assertEqual('\\~');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'h')).assertEqual('{');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'j')).assertEqual('}');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'k')).assertEqual('^');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'l')).assertEqual('|');
+      expect(resolveLetterSwipeSymbol(DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS, 'z')).assertEqual('\t');
     });
 
     it('upgrades only the legacy empty default and preserves customized swipe maps', 0, () => {
@@ -142,12 +165,14 @@ export default function keyboardSwipeActionsTest() {
       const english = createStage10KeyboardLayout(KeyboardMode.ENGLISH, context, ShiftState.LOWERCASE);
 
       expect(findKey(chinese.rows, 'letter-b')?.upperLabel).assertEqual('_');
-      expect(findKey(chinese.rows, 'letter-n')?.upperLabel).assertEqual('`');
+      expect(findKey(chinese.rows, 'letter-n')?.upperLabel).assertEqual('、');
       expect(findKey(chinese.rows, 'letter-m')?.upperLabel).assertEqual('：');
       expect(findKey(chinese.rows, 'punctuation-comma')?.upperLabel).assertEqual('=');
       expect(findKey(chinese.rows, 'punctuation-period')?.upperLabel).assertEqual('？');
       expect(findKey(chinese.rows, 'letter-m')?.swipeUpAction?.character).assertEqual('：');
-      expect(findKey(chinese.rows, 'punctuation-period')?.swipeUpAction?.literal === true).assertTrue();
+      expect(findKey(chinese.rows, 'letter-n')?.swipeUpAction?.literal === true).assertFalse();
+      expect(findKey(chinese.rows, 'letter-m')?.swipeUpAction?.literal === true).assertFalse();
+      expect(findKey(chinese.rows, 'punctuation-period')?.swipeUpAction?.literal === true).assertFalse();
 
       expect(findKey(english.rows, 'letter-b')?.upperLabel).assertEqual('_');
       expect(findKey(english.rows, 'letter-n')?.upperLabel).assertEqual('\\');
@@ -165,6 +190,37 @@ export default function keyboardSwipeActionsTest() {
       const restored = new SettingsValidator().validate(settingsToRaw(configured));
       expect(resolveLetterSwipeSymbol(restored.chineseLetterSwipeSymbols, 'a')).assertEqual('。');
       expect(resolveLetterSwipeSymbol(restored.englishLetterSwipeSymbols, 'a')).assertEqual('&');
+    });
+
+    it('exports and imports an editable profile containing both language maps', 0, () => {
+      const chinese = parseLetterSwipeSymbols(updateLetterSwipeSymbol(undefined, 'q', '【'));
+      const english = parseLetterSwipeSymbols(updateLetterSwipeSymbol(undefined, 'm', '→'));
+      const exported = serializeLetterSwipeSymbolProfile(chinese, english);
+      const imported = parseLetterSwipeSymbolProfile(exported);
+
+      expect(imported.success).assertTrue();
+      expect(imported.value?.chineseSymbols.length).assertEqual(LETTER_SWIPE_KEYS.length);
+      expect(imported.value?.englishSymbols.length).assertEqual(LETTER_SWIPE_KEYS.length);
+      expect(imported.value?.chineseSymbols[0]).assertEqual('【');
+      expect(imported.value?.englishSymbols[25]).assertEqual('→');
+      expect(exported.indexOf('"chinese"') >= 0).assertTrue();
+      expect(exported.indexOf('"english"') >= 0).assertTrue();
+    });
+
+    it('rejects invalid or unsafe down-swipe profile files', 0, () => {
+      const valid = serializeLetterSwipeSymbolProfile(
+        parseLetterSwipeSymbols(RECOMMENDED_CHINESE_LETTER_SWIPE_SYMBOLS),
+        parseLetterSwipeSymbols(RECOMMENDED_ENGLISH_LETTER_SWIPE_SYMBOLS)
+      );
+      expect(parseLetterSwipeSymbolProfile(valid.replace('"schemaVersion": 1', '"schemaVersion": 2')).success)
+        .assertFalse();
+      expect(parseLetterSwipeSymbolProfile(valid.replace('"type": "shuangyu-letter-swipe-symbols"',
+        '"type": "other"')).success).assertFalse();
+      expect(parseLetterSwipeSymbolProfile(valid.replace('"q": "["', '"bad-key": "["')).success)
+        .assertFalse();
+      expect(parseLetterSwipeSymbolProfile(valid.replace('"q": "["', '"q": "123456789"')).success)
+        .assertFalse();
+      expect(parseLetterSwipeSymbolProfile('{"schemaVersion":1').success).assertFalse();
     });
   });
 }

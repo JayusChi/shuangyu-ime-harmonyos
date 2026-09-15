@@ -110,6 +110,36 @@ fn every_possible_xiaohe_double_key_matches_the_frozen_legal_readings() {
 }
 
 #[test]
+fn every_impossible_pair_of_known_initials_becomes_two_initial_slots() {
+    let expected_full = expected_code_to_readings();
+    let mut parser = ShuangpinParser::xiaohe().unwrap();
+    for (left_key, left) in INITIALS {
+        for (right_key, right) in INITIALS {
+            let code = format!("{left_key}{right_key}");
+            if expected_full.contains_key(&code) {
+                continue;
+            }
+            parser.reset();
+            let result = parser.process_str(&code);
+            assert_eq!(result.status, ParseStatus::Complete, "code={code}");
+            assert_eq!(result.logical_syllable_count, 2, "code={code}");
+            assert_eq!(
+                result
+                    .syllables
+                    .iter()
+                    .map(|slot| slot.syllable.as_str())
+                    .collect::<Vec<_>>(),
+                vec![*left, *right],
+                "code={code}"
+            );
+            let pending = parser.backspace();
+            assert_eq!(pending.pending_code, left_key.to_string());
+            assert_eq!(parser.pending_initial(), Some(*left));
+        }
+    }
+}
+
+#[test]
 fn every_supported_reading_has_complete_reverse_code_coverage() {
     let expected_reverse = reverse(&expected_code_to_readings());
     let actual_reverse = reverse(&parser_code_to_readings());
@@ -152,6 +182,7 @@ fn expected_code_to_readings() -> BTreeMap<String, BTreeSet<String>> {
 }
 
 fn parser_code_to_readings() -> BTreeMap<String, BTreeSet<String>> {
+    let expected_full = expected_code_to_readings();
     let mut parser = ShuangpinParser::xiaohe().expect("load Xiaohe schema");
     let mut actual = BTreeMap::new();
     for first in 'a'..='z' {
@@ -159,6 +190,25 @@ fn parser_code_to_readings() -> BTreeMap<String, BTreeSet<String>> {
             parser.reset();
             let code = format!("{first}{second}");
             let result = parser.process_str(&code);
+            if result.logical_syllable_count == 2 {
+                assert_eq!(result.status, ParseStatus::Complete, "code={code}");
+                assert_eq!(result.syllables.len(), 2, "code={code}");
+                assert!(
+                    !expected_full.contains_key(&code),
+                    "legal pair must win: {code}"
+                );
+                for (slot, key) in result.syllables.iter().zip([first, second]) {
+                    let expected = INITIALS
+                        .iter()
+                        .find(|(initial_key, _)| *initial_key == key)
+                        .expect("fallback key must be a known initial")
+                        .1;
+                    assert_eq!(slot.syllable, expected, "code={code}");
+                    assert_eq!(slot.raw_code, key.to_string());
+                    assert!(slot.final_part.is_empty());
+                }
+                continue;
+            }
             let readings = result
                 .syllables
                 .iter()
@@ -194,4 +244,23 @@ fn reverse(mappings: &BTreeMap<String, BTreeSet<String>>) -> BTreeMap<String, BT
         }
     }
     reversed
+}
+
+#[test]
+fn pending_zero_initial_vowels_remain_editable_and_complete_as_normal_pairs() {
+    let mut parser = ShuangpinParser::xiaohe().unwrap();
+    for (key, reading) in [('a', "a"), ('e', "e"), ('o', "o")] {
+        parser.reset();
+        let pending = parser.process_str(&format!("ni{key}"));
+        assert_eq!(pending.pending_code, key.to_string());
+        assert_eq!(pending.logical_syllable_count, 1);
+        assert_eq!(parser.pending_initial(), Some(reading));
+        let complete = parser.process_str(&key.to_string());
+        assert!(complete.pending_code.is_empty());
+        assert_eq!(complete.logical_syllable_count, 2);
+        assert_eq!(complete.syllables.last().unwrap().syllable, reading);
+        assert_eq!(parser.pending_initial(), None);
+        parser.backspace();
+        assert_eq!(parser.pending_initial(), Some(reading));
+    }
 }

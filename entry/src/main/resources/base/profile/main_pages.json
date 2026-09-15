@@ -1,6 +1,8 @@
 {
   "src": [
     "pages/Index",
+    "pages/ShapeLookup",
+    "pages/FlypyWeb",
     "pages/UserLexicon",
     "pages/KeyboardCustomization",
     "pages/XiaoheYinxingCategoryManagerPage",

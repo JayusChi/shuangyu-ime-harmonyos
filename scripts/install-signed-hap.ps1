@@ -18,6 +18,17 @@ $resolvedHapPath = if ([string]::IsNullOrWhiteSpace($HapPath)) {
 if (-not (Test-Path -LiteralPath $resolvedHapPath -PathType Leaf)) {
     throw "Signed HAP not found: $resolvedHapPath"
 }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$hapArchive = [IO.Compression.ZipFile]::OpenRead($resolvedHapPath)
+try {
+    $moduleEntry = $hapArchive.GetEntry('module.json')
+    if (-not $moduleEntry) { throw 'HAP module.json is missing.' }
+    $moduleReader = [IO.StreamReader]::new($moduleEntry.Open())
+    try { $hapModule = $moduleReader.ReadToEnd() | ConvertFrom-Json }
+    finally { $moduleReader.Dispose() }
+    $requiredGroups = @($hapModule.module.extensionAbilities | Where-Object { $_.type -eq 'inputMethod' } |
+        ForEach-Object { $_.dataGroupIds } | Where-Object { $_ } | Select-Object -Unique)
+} finally { $hapArchive.Dispose() }
 
 $resolvedHdcPath = if (-not [string]::IsNullOrWhiteSpace($HdcPath)) {
     [IO.Path]::GetFullPath($HdcPath)
@@ -123,11 +134,25 @@ foreach ($deviceTarget in $Target) {
         if ($wasCurrentIme) {
             $switch = Invoke-Hdc $deviceTarget @('shell', 'ime', '-s', $BundleName)
             if (-not $switch.Text.Contains('Succeeded in switching the input method')) {
-                throw "installed, but restoring the selected IME failed: $($switch.Text)"
+                # During replacement the service can return 77 even though the
+                # original IME remains selected. Verify the actual state first.
+                $currentIme = Invoke-Hdc $deviceTarget @('shell', 'ime', '-g')
+                if (-not $currentIme.Text.Contains("The current input method is: $BundleName,")) {
+                    throw "installed, but restoring the selected IME failed: $($switch.Text)"
+                }
             }
         }
 
         $dumpAfter = Invoke-Hdc $deviceTarget @('shell', 'bm', 'dump', '-n', $BundleName)
+        if ($requiredGroups.Count -gt 0) {
+            $dumpFile = [IO.Path]::GetTempFileName()
+            try {
+                [IO.File]::WriteAllText($dumpFile, $dumpAfter.Text, [Text.UTF8Encoding]::new($false))
+                $nodePath = [IO.Path]::GetFullPath((Join-Path $resolvedHdcPath '..\..\..\..\..\tools\node\node.exe'))
+                & $nodePath (Join-Path $PSScriptRoot 'verify-installed-sharing.cjs') $dumpFile @requiredGroups
+                if ($LASTEXITCODE -ne 0) { throw 'Installed package has no active shared-group authorization; see verifier output.' }
+            } finally { Remove-Item -LiteralPath $dumpFile -Force }
+        }
         $versions = @([regex]::Matches($dumpAfter.Text, '"versionName"\s*:\s*"([^"]+)"') |
             ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique)
         $version = if ($versions.Count -gt 0) { $versions[-1] } else { 'unknown' }

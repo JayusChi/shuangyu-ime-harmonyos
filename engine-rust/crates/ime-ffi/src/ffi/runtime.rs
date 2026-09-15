@@ -76,9 +76,7 @@ fn validate_key_arg(key: &str) -> Result<char, ImeErrorCode> {
     let Some(ch) = chars.next() else {
         return Err(ImeErrorCode::InvalidArgument);
     };
-    if chars.next().is_some()
-        || !(ch.is_ascii_lowercase() || ch == ';' || ch == '`' || matches!(ch, '2'..='9'))
-    {
+    if chars.next().is_some() || !(ch.is_ascii_alphanumeric() || ";\u{60}='.+-*/_@".contains(ch)) {
         return Err(ImeErrorCode::InvalidArgument);
     }
     Ok(ch)

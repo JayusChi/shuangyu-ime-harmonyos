@@ -3,6 +3,9 @@ impl ImeEngine {
         &mut self,
         page_index: usize,
     ) -> Result<CompositionResult, EngineOperationError> {
+        if self.convenience.active() {
+            return self.convenience.select(page_index).ok_or(EngineOperationError::InvalidCandidate);
+        }
         if let EngineBackend::CodeTable(machine) = &mut self.backend {
             let selection = machine
                 .select_current_page(page_index)
@@ -12,9 +15,41 @@ impl ImeEngine {
                 CodeTableSelection::Action(action) => action_result(action),
             });
         }
+        if self.is_phonetic_profile_command() {
+            let candidate = self
+                .session
+                .select_current_page(page_index)
+                .ok_or(EngineOperationError::InvalidCandidate)?;
+            let table = FunctionalActionTable::production_defaults();
+            let records = table.query_direct_exact_or_prefix("ofa");
+            let action = records
+                .iter()
+                .find(|record| record.id == candidate.id)
+                .ok_or(EngineOperationError::InvalidCandidate)?
+                .action
+                .clone();
+            self.parser.as_mut().expect("phonetic parser").reset();
+            self.session.clear();
+            return Ok(action_result(action));
+        }
         let Some(candidate) = self.session.select_current_page(page_index).cloned() else {
             return Err(EngineOperationError::InvalidCandidate);
         };
+        if let Some(entry) = self.user_lexicon.entries().iter().find(|entry| {
+            entry.stable_id() == candidate.id && entry.action.external_action().is_some()
+        }) {
+            let action = entry.action.external_action().expect("external shortcut");
+            if !user_lexicon::valid_shortcut_target(action, &entry.text) {
+                return Err(EngineOperationError::InvalidCandidate);
+            }
+            let action = FunctionalAction::DirectControl {
+                action: action.to_owned(),
+                target: entry.text.clone(),
+            };
+            self.parser.as_mut().expect("phonetic parser").reset();
+            self.session.clear();
+            return Ok(action_result(action));
+        }
         // Selection can mutate user ranking, so no compatibility decode that
         // captured the previous user scores may survive the commit.
         self.t9_compatibility_decode_cache.clear();
@@ -75,5 +110,4 @@ impl ImeEngine {
         self.session.clear();
         Ok(self.refresh_candidates(result))
     }
-
 }

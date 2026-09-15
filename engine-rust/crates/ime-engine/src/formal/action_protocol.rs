@@ -14,7 +14,11 @@ fn code_table_result_with_commit(
             text: candidate.text.clone(),
             display_text: candidate.display_text.clone().unwrap_or_default(),
             reading: candidate.code.clone(),
-            source: candidate.category_id.clone(),
+            source: if candidate.category_id == "user-shortcut" {
+                "functional".to_owned()
+            } else {
+                candidate.category_id.clone()
+            },
             consumed_raw_len: machine.raw_code().chars().count().min(u32::MAX as usize) as u32,
         })
         .collect::<Vec<_>>();
@@ -40,6 +44,12 @@ fn code_table_result_with_commit(
                 machine.has_previous_page(),
                 machine.has_next_page(),
             );
+    if machine.is_reverse_split() {
+        result.display_segments = vec![
+            machine.raw_code()[..2].to_owned(),
+            machine.raw_code()[2..].to_owned(),
+        ];
+    }
     if let Some(commit_text) = commit_text {
         result.commit_text = commit_text;
         result.composition_finished = machine.raw_code().is_empty();

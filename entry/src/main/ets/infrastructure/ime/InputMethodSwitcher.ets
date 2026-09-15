@@ -32,6 +32,7 @@ export interface InputMethodSwitchCapabilities {
 export interface InputMethodDescriptor {
   name: string;
   id: string;
+  label?: string;
 }
 
 export enum InputMethodSwitchResultType {
@@ -87,7 +88,9 @@ export class HarmonyInputMethodSystemBackend implements InputMethodSystemBackend
       const properties = await inputMethod.getSetting().getInputMethods(true);
       this.nativeProperties.clear();
       return properties.map((property: inputMethod.InputMethodProperty): InputMethodDescriptor => {
-        const descriptor: InputMethodDescriptor = { name: property.name, id: property.id };
+        const descriptor: InputMethodDescriptor = {
+          name: property.name, id: property.id, label: property.label
+        };
         this.nativeProperties.set(descriptorKey(descriptor), property);
         return descriptor;
       });
@@ -118,8 +121,8 @@ export class HarmonyInputMethodSystemBackend implements InputMethodSystemBackend
   }
 
   async showSystemPicker(): Promise<boolean> {
-    // API 18 replaced the service picker call with the ArkUI InputMethodListDialog.
-    // The active keyboard root owns that dialog and registers this short-lived opener.
+    // The keyboard root owns an application-level picker. InputMethodListDialog
+    // expands the default IME's keyboard subtypes instead of listing one row per app.
     return systemInputMethodPickerOpener ? systemInputMethodPickerOpener() : false;
   }
 }

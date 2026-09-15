@@ -10,6 +10,7 @@ import {
   PhysicalKeyCommandType,
   PhysicalKeyConsumptionTracker,
   PhysicalEditorSuffixTracker,
+  PhysicalShiftLanguageToggleTracker,
   PhysicalKeySnapshot,
   PhysicalKeyStartupDeferral,
   PhysicalKeySessionSnapshot,
@@ -82,6 +83,8 @@ class Stage3SessionController extends InputSessionController {
   physicalContinuationFlags: boolean[] = [];
   insertedCharacters: string[] = [];
   pairJumpCount: number = 0;
+  pairAvailable: boolean = false;
+  createPairOnCommit: boolean = false;
 
   constructor(store: InputSessionStore) {
     super(store);
@@ -104,6 +107,7 @@ class Stage3SessionController extends InputSessionController {
   ): Promise<InputOperationResult> {
     this.committedIndices.push(candidateIndex);
     this.stage3Store.clearComposition();
+    this.pairAvailable = this.createPairOnCommit;
     return inputOperationOk();
   }
 
@@ -139,6 +143,10 @@ class Stage3SessionController extends InputSessionController {
     return inputOperationOk();
   }
 
+  canJumpOutPair(_generation: number = this.getInputSessionGeneration()): boolean {
+    return this.pairAvailable;
+  }
+
   async jumpOutPair(
     _generation: number = this.getInputSessionGeneration()
   ): Promise<InputOperationResult> {
@@ -165,11 +173,49 @@ function createControllerFixture(): ControllerFixture {
 
 export default function computerStage3PhysicalKeyboardTest() {
   describe('computer remediation stage 3 physical keyboard', () => {
-    it('only letters begin composition while no composition exists', 0, () => {
+    it('routes physical backticks as universal code keys only for enabled Chinese sessions', 0, () => {
+      const active = session('u');
+      active.universalKeyEnabled = true;
+      for (const raw of ['', 'u', 'u`', 'abcd']) {
+        active.rawInput = raw;
+        for (const unicode of [0, 96]) {
+          expect(resolvePhysicalKeyCommand(key(2056, unicode), active).type)
+            .assertEqual(PhysicalKeyCommandType.UNIVERSAL);
+        }
+      }
+      active.rawInput = '';
+      active.compositionPending = true;
+      expect(resolvePhysicalKeyCommand(key(2056), active).type).assertEqual(PhysicalKeyCommandType.UNIVERSAL);
+      active.rawInput = 'u';
+      const shifted = key(2056);
+      shifted.shiftKey = true;
+      expect(resolvePhysicalKeyCommand(shifted, active).character).assertEqual('~');
+      expect(resolvePhysicalKeyCommand(key(2056, 126), active).type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
+      expect(resolvePhysicalKeyCommand(key(2056, 96, false), active).type).assertEqual(PhysicalKeyCommandType.NONE);
+      expect(resolvePhysicalKeyCommand(key(2056, 96, true, true), active).type).assertEqual(PhysicalKeyCommandType.NONE);
+      expect(resolvePhysicalKeyCommand(key(2056, 96, true, false, true), active).type).assertEqual(PhysicalKeyCommandType.NONE);
+      expect(resolvePhysicalKeyCommand(key(2056, 96, true, false, false, true), active).type).assertEqual(PhysicalKeyCommandType.NONE);
+      active.rawInput = "'1+2";
+      expect(resolvePhysicalKeyCommand(key(2056), active).type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
+      active.rawInput = 'u';
+      active.universalKeyEnabled = false;
+      expect(resolvePhysicalKeyCommand(key(2056), active).type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
+      active.universalKeyEnabled = true;
+      active.keyboardMode = KeyboardMode.ENGLISH;
+      expect(resolvePhysicalKeyCommand(key(2056), active).type).assertEqual(PhysicalKeyCommandType.NONE);
+      active.keyboardMode = KeyboardMode.CHINESE;
+      active.chineseInputAllowed = false;
+      expect(resolvePhysicalKeyCommand(key(2056), active).type).assertEqual(PhysicalKeyCommandType.NONE);
+      active.chineseInputAllowed = true;
+      active.editorConnected = false;
+      expect(resolvePhysicalKeyCommand(key(2056), active).type).assertEqual(PhysicalKeyCommandType.NONE);
+    });
+
+    it('letters and the apostrophe guide begin composition while idle', 0, () => {
       expect(resolvePhysicalKeyCommand(key(2030), session('')).type)
         .assertEqual(PhysicalKeyCommandType.LETTER);
       const returnedKeyCodes: number[] = [
-        2002, 2050, 2054, 2043, 2044, 2059, 2060, 2063, 2068, 2069, 2070, 2012, 2015
+        2002, 2050, 2054, 2043, 2044, 2059, 2060, 2068, 2069, 2070, 2012, 2015
       ];
       returnedKeyCodes.forEach((keyCode: number): void => {
         expect(resolvePhysicalKeyCommand(key(keyCode), session('')).type)
@@ -180,6 +226,25 @@ export default function computerStage3PhysicalKeyboardTest() {
       // fixed software keyboard panel.
       expect(resolvePhysicalKeyCommand(key(2055), session('')).type)
         .assertEqual(PhysicalKeyCommandType.DELETE);
+    });
+
+    it('convenience owns digits operators case and a guide that is still queued', 0, () => {
+      const pending = session('', true);
+      pending.conveniencePendingRaw = "'";
+      for (const code of [2000, 2001, 2010, 2066, 2103, 2113, 2114, 2115, 2116, 2117, 2063]) {
+        expect(resolvePhysicalKeyCommand(key(code), pending).type).assertEqual(PhysicalKeyCommandType.CONVENIENCE);
+      }
+      expect(resolvePhysicalKeyCommand(key(2017, 65), session("'Ab")).character).assertEqual('A');
+      expect(resolvePhysicalKeyCommand(key(2005), session("'2026.")).character).assertEqual('5');
+      expect(resolvePhysicalKeyCommand(key(2050), pending).type).assertEqual(PhysicalKeyCommandType.SPACE);
+      expect(resolvePhysicalKeyCommand(key(2070), pending).type).assertEqual(PhysicalKeyCommandType.CANCEL);
+      const shiftedPlus = key(2058);
+      shiftedPlus.shiftKey = true;
+      expect(resolvePhysicalKeyCommand(shiftedPlus, pending).character).assertEqual('+');
+      shiftedPlus.keyCode = 2008;
+      expect(resolvePhysicalKeyCommand(shiftedPlus, pending).character).assertEqual('*');
+      pending.chineseInputAllowed = false;
+      expect(resolvePhysicalKeyCommand(key(2001), pending).type).assertEqual(PhysicalKeyCommandType.NONE);
     });
 
     it('routes edit, cancel, selection and page commands only during composition', 0, () => {
@@ -212,9 +277,39 @@ export default function computerStage3PhysicalKeyboardTest() {
         .assertEqual(PhysicalKeyCommandType.NEXT_PAGE);
     });
 
+    it('pages with unmodified brackets while preserving Shift braces and host shortcuts', 0, () => {
+      for (const code of [2059, 2060]) {
+        const bracket = code === 2059 ? '[' : ']';
+        const brace = code === 2059 ? '{' : '}';
+        const page = code === 2059 ? PhysicalKeyCommandType.PREVIOUS_PAGE : PhysicalKeyCommandType.NEXT_PAGE;
+        for (const unicode of [0, bracket.charCodeAt(0)]) {
+          expect(resolvePhysicalKeyCommand(key(code, unicode), session()).type).assertEqual(page);
+          expect(resolvePhysicalKeyCommand(key(code, unicode), session('', true)).type).assertEqual(page);
+          expect(resolvePhysicalKeyCommand(key(code, unicode), session('')).type).assertEqual(PhysicalKeyCommandType.NONE);
+          expect(resolvePhysicalKeyCommand(key(code, unicode, false), session()).type).assertEqual(PhysicalKeyCommandType.NONE);
+          expect(resolvePhysicalKeyCommand(key(code, unicode, true, true), session()).type).assertEqual(PhysicalKeyCommandType.NONE);
+          expect(resolvePhysicalKeyCommand(key(code, unicode, true, false, true), session()).type).assertEqual(PhysicalKeyCommandType.NONE);
+          expect(resolvePhysicalKeyCommand(key(code, unicode, true, false, false, true), session()).type).assertEqual(PhysicalKeyCommandType.NONE);
+        }
+        for (const unicode of [0, brace.charCodeAt(0)]) {
+          const shifted = key(code, unicode);
+          shifted.shiftKey = true;
+          const result = resolvePhysicalKeyCommand(shifted, session());
+          expect(result.type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
+          expect(result.character).assertEqual(brace);
+        }
+        const english = session();
+        english.keyboardMode = KeyboardMode.ENGLISH;
+        expect(resolvePhysicalKeyCommand(key(code), english).type).assertEqual(PhysicalKeyCommandType.NONE);
+        const restricted = session();
+        restricted.chineseInputAllowed = false;
+        expect(resolvePhysicalKeyCommand(key(code), restricted).type).assertEqual(PhysicalKeyCommandType.NONE);
+      }
+    });
+
     it('routes Tab and Enter with composition then pair-jump priority', 0, () => {
       expect(resolvePhysicalKeyCommand(key(2049), session()).type)
-        .assertEqual(PhysicalKeyCommandType.CANCEL);
+        .assertEqual(PhysicalKeyCommandType.TAB);
 
       const pair = session('');
       pair.candidateCount = 0;
@@ -309,6 +404,30 @@ export default function computerStage3PhysicalKeyboardTest() {
       expect(tracker.consumeRelease(2031)).assertFalse();
     });
 
+    it('toggles language only for a standalone left or right Shift tap', 0, () => {
+      const tracker = new PhysicalShiftLanguageToggleTracker();
+      expect(tracker.observe(key(2047))).assertFalse();
+      expect(tracker.observe(key(2047, 0, false))).assertTrue();
+      expect(tracker.observe(key(2048))).assertFalse();
+      expect(tracker.observe(key(2048, 0, false))).assertTrue();
+    });
+
+    it('keeps Shift combinations and incomplete presses out of language toggling', 0, () => {
+      const tracker = new PhysicalShiftLanguageToggleTracker();
+      expect(tracker.observe(key(2047))).assertFalse();
+      const shiftedLetter = key(2017);
+      shiftedLetter.shiftKey = true;
+      expect(tracker.observe(shiftedLetter)).assertFalse();
+      expect(tracker.observe(key(2047, 0, false))).assertFalse();
+
+      expect(tracker.observe(key(2048))).assertFalse();
+      tracker.reset();
+      expect(tracker.observe(key(2048, 0, false))).assertFalse();
+
+      expect(tracker.observe(key(2047, 0, true, true))).assertFalse();
+      expect(tracker.observe(key(2047, 0, false, true))).assertFalse();
+    });
+
     it('defers a cold-start letter DOWN and UP pair without claiming other host keys', 0, () => {
       const deferral = new PhysicalKeyStartupDeferral();
       expect(deferral.shouldDefer(key(2030))).assertTrue();
@@ -385,6 +504,40 @@ export default function computerStage3PhysicalKeyboardTest() {
       expect(fixture.sessionController.previousPageCount).assertEqual(1);
     });
 
+    it('allows floating candidate pager buttons without an expanded keyboard panel', 0, async () => {
+      const fixture = createControllerFixture();
+      expect(fixture.store.getSnapshot().candidatePanelExpanded).assertFalse();
+      await fixture.controller.nextFloatingCandidatePage();
+      await fixture.controller.previousFloatingCandidatePage();
+      expect(fixture.sessionController.nextPageCount).assertEqual(1);
+      expect(fixture.sessionController.previousPageCount).assertEqual(1);
+    });
+
+    it('resolves rapid Tab and Enter after a queued pair candidate commit', 0, async () => {
+      for (const keyCode of [2049, 2054, 2119]) {
+        const fixture = createControllerFixture();
+        fixture.sessionController.createPairOnCommit = true;
+        const pending = session('', true);
+        const command = resolvePhysicalKeyCommand(key(keyCode), pending);
+        expect(command.type).assertEqual(keyCode === 2049 ? PhysicalKeyCommandType.TAB : PhysicalKeyCommandType.ENTER);
+        const commit = fixture.controller.commitCandidate(0);
+        const jump = keyCode === 2049 ? fixture.controller.handlePhysicalTab() :
+          fixture.controller.handlePhysicalEnter();
+        expect((await commit).success).assertTrue();
+        expect((await jump).success).assertTrue();
+        expect(fixture.sessionController.pairJumpCount).assertEqual(1);
+        expect(fixture.sessionController.cancelCount).assertEqual(0);
+      }
+    });
+
+    it('keeps Tab cancellation while composing inside a pair', 0, async () => {
+      const fixture = createControllerFixture();
+      fixture.sessionController.pairAvailable = true;
+      await fixture.controller.handlePhysicalTab();
+      expect(fixture.sessionController.cancelCount).assertEqual(1);
+      expect(fixture.sessionController.pairJumpCount).assertEqual(0);
+    });
+
     it('serializes Esc cancellation without committing a candidate', 0, async () => {
       const fixture = createControllerFixture();
       await fixture.controller.cancelPhysicalComposition();
@@ -406,12 +559,35 @@ export default function computerStage3PhysicalKeyboardTest() {
       expect(resolvePhysicalKeyCommand(key(2030), password).type).assertEqual(PhysicalKeyCommandType.NONE);
     });
 
-    it('semicolon selects the second candidate or arms the symbol guide', 0, () => {
+    it('phonetic semicolon is punctuation at any candidate count including queued input', 0, () => {
+      for (const count of [0, 1, 3]) {
+        for (const unicode of [0, 59]) {
+          const state = session(count === 0 ? '' : 'ni');
+          state.candidateCount = count;
+          for (const pending of [false, true]) {
+            state.compositionPending = pending;
+            const command = resolvePhysicalKeyCommand(key(2062, unicode), state);
+            expect(command.type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
+            expect(command.character).assertEqual('；');
+          }
+        }
+      }
+      expect(resolvePhysicalKeyCommand(key(2062, 59, true, true), session()).type)
+        .assertEqual(PhysicalKeyCommandType.NONE);
+      const shifted = key(2062);
+      shifted.shiftKey = true;
+      const colon = resolvePhysicalKeyCommand(shifted, session());
+      expect(colon.type).assertEqual(PhysicalKeyCommandType.PUNCTUATION);
+      expect(colon.character).assertEqual('：');
+    });
+
+    it('code-table semicolon selects the second candidate or arms the symbol guide', 0, () => {
       const noCandidate: PhysicalKeySessionSnapshot = {
         sessionActive: true,
         editorConnected: true,
         candidateBarVisible: true,
         keyboardMode: KeyboardMode.CHINESE,
+        codeTableSemicolonEnabled: true,
         rawInput: '',
         candidateCount: 0,
         compositionPending: false
@@ -424,6 +600,7 @@ export default function computerStage3PhysicalKeyboardTest() {
         editorConnected: true,
         candidateBarVisible: true,
         keyboardMode: KeyboardMode.CHINESE,
+        codeTableSemicolonEnabled: true,
         rawInput: 'ni',
         candidateCount: 1,
         compositionPending: false
@@ -432,13 +609,16 @@ export default function computerStage3PhysicalKeyboardTest() {
       expect(oneCandidateCommand.type).assertEqual(PhysicalKeyCommandType.CANDIDATE);
       expect(oneCandidateCommand.candidateIndex).assertEqual(0);
 
-      const command = resolvePhysicalKeyCommand(key(2062), session());
+      const multipleCandidates = session();
+      multipleCandidates.codeTableSemicolonEnabled = true;
+      const command = resolvePhysicalKeyCommand(key(2062), multipleCandidates);
       expect(command.type).assertEqual(PhysicalKeyCommandType.SECOND_CANDIDATE);
       expect(command.candidateIndex).assertEqual(1);
     });
 
     it('semicolon plus a letter resolves the configured symbol when no second candidate exists', 0, () => {
       const noSecondCandidate = session('');
+      noSecondCandidate.codeTableSemicolonEnabled = true;
       noSecondCandidate.candidateCount = 0;
       const guide = resolvePhysicalKeyCommand(key(2062), noSecondCandidate);
       expect(guide.type).assertEqual(PhysicalKeyCommandType.SYMBOL_GUIDE);
@@ -491,7 +671,7 @@ export default function computerStage3PhysicalKeyboardTest() {
         compositionPending: false
       };
       expect(resolvePhysicalKeyCommand(key(2063), noComposition).type)
-        .assertEqual(PhysicalKeyCommandType.NONE);
+        .assertEqual(PhysicalKeyCommandType.CONVENIENCE);
     });
   });
 }

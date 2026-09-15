@@ -44,7 +44,7 @@
   "findings": [
     {
       "source_file": "小鹤音形/0.0.小鹤.txt",
-      "physical_line": 68571,
+      "physical_line": 68570,
       "finding_type": "url",
       "summary_sha256": "1aa43a3bfc4de4d7c505daec260646734ad7617fe1f8757b5980753115710321",
       "decision": "REJECTED",

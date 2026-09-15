@@ -1,3 +1,4 @@
+import { isConvenienceInput } from '../domain/keyboard/ConvenienceInput';
 import { inputMethodEngine, InputMethodExtensionContext } from '@kit.IMEKit';
 import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
@@ -7,6 +8,7 @@ import {
   EDITOR_KIND_EXTRA_CONFIG_KEY
 } from '../domain/editor/EditorContext';
 import { KeyboardMode, isSingleAsciiLetter, isT9PinyinDigit } from '../domain/keyboard/KeyboardAction';
+import { normalizeLetterSwipeSymbol } from '../domain/keyboard/LetterSwipeSymbols';
 import {
   ImeSettings,
   PINYIN_9_SCHEME_ID,
@@ -36,7 +38,11 @@ import { initializeSharedKeySoundBackend } from '../infrastructure/audio/KeySoun
 import { UserModelCommandRepository } from '../infrastructure/storage/UserModelCommandRepository';
 import { UserModelCommandBus } from '../infrastructure/storage/UserModelCommandBus';
 import { UserLexiconSyncBus } from '../infrastructure/storage/UserLexiconSyncBus';
-import { CompositionResult, NativeEngineGatewayContract } from '../infrastructure/native/NativeEngineTypes';
+import {
+  CompositionResult,
+  InsertPairAction,
+  NativeEngineGatewayContract
+} from '../infrastructure/native/NativeEngineTypes';
 import { UserLexiconImportManager } from './UserLexiconImportManager';
 import { NativeEngineGateway } from '../infrastructure/native/NativeEngineGateway';
 import {
@@ -94,7 +100,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     }
     const previewUpdated = await this.updateCompositionText(
       result.rawInput,
-      false,
+      this.shouldUseCursorPreedit(state),
       generation
     );
     if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -118,11 +124,6 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return this.staleInputAction('letter');
     }
 
-    // Invalidate undo state when user types
-    if (this.undoCommitManager) {
-      this.undoCommitManager.invalidateUndo();
-    }
-
     const input = letter ?? '';
     if (!isSingleAsciiLetter(input)) {
       this.store.recordError(ImeErrorCode.INVALID_ARGUMENT, 'letter input requires one ascii letter');
@@ -130,6 +131,15 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     }
 
     let state = this.store.getSnapshot();
+    if (isConvenienceInput(state.rawInput)) {
+      const quickLetter = state.keyboardMode === KeyboardMode.ENGLISH
+        ? this.store.transformEnglishLetter(input) : input;
+      const result = await this.insertConvenienceCharacter(quickLetter, generation);
+      if (result.success && this.isInputSessionGenerationCurrent(generation)) {
+        this.store.markEnglishLetterCommitted();
+      }
+      return result;
+    }
     const normalizedInput = input.toLowerCase();
     if (state.keyboardMode === KeyboardMode.CHINESE &&
       state.editorContext.chineseModeAllowed && !state.editorContext.isPassword) {
@@ -139,6 +149,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       }
 
       if (state.chineseCapsLock) {
+        this.undoCommitManager?.invalidateUndo();
         return this.insertText(normalizedInput.toUpperCase(), 'chinese uppercase letter', generation);
       }
 
@@ -185,14 +196,56 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         );
       }
       if (result.action !== null && result.action !== undefined) {
-        this.engineCoordinator.reset();
-        this.store.clearComposition();
-        this.store.recordError(ImeErrorCode.SERIALIZATION_ERROR, 'process key returned an unexpected action');
-        return inputOperationFailed(
-          ImeErrorCode.SERIALIZATION_ERROR,
-          'process key returned an unexpected action'
-        );
+        // Guide actions such as ;i and ;n are produced while the leading
+        // semicolon still owns an editor preview range.  Mutating the editor
+        // before releasing that range makes getForward()/selectByRange()
+        // observe the preview character instead of the committed text and a
+        // later preview cleanup can also restore the old caret.  Close the
+        // guide preview first, then execute the closed editor action.
+        if (state.rawInput.length > 0 &&
+          (result.action.type === 'REPEAT_COMMIT' ||
+            result.action.type === 'UNDO_COMMIT' ||
+            result.action.type === 'MOVE_LINE_END' ||
+            result.action.type === 'DIRECT_CONTROL')) {
+          const cleared = await this.imeService.clearPreviewText(generation);
+          if (!this.isInputSessionGenerationCurrent(generation)) {
+            return this.staleInputAction('guide preview clear');
+          }
+          if (!cleared) {
+            this.store.updateComposition(this.restoreEngineComposition(state));
+            this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'guide preview clear failed');
+            return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'guide preview clear failed');
+          }
+          this.store.clearComposition();
+        }
+        const executed = await this.protocolActionExecutor.execute(result.action, generation);
+        if (executed.committedText.length > 0 && executed.textInserted) {
+          this.recordCommittedText(executed.committedText);
+        }
+        if (executed.status === ProtocolActionExecutionStatus.SESSION_INVALID) {
+          return this.staleInputAction('guide action completion');
+        }
+        if (executed.status !== ProtocolActionExecutionStatus.SUCCESS) {
+          // The native guide action is already consumed. If pair text reached
+          // the editor but cursor placement failed, keep it exactly once and
+          // clear only the stale composition.
+          this.store.clearComposition();
+          this.store.recordError(
+            ImeErrorCode.ENGINE_INTERNAL_ERROR,
+            executed.textInserted ? 'guide action completed with cursor fallback' : 'guide action failed'
+          );
+          return inputOperationFailed(
+            ImeErrorCode.ENGINE_INTERNAL_ERROR,
+            executed.textInserted ? 'guide action completed with cursor fallback' : 'guide action failed'
+          );
+        }
+        this.store.updateComposition(result);
+        return inputOperationOk();
       }
+      // A functional guide letter (notably undo) must retain the history it
+      // acts on. Ordinary code input and plain-symbol commits still invalidate
+      // the previous undo record before applying their own editor mutation.
+      this.undoCommitManager?.invalidateUndo();
       let automaticCommitApplied = false;
       if (result.commitText.length > 0) {
         let committed = false;
@@ -226,12 +279,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
           return inputOperationOk();
         }
       }
-      // HarmonyOS InputClient cannot style editor-owned preview text. Keep the
-      // raw code exclusively in the IME candidate region, where it is always
-      // rendered with an underline. This also avoids range-listener gaps in
-      // third-party/independent PC and touch editors and guarantees that raw
-      // code never leaks into committed application text.
-      const useNativeTextPreview = false;
+      // Embedded display is an explicit choice and requires native host preview support.
+      // Unsupported hosts retain the composition in the candidate area.
+      const useNativeTextPreview = this.shouldUseCursorPreedit(state);
 
       // Publish the synchronous engine result before waiting for the host
       // editor's asynchronous preview round-trip. Input actions remain
@@ -261,9 +311,12 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'composition text update failed');
         return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'composition text update failed');
       }
+      await this.refreshShapeLookupCandidate(generation);
+      await this.refreshClipboardReverseCandidate(generation);
       return inputOperationOk();
     }
 
+    this.undoCommitManager?.invalidateUndo();
     const directLetter = this.store.transformEnglishLetter(normalizedInput);
     const result = await this.insertText(directLetter, 'letter', generation);
     if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -314,7 +367,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     this.store.updateComposition(result);
     const previewUpdated = await this.updateCompositionText(
       result.rawInput,
-      false,
+      this.shouldUseCursorPreedit(state),
       generation
     );
     if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -384,7 +437,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     this.store.updateComposition(result);
     const previewUpdated = await this.updateCompositionText(
       result.rawInput,
-      false,
+      this.shouldUseCursorPreedit(state),
       generation
     );
     if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -426,6 +479,52 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     return inputOperationOk();
   }
 
+  /** Runs in the shared input queue; candidate-dependent guide behavior uses live state. */
+  async insertConvenienceCharacter(
+    character: string,
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('convenience input');
+    }
+    const check = this.ensureInputSession('convenience input');
+    if (!check.success) { return check; }
+    const state = this.store.getSnapshot();
+    if (state.editorContext.isPassword ||
+      (!state.editorContext.chineseModeAllowed && !state.editorContext.englishModeAllowed)) {
+      return this.insertLiteralCharacter(character, generation);
+    }
+    if (character === '=' && state.candidates.length > 0) {
+      return this.insertSpace(generation);
+    }
+    if (!isConvenienceInput(state.rawInput) && state.rawInput.length > 0) {
+      return this.insertCharacter(character, generation);
+    }
+    if (!this.engineCoordinator.isInitialized()) {
+      return inputOperationFailed(ImeErrorCode.ENGINE_NOT_INITIALIZED, 'convenience engine is unavailable');
+    }
+    const result = this.engineCoordinator.processKey(character);
+    if (!result.success) {
+      return inputOperationFailed(result.errorCode, result.errorMessage);
+    }
+    const updated = result.commitText.length > 0
+      ? await this.imeService.commitPreviewText(result.commitText, generation)
+      : await this.updateCompositionText(result.rawInput, this.shouldUseCursorPreedit(state), generation);
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('convenience input completion');
+    }
+    if (!updated) {
+      this.store.updateComposition(this.restoreEngineComposition(state));
+      return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'convenience preview update failed');
+    }
+    if (result.commitText.length > 0) {
+      this.commitHistoryManager.addCommit(result.commitText);
+      this.undoCommitManager?.recordCommit(result.commitText);
+    }
+    this.store.updateComposition(result);
+    return inputOperationOk();
+  }
+
   async insertCharacter(
     character: string | undefined,
     generation: number = this.getInputSessionGeneration(),
@@ -440,6 +539,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return inputOperationFailed(ImeErrorCode.INVALID_ARGUMENT, 'character input requires one character');
     }
     const state = this.store.getSnapshot();
+    if (isConvenienceInput(state.rawInput)) {
+      return this.insertConvenienceCharacter(input, generation);
+    }
     if (state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0 &&
       !state.rawInput.startsWith(';')) {
       if (state.candidates.length > 0) {
@@ -477,7 +579,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         (state.keyboardMode === KeyboardMode.SYMBOL &&
           state.modeBeforeTransient === KeyboardMode.CHINESE)) &&
       this.engineCoordinator.isInitialized();
-    if (input === ';' && chineseEngineReady) {
+    if (input === ';' && chineseEngineReady && !this.usesPhoneticSemicolon()) {
       const result = this.engineCoordinator.processKey(';');
       if (result.success) {
         if (result.commitText.length > 0) {
@@ -499,7 +601,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
         }
         const previewUpdated = await this.updateCompositionText(
           result.rawInput,
-          false,
+          this.shouldUseCursorPreedit(state),
           generation
         );
         if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -531,8 +633,8 @@ export class InputSessionCompositionController extends InputSessionCommitControl
   }
 
   /**
-   * Inserts an upper-deck character exactly as printed on the key. These
-   * characters intentionally bypass Chinese punctuation, full-width and
+   * Inserts literal key text exactly as configured. The text intentionally
+   * bypasses Chinese punctuation, full-width and
    * semicolon-guide conversion; an active composition is still confirmed or
    * cleared first, just like an ordinary punctuation action.
    */
@@ -544,9 +646,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return this.staleInputAction('literal upper-deck character');
     }
     const input = character ?? '';
-    if (input.length !== 1) {
-      this.store.recordError(ImeErrorCode.INVALID_ARGUMENT, 'literal character input requires one character');
-      return inputOperationFailed(ImeErrorCode.INVALID_ARGUMENT, 'literal character input requires one character');
+    if (input.length <= 0 || normalizeLetterSwipeSymbol(input) !== input) {
+      this.store.recordError(ImeErrorCode.INVALID_ARGUMENT, 'literal key text is invalid');
+      return inputOperationFailed(ImeErrorCode.INVALID_ARGUMENT, 'literal key text is invalid');
     }
     const sessionCheck = this.ensureInputSession('literal upper-deck character');
     if (!sessionCheck.success) {
@@ -554,7 +656,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     }
 
     const state = this.store.getSnapshot();
-    if (state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0) {
+    if ((state.keyboardMode === KeyboardMode.CHINESE || isConvenienceInput(state.rawInput)) && state.rawInput.length > 0) {
       if (!state.rawInput.startsWith(';') && state.candidates.length > 0) {
         const confirmed = await this.commitCandidate(0, generation);
         if (!confirmed.success) {
@@ -583,6 +685,71 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     return this.insertText(input, 'literal upper-deck character', generation);
   }
 
+  /** Inserts both delimiters atomically and places the editor cursor between them. */
+  async insertLiteralPair(
+    text: string | undefined,
+    cursorOffsetUtf16: number | undefined,
+    generation: number = this.getInputSessionGeneration()
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('literal symbol pair');
+    }
+    const input = text ?? '';
+    if (input.length <= 1 || normalizeLetterSwipeSymbol(input) !== input ||
+      cursorOffsetUtf16 === undefined || !Number.isInteger(cursorOffsetUtf16) ||
+      cursorOffsetUtf16 <= 0 || cursorOffsetUtf16 >= input.length) {
+      this.store.recordError(ImeErrorCode.INVALID_ARGUMENT, 'literal symbol pair is invalid');
+      return inputOperationFailed(ImeErrorCode.INVALID_ARGUMENT, 'literal symbol pair is invalid');
+    }
+    const sessionCheck = this.ensureInputSession('literal symbol pair');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+
+    const state = this.store.getSnapshot();
+    if (state.rawInput.length > 0) {
+      const cleared = await this.imeService.clearPreviewText(generation);
+      if (!this.isInputSessionGenerationCurrent(generation)) {
+        return this.staleInputAction('literal symbol pair composition clear');
+      }
+      if (!cleared) {
+        this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'literal symbol pair composition clear failed');
+        return inputOperationFailed(
+          ImeErrorCode.ENGINE_INTERNAL_ERROR,
+          'literal symbol pair composition clear failed'
+        );
+      }
+      this.engineCoordinator.reset();
+      this.store.clearComposition();
+    }
+
+    const action: InsertPairAction = {
+      type: 'INSERT_PAIR',
+      formatId: '',
+      text: input,
+      cursorOffsetUtf16
+    };
+    const executed = await this.protocolActionExecutor.execute(action, generation);
+    if (executed.committedText.length > 0 && executed.textInserted) {
+      this.recordCommittedText(executed.committedText);
+    }
+    if (executed.status === ProtocolActionExecutionStatus.SESSION_INVALID ||
+      !this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('literal symbol pair completion');
+    }
+    if (executed.status === ProtocolActionExecutionStatus.SUCCESS) {
+      this.smartPeriodController.clear();
+      this.store.clearError();
+      return inputOperationOk();
+    }
+
+    const message = executed.textInserted
+      ? 'literal symbol pair cursor positioning failed'
+      : 'literal symbol pair insertion failed';
+    this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, message);
+    return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, message);
+  }
+
   /** Appends physical-keyboard punctuation without ending the active composition. */
   async insertPhysicalPunctuation(
     character: string,
@@ -591,6 +758,9 @@ export class InputSessionCompositionController extends InputSessionCommitControl
   ): Promise<InputOperationResult> {
     if (character.length !== 1) {
       return inputOperationFailed(ImeErrorCode.INVALID_ARGUMENT, 'physical punctuation requires one character');
+    }
+    if ((character === ';' || character === '；') && this.usesPhoneticSemicolon()) {
+      return this.insertCharacter(';', generation, inputAction);
     }
     // If there are candidates, commit the first one before inserting punctuation
     const state = this.store.getSnapshot();
@@ -771,7 +941,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return this.staleInputAction('space');
     }
     const mode = this.store.getSnapshot().keyboardMode;
-    if (mode === KeyboardMode.CHINESE) {
+    if (mode === KeyboardMode.CHINESE || isConvenienceInput(this.store.getSnapshot().rawInput)) {
       const state = this.store.getSnapshot();
       if (state.candidates.length > 0) {
         return this.commitCandidate(candidateIndex, generation);
@@ -808,9 +978,10 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return sessionCheck;
     }
 
+    if (this.store.moveHardwareCandidatePage(true)) { return inputOperationOk(); }
     const result = this.engineCoordinator.nextCandidatePage();
     if (result.success) {
-      this.store.updateComposition(result);
+      this.store.updateCandidateBatch(result, false);
       return inputOperationOk();
     }
     // A failed page request must not replace the current, still-clickable page.
@@ -820,7 +991,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
 
   moveCandidateHighlight(delta: number): InputOperationResult {
     const state = this.store.getSnapshot();
-    if (!state.sessionActive || !state.editorConnected || state.keyboardMode !== KeyboardMode.CHINESE ||
+    if (!state.sessionActive || !state.editorConnected || (state.keyboardMode !== KeyboardMode.CHINESE && !isConvenienceInput(state.rawInput)) ||
       !state.candidateBarVisible || state.rawInput.length === 0 || state.candidates.length === 0) {
       return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'candidate selection is unavailable');
     }
@@ -835,7 +1006,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return this.staleInputAction('cancel composition');
     }
     const state = this.store.getSnapshot();
-    if (!state.sessionActive || !state.editorConnected || state.keyboardMode !== KeyboardMode.CHINESE ||
+    if (!state.sessionActive || !state.editorConnected || (state.keyboardMode !== KeyboardMode.CHINESE && !isConvenienceInput(state.rawInput)) ||
       state.rawInput.length === 0) {
       return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'cancel requires chinese composition');
     }
@@ -866,9 +1037,10 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       return sessionCheck;
     }
 
+    if (this.store.moveHardwareCandidatePage(false)) { return inputOperationOk(); }
     const result = this.engineCoordinator.previousCandidatePage();
     if (result.success) {
-      this.store.updateComposition(result);
+      this.store.updateCandidateBatch(result, true);
       return inputOperationOk();
     }
     // Keep the current page intact on failure; only surface the operation error.
@@ -892,7 +1064,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       this.canJumpOutPair(generation)) {
       return this.jumpOutPair(generation);
     }
-    if (state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0) {
+    if ((state.keyboardMode === KeyboardMode.CHINESE || isConvenienceInput(state.rawInput)) && state.rawInput.length > 0) {
       const detached = await this.resetCompositionDetachedByEditor(state, generation);
       if (!this.isInputSessionGenerationCurrent(generation)) {
         return this.staleInputAction('delete attachment check');
@@ -911,7 +1083,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
       }
       const previewUpdated = await this.updateCompositionText(
         result.rawInput,
-        false,
+        this.shouldUseCursorPreedit(state),
         generation
       );
       if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -937,50 +1109,6 @@ export class InputSessionCompositionController extends InputSessionCommitControl
 
     this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'delete verification failed');
     return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'delete verification failed');
-  }
-
-  async deleteCurrentLine(
-    generation: number = this.getInputSessionGeneration()
-  ): Promise<InputOperationResult> {
-    if (!this.isInputSessionGenerationCurrent(generation)) {
-      return this.staleInputAction('delete current line');
-    }
-    const sessionCheck = this.ensureInputSession('delete current line');
-    if (!sessionCheck.success) {
-      return sessionCheck;
-    }
-    if (this.imeService.deleteCurrentLine === undefined) {
-      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line is unavailable');
-    }
-    const state = this.store.getSnapshot();
-    if (state.rawInput.length > 0) {
-      const cleared = await this.imeService.clearPreviewText(generation);
-      if (!this.isInputSessionGenerationCurrent(generation)) {
-        return this.staleInputAction('delete current line preview cleanup');
-      }
-      if (!cleared) {
-        this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'delete current line preview cleanup failed');
-        return inputOperationFailed(
-          ImeErrorCode.ENGINE_INTERNAL_ERROR,
-          'delete current line preview cleanup failed'
-        );
-      }
-      this.imeService.resetPreviewState();
-      if (this.engineCoordinator.isInitialized()) {
-        this.engineCoordinator.reset();
-      }
-      this.store.clearComposition();
-    }
-    const deleted = await this.imeService.deleteCurrentLine();
-    if (!this.isInputSessionGenerationCurrent(generation)) {
-      return this.staleInputAction('delete current line completion');
-    }
-    if (deleted) {
-      this.store.clearError();
-      return inputOperationOk();
-    }
-    this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line failed');
-    return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line failed');
   }
 
   async restoreLastDeletion(
@@ -1033,8 +1161,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
   }
 
   async sendEnter(
-    generation: number = this.getInputSessionGeneration(),
-    candidateIndex: number = 0
+    generation: number = this.getInputSessionGeneration()
   ): Promise<InputOperationResult> {
     if (!this.isInputSessionGenerationCurrent(generation)) {
       return this.staleInputAction('enter');
@@ -1045,33 +1172,10 @@ export class InputSessionCompositionController extends InputSessionCommitControl
     }
 
     const state = this.store.getSnapshot();
-    if (state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0) {
-      if (state.candidates.length > 0) {
-        const commitResult = await this.commitCandidate(candidateIndex, generation);
-        if (!commitResult.success) {
-          return commitResult;
-        }
-        if (!this.isInputSessionGenerationCurrent(generation)) {
-          return this.staleInputAction('enter composition completion');
-        }
-        if (state.rawInput.startsWith(';')) {
-          return inputOperationOk();
-        }
-      } else if (this.engineCoordinator.isInitialized()) {
-        // Enter is explicit, but raw ASCII is not a valid commit candidate.
-        // Cancel the no-candidate preview and dispatch only the configured
-        // enter action.
-        const finished = await this.imeService.clearPreviewText(generation);
-        if (!this.isInputSessionGenerationCurrent(generation)) {
-          return this.staleInputAction('enter raw preview completion');
-        }
-        if (!finished) {
-          this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter preview finish failed');
-          return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter preview finish failed');
-        }
-        this.store.updateComposition(this.engineCoordinator.reset());
-        this.store.clearComposition();
-      }
+    if ((state.keyboardMode === KeyboardMode.CHINESE || isConvenienceInput(state.rawInput)) && state.rawInput.length > 0) {
+      // Enter explicitly commits the exact code, including incomplete and
+      // functional codes. Candidate selection and host Enter are separate actions.
+      return this.commitRawInput(state.rawInput, generation);
     }
 
     const sent = await this.imeService.sendEnter(state.enterAction);
@@ -1085,6 +1189,45 @@ export class InputSessionCompositionController extends InputSessionCommitControl
 
     this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter key function failed');
     return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter key function failed');
+  }
+
+  private async commitRawInput(rawInput: string, generation: number): Promise<InputOperationResult> {
+    let inserted = false;
+    try {
+      // Replace any native/compatible preedit once, preserving the engine and
+      // candidates until the editor accepts the code.
+      inserted = await this.imeService.commitPreviewText(rawInput, generation);
+    } catch (err) {
+      LOGGER.error('enter code commit failed: editor exception');
+    }
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('enter code commit completion');
+    }
+    if (!inserted) {
+      this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter code commit failed');
+      return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter code commit failed');
+    }
+
+    this.recordCommittedText(rawInput);
+    this.imeService.resetPreviewState();
+    let reset = true;
+    try {
+      if (this.engineCoordinator.isInitialized()) {
+        reset = this.engineCoordinator.reset().success;
+      }
+    } catch (err) {
+      reset = false;
+    }
+    // The editor already accepted the code. Never leave a retryable copy that
+    // could commit it twice, even if native cleanup fails.
+    this.store.clearComposition();
+    this.syncCursorPreeditVisibility('');
+    if (!reset) {
+      this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter code reset failed');
+      return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'enter code reset failed');
+    }
+    this.store.clearError();
+    return inputOperationOk();
   }
 
   async hideKeyboard(
@@ -1155,7 +1298,7 @@ export class InputSessionCompositionController extends InputSessionCommitControl
           break;
         }
       }
-      restored = rawInput[index] === "'"
+      restored = !isConvenienceInput(rawInput) && rawInput[index] === "'"
         ? this.engineCoordinator.insertSegmentBoundary()
         : this.engineCoordinator.processKey(rawInput[index]);
       if (!restored.success) {

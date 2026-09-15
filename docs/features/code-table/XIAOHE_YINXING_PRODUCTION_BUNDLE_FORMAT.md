@@ -13,8 +13,8 @@ The formal Xiaohe Yinxing data container uses `HSPYXP01` format 1.0 and is shipp
 | Categories | 12 internal / 10 customer-visible switches |
 | Accepted records | 162,732 |
 | Bundle bytes | 56,104,660 |
-| Bundle SHA-256 | `263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09` |
-| Content SHA-256 | `39dd319c00826356da3fe5c768e10793f8d8b22fd5e4c44926f8fd84689fcef0` |
+| Bundle SHA-256 | `7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0` |
+| Content SHA-256 | `ca26197b19c260efd9e059c52a5bdec70e89437c85029ece4c134a0fa7f11629` |
 
 The raw resource installer uses a v5 installed filename and receipt, so a previously verified customer-category resource cannot mask this build after an application upgrade.
 

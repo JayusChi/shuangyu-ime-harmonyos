@@ -1,8 +1,82 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use lexicon_core::{runtime_index, BinaryLexicon, LexiconEntry};
 
 use crate::{DecodeError, DecodeLimits};
+
+/// Index reading records by complete initial sequences. This avoids expanding
+/// every initial into a Cartesian product of possible syllables at each key.
+#[derive(Debug)]
+pub(crate) struct InitialLexiconIndex {
+    records: BTreeMap<String, Vec<usize>>,
+}
+
+fn initial(reading: &str) -> &str {
+    if reading.starts_with("zh") || reading.starts_with("ch") || reading.starts_with("sh") {
+        &reading[..2]
+    } else {
+        reading.get(..1).unwrap_or("")
+    }
+}
+
+impl InitialLexiconIndex {
+    pub(crate) fn build(lexicon: &BinaryLexicon) -> Self {
+        let mut records = BTreeMap::<String, Vec<usize>>::new();
+        for (index, record) in lexicon.index.iter().enumerate() {
+            let key = record
+                .pinyin_key
+                .split_whitespace()
+                .map(initial)
+                .collect::<Vec<_>>()
+                .join(" ");
+            records.entry(key).or_default().push(index);
+        }
+        Self { records }
+    }
+
+    fn entries<'a>(
+        &self,
+        lexicon: &'a BinaryLexicon,
+        syllables: &[String],
+        initials: &[bool],
+        limit: usize,
+    ) -> Vec<&'a LexiconEntry> {
+        let key = syllables
+            .iter()
+            .map(|s| initial(s))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let Some(records) = self.records.get(&key) else {
+            return Vec::new();
+        };
+        let mut entries = Vec::new();
+        for index in records {
+            let reading = &lexicon.index[*index].pinyin_key;
+            if reading.split_whitespace().zip(syllables).zip(initials).all(
+                |((actual, expected), initial_only)| {
+                    if *initial_only {
+                        initial(actual) == expected
+                    } else {
+                        actual == expected
+                    }
+                },
+            ) {
+                entries.extend(runtime_index::entries_for_exact_key(
+                    lexicon, reading, limit,
+                ));
+            }
+        }
+        entries.sort_by(|left, right| {
+            right
+                .frequency
+                .cmp(&left.frequency)
+                .then_with(|| left.word.cmp(&right.word))
+                .then_with(|| left.pinyin_key.cmp(&right.pinyin_key))
+        });
+        entries.truncate(limit);
+        entries
+    }
+}
 
 /// A word edge in the stage 8 syllable DAG.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -16,6 +90,16 @@ pub struct WordEdge {
     pub frequency: u64,
     pub source: String,
     pub fallback: bool,
+}
+
+/// A caller-owned literal word occupying an exact range of phonetic slots.
+/// Paths may not split or cross this range with a different lexical edge.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FixedWordConstraint {
+    pub start: usize,
+    pub end: usize,
+    pub text: String,
+    pub entry_id: String,
 }
 
 impl WordEdge {
@@ -44,6 +128,25 @@ impl SyllableGraph {
         syllables: &[String],
         limits: &DecodeLimits,
     ) -> Result<Self, DecodeError> {
+        Self::build_internal(lexicon, syllables, limits, None)
+    }
+
+    pub(crate) fn build_with_initials(
+        lexicon: &BinaryLexicon,
+        syllables: &[String],
+        initials: &[bool],
+        limits: &DecodeLimits,
+        index: &InitialLexiconIndex,
+    ) -> Result<Self, DecodeError> {
+        Self::build_internal(lexicon, syllables, limits, Some((initials, index)))
+    }
+
+    fn build_internal(
+        lexicon: &BinaryLexicon,
+        syllables: &[String],
+        limits: &DecodeLimits,
+        initial_query: Option<(&[bool], &InitialLexiconIndex)>,
+    ) -> Result<Self, DecodeError> {
         limits.validate()?;
         if syllables.len() > limits.max_syllables {
             return Err(DecodeError::TooManySyllables {
@@ -68,11 +171,23 @@ impl SyllableGraph {
                     break;
                 }
                 let reading = syllables[start..end].join(" ");
-                for entry in runtime_index::entries_for_exact_key(
-                    lexicon,
-                    &reading,
-                    limits.max_entries_per_key,
-                ) {
+                let entries = if let Some((initials, index)) =
+                    initial_query.filter(|(flags, _)| flags[start..end].iter().any(|flag| *flag))
+                {
+                    index.entries(
+                        lexicon,
+                        &syllables[start..end],
+                        &initials[start..end],
+                        limits.max_entries_per_key,
+                    )
+                } else {
+                    runtime_index::entries_for_exact_key(
+                        lexicon,
+                        &reading,
+                        limits.max_entries_per_key,
+                    )
+                };
+                for entry in entries {
                     if graph.edge_count >= limits.max_edges {
                         break;
                     }
@@ -85,7 +200,10 @@ impl SyllableGraph {
                 }
             }
 
-            if graph.edges_by_start[start].is_empty() && graph.edge_count < limits.max_edges {
+            if initial_query.is_none()
+                && graph.edges_by_start[start].is_empty()
+                && graph.edge_count < limits.max_edges
+            {
                 graph.edges_by_start[start].push(fallback_edge(syllables, start));
                 graph.edge_count += 1;
             }
@@ -109,6 +227,45 @@ impl SyllableGraph {
 
     pub fn syllable_count(&self) -> usize {
         self.syllables.len()
+    }
+
+    pub(crate) fn apply_fixed_words(
+        &mut self,
+        words: &[FixedWordConstraint],
+    ) -> Result<(), DecodeError> {
+        let mut previous_end = 0;
+        for word in words {
+            if word.start < previous_end
+                || word.start >= word.end
+                || word.end > self.syllables.len()
+                || word.text.is_empty()
+            {
+                return Err(DecodeError::InvalidLimit {
+                    field: "fixed word range",
+                });
+            }
+            previous_end = word.end;
+        }
+        for word in words {
+            // Remove overlapping edges, including longer system words that
+            // would otherwise swallow a user-defined pair in mid-sentence.
+            for edges in &mut self.edges_by_start {
+                edges.retain(|edge| edge.end <= word.start || edge.start >= word.end);
+            }
+            self.edges_by_start[word.start].push(WordEdge {
+                entry_id: word.entry_id.clone(),
+                text: word.text.clone(),
+                reading: self.syllables[word.start..word.end].join(" "),
+                start: word.start,
+                end: word.end,
+                syllable_count: word.end - word.start,
+                frequency: 1_000_000,
+                source: "user-lexicon".to_owned(),
+                fallback: false,
+            });
+        }
+        self.edge_count = self.edges_by_start.iter().map(Vec::len).sum();
+        Ok(())
     }
 
     pub fn edge_count(&self) -> usize {

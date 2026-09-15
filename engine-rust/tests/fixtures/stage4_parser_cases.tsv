@@ -16,7 +16,9 @@ zero	ee	Complete	e		none
 zero	eg	Complete	eng		none
 zero	oo	Complete	o		none
 zero	ou	Complete	ou		none
-invalid	qg	Invalid			InvalidCode
+initials	qg	Complete	q,g		none
+initials	jd	Complete	j,d		none
+invalid	aq	Invalid			InvalidCode
 incomplete	n	Incomplete		n	none
 incomplete	nix	Incomplete	ni	x	none
 sequence	nixm	Complete	ni,xian		none

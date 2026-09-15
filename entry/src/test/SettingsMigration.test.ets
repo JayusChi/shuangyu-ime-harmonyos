@@ -6,10 +6,44 @@ import {
   SettingsRaw
 } from '../main/ets/domain/settings/ImeSettings';
 import { SettingsMigration } from '../main/ets/infrastructure/storage/SettingsMigration';
+import {
+  LEGACY_ENGLISH_SINGLE_TILDE_LETTER_SWIPE_SYMBOLS,
+  resolveLetterSwipeSymbol,
+  updateLetterSwipeSymbol
+} from '../main/ets/domain/keyboard/LetterSwipeSymbols';
 
 export default function settingsMigrationTest() {
   describe('SettingsValidator scheme validation', () => {
     const validator = new SettingsValidator();
+
+    it('embeddedPreeditIsOptInAndSurvivesSettingsMigration', 0, () => {
+      const migration = new SettingsMigration();
+      expect(validator.validate(migration.migrate({ schemaVersion: '24' })).inlinePreeditEnabled).assertFalse();
+      expect(validator.validate(migration.migrate({ inlinePreeditEnabled: 'true' })).inlinePreeditEnabled).assertTrue();
+      expect(validator.validate({ inlinePreeditEnabled: 'false' }).inlinePreeditEnabled).assertFalse();
+      expect(validator.validate({ inlinePreeditEnabled: 'invalid' }).inlinePreeditEnabled).assertFalse();
+    });
+
+    it('migrates the five-item candidate default and preserves a chosen limit', 0, () => {
+      const migration = new SettingsMigration();
+      expect(validator.validate(migration.migrate({ schemaVersion: '22' })).candidateDisplayCount).assertEqual(5);
+      expect(validator.validate(migration.migrate({ candidateDisplayCount: '8' })).candidateDisplayCount).assertEqual(8);
+      expect(validator.validate({ candidateDisplayCount: 'bad' }).candidateDisplayCount).assertEqual(5);
+      expect(validator.validate({ candidateDisplayCount: '100' }).candidateDisplayCount).assertEqual(5);
+      expect(validator.validate({ candidateDisplayCount: '0' }).candidateDisplayCount).assertEqual(5);
+    });
+
+    it('defaults old installs to traditional and preserves explicit split choices', 0, () => {
+      const migration = new SettingsMigration();
+      expect(validator.validate(migration.migrate({ schemaVersion: '19' }))
+        .codeTableReverseSplitEnabled).assertFalse();
+      expect(validator.validate(migration.migrate({ codeTableReverseSplitEnabled: 'true' }))
+        .codeTableReverseSplitEnabled).assertTrue();
+      expect(validator.validate(migration.migrate({ codeTableReverseSplitEnabled: 'false' }))
+        .codeTableReverseSplitEnabled).assertFalse();
+      expect(validator.validate({ codeTableReverseSplitEnabled: 'invalid' })
+        .codeTableReverseSplitEnabled).assertFalse();
+    });
 
     it('should preserve valid xiaohe scheme', 0, () => {
       const raw: SettingsRaw = { schemeId: 'xiaohe' };
@@ -92,6 +126,45 @@ export default function settingsMigrationTest() {
       expect(result.cloudAiEnabled).assertFalse();
       expect(result.voiceInputEnabled).assertTrue();
       expect(result.voiceAutoCommit).assertFalse();
+    });
+
+    it('uses the current smart punctuation default when migrating legacy defaults', 0, () => {
+      const corrected = new SettingsMigration().migrate({
+        schemaVersion: '17',
+        smartPeriodTimeoutMs: '500'
+      });
+      const customized = new SettingsMigration().migrate({
+        schemaVersion: '17',
+        smartPeriodTimeoutMs: '800'
+      });
+
+      expect(corrected.smartPeriodTimeoutMs).assertEqual('300');
+      expect(customized.smartPeriodTimeoutMs).assertEqual('800');
+      expect(corrected.schemaVersion).assertEqual(`${CURRENT_SETTINGS_SCHEMA_VERSION}`);
+      expect(validator.validate(new SettingsMigration().migrate({})).smartPeriodTimeoutMs).assertEqual(300);
+      expect(validator.validate(new SettingsMigration().migrate({
+        schemaVersion: `${CURRENT_SETTINGS_SCHEMA_VERSION}`, smartPeriodTimeoutMs: '1000'
+      })).smartPeriodTimeoutMs).assertEqual(1000);
+    });
+
+    it('upgrades only the untouched English G down-swipe preset to backslash-tilde', 0, () => {
+      const corrected = new SettingsMigration().migrate({
+        schemaVersion: '18',
+        englishLetterSwipeSymbols: LEGACY_ENGLISH_SINGLE_TILDE_LETTER_SWIPE_SYMBOLS
+      });
+      const customizedMap = updateLetterSwipeSymbol(
+        LEGACY_ENGLISH_SINGLE_TILDE_LETTER_SWIPE_SYMBOLS,
+        'a',
+        '&'
+      );
+      const customized = new SettingsMigration().migrate({
+        schemaVersion: '18',
+        englishLetterSwipeSymbols: customizedMap
+      });
+
+      expect(resolveLetterSwipeSymbol(corrected.englishLetterSwipeSymbols, 'g')).assertEqual('\\~');
+      expect(resolveLetterSwipeSymbol(customized.englishLetterSwipeSymbols, 'g')).assertEqual('~');
+      expect(resolveLetterSwipeSymbol(customized.englishLetterSwipeSymbols, 'a')).assertEqual('&');
     });
   });
 }

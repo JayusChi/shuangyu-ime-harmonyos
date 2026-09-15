@@ -24,7 +24,7 @@ export interface CandidateExpansionLayout {
 }
 
 const PANEL_CHROME_HEIGHT: number = 76;
-export const MIN_CANDIDATES_FOR_EXPANSION: number = 3;
+export const MIN_CANDIDATES_FOR_EXPANSION: number = 1;
 
 export function canExpandCandidates(state: CandidateExpansionAvailability): boolean {
   return state.sessionActive &&
@@ -76,10 +76,10 @@ export function resolveCandidateExpansionLayout(
     };
   }
   return {
-    columnCount: 5,
-    visibleRowCount: 4,
+    columnCount: 4,
+    visibleRowCount: 5,
     cellHeight: 44,
-    panelHeight: PANEL_CHROME_HEIGHT + (4 * 44)
+    panelHeight: PANEL_CHROME_HEIGHT + (5 * 44)
   };
 }
 

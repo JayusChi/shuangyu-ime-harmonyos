@@ -15,6 +15,50 @@ import {
 } from '../main/ets/domain/keyboard/KeyboardProfile';
 import { SettingsMigration } from '../main/ets/infrastructure/storage/SettingsMigration';
 import { SettingsValidator } from '../main/ets/infrastructure/storage/SettingsValidator';
+import { KeyboardMode } from '../main/ets/domain/keyboard/KeyboardAction';
+import {
+  ENGLISH_INPUT_METHOD_SUBTYPE_ID,
+  QUANPIN_INPUT_METHOD_SUBTYPE_ID,
+  resolveInputMethodSubtypeTarget,
+  SHUANGPIN_INPUT_METHOD_SUBTYPE_ID,
+  XIAOHE_YINXING_INPUT_METHOD_SUBTYPE_ID
+} from '../main/ets/domain/keyboard/InputMethodSubtypeRouting';
+import {
+  inputMethodSubtypeIdForKeyboardProfile,
+  InputMethodSubtypeBackend,
+  InputMethodSubtypeDescriptor,
+  InputMethodSubtypeSynchronizer
+} from '../main/ets/infrastructure/ime/InputMethodSubtypeSynchronizer';
+
+class FakeInputMethodSubtypeBackend implements InputMethodSubtypeBackend {
+  currentInputMethodName: string = 'com.corrosion.shuangyuime';
+  currentSubtypeId: string = QUANPIN_INPUT_METHOD_SUBTYPE_ID;
+  switchedIds: string[] = [];
+
+  getCurrentInputMethodName(): string {
+    return this.currentInputMethodName;
+  }
+
+  getCurrentSubtypeId(): string {
+    return this.currentSubtypeId;
+  }
+
+  async listCurrentSubtypes(): Promise<InputMethodSubtypeDescriptor[]> {
+    return [
+      QUANPIN_INPUT_METHOD_SUBTYPE_ID,
+      SHUANGPIN_INPUT_METHOD_SUBTYPE_ID,
+      XIAOHE_YINXING_INPUT_METHOD_SUBTYPE_ID
+    ].map((id: string): InputMethodSubtypeDescriptor => ({
+      name: 'com.corrosion.shuangyuime', id, locale: 'zh-CN', language: 'chinese'
+    }));
+  }
+
+  async switchCurrentSubtype(target: InputMethodSubtypeDescriptor): Promise<boolean> {
+    this.switchedIds.push(target.id);
+    this.currentSubtypeId = target.id;
+    return true;
+  }
+}
 
 export default function keyboardProfileTest() {
   describe('keyboard profile pinyin stage 4', () => {
@@ -143,6 +187,65 @@ export default function keyboardProfileTest() {
       expect(yinxingProfiles.length).assertEqual(1);
       expect(yinxingProfiles[0].profileId).assertEqual(XIAOHE_YINXING_26_PROFILE_ID);
       expect(yinxingProfiles[0].layoutKind).assertEqual(KeyboardLayoutKind.QWERTY_26_KEY);
+    });
+
+    it('routes every system input-method subtype to a real product mode', 0, () => {
+      const quanpin = resolveInputMethodSubtypeTarget(QUANPIN_INPUT_METHOD_SUBTYPE_ID);
+      expect(quanpin?.keyboardMode).assertEqual(KeyboardMode.CHINESE);
+      expect(quanpin?.keyboardProfileId).assertEqual(QUANPIN_26_PROFILE_ID);
+
+      const shuangpin = resolveInputMethodSubtypeTarget(SHUANGPIN_INPUT_METHOD_SUBTYPE_ID);
+      expect(shuangpin?.keyboardMode).assertEqual(KeyboardMode.CHINESE);
+      expect(shuangpin?.keyboardProfileId).assertEqual(XIAOHE_26_PROFILE_ID);
+
+      const yinxing = resolveInputMethodSubtypeTarget(XIAOHE_YINXING_INPUT_METHOD_SUBTYPE_ID);
+      expect(yinxing?.keyboardMode).assertEqual(KeyboardMode.CHINESE);
+      expect(yinxing?.keyboardProfileId).assertEqual(XIAOHE_YINXING_26_PROFILE_ID);
+
+      const english = resolveInputMethodSubtypeTarget(ENGLISH_INPUT_METHOD_SUBTYPE_ID);
+      expect(english?.keyboardMode).assertEqual(KeyboardMode.ENGLISH);
+      expect(english?.keyboardProfileId).assertUndefined();
+      expect(resolveInputMethodSubtypeTarget('unknown-subtype')).assertUndefined();
+    });
+
+    it('retains directly selected 18 key shuangpin after the platform subtype echo', 0, async () => {
+      for (const initialSubtype of [QUANPIN_INPUT_METHOD_SUBTYPE_ID, XIAOHE_YINXING_INPUT_METHOD_SUBTYPE_ID]) {
+        const backend = new FakeInputMethodSubtypeBackend();
+        backend.currentSubtypeId = initialSubtype;
+        const synchronizer = new InputMethodSubtypeSynchronizer(backend);
+        expect(await synchronizer.syncForKeyboardProfile(XIAOHE_18_PROFILE_ID)).assertTrue();
+        const target = resolveInputMethodSubtypeTarget(backend.currentSubtypeId, XIAOHE_18_PROFILE_ID);
+        expect(target?.keyboardProfileId).assertEqual(XIAOHE_18_PROFILE_ID);
+        expect(target?.keyboardMode).assertEqual(KeyboardMode.CHINESE);
+        expect(await synchronizer.syncForKeyboardProfile(target?.keyboardProfileId ?? '')).assertTrue();
+        expect(backend.switchedIds.length).assertEqual(1);
+      }
+      expect(resolveInputMethodSubtypeTarget(SHUANGPIN_INPUT_METHOD_SUBTYPE_ID, XIAOHE_26_PROFILE_ID)
+        ?.keyboardProfileId).assertEqual(XIAOHE_26_PROFILE_ID);
+      expect(resolveInputMethodSubtypeTarget(SHUANGPIN_INPUT_METHOD_SUBTYPE_ID, QUANPIN_26_PROFILE_ID)
+        ?.keyboardProfileId).assertEqual(XIAOHE_26_PROFILE_ID);
+    });
+
+    it('maps persisted keyboard profiles back to compatible system subtypes', 0, () => {
+      expect(inputMethodSubtypeIdForKeyboardProfile(QUANPIN_26_PROFILE_ID))
+        .assertEqual(QUANPIN_INPUT_METHOD_SUBTYPE_ID);
+      expect(inputMethodSubtypeIdForKeyboardProfile(XIAOHE_18_PROFILE_ID))
+        .assertEqual(SHUANGPIN_INPUT_METHOD_SUBTYPE_ID);
+      expect(inputMethodSubtypeIdForKeyboardProfile(XIAOHE_26_PROFILE_ID))
+        .assertEqual(SHUANGPIN_INPUT_METHOD_SUBTYPE_ID);
+      expect(inputMethodSubtypeIdForKeyboardProfile(XIAOHE_YINXING_26_PROFILE_ID))
+        .assertEqual(XIAOHE_YINXING_INPUT_METHOD_SUBTYPE_ID);
+      expect(inputMethodSubtypeIdForKeyboardProfile(PINYIN_9_PROFILE_ID)).assertUndefined();
+    });
+
+    it('synchronizes a stale platform subtype without repeating an equal request', 0, async () => {
+      const backend = new FakeInputMethodSubtypeBackend();
+      const synchronizer = new InputMethodSubtypeSynchronizer(backend);
+
+      expect(await synchronizer.syncForKeyboardProfile(XIAOHE_YINXING_26_PROFILE_ID)).assertTrue();
+      expect(backend.switchedIds.join('|')).assertEqual(XIAOHE_YINXING_INPUT_METHOD_SUBTYPE_ID);
+      expect(await synchronizer.syncForKeyboardProfile(XIAOHE_YINXING_26_PROFILE_ID)).assertTrue();
+      expect(backend.switchedIds.length).assertEqual(1);
     });
   });
 }

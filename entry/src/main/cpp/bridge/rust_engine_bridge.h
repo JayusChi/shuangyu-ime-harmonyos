@@ -38,6 +38,7 @@ RustCallResult SelectRegisteredEnginePinyinCombination(uint32_t id, size_t combi
 RustCallResult NextRegisteredEngineCandidatePage(uint32_t id);
 RustCallResult PreviousRegisteredEngineCandidatePage(uint32_t id);
 RustCallResult GetRegisteredEngineLocalAssociations(uint32_t id);
+RustCallResult ReverseLookupRegisteredEngine(uint32_t id, const std::string& text);
 RustCallResult GetRegisteredEngineCodeTableCategoryConfig(uint32_t id);
 RustCallResult SetRegisteredEngineCodeTableCategories(uint32_t id, const std::string& categoryIdsJson);
 RustCallResult SetRegisteredEngineCodeTableCommitPolicy(uint32_t id, const std::string& policyJson);

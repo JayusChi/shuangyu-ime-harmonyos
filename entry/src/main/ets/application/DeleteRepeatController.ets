@@ -13,6 +13,7 @@ export class DeleteRepeatController {
   private repeatTimer: number | null = null;
   private repeatCount: number = 0;
   private isActive: boolean = false;
+  private suppressAlternateClick: boolean = false;
   private readonly onDelete: () => void;
   private longPressDelayMs: number;
 
@@ -33,6 +34,7 @@ export class DeleteRepeatController {
    * 开始长按检测
    */
   start(): void {
+    this.suppressAlternateClick = false;
     // 如果已经激活，不重复启动
     if (this.isActive) {
       LOGGER.debug('delete repeat already active, ignoring start');
@@ -61,11 +63,20 @@ export class DeleteRepeatController {
     LOGGER.debug('delete repeat stopped');
   }
 
+  cancelForAlternateGesture(): void {
+    this.stop();
+    // Clearing composition rebuilds the Shift/Esc row while the finger is still
+    // down. Keep click suppression in the root-owned controller so the new
+    // DeleteKey cannot interpret the same gesture's trailing click as Backspace.
+    this.suppressAlternateClick = true;
+  }
+
   /**
    * 销毁控制器，清理所有资源
    */
   destroy(): void {
     this.stop();
+    this.suppressAlternateClick = false;
     LOGGER.debug('delete repeat controller destroyed');
   }
 
@@ -80,6 +91,10 @@ export class DeleteRepeatController {
    * 触发单次删除（短按）
    */
   triggerSingleDelete(): void {
+    if (this.suppressAlternateClick) {
+      this.suppressAlternateClick = false;
+      return;
+    }
     if (!this.isActive) {
       this.onDelete();
       LOGGER.debug('single delete triggered');

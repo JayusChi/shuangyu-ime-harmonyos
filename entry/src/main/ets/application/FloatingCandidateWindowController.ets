@@ -1,3 +1,5 @@
+import { CLIPBOARD_REVERSE_CODE, CLIPBOARD_REVERSE_LABEL } from '../domain/direct/ClipboardReverseLookup';
+import { isConvenienceInput } from '../domain/keyboard/ConvenienceInput';
 import common from '@ohos.app.ability.common';
 import { inputMethodEngine } from '@kit.IMEKit';
 import { Logger } from '../common/logging/Logger';
@@ -10,7 +12,7 @@ import {
 import { resolveEffectivePresentationMode } from '../domain/candidate/FloatingCandidatePolicy';
 import { resolveKeyboardAuxiliaryAreaPolicy } from '../domain/display/KeyboardAuxiliaryAreaPolicy';
 import { KeyboardMode } from '../domain/keyboard/KeyboardAction';
-import { CandidatePresentationMode } from '../domain/settings/ImeSettings';
+import { CandidatePresentationMode, ImeSettings } from '../domain/settings/ImeSettings';
 import {
   FloatingCandidateSdkCapability,
   getSharedFloatingCandidateCapabilityProbe
@@ -20,6 +22,8 @@ import {
   PhysicalKeyboardStateProvider
 } from '../infrastructure/ime/PhysicalKeyboardMonitor';
 import { getSharedSettingsStore, SettingsStore } from '../state/SettingsStore';
+import { InputSessionState } from '../state/InputSessionStore';
+import { FloatingCandidateViewStore, getSharedFloatingCandidateViewStore } from '../state/FloatingCandidateViewStore';
 import { InputSessionController } from './InputSessionController';
 import { InputPresentationMode } from '../domain/display/InputPresentationMode';
 import { Candidate } from '../infrastructure/native/NativeEngineTypes';
@@ -30,10 +34,14 @@ import {
 } from '../domain/candidate/CompositionPreeditView';
 import {
   resolveCandidateUiMode,
+  resolveCollapsedCandidates,
+  shouldShowCandidateExpansionAction,
   resolveVisibleCandidates
 } from '../domain/candidate/CandidateUiPolicy';
-import { estimateFloatingCandidateWidthVp } from '../domain/candidate/FloatingCandidateLayout';
-import { CandidateFontSizeMode } from '../domain/settings/ImeSettings';
+import { estimateFloatingCandidateWidthVp, FLOATING_CANDIDATE_SHADOW_INSET_VP,
+  floatingCandidateExpandedWidthVp, floatingCandidateCardHeightVp, resolveFloatingCandidateExpansionLayout,
+  FLOATING_CANDIDATE_EXPAND_WIDTH_VP, FLOATING_CANDIDATE_ITEM_GAP_VP } from '../domain/candidate/FloatingCandidateLayout';
+import { getSharedFloatingCandidateTextMeasurer } from '../infrastructure/display/FloatingCandidateTextMeasurer';
 import { panelHeightForMode } from '../presentation/keyboard/design/KeyboardMetrics';
 import {
   ManagedSoftKeyboardPanel,
@@ -44,7 +52,6 @@ import {
 const TAG = 'FloatingCandidateWindow';
 const LOGGER = new Logger(TAG);
 const FLOATING_CANDIDATE_PAGE = 'presentation/candidate/FloatingCandidateRoot';
-const WINDOW_HEIGHT_VP = 56;
 const WINDOW_MARGIN_VP = 8;
 const CURSOR_GAP_VP = 6;
 
@@ -122,11 +129,16 @@ export class FloatingCandidateWindowController {
   private lastDecisionSignature: string = '';
   private cursorRect?: CursorRectPx;
   private queue: Promise<void> = Promise.resolve();
+  private updateRevision: number = 0;
+  private lastPosition?: FloatingCandidatePositionPx;
+  private layoutKey: string = '';
+  private compositionWidthVp: number = 0;
   private readonly sessionController: InputSessionController;
   private readonly settingsStore: SettingsStore;
   private readonly backend: FloatingCandidatePanelBackend;
   private readonly capabilityProvider: FloatingCandidateCapabilityProvider;
   private readonly physicalKeyboard: PhysicalKeyboardStateProvider;
+  private readonly viewStore: FloatingCandidateViewStore;
   private ownershipCoordinator: SoftKeyboardPanelOwnershipCoordinator =
     new SoftKeyboardPanelOwnershipCoordinator();
   private presentationMode: InputPresentationMode = InputPresentationMode.TOUCH;
@@ -135,6 +147,8 @@ export class FloatingCandidateWindowController {
       this.reconcile('session');
     }
   };
+  private readonly textMeasurer = getSharedFloatingCandidateTextMeasurer();
+  private readonly onTextMeasurerReady = (): void => this.reconcile('font metrics');
   private readonly onSettingsChanged = (): void => this.reconcile('settings');
   private readonly onPhysicalKeyboardChanged = (_present: boolean): void => this.reconcile('physicalKeyboard');
 
@@ -143,15 +157,18 @@ export class FloatingCandidateWindowController {
     settingsStore: SettingsStore = getSharedSettingsStore(),
     backend: FloatingCandidatePanelBackend = new HarmonyFloatingCandidatePanelBackend(),
     capabilityProvider: FloatingCandidateCapabilityProvider = getSharedFloatingCandidateCapabilityProbe(),
-    physicalKeyboard: PhysicalKeyboardStateProvider = new PhysicalKeyboardMonitor()
+    physicalKeyboard: PhysicalKeyboardStateProvider = new PhysicalKeyboardMonitor(),
+    viewStore: FloatingCandidateViewStore = getSharedFloatingCandidateViewStore()
   ) {
     this.sessionController = sessionController;
     this.settingsStore = settingsStore;
     this.backend = backend;
     this.capabilityProvider = capabilityProvider;
     this.physicalKeyboard = physicalKeyboard;
+    this.viewStore = viewStore;
     this.sessionController.subscribe(this.onStateChanged);
     this.settingsStore.subscribe(this.onSettingsChanged);
+    this.textMeasurer.subscribe(this.onTextMeasurerReady);
   }
 
   bindAbility(imeAbility: inputMethodEngine.InputMethodAbility, context: common.BaseContext): void {
@@ -220,6 +237,7 @@ export class FloatingCandidateWindowController {
     this.cursorRect = undefined;
     this.sessionController.unsubscribe(this.onStateChanged);
     this.settingsStore.unsubscribe(this.onSettingsChanged);
+    this.textMeasurer.unsubscribe(this.onTextMeasurerReady);
     this.physicalKeyboard.stop();
     this.queue = this.queue.then(async (): Promise<void> => {
       this.setStoreVisible(false);
@@ -228,25 +246,49 @@ export class FloatingCandidateWindowController {
   }
 
   async waitForIdle(): Promise<void> {
-    await this.queue;
+    let pending: Promise<void>;
+    do {
+      pending = this.queue;
+      await pending;
+    } while (pending !== this.queue);
   }
 
   private reconcile(source: string): void {
+    const revision = ++this.updateRevision;
+    const state = this.sessionController.getState();
+    if (!state.sessionActive || !state.editorConnected || state.rawInput.length === 0 || !this.cursorRect) {
+      this.viewStore.clear();
+      this.compositionWidthVp = 0;
+      this.layoutKey = '';
+    }
     this.queue = this.queue.then(async (): Promise<void> => {
-      await this.applyLatest(source);
+      if (revision === this.updateRevision) { await this.applyLatest(source, revision); }
     }).catch(async (err: Object): Promise<void> => {
+      if (!this.isUpdateCurrent(revision)) { return; }
       this.failedForSession = true;
       LOGGER.warn(`floating candidate fallback: source=${source}, error=${JSON.stringify(err)}`);
       await this.hidePanel();
     });
   }
 
-  private async applyLatest(source: string): Promise<void> {
+  private async applyLatest(source: string, revision: number): Promise<void> {
     if (!this.shouldShowFloating()) {
       await this.hidePanel();
       return;
     }
-    const position = this.currentPosition();
+    const state = this.sessionController.getState();
+    const settings = this.settingsStore.getSnapshot();
+    const theme = this.settingsStore.getEffectiveTheme();
+    const generation = this.sessionController.getInputSessionGeneration();
+    const nextLayoutKey = `${generation}:${state.floatingCandidateExpanded}:${settings.floatingCandidateFontSize}:` +
+      `${settings.candidateDisplayCount}:${settings.schemeId}:` +
+      `${state.screenMetrics.widthPx}:${state.screenMetrics.heightPx}:${state.screenMetrics.densityPixels}`;
+    if (this.layoutKey !== nextLayoutKey) {
+      this.viewStore.clear();
+      this.layoutKey = nextLayoutKey;
+      this.compositionWidthVp = 0;
+    }
+    const position = this.currentPosition(state, settings);
     if (!position || position.widthPx <= 0 || position.heightPx <= 0) {
       await this.hidePanel();
       return;
@@ -285,8 +327,21 @@ export class FloatingCandidateWindowController {
       this.contentReady = true;
       LOGGER.info(`candidate panel content ready: page=${FLOATING_CANDIDATE_PAGE}`);
     }
-    await panel.resize(Math.round(position.widthPx), Math.round(position.heightPx));
-    await panel.moveTo(Math.round(position.x), Math.round(position.y));
+    if (!this.isUpdateCurrent(revision)) { return; }
+    if (!this.lastPosition || Math.round(position.widthPx) !== Math.round(this.lastPosition.widthPx) ||
+      Math.round(position.heightPx) !== Math.round(this.lastPosition.heightPx)) {
+      await panel.resize(Math.round(position.widthPx), Math.round(position.heightPx));
+      this.lastPosition = undefined;
+    }
+    if (!this.isUpdateCurrent(revision)) { return; }
+    if (!this.lastPosition || Math.round(position.x) !== Math.round(this.lastPosition.x) ||
+      Math.round(position.y) !== Math.round(this.lastPosition.y)) {
+      await panel.moveTo(Math.round(position.x), Math.round(position.y));
+    }
+    this.lastPosition = position;
+    if (!this.isUpdateCurrent(revision)) { return; }
+    this.viewStore.publish({ session: state, settings, theme, generation });
+    if (!this.isUpdateCurrent(revision)) { return; }
     LOGGER.debug(
       `candidate panel positioned: x=${Math.round(position.x)}, y=${Math.round(position.y)}, ` +
         `width=${Math.round(position.widthPx)}, height=${Math.round(position.heightPx)}, ` +
@@ -297,8 +352,13 @@ export class FloatingCandidateWindowController {
       this.visible = true;
       LOGGER.info('candidate panel shown');
     }
+    if (!this.isUpdateCurrent(revision)) { return; }
     this.setStoreVisible(true);
     LOGGER.debug(`floating candidate visible: source=${source}, x=${position.x}, y=${position.y}`);
+  }
+
+  private isUpdateCurrent(revision: number): boolean {
+    return !this.disposed && revision === this.updateRevision;
   }
 
   private shouldShowFloating(): boolean {
@@ -328,7 +388,7 @@ export class FloatingCandidateWindowController {
     // looked like an early clear although the engine still owned rawInput.
     const sessionAllowsPanel = state.sessionActive && state.editorConnected && state.candidateBarVisible &&
       !state.candidatePanelExpanded &&
-      state.keyboardMode === KeyboardMode.CHINESE && state.rawInput.length > 0;
+      (state.keyboardMode === KeyboardMode.CHINESE || isConvenienceInput(state.rawInput)) && state.rawInput.length > 0;
     const effective = resolveEffectivePresentationMode(
       requestedMode,
       {
@@ -353,15 +413,21 @@ export class FloatingCandidateWindowController {
     return effective === CandidatePresentationMode.FLOATING;
   }
 
-  private currentPosition(): FloatingCandidatePositionPx | undefined {
+  private currentPosition(state: InputSessionState, settings: ImeSettings): FloatingCandidatePositionPx | undefined {
     if (!this.cursorRect) {
       return undefined;
     }
-    const metrics = this.sessionController.getState().screenMetrics;
+    const metrics = state.screenMetrics;
     const density = metrics.densityPixels > 0 ? metrics.densityPixels : 1;
     const margin = WINDOW_MARGIN_VP * density;
-    const desiredWidthVp = this.estimateWindowWidthVp();
-    const settings = this.settingsStore.getSnapshot();
+    let desiredWidthVp = state.floatingCandidateExpanded ? floatingCandidateExpandedWidthVp(metrics.widthPx / density)
+      : this.estimateWindowWidthVp(state, settings);
+    if (!state.floatingCandidateExpanded) {
+      // Do not squeeze a visible composition when candidates shorten or font
+      // measurement becomes available. Reset once the panel actually hides.
+      this.compositionWidthVp = Math.max(this.compositionWidthVp, desiredWidthVp);
+      desiredWidthVp = this.compositionWidthVp;
+    }
     const touchKeyboardInset = this.presentationMode === InputPresentationMode.TOUCH
       ? panelHeightForMode(
         settings.keyboardHeightMode,
@@ -376,7 +442,11 @@ export class FloatingCandidateWindowController {
       hostWindowRect: { left: 0, top: 0, right: metrics.widthPx, bottom: metrics.heightPx },
       candidateWindowSize: {
         widthPx: Math.min(desiredWidthVp * density, Math.max(0, metrics.widthPx - margin * 2)),
-        heightPx: WINDOW_HEIGHT_VP * density
+        heightPx: ((state.floatingCandidateExpanded ? resolveFloatingCandidateExpansionLayout(
+          metrics.widthPx / density,
+          resolveVisibleCandidates(resolveCandidateUiMode(settings.schemeId), state.rawInput, state.candidates).length,
+          settings.floatingCandidateFontSize).panelHeight : floatingCandidateCardHeightVp(settings.floatingCandidateFontSize)) +
+          FLOATING_CANDIDATE_SHADOW_INSET_VP * 2) * density
       },
       safeInsets: {
         top: margin,
@@ -393,16 +463,14 @@ export class FloatingCandidateWindowController {
    * Estimate from the same session snapshot instead, so composition/page/content
    * changes resize and reposition the panel without a second window callback.
    */
-  private estimateWindowWidthVp(): number {
-    const state = this.sessionController.getState();
-    const settings = this.settingsStore.getSnapshot();
+  private estimateWindowWidthVp(state: InputSessionState, settings: ImeSettings): number {
     const uiMode = resolveCandidateUiMode(settings.schemeId);
     const visible = resolveVisibleCandidates(
       uiMode,
       state.rawInput,
       state.candidates
     );
-    const labels = visible.map((candidate: Candidate): string => {
+    const labels = resolveCollapsedCandidates(visible, settings.candidateDisplayCount).map((candidate: Candidate): string => {
       const sourceIndex = Math.max(0, state.candidates.indexOf(candidate));
       const item = toContextualCandidateDisplayItem(candidate, sourceIndex, uiMode, state.rawInput);
       return `${sourceIndex + 1}. ${item.displayText}`;
@@ -419,23 +487,32 @@ export class FloatingCandidateWindowController {
     if (preedit.visible) {
       labels.unshift(preedit.displayText);
     }
-    let fontSize = 14;
-    if (settings.candidateFontSizeMode === CandidateFontSizeMode.SMALL) {
-      fontSize = 12;
-    } else if (settings.candidateFontSizeMode === CandidateFontSizeMode.LARGE) {
-      fontSize = 17;
-    }
+    const fontSize = settings.floatingCandidateFontSize;
     const pageStatus = state.hasNextPage || state.hasPreviousPage || state.candidatePage > 0
       ? `第 ${state.candidatePage + 1} 页`
       : '';
-    return estimateFloatingCandidateWidthVp({
+    const baseWidth = estimateFloatingCandidateWidthVp({
+      hardwareCandidatePaging: state.hardwareCandidatePaging,
+      screenWidthVp: state.screenMetrics.widthPx / Math.max(1, state.screenMetrics.densityPixels),
+      preeditLabelCount: preedit.visible ? 1 : 0,
+      clipboardReverseVisible: state.rawInput === CLIPBOARD_REVERSE_CODE && state.candidates.some((candidate: Candidate): boolean =>
+        candidate.source === 'functional' && candidate.text === CLIPBOARD_REVERSE_LABEL),
       candidateLabels: labels,
       candidateFontSizeVp: fontSize,
+      measuredTextWidthsVp: labels.map((label: string): number =>
+        this.textMeasurer.widthVp(label, fontSize, state.screenMetrics.densityPixels)),
       pageStatus
     });
+    const availableWidth = state.screenMetrics.widthPx / Math.max(1, state.screenMetrics.densityPixels) - WINDOW_MARGIN_VP * 2;
+    const canExpand = state.hardwareCandidatePaging !== true && shouldShowCandidateExpansionAction(uiMode, visible.length, state.rawInput,
+      settings.candidateDisplayCount, state.hasNextPage, baseWidth > availableWidth);
+    return baseWidth + (canExpand ? FLOATING_CANDIDATE_EXPAND_WIDTH_VP + FLOATING_CANDIDATE_ITEM_GAP_VP : 0);
   }
 
   private async hidePanel(): Promise<void> {
+    this.viewStore.clear();
+    this.compositionWidthVp = 0;
+    this.layoutKey = '';
     if (this.panel && this.visible) {
       await this.panel.hide();
       LOGGER.info('candidate panel hidden');
@@ -451,6 +528,10 @@ export class FloatingCandidateWindowController {
   }
 
   private async releasePanel(): Promise<void> {
+    this.viewStore.clear();
+    this.lastPosition = undefined;
+    this.compositionWidthVp = 0;
+    this.layoutKey = '';
     const panel = this.panel;
     const kind = this.panelKind;
     this.panel = undefined;
@@ -486,6 +567,11 @@ export class FloatingCandidateWindowController {
   }
 
   private handleOwnershipRevoked(): void {
+    this.updateRevision += 1;
+    this.viewStore.clear();
+    this.lastPosition = undefined;
+    this.compositionWidthVp = 0;
+    this.layoutKey = '';
     this.panel = undefined;
     this.panelKind = undefined;
     this.contentReady = false;

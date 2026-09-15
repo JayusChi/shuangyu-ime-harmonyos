@@ -18,10 +18,12 @@ pub use merge::{
     merge_code_table_progressive_candidates,
 };
 pub use model::{UserLexiconAction, UserLexiconEntry, UserLexiconStats};
+mod shortcut;
 pub use parser::{
     parse_embedded_user_lexicon_bytes, parse_user_lexicon_bytes, parse_user_lexicon_file,
     ParsedUserLexicon,
 };
+pub use shortcut::valid_shortcut_target;
 pub use snapshot::{merge_user_lexicon_snapshots, UserLexiconSnapshot};
 pub use store::{
     load_snapshot_recovering, save_snapshot_atomic, save_snapshot_atomic_if_revision,

@@ -158,10 +158,10 @@
           "text": "你",
           "complete_code": "ni",
           "source_category": "core",
-          "source_order": 34897,
+          "source_order": 34898,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:34897"
+          "stable_id": "ct:xiaohe-yinxing-production:core:34898"
         }
       ],
       "first_page": [
@@ -169,10 +169,10 @@
           "text": "你",
           "complete_code": "ni",
           "source_category": "core",
-          "source_order": 34897,
+          "source_order": 34898,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:34897"
+          "stable_id": "ct:xiaohe-yinxing-production:core:34898"
         }
       ]
     },
@@ -192,10 +192,10 @@
           "text": "好",
           "complete_code": "hc",
           "source_category": "core",
-          "source_order": 15961,
+          "source_order": 15962,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:15961"
+          "stable_id": "ct:xiaohe-yinxing-production:core:15962"
         }
       ],
       "first_page": [
@@ -203,10 +203,10 @@
           "text": "好",
           "complete_code": "hc",
           "source_category": "core",
-          "source_order": 15961,
+          "source_order": 15962,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:15961"
+          "stable_id": "ct:xiaohe-yinxing-production:core:15962"
         }
       ]
     },
@@ -244,10 +244,10 @@
           "text": "事",
           "complete_code": "ui",
           "source_category": "core",
-          "source_order": 48102,
+          "source_order": 48103,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:48102"
+          "stable_id": "ct:xiaohe-yinxing-production:core:48103"
         }
       ],
       "first_page": [
@@ -273,10 +273,10 @@
           "text": "事",
           "complete_code": "ui",
           "source_category": "core",
-          "source_order": 48102,
+          "source_order": 48103,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:48102"
+          "stable_id": "ct:xiaohe-yinxing-production:core:48103"
         }
       ]
     },
@@ -332,10 +332,10 @@
           "text": "只",
           "complete_code": "vi",
           "source_category": "core",
-          "source_order": 51834,
+          "source_order": 51835,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:51834"
+          "stable_id": "ct:xiaohe-yinxing-production:core:51835"
         },
         {
           "text": "支持",
@@ -388,10 +388,10 @@
           "text": "只",
           "complete_code": "vi",
           "source_category": "core",
-          "source_order": 51834,
+          "source_order": 51835,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:51834"
+          "stable_id": "ct:xiaohe-yinxing-production:core:51835"
         },
         {
           "text": "支持",
@@ -420,10 +420,10 @@
           "text": "我",
           "complete_code": "wo",
           "source_category": "core",
-          "source_order": 55331,
+          "source_order": 55332,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:55331"
+          "stable_id": "ct:xiaohe-yinxing-production:core:55332"
         }
       ],
       "first_page": [
@@ -431,10 +431,10 @@
           "text": "我",
           "complete_code": "wo",
           "source_category": "core",
-          "source_order": 55331,
+          "source_order": 55332,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:55331"
+          "stable_id": "ct:xiaohe-yinxing-production:core:55332"
         }
       ]
     },
@@ -463,10 +463,10 @@
           "text": "先",
           "complete_code": "xm",
           "source_category": "core",
-          "source_order": 57526,
+          "source_order": 57527,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:57526"
+          "stable_id": "ct:xiaohe-yinxing-production:core:57527"
         },
         {
           "text": "下面",
@@ -492,10 +492,10 @@
           "text": "先",
           "complete_code": "xm",
           "source_category": "core",
-          "source_order": 57526,
+          "source_order": 57527,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:57526"
+          "stable_id": "ct:xiaohe-yinxing-production:core:57527"
         },
         {
           "text": "下面",
@@ -533,10 +533,10 @@
           "text": "修",
           "complete_code": "xq",
           "source_category": "core",
-          "source_order": 57554,
+          "source_order": 57555,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:57554"
+          "stable_id": "ct:xiaohe-yinxing-production:core:57555"
         }
       ],
       "first_page": [
@@ -553,10 +553,10 @@
           "text": "修",
           "complete_code": "xq",
           "source_category": "core",
-          "source_order": 57554,
+          "source_order": 57555,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:57554"
+          "stable_id": "ct:xiaohe-yinxing-production:core:57555"
         }
       ]
     }
@@ -731,10 +731,10 @@
       "case_id": "four_key_no_result",
       "input": "aaaa",
       "error_code": null,
-      "candidate_count": 1,
-      "composition_code": "aa",
-      "composition_cleared": false,
-      "commits": ["阿"],
+      "candidate_count": 0,
+      "composition_code": "",
+      "composition_cleared": true,
+      "commits": [],
       "stale_candidate_committed": false
     },
     {
@@ -751,10 +751,10 @@
       "case_id": "over_normal_length",
       "input": "aaaaa",
       "error_code": null,
-      "candidate_count": 0,
-      "composition_code": "aaa",
+      "candidate_count": 4,
+      "composition_code": "a",
       "composition_cleared": false,
-      "commits": ["阿"],
+      "commits": [],
       "stale_candidate_committed": false
     }
   ]
@@ -791,10 +791,10 @@
           "text": "驹",
           "complete_code": "jumk",
           "source_category": "core",
-          "source_order": 22615,
+          "source_order": 22616,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:22615"
+          "stable_id": "ct:xiaohe-yinxing-production:core:22616"
         }
       ]
     },
@@ -829,10 +829,10 @@
           "text": "驹",
           "complete_code": "jumk",
           "source_category": "core",
-          "source_order": 22615,
+          "source_order": 22616,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:22615"
+          "stable_id": "ct:xiaohe-yinxing-production:core:22616"
         }
       ]
     },
@@ -867,10 +867,10 @@
           "text": "驹",
           "complete_code": "jumk",
           "source_category": "core",
-          "source_order": 22615,
+          "source_order": 22616,
           "is_exact": true,
           "is_user_rule": false,
-          "stable_id": "ct:xiaohe-yinxing-production:core:22615"
+          "stable_id": "ct:xiaohe-yinxing-production:core:22616"
         }
       ]
     }

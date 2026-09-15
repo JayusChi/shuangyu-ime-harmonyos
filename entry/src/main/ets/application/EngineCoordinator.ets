@@ -385,6 +385,11 @@ export class EngineCoordinator {
     return this.lastResult;
   }
 
+  reverseLookup(text: string): string[] {
+    if (!this.ensureInitialized() || this.gateway.reverseLookup === undefined) { return []; }
+    return this.gateway.reverseLookup(this.handle, text);
+  }
+
   getLocalAssociations(): string[] {
     if (!this.ensureInitialized() || this.gateway.getLocalAssociations === undefined) {
       return [];
@@ -414,7 +419,8 @@ export class EngineCoordinator {
 
   setCodeTableCommitPolicy(
     autoCommitEnabled: boolean,
-    emptyClearLength: number
+    emptyClearLength: number,
+    reverseSplitEnabled: boolean = false
   ): CompositionResult {
     if (!this.ensureInitialized() || this.gateway.setCodeTableCommitPolicy === undefined) {
       return this.failure(ImeErrorCode.NATIVE_BRIDGE_ERROR, 'commit policy update is unavailable');
@@ -422,7 +428,8 @@ export class EngineCoordinator {
     const result = this.applyOutputMode(this.gateway.setCodeTableCommitPolicy(
       this.handle,
       autoCommitEnabled,
-      emptyClearLength
+      emptyClearLength,
+      reverseSplitEnabled
     ));
     if (result.success) {
       this.lastResult = result;
@@ -716,7 +723,7 @@ export class EngineCoordinator {
       return result;
     }
     result.candidates.forEach((candidate): void => {
-      if (candidate.source !== 'functional') {
+      if (candidate.source !== 'functional' && candidate.source !== 'convenience') {
         candidate.text = this.chineseTextConverter.toTraditional(candidate.text);
         if (candidate.displayText !== undefined && candidate.displayText.length > 0) {
           candidate.displayText = this.chineseTextConverter.toTraditional(candidate.displayText);

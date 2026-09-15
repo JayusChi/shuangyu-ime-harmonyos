@@ -1,0 +1,35 @@
+exec(open('outputs/reverse-split-reaccept-20260908/inspect.py', encoding='utf-8-sig').read().split("d.show(")[0])
+import time,json,re
+ns=d.nodes('settings-before-enable')
+label=next(a for a in ns if a.get('text')=='切分模式' and a.get('visible')!='false')
+y=int(re.findall(r'\d+',label['bounds'])[1])
+a=next(a for a in ns if a.get('type')=='Toggle' and abs(int(re.findall(r'\d+',a['bounds'])[1])-y)<40)
+assert a['checked']=='false'
+x1,y1,x2,y2=map(int,re.findall(r'\d+',a['bounds']))
+d.shell('uitest','uiInput','click',(x1+x2)//2,(y1+y2)//2)
+time.sleep(.5)
+ns=d.nodes('settings-enabled',True)
+assert any(a.get('type')=='Toggle' and a.get('checked')=='true' and abs(int(re.findall(r'\d+',a['bounds'])[1])-y)<40 for a in ns)
+print('PASS settings toggle on',flush=True)
+d.start('com.example.shuangyuime.acceptance')
+d.tap('ACCEPT_CHAT_SEND')
+d.keys('hfkn')
+time.sleep(1)
+ns=d.nodes('settings-toggle-effective',True)
+assert '2. 困难' in [a.get('text') for a in ns]
+d.keys('\b\b\b\b')
+print('PASS settings toggle affects input',flush=True)
+d.shell('aa','force-stop','com.corrosion.shuangyuime')
+d.tap('ACCEPT_BROWSER_URL')
+d.tap('ACCEPT_CHAT_SEND')
+d.keys('hfkn')
+for i in range(12):
+    ns=d.nodes('restart-persisted')
+    if '2. 困难' in [a.get('text') for a in ns]:break
+    time.sleep(.5)
+assert '2. 困难' in [a.get('text') for a in ns]
+d.nodes('restart-persisted',True)
+print('PASS split persists after IME process restart',flush=True)
+d.keys('\b\b\b\boit1')
+time.sleep(.5)
+d.start('com.corrosion.shuangyuime')

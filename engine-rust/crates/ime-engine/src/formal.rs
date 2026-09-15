@@ -24,8 +24,8 @@ use engine_protocol::{
 use lexicon_core::{load_binary_lexicon, BinaryLexicon};
 use pinyin_syllable::all_syllables;
 use sentence_decoder::{
-    t9_sentence_candidate_penalty, DecodeLimits, SentenceCandidate, SentenceDecoder,
-    T9JointDecodeResult, T9JointLimits, T9JointSession,
+    t9_sentence_candidate_penalty, DecodeLimits, FixedWordConstraint, SentenceCandidate,
+    SentenceDecoder, T9JointDecodeResult, T9JointLimits, T9JointSession, XiaoheSentenceQuery,
 };
 use shuangpin_parser::{
     t9_signature, ParseResult, ParseStatus, PhoneticParser, PhoneticParserKind, QueryIntent,
@@ -33,8 +33,8 @@ use shuangpin_parser::{
 };
 use user_lexicon::{
     load_snapshot_recovering, merge_candidates, merge_candidates_exact_or_prefix,
-    merge_user_lexicon_snapshots, UserLexiconEntry, UserLexiconError, UserLexiconField,
-    UserLexiconLoadAction, UserLexiconReason, UserLexiconSnapshot,
+    merge_user_lexicon_snapshots, UserLexiconAction, UserLexiconEntry, UserLexiconError,
+    UserLexiconField, UserLexiconLoadAction, UserLexiconReason, UserLexiconSnapshot,
 };
 use user_model::{CandidateSourceKind, UserCandidateKey, UserModel, UserModelStatus};
 
@@ -111,6 +111,7 @@ struct T9CompatibilityDecodeCacheEntry {
 
 #[derive(Clone, Debug)]
 pub struct ImeEngine {
+    convenience: crate::convenience_input::ConvenienceInput,
     parser: Option<PhoneticParserKind>,
     scheme_id: String,
     backend: EngineBackend,

@@ -106,6 +106,22 @@ impl ShuangpinParser {
         Ok(self.current.clone())
     }
 
+    /// The pending initial (u -> sh, i -> ch, v -> zh) or zero-initial vowel prefix.
+    pub fn pending_initial(&self) -> Option<&str> {
+        let mut chars = self.current.pending_code.chars();
+        let key = chars.next()?;
+        if chars.next().is_some() {
+            return None;
+        }
+        self.schema.initial_for_key(key).or(match key {
+            // Zero-initial vowel prefixes also own one editable raw key.
+            'a' => Some("a"),
+            'e' => Some("e"),
+            'o' => Some("o"),
+            _ => None,
+        })
+    }
+
     /// Returns the latest parse result without modifying parser state.
     pub fn current_state(&self) -> ParseResult {
         self.current.clone()
@@ -275,7 +291,26 @@ fn parse_segment(schema: &RuntimeSchema, raw_code: &str) -> ParseResult {
         let code = format!("{first}{second}");
         match parse_two_key_code(schema, &code) {
             Ok(candidates) if candidates.is_empty() => {
-                return invalid(ParseError::InvalidCode { code }, syllables);
+                // A legal sound/final pair always wins. Only an impossible pair
+                // may represent two initials, each owning exactly one raw key.
+                if let (Some(left), Some(right)) = (
+                    schema.initial_for_key(first),
+                    schema.initial_for_key(second),
+                ) {
+                    for (key, initial) in [(first, left), (second, right)] {
+                        syllables.push(ParsedSyllable {
+                            logical_index: logical_syllable_count,
+                            raw_code: key.to_string(),
+                            syllable: initial.to_owned(),
+                            initial: initial.to_owned(),
+                            final_part: String::new(),
+                            special_rule: false,
+                        });
+                        logical_syllable_count += 1;
+                    }
+                } else {
+                    return invalid(ParseError::InvalidCode { code }, syllables);
+                }
             }
             Ok(mut candidates) => {
                 if candidates.len() > 1 {

@@ -11,14 +11,21 @@ import {
 import { keyboardProfileForLegacy } from '../../domain/keyboard/KeyboardProfile';
 import { DEFAULT_SMART_PUNCTUATION_SYMBOLS } from '../../domain/keyboard/SmartPunctuation';
 import {
-  DEFAULT_LETTER_SWIPE_SYMBOLS,
-  hasOnlyEmptyLetterSwipeSymbols
+  DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS,
+  DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS,
+  hasOnlyEmptyLetterSwipeSymbols,
+  LEGACY_ENGLISH_SINGLE_TILDE_LETTER_SWIPE_SYMBOLS,
+  LEGACY_SHARED_LETTER_SWIPE_SYMBOLS,
+  normalizeLetterSwipeSymbols
 } from '../../domain/keyboard/LetterSwipeSymbols';
 
 export class SettingsMigration {
   migrate(raw: SettingsRaw): SettingsRaw {
     const migrated: SettingsRaw = this.copyRaw(raw);
     const parsedVersion = Number.parseInt(raw.schemaVersion ?? '0');
+    const isBeforeSwipePresetCorrection = !Number.isFinite(parsedVersion) || parsedVersion < 17;
+    const isBeforeSmartSwipeWindowCorrection = !Number.isFinite(parsedVersion) || parsedVersion < 18;
+    const isBeforeEnglishGSwipeCorrection = !Number.isFinite(parsedVersion) || parsedVersion < 19;
 
     if (!migrated.keyboardProfileId) {
       migrated.keyboardProfileId = keyboardProfileForLegacy(raw.schemeId, raw.legacyKeyboardLayout);
@@ -95,7 +102,8 @@ export class SettingsMigration {
     if (!migrated.fuzzyOptions) {
       migrated.fuzzyOptions = '[]';
     }
-    if (!migrated.smartPeriodTimeoutMs) {
+    if (!migrated.smartPeriodTimeoutMs ||
+      (isBeforeSmartSwipeWindowCorrection && migrated.smartPeriodTimeoutMs === '500')) {
       migrated.smartPeriodTimeoutMs = `${DEFAULT_SMART_PERIOD_TIMEOUT_MS}`;
     }
     if (!migrated.longPressDurationMs) {
@@ -105,12 +113,19 @@ export class SettingsMigration {
       migrated.smartPunctuationSymbols = JSON.stringify(DEFAULT_SMART_PUNCTUATION_SYMBOLS);
     }
     if (migrated.chineseLetterSwipeSymbols === undefined ||
-      (parsedVersion < 15 && hasOnlyEmptyLetterSwipeSymbols(migrated.chineseLetterSwipeSymbols))) {
-      migrated.chineseLetterSwipeSymbols = DEFAULT_LETTER_SWIPE_SYMBOLS;
+      (parsedVersion < 15 && hasOnlyEmptyLetterSwipeSymbols(migrated.chineseLetterSwipeSymbols)) ||
+      (isBeforeSwipePresetCorrection &&
+        normalizeLetterSwipeSymbols(migrated.chineseLetterSwipeSymbols) === LEGACY_SHARED_LETTER_SWIPE_SYMBOLS)) {
+      migrated.chineseLetterSwipeSymbols = DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS;
     }
     if (migrated.englishLetterSwipeSymbols === undefined ||
-      (parsedVersion < 15 && hasOnlyEmptyLetterSwipeSymbols(migrated.englishLetterSwipeSymbols))) {
-      migrated.englishLetterSwipeSymbols = DEFAULT_LETTER_SWIPE_SYMBOLS;
+      (parsedVersion < 15 && hasOnlyEmptyLetterSwipeSymbols(migrated.englishLetterSwipeSymbols)) ||
+      (isBeforeSwipePresetCorrection &&
+        normalizeLetterSwipeSymbols(migrated.englishLetterSwipeSymbols) === LEGACY_SHARED_LETTER_SWIPE_SYMBOLS) ||
+      (isBeforeEnglishGSwipeCorrection &&
+        normalizeLetterSwipeSymbols(migrated.englishLetterSwipeSymbols) ===
+          LEGACY_ENGLISH_SINGLE_TILDE_LETTER_SWIPE_SYMBOLS)) {
+      migrated.englishLetterSwipeSymbols = DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS;
     }
     if (migrated.keyboardLiftLayerEnabled === undefined) {
       migrated.keyboardLiftLayerEnabled = 'true';
@@ -132,6 +147,9 @@ export class SettingsMigration {
     }
     if (!migrated.codeTableAutoCommitEnabled) {
       migrated.codeTableAutoCommitEnabled = 'true';
+    }
+    if (!migrated.codeTableReverseSplitEnabled) {
+      migrated.codeTableReverseSplitEnabled = 'false';
     }
     migrated.xiaoheYinxingCategorySchemaVersion = `${XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION}`;
     migrated.schemaVersion = `${CURRENT_SETTINGS_SCHEMA_VERSION}`;
@@ -243,8 +261,14 @@ export class SettingsMigration {
       keyboardStructureId: raw.keyboardStructureId,
       keyboardSkinId: raw.keyboardSkinId,
       keyboardHeightMode: raw.keyboardHeightMode,
+      keyboardFontSize: raw.keyboardFontSize,
+      upperLabelRightMargin: raw.upperLabelRightMargin,
       keyboardLiftLayerEnabled: raw.keyboardLiftLayerEnabled,
       candidateFontSizeMode: raw.candidateFontSizeMode,
+      candidateFontSize: raw.candidateFontSize,
+      candidateDisplayCount: raw.candidateDisplayCount,
+      floatingCandidateFontSize: raw.floatingCandidateFontSize,
+      keySoundVolume: raw.keySoundVolume,
       hapticLevel: raw.hapticLevel,
       keySoundEnabled: raw.keySoundEnabled,
       userLearningEnabled: raw.userLearningEnabled,
@@ -271,8 +295,10 @@ export class SettingsMigration {
       traditionalOutputEnabled: raw.traditionalOutputEnabled,
       codeTableEmptyClearLength: raw.codeTableEmptyClearLength,
       codeTableAutoCommitEnabled: raw.codeTableAutoCommitEnabled,
+      codeTableReverseSplitEnabled: raw.codeTableReverseSplitEnabled,
       inputPresentationPreference: raw.inputPresentationPreference,
       candidatePresentationMode: raw.candidatePresentationMode,
+      inlinePreeditEnabled: raw.inlinePreeditEnabled,
       xiaoheYinxingCategorySchemaVersion: raw.xiaoheYinxingCategorySchemaVersion,
       xiaoheYinxingEnabledCategoryIds: raw.xiaoheYinxingEnabledCategoryIds,
       lexiconSources: raw.lexiconSources,

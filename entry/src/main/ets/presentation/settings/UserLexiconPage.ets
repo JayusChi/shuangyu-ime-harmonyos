@@ -1,3 +1,4 @@
+import { isExternalDirectTarget } from '../../domain/direct/ExternalDirectTarget';
 import common from '@ohos.app.ability.common';
 import picker from '@ohos.file.picker';
 import {
@@ -14,7 +15,7 @@ import {
 import { getSharedSettingsController } from '../../application/SettingsController';
 import { LexiconImportMode, LexiconSourceConfig } from '../../domain/settings/ImeSettings';
 import { resolveSettingsTheme, SettingsThemeTokens } from './SettingsTheme';
-import { ChoiceSettingRow } from './SettingsComponents';
+import { SettingsChoiceChips } from './SettingsDetailComponents';
 import {
   EMPTY_SETTINGS_SAFE_AREA,
   getSharedSettingsWindowCoordinator,
@@ -22,6 +23,7 @@ import {
   SettingsSafeAreaListener,
   SettingsWindowCoordinator
 } from '../../application/SettingsWindowCoordinator';
+
 
 function initialDocument(): UserLexiconDocument {
   return {
@@ -39,9 +41,11 @@ function initialDocument(): UserLexiconDocument {
 
 @Component
 export struct UserLexiconPage {
+  @Prop initialAction: string = 'ADD';
+  @State private pageTitle: string = '我的词库';
   private readonly controller: UserLexiconController = getSharedUserLexiconController();
   @State private document: UserLexiconDocument = initialDocument();
-  @State private theme: SettingsThemeTokens = resolveSettingsTheme(false);
+  @Prop theme: SettingsThemeTokens = resolveSettingsTheme(false);
   @State private busy: boolean = true;
   @State private searchText: string = '';
   @State private entryText: string = '';
@@ -62,6 +66,10 @@ export struct UserLexiconPage {
   };
 
   aboutToAppear(): void {
+    if (this.initialAction === 'DIRECT') {
+      this.action = 'DIRECT';
+      this.pageTitle = '自定义直通';
+    }
     this.controller.subscribe(this.onDocumentChanged);
     this.windowCoordinator = getSharedSettingsWindowCoordinator();
     this.windowCoordinator?.subscribeSafeArea(this.onSafeAreaChanged);
@@ -114,6 +122,13 @@ export struct UserLexiconPage {
       this.showToast('请输入词条和编码');
       return;
     }
+    if (this.action === 'OPEN_URL' || this.action === 'OPEN_DIRECTORY') {
+      const action = this.action === 'OPEN_URL' ? 'url.open' : 'directory.open';
+      if (!isExternalDirectTarget(action, text)) {
+        this.showToast(this.action === 'OPEN_URL' ? '请输入完整的 http:// 或 https:// 网址' : '请使用“选择目录”保存鸿蒙目录');
+        return;
+      }
+    }
     if (this.action === 'POSITION' && position <= 0) {
       this.showToast('指定位置必须是正整数');
       return;
@@ -127,6 +142,20 @@ export struct UserLexiconPage {
         this.entryCode = '';
       }
     });
+  }
+
+  private async chooseShortcutDirectory(): Promise<void> {
+    try {
+      const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+      const selected = await new picker.DocumentViewPicker(context).select({
+        maxSelectNumber: 1, selectMode: picker.DocumentSelectMode.FOLDER
+      });
+      if (selected.length > 0) {
+        this.entryText = selected[0];
+      }
+    } catch (_) {
+      this.showToast('未能选择目录，请重试');
+    }
   }
 
   private toggleSelection(id: string): void {
@@ -264,6 +293,10 @@ export struct UserLexiconPage {
   }
 
   private actionLabel(entry: UserLexiconEntryRecord): string {
+    if (entry.action === 'OPEN_URL' || entry.action === 'OPEN_DIRECTORY') {
+      return (entry.action === 'OPEN_URL' ? '打开网页' : '打开目录') +
+        (entry.displayText.length > 0 ? ' · ' + entry.displayText : '');
+    }
     if (entry.action === 'DIRECT') {
       return entry.displayText.length > 0 ? `直通 · 候选显示“${entry.displayText}”` : '直通';
     }
@@ -282,51 +315,41 @@ export struct UserLexiconPage {
   @Builder
   private SmallButton(label: string, action: () => void, danger: boolean = false) {
     Button(label)
-      .fontSize(12)
+      .fontSize(14)
       .fontColor(danger ? this.theme.danger : this.theme.accent)
       .backgroundColor(this.theme.chipBackground)
-      .height(34)
+      .height(40).borderRadius(12).margin({ right: 8, bottom: 8 })
+      .padding({ left: 14, right: 14 })
       .enabled(!this.busy)
       .onClick(action)
   }
 
   build() {
-    Stack() {
-      Column()
-        .width('100%')
-        .height('100%')
-        .backgroundColor(this.theme.pageBackground)
-        .expandSafeArea(
-          [SafeAreaType.SYSTEM, SafeAreaType.CUTOUT],
-          [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM, SafeAreaEdge.START, SafeAreaEdge.END]
-        )
-
-      Column({ space: 12 }) {
-        Row({ space: 12 }) {
-          Text('‹').fontSize(30).fontColor(this.theme.primaryText).onClick(() => this.goBack())
-          Column({ space: 3 }) {
-            Text('用户词库').fontSize(24).fontWeight(FontWeight.Bold).fontColor(this.theme.primaryText)
-            Text(`有效 ${this.document.stats.effective} 条 · 已选 ${this.selectedIds.length} 条`)
-              .fontSize(12).fontColor(this.theme.secondaryText)
-          }.alignItems(HorizontalAlign.Start).layoutWeight(1)
-        }.width('100%')
-
-        Scroll() {
-          Column({ space: 16 }) {
+    Scroll() {
+      Column({ space: 16 }) {
+        Text(`有效 ${this.document.stats.effective} 条 · 已选 ${this.selectedIds.length} 条`)
+          .fontSize(13).fontColor(this.theme.secondaryText).width('100%').padding({ left: 8 })
             Column({ space: 12 }) {
               Text('新增或覆盖词条').fontSize(16).fontWeight(FontWeight.Medium).fontColor(this.theme.primaryText)
-              Row({ space: 8 }) {
-                TextInput({ placeholder: '词条', text: this.entryText })
-                  .onChange((value: string) => this.entryText = value).layoutWeight(1)
+              Text('双拼句中简拼：如词条“双拼”、编码“up”，选择“固顶”。不能组成完整音节的两码简拼，在句中按两码对齐时也使用该词。')
+                .fontSize(13).fontColor(this.theme.secondaryText)
+              Column({ space: 10 }) {
+                TextInput({ placeholder: this.action === 'OPEN_URL' ? '完整网址' : this.action === 'OPEN_DIRECTORY' ? '目录 URI' : '词条', text: this.entryText })
+                  .fontColor(this.theme.primaryText).placeholderColor(this.theme.secondaryText)
+                  .backgroundColor(this.theme.pageBackground).borderRadius(12)
+                  .type(this.action === 'OPEN_URL' ? InputType.URL : InputType.Normal)
+                  .onChange((value: string) => this.entryText = value).width('100%')
                 TextInput({ placeholder: '编码', text: this.entryCode })
+                  .fontColor(this.theme.primaryText).placeholderColor(this.theme.secondaryText)
+                  .backgroundColor(this.theme.pageBackground).borderRadius(12)
                   .type(InputType.Email)
-                  .onChange((value: string) => this.entryCode = value).layoutWeight(1)
+                  .onChange((value: string) => this.entryCode = value).width('100%')
               }
-              ChoiceSettingRow({
+              SettingsChoiceChips({
                 title: '动作',
                 values: ['ADD', 'DIRECT', 'DELETE', 'FIXED', 'POSITION'],
                 labels: ['添加', '直通', '隐藏系统词', '固顶', '第 N 位'],
-                currentValue: this.action,
+                currentValue: this.action === 'OPEN_URL' || this.action === 'OPEN_DIRECTORY' ? 'DIRECT' : this.action,
                 primaryTextColor: this.theme.primaryText,
                 secondaryTextColor: this.theme.secondaryText,
                 chipBackground: this.theme.chipBackground,
@@ -334,31 +357,56 @@ export struct UserLexiconPage {
                 accentColor: this.theme.accent,
                 onValueChange: (value: string) => this.action = value as UserLexiconActionType
               })
-              if (this.action === 'DIRECT') {
-                TextInput({ placeholder: '候选提示（可选；留空则同上屏内容）', text: this.entryDisplayText })
+              if (this.action === 'DIRECT' || this.action === 'OPEN_URL' || this.action === 'OPEN_DIRECTORY') {
+                SettingsChoiceChips({
+                  title: '直通类型', values: ['DIRECT', 'OPEN_URL', 'OPEN_DIRECTORY'],
+                  labels: ['上屏文字', '打开网页', '打开目录'], currentValue: this.action,
+                  primaryTextColor: this.theme.primaryText, secondaryTextColor: this.theme.secondaryText,
+                  chipBackground: this.theme.chipBackground, selectedChipBackground: this.theme.selectedChipBackground,
+                  accentColor: this.theme.accent,
+                  onValueChange: (value: string) => this.action = value as UserLexiconActionType
+                })
+              }
+              if (this.action === 'OPEN_DIRECTORY') {
+                this.SmallButton('选择目录', () => { this.chooseShortcutDirectory(); })
+              }
+              if (this.action === 'DIRECT' || this.action === 'OPEN_URL' || this.action === 'OPEN_DIRECTORY') {
+                TextInput({ placeholder: '候选提示（可选）', text: this.entryDisplayText })
+                  .fontColor(this.theme.primaryText).placeholderColor(this.theme.secondaryText)
+                  .backgroundColor(this.theme.pageBackground).borderRadius(12)
                   .onChange((value: string) => this.entryDisplayText = value)
               }
               if (this.action === 'POSITION') {
                 TextInput({ placeholder: 'N（正整数）', text: this.positionText })
+                  .fontColor(this.theme.primaryText).placeholderColor(this.theme.secondaryText)
+                  .backgroundColor(this.theme.pageBackground).borderRadius(12)
                   .type(InputType.Number)
                   .onChange((value: string) => this.positionText = value)
               }
-              Button('保存并立即应用').width('100%').enabled(!this.busy).onClick(() => this.saveEntry())
-            }.width('100%').padding(16).borderRadius(16).backgroundColor(this.theme.cardBackground)
+              Button('保存并立即应用').width('100%').height(48).borderRadius(14)
+                .fontColor('#FFFFFF').backgroundColor(this.theme.accent).enabled(!this.busy).onClick(() => this.saveEntry())
+            }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground).alignItems(HorizontalAlign.Start)
 
             Column({ space: 10 }) {
+              Text('词条管理').fontSize(16).fontWeight(FontWeight.Medium).fontColor(this.theme.primaryText)
               TextInput({ placeholder: '搜索词条或编码', text: this.searchText })
+                  .fontColor(this.theme.primaryText).placeholderColor(this.theme.secondaryText)
+                  .backgroundColor(this.theme.pageBackground).borderRadius(12)
                 .onChange((value: string) => this.searchText = value)
-              Row({ space: 6 }) {
+              Flex({ wrap: FlexWrap.Wrap }) {
                 this.SmallButton('普通', () => this.applyBatch('ADD'))
                 this.SmallButton('直通', () => this.applyBatch('DIRECT'))
                 this.SmallButton('隐藏', () => this.applyBatch('DELETE'))
                 this.SmallButton('固顶', () => this.applyBatch('FIXED'))
               }.width('100%')
-              Row({ space: 6 }) {
+              Flex({ wrap: FlexWrap.Wrap }) {
                 this.SmallButton('第 N 位', () => this.applyBatch('POSITION'))
                 this.SmallButton('移除', () => this.removeSelected(), true)
               }.width('100%')
+              if (this.document.entries.length === 0) {
+                Text('暂无词条，可在上方添加或从文本导入').fontSize(14)
+                  .fontColor(this.theme.secondaryText).width('100%').padding({ top: 20, bottom: 20 })
+              }
               List({ space: 6 }) {
                 ForEach(this.document.entries, (entry: UserLexiconEntryRecord) => {
                   if (this.isVisible(entry)) {
@@ -376,56 +424,51 @@ export struct UserLexiconPage {
                     }
                   }
                 }, (entry: UserLexiconEntryRecord) => entry.id)
-              }.width('100%').height(320).scrollBar(BarState.Off)
-            }.width('100%').padding(16).borderRadius(16).backgroundColor(this.theme.cardBackground)
+              }.width('100%').height(this.document.entries.length > 0 ? 320 : 0).scrollBar(BarState.Auto)
+            }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground).alignItems(HorizontalAlign.Start)
 
             Column({ space: 10 }) {
               Text('批量导入 / 导出').fontSize(16).fontWeight(FontWeight.Medium).fontColor(this.theme.primaryText)
-              Text('每行格式：词条<Tab>编码；支持 #直、#删、#固、#N；直通可写“上屏内容,候选提示<Tab>编码#直”')
+              Text('每行格式：词条<Tab>编码；支持 #直、#删、#固、#N。网页或目录：目标<Tab>编码#网页（或 #目录）<Tab>候选提示')
                 .fontSize(12).fontColor(this.theme.secondaryText)
               TextArea({ placeholder: '在此粘贴或查看词库文本', text: this.transferText })
+                  .fontColor(this.theme.primaryText).placeholderColor(this.theme.secondaryText)
+                  .backgroundColor(this.theme.pageBackground).borderRadius(12)
                 .height(180).onChange((value: string) => this.transferText = value)
-              Row({ space: 8 }) {
+              Flex({ wrap: FlexWrap.Wrap }) {
                 this.SmallButton('合并导入', () => this.importText(false))
                 this.SmallButton('覆盖导入', () => this.importText(true), true)
                 this.SmallButton('导出到文本框', () => this.transferText = this.controller.exportText())
               }.width('100%')
-            }.width('100%').padding(16).borderRadius(16).backgroundColor(this.theme.cardBackground)
+            }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground).alignItems(HorizontalAlign.Start)
 
             Column({ space: 10 }) {
               Text('固定位置词库').fontSize(16).fontWeight(FontWeight.Medium).fontColor(this.theme.primaryText)
               Text('通过系统文件选择器授权来源；可按优先级在启动时自动合并或覆盖。')
                 .fontSize(12).fontColor(this.theme.secondaryText)
-              Row({ space: 8 }) {
+              Flex({ wrap: FlexWrap.Wrap }) {
                 this.SmallButton('添加合并来源', () => this.addLexiconSource('MERGE'))
                 this.SmallButton('添加覆盖来源', () => this.addLexiconSource('REPLACE'), true)
                 this.SmallButton('立即导入', () => this.applyLexiconSources())
               }.width('100%')
               ForEach(this.lexiconSources, (source: LexiconSourceConfig) => {
-                Row({ space: 8 }) {
-                  Column({ space: 2 }) {
+                Column({ space: 10 }) {
+                  Column({ space: 4 }) {
                     Text(source.displayName).fontSize(14).fontColor(this.theme.primaryText)
                     Text(`${source.enabled ? '已启用' : '已停用'} · ${source.mode} · ${source.filePath}`)
                       .fontSize(10).fontColor(this.theme.secondaryText).maxLines(2)
-                  }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+                  }.width('100%').alignItems(HorizontalAlign.Start)
+                  Flex({ wrap: FlexWrap.Wrap }) {
                   this.SmallButton(source.enabled ? '停用' : '启用', () => this.toggleLexiconSource(source))
                   this.SmallButton('切换模式', () => this.cycleLexiconSourceMode(source))
                   this.SmallButton('移除', () => this.removeLexiconSource(source), true)
+                  }.width('100%')
                 }.width('100%').padding(8).backgroundColor(this.theme.chipBackground).borderRadius(10)
               }, (source: LexiconSourceConfig) => source.id)
-            }.width('100%').padding(16).borderRadius(16).backgroundColor(this.theme.cardBackground)
-          }.width('100%').padding({ bottom: 28 })
-        }.width('100%').layoutWeight(1).scrollBar(BarState.Off)
-      }
-      .width('100%')
-      .height('100%')
+            }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground).alignItems(HorizontalAlign.Start)
+      }.width('100%').constraintSize({ maxWidth: 720 })
+        .padding({ left: 20, right: 20, top: 8, bottom: 32 }).alignItems(HorizontalAlign.Start)
+    }.width('100%').height('100%').align(Alignment.Top).scrollBar(BarState.Auto)
       .backgroundColor(this.theme.pageBackground)
-      .padding({
-        top: this.safeArea.top + 24,
-        bottom: this.safeArea.bottom,
-        left: this.safeArea.left + 20,
-        right: this.safeArea.right + 20
-      })
-    }.width('100%').height('100%').backgroundColor(this.theme.pageBackground)
   }
 }

@@ -129,6 +129,11 @@ impl ImeEngine {
                 .map(|bundle| bundle.default_enabled_category_ids())
                 .unwrap_or_default(),
         };
+        if config.scheme_id == "xiaohe" {
+            if let Some(decoder) = &sentence_decoder {
+                decoder.prepare_initial_queries();
+            }
+        }
         if config.scheme_id == "pinyin-9" {
             if let Some(decoder) = &sentence_decoder {
                 decoder.prepare_t9_joint();
@@ -140,6 +145,7 @@ impl ImeEngine {
             }
         }
         Ok(Self {
+            convenience: Default::default(),
             parser,
             scheme_id: config.scheme_id,
             backend,
@@ -309,10 +315,26 @@ impl ImeEngine {
         auto_commit_length: usize,
         empty_code_clear_length: usize,
     ) -> Result<CompositionResult, EngineOperationError> {
+        let EngineBackend::CodeTable(machine) = &self.backend else {
+            return Err(EngineOperationError::UnsupportedOperation);
+        };
+        self.configure_code_table_commit_policy(
+            auto_commit_length,
+            empty_code_clear_length,
+            machine.commit_policy().reverse_split_enabled,
+        )
+    }
+
+    pub fn configure_code_table_commit_policy(
+        &mut self,
+        auto_commit_length: usize,
+        empty_code_clear_length: usize,
+        reverse_split_enabled: bool,
+    ) -> Result<CompositionResult, EngineOperationError> {
         let EngineBackend::CodeTable(machine) = &mut self.backend else {
             return Err(EngineOperationError::UnsupportedOperation);
         };
-        let policy = match CodeTableCommitPolicy::new(
+        let mut policy = match CodeTableCommitPolicy::new(
             auto_commit_length,
             CodeTableCommitPolicy::FROZEN_DEFAULT_LENGTH,
             empty_code_clear_length,
@@ -327,6 +349,7 @@ impl ImeEngine {
                 ));
             }
         };
+        policy.reverse_split_enabled = reverse_split_enabled;
         if machine.set_commit_policy(policy).is_err() {
             return Ok(code_table_failure(
                 machine,
@@ -406,6 +429,7 @@ impl ImeEngine {
         if let Some(current) = &mut self.parser {
             current.reset();
         }
+        self.convenience.clear();
         self.parser = parser;
         self.backend = backend;
         self.scheme_id = scheme_id.to_owned();
@@ -413,6 +437,11 @@ impl ImeEngine {
             decoder
                 .set_limits(decoder_limits_for_scheme(scheme_id))
                 .expect("built-in scheme decoder limits must remain valid");
+        }
+        if scheme_id == "xiaohe" {
+            if let Some(decoder) = &self.sentence_decoder {
+                decoder.prepare_initial_queries();
+            }
         }
         if scheme_id == "pinyin-9" {
             if let Some(decoder) = &self.sentence_decoder {
@@ -436,6 +465,25 @@ impl ImeEngine {
     }
 
     fn refresh_candidates(&mut self, result: ParseResult) -> CompositionResult {
+        if self.is_phonetic_profile_command() {
+            let table = FunctionalActionTable::production_defaults();
+            let candidates = table
+                .query_direct_exact_or_prefix("ofa")
+                .iter()
+                .map(|record| EngineCandidate {
+                    id: record.id.clone(),
+                    text: record.label.clone(),
+                    reading: "ofa".to_owned(),
+                    source: "functional".to_owned(),
+                    consumed_raw_len: 3,
+                    learning_key: None,
+                    context_words: Vec::new(),
+                })
+                .collect();
+            self.session
+                .replace(candidates, self.query_config.default_page_size);
+            return self.phonetic_profile_command().expect("profile command");
+        }
         self.last_quanpin_expansion_stats = QuanpinExpansionStats::default();
         self.last_quanpin_reranking_stats = RerankStats::default();
         let expansion_result = result.clone();
@@ -467,7 +515,15 @@ impl ImeEngine {
         {
             return self.refresh_quanpin_path_candidates(result);
         }
-        if result.query_intent == QueryIntent::MultiSyllable {
+        if result.query_intent == QueryIntent::MultiSyllable
+            || (self.scheme_id == "xiaohe"
+                && result.query_intent == QueryIntent::IncompleteSyllable
+                && self
+                    .parser
+                    .as_ref()
+                    .and_then(|parser| parser.xiaohe_pending_initial())
+                    .is_some())
+        {
             return self.refresh_sentence_candidates(result);
         }
 
@@ -1095,12 +1151,9 @@ impl ImeEngine {
                 .as_ref()
                 .expect("checked above")
                 .lexicon_version();
-            let cache_position = self
-                .t9_compatibility_decode_cache
-                .iter()
-                .position(|entry| {
-                    entry.incomplete == incomplete && entry.combination == cache_combination
-                });
+            let cache_position = self.t9_compatibility_decode_cache.iter().position(|entry| {
+                entry.incomplete == incomplete && entry.combination == cache_combination
+            });
             let decoded_candidates = if let Some(position) = cache_position {
                 // Keep recently reused paths at the back so an unusually long
                 // composition evicts stale prefixes first.
@@ -1116,12 +1169,9 @@ impl ImeEngine {
                     .sentence_decoder
                     .as_ref()
                     .expect("checked above")
-                    .decode_with_user_scores(
-                        &result.raw_input,
-                        &syllables,
-                        &pending,
-                        |candidate| self.user_score_for_sentence(candidate, lexicon_version),
-                    )
+                    .decode_with_user_scores(&result.raw_input, &syllables, &pending, |candidate| {
+                        self.user_score_for_sentence(candidate, lexicon_version)
+                    })
                     .ok();
                 decoded.map(|decoded| {
                     let candidates = decoded.candidates;
@@ -1144,13 +1194,11 @@ impl ImeEngine {
                     let score = candidate
                         .score
                         .saturating_sub(t9_sentence_candidate_penalty(&candidate))
-                        .saturating_add(
-                            if candidate.complete_coverage && pending.is_empty() {
-                                T9_COMPLETE_COVERAGE_SCORE_BONUS
-                            } else {
-                                0
-                            },
-                        );
+                        .saturating_add(if candidate.complete_coverage && pending.is_empty() {
+                            T9_COMPLETE_COVERAGE_SCORE_BONUS
+                        } else {
+                            0
+                        });
                     (
                         if explicit_selection {
                             T9_JOINT_SENTENCE_TIER
@@ -1248,16 +1296,54 @@ impl ImeEngine {
 
         let lexicon_version = decoder.lexicon_version();
         let mut decoded_any_path = false;
+        let fixed_words = self.xiaohe_fixed_initial_words(&result);
         let mut first_error = None;
         let mut decoded_candidates = Vec::<(usize, SentenceCandidate)>::new();
-        for (path_rank, syllables) in syllable_paths.into_iter().enumerate() {
-            let primary = decoder.decode_with_user_scores(
-                &result.raw_input,
-                &syllables,
-                &result.pending_code,
-                |candidate| self.user_score_for_sentence(candidate, lexicon_version),
-            );
-            let decoded = if result.pending_code.is_empty()
+        for (path_rank, mut syllables) in syllable_paths.into_iter().enumerate() {
+            let mut initials = Vec::new();
+            let mut raw_lengths = Vec::new();
+            if self.scheme_id == "xiaohe" {
+                for logical_index in 0..result.logical_syllable_count {
+                    let parsed = result
+                        .syllables
+                        .iter()
+                        .find(|s| s.logical_index == logical_index)
+                        .expect("validated slot");
+                    initials.push(parsed.raw_code.len() == 1 && parsed.final_part.is_empty());
+                    raw_lengths.push(parsed.raw_code.len());
+                }
+                if let Some(initial) = self
+                    .parser
+                    .as_ref()
+                    .and_then(|parser| parser.xiaohe_pending_initial())
+                {
+                    syllables.push(initial.to_owned());
+                    initials.push(true);
+                    raw_lengths.push(1);
+                }
+            }
+            let uses_initials = initials.iter().any(|flag| *flag);
+            let primary = if self.scheme_id == "xiaohe" {
+                decoder.decode_xiaohe_with_user_scores(
+                    XiaoheSentenceQuery {
+                        raw_input: &result.raw_input,
+                        syllables: &syllables,
+                        initials: &initials,
+                        raw_lengths: &raw_lengths,
+                        fixed_words: &fixed_words,
+                    },
+                    |candidate| self.user_score_for_sentence(candidate, lexicon_version),
+                )
+            } else {
+                decoder.decode_with_user_scores(
+                    &result.raw_input,
+                    &syllables,
+                    &result.pending_code,
+                    |candidate| self.user_score_for_sentence(candidate, lexicon_version),
+                )
+            };
+            let decoded = if uses_initials
+                || result.pending_code.is_empty()
                 || primary
                     .as_ref()
                     .is_ok_and(|decoded| !decoded.candidates.is_empty())
@@ -1466,11 +1552,19 @@ impl ImeEngine {
         candidate: SentenceCandidate,
         lexicon_version: u32,
     ) -> EngineCandidate {
-        let learning_key = self.learning_key(
-            CandidateSourceKind::SentencePath,
-            lexicon_version,
-            &candidate.id,
-        );
+        let has_fixed_word = candidate
+            .source
+            .split(',')
+            .any(|source| source == "user-lexicon");
+        let learning_key = if has_fixed_word {
+            None
+        } else {
+            self.learning_key(
+                CandidateSourceKind::SentencePath,
+                lexicon_version,
+                &candidate.id,
+            )
+        };
         let consumed_raw_len = if self.scheme_id == "quanpin" {
             candidate
                 .reading
@@ -1489,7 +1583,11 @@ impl ImeEngine {
             source: candidate.source,
             consumed_raw_len,
             learning_key,
-            context_words: candidate.words,
+            context_words: if has_fixed_word {
+                Vec::new()
+            } else {
+                candidate.words
+            },
         }
     }
 

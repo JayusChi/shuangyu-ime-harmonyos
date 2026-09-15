@@ -1,3 +1,6 @@
+import { ClipboardReversePasteButton } from './ClipboardReversePasteButton';
+import { CLIPBOARD_REVERSE_CODE, CLIPBOARD_REVERSE_LABEL } from '../../domain/direct/ClipboardReverseLookup';
+import { DEFAULT_CANDIDATE_DISPLAY_COUNT } from '../../domain/settings/ImeSettings';
 import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
 import {
   HIDE_KEYBOARD_ACTION,
@@ -18,6 +21,7 @@ import {
   CandidateUiMode,
   resolveCandidateAccessibilityText,
   resolveCandidateEmptyFeedback,
+  resolveCollapsedCandidates,
   shouldShowCandidateExpansionAction
 } from '../../domain/candidate/CandidateUiPolicy';
 import {
@@ -38,6 +42,7 @@ import {
 import { LocalAssociationSuggestion } from '../../domain/ai/LocalAssociationContracts';
 
 const CANDIDATE_BAR_HORIZONTAL_PADDING = 8;
+export const COLLAPSED_CANDIDATE_LIMIT = DEFAULT_CANDIDATE_DISPLAY_COUNT;
 
 export interface KeyboardStatusBarLayoutSpec {
   contentLayoutWeight: number;
@@ -107,6 +112,8 @@ export interface CandidateBarProps {
   barHeight?: number;
   errorMessage?: string;
   candidateFontSize?: number;
+  candidateDisplayCount?: number;
+  hasNextPage?: boolean;
   contentVisible?: boolean;
   actionWidth?: number;
   expanded?: boolean;
@@ -126,6 +133,7 @@ export interface CandidateBarProps {
   voicePresentation?: VoicePresentationState;
   localAssociations?: LocalAssociationSuggestion[];
   onCandidateClick?: (candidate: Candidate, index: number) => void;
+  onClipboardReversePaste?: () => void;
   onToggleExpanded?: (expanded: boolean) => void;
   onAction?: (action: KeyboardAction) => void;
   onOpenKeyboardLayoutSelector?: () => void;
@@ -159,6 +167,10 @@ export struct CandidateBar {
   @Prop barHeight: number = 52;
   @Prop errorMessage: string = '';
   @Prop candidateFontSize: number = 14;
+  @Prop candidateDisplayCount: number = DEFAULT_CANDIDATE_DISPLAY_COUNT;
+  @Prop hasNextPage: boolean = false;
+  @State private candidateContentWidth: number = 0;
+  @State private candidateViewportWidth: number = 0;
   @Prop contentVisible: boolean = true;
   @Prop actionWidth: number = 48;
   @Prop expanded: boolean = false;
@@ -191,6 +203,7 @@ export struct CandidateBar {
   }
 
   onCandidateClick?: (candidate: Candidate, index: number) => void;
+  onClipboardReversePaste?: () => void;
   onToggleExpanded?: (expanded: boolean) => void;
   onAction?: (action: KeyboardAction) => void;
   onOpenKeyboardLayoutSelector?: () => void;
@@ -209,6 +222,20 @@ export struct CandidateBar {
   @Builder
   private IdleToolbar() {
     Row({ space: 2 }) {
+      Row() {
+        Image($r('app.media.candidate_settings_menu'))
+          .width(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
+          .height(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
+          .fillColor(this.palette.functionKeyText)
+          .objectFit(ImageFit.Contain)
+      }
+      .width(this.actionWidth)
+      .height('100%')
+      .justifyContent(FlexAlign.Center)
+      .id('status-bar-settings')
+      .accessibilityText('设置菜单')
+      .onClick((): void => this.onOpenSettings?.())
+
       if (!this.bottomLiftLayerVisible) {
         Row({ space: 5 }) {
           Text('⌨')
@@ -290,16 +317,6 @@ export struct CandidateBar {
         .onClick((): void => this.onVoiceEntry?.())
       }
 
-      Row({ space: 4 }) {
-        Text('⚙').fontSize(15).fontColor(this.palette.functionKeyText)
-        Text('设置').fontSize(11).fontColor(this.palette.functionKeyText).maxLines(1)
-      }
-      .height('100%')
-      .layoutWeight(0.85)
-      .justifyContent(FlexAlign.Center)
-      .accessibilityText('设置')
-      .onClick((): void => this.onOpenSettings?.())
-
     }
     .width('100%')
     .height('100%')
@@ -332,7 +349,9 @@ export struct CandidateBar {
         .height('100%')
         .alignItems(VerticalAlign.Center)
         .padding({ left: CANDIDATE_BAR_HORIZONTAL_PADDING, right: CANDIDATE_BAR_HORIZONTAL_PADDING })
+        .onAreaChange((_old: Area, area: Area) => { this.candidateContentWidth = Number(area.width); })
       }
+      .onAreaChange((_old: Area, area: Area) => { this.candidateViewportWidth = Number(area.width); })
       .scrollable(ScrollDirection.Horizontal)
       .scrollBar(BarState.Off)
       .width('100%')
@@ -346,6 +365,7 @@ export struct CandidateBar {
           ForEach(this.aiPresentation.suggestions, (suggestion: AiSuggestion) => {
             Text(suggestion.text)
               .fontSize(this.candidateFontSize)
+              .flexShrink(0)
               .fontColor(this.palette.candidateText)
               .fontWeight(FontWeight.Medium)
               .maxLines(1)
@@ -518,6 +538,14 @@ export struct CandidateBar {
   }
 
   /**
+   * 收起态只展示一整组候选，避免下一项被固定的“展开”按钮裁掉。
+   * 其余候选统一进入全键盘展开页浏览。
+   */
+  private collapsedCandidates(): Candidate[] {
+    return resolveCollapsedCandidates(this.candidates, this.candidateDisplayCount);
+  }
+
+  /**
    * 阶段 4.1：未上屏组合编码统一使用下划线装饰。装饰只作用于 Text 组件
    * 的绘制，`rawInput`/`preeditText` 字符串保持原样，不会拼接下划线字符。
    */
@@ -563,7 +591,7 @@ export struct CandidateBar {
   }
 
   /**
-   * 构建候选词视图。候选词全量加载，通过横向滚动浏览，无翻页按钮。
+   * 收起态显示用户设定数量（默认五项），其余候选通过展开页浏览。
    * 光标处没有系统预编辑时，在候选左侧展示带下划线的未上屏输入码；光标处
    * 已显示输入码时这里保持隐藏，确保同一输入码只有一个展示位置。
    */
@@ -581,15 +609,24 @@ export struct CandidateBar {
             // 只是展示，`decoration` 只在渲染层生效，`rawInput` 不受影响。
             this.PreeditChip()
           }
-          ForEach(this.candidates, (candidate: Candidate, index: number) => {
-            // 阶段 4.2：普通候选项仅渲染 candidate.text，宽度随文字自适应；
-            // candidate.reading 仍保留在数据结构中供引擎、调试页与自动化测试使用。
-            Text(toContextualCandidateDisplayItem(
-              candidate,
-              index,
-              this.candidateUiMode,
-              this.rawInput
-            ).displayText)
+          if (this.rawInput === CLIPBOARD_REVERSE_CODE && this.candidates.some((candidate: Candidate): boolean =>
+            candidate.source === 'functional' && candidate.text === CLIPBOARD_REVERSE_LABEL)) {
+            ClipboardReversePasteButton({ onPaste: this.onClipboardReversePaste })
+          }
+          ForEach(this.collapsedCandidates(), (candidate: Candidate, index: number) => {
+            // Number the visible candidates without modifying their commit text.
+            Text() {
+              Span(`${index + 1} `)
+                .fontSize(Math.max(10, this.candidateFontSize - 3))
+                .fontColor(this.palette.candidateReading)
+                .fontWeight(FontWeight.Regular)
+              Span(toContextualCandidateDisplayItem(
+                candidate,
+                index,
+                this.candidateUiMode,
+                this.rawInput
+              ).displayText)
+            }
               .fontSize(this.candidateFontSize)
               .fontColor(this.palette.candidateText)
               .fontWeight(FontWeight.Medium)
@@ -606,7 +643,7 @@ export struct CandidateBar {
                 }
               })
               .accessibilityText(this.candidateAccessibilityText(candidate, index))
-          }, (candidate: Candidate) => candidate.id)
+          }, (candidate: Candidate) => `${candidate.id}:${candidate.displayText ?? ''}`)
         }
         .height('100%')
         .alignItems(VerticalAlign.Center)
@@ -688,7 +725,10 @@ export struct CandidateBar {
       if (this.expanded || shouldShowCandidateExpansionAction(
         this.candidateUiMode,
         this.candidates.length,
-        this.rawInput
+        this.rawInput,
+        this.candidateDisplayCount,
+        this.hasNextPage,
+        this.candidateViewportWidth > 0 && this.candidateContentWidth > this.candidateViewportWidth + 1
       )) {
         Row() {
           Text(this.expanded ? '收起' : '展开')
@@ -719,37 +759,37 @@ export struct CandidateBar {
         })
       }
 
-      if (!this.bottomLiftLayerVisible) {
-        Row() {
-          Image($r('app.media.keyboard_hide_chevron'))
-            .width(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
-            .height(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
-            .fillColor(this.palette.functionKeyText)
-            .objectFit(ImageFit.Contain)
-            .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
-        }
-        .width(this.actionWidth)
-        .height('100%')
-        .justifyContent(FlexAlign.Center)
-        .alignItems(VerticalAlign.Center)
-        .backgroundColor(this.actionPressed
-          ? this.palette.functionKeyPressedBackground
-          : this.palette.functionKeyBackground)
-        .border({ width: { left: 1 }, color: this.palette.candidateDivider })
-        .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
-        .onTouch((event: TouchEvent) => {
-          if (event.type === TouchType.Down) {
-            this.actionPressed = true;
-          } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
-            this.actionPressed = false;
-          }
-        })
-        .onClick(() => {
-          if (this.onAction) {
-            this.onAction(KEYBOARD_STATUS_BAR_LAYOUT.action);
-          }
-        })
+      // Keep the hide action at the right edge even when the bottom lift layer is visible.
+      Row() {
+        Image($r('app.media.keyboard_hide_chevron'))
+          .width(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
+          .height(KEYBOARD_STATUS_BAR_LAYOUT.actionIconSize)
+          .fillColor(this.palette.functionKeyText)
+          .objectFit(ImageFit.Contain)
+          .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
       }
+      .width(this.actionWidth)
+      .height('100%')
+      .justifyContent(FlexAlign.Center)
+      .alignItems(VerticalAlign.Center)
+      .backgroundColor(this.actionPressed
+        ? this.palette.functionKeyPressedBackground
+        : this.palette.functionKeyBackground)
+      .border({ width: { left: 1 }, color: this.palette.candidateDivider })
+      .id(KEYBOARD_STATUS_BAR_LAYOUT.actionId)
+      .accessibilityText(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText)
+      .onTouch((event: TouchEvent) => {
+        if (event.type === TouchType.Down) {
+          this.actionPressed = true;
+        } else if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+          this.actionPressed = false;
+        }
+      })
+      .onClick(() => {
+        if (this.onAction) {
+          this.onAction(KEYBOARD_STATUS_BAR_LAYOUT.action);
+        }
+      })
     }
     .width('100%')
     .height(this.barHeight)

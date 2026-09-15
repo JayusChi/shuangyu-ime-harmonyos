@@ -1,29 +1,29 @@
 {
-  "accepted_record_count": 162996,
+  "accepted_record_count": 162995,
   "action_metadata_file": {
     "byte_size": 22212,
     "path": "action-metadata.json",
-    "sha256": "11a1b207d377f7ca1fddaa39a2ec9618d070b8d38ea5caba9442e65033b55a65"
+    "sha256": "5676adfc93d2000add8bd9201d3181f75a8497d9c7c41e826234062aa1ee7321"
   },
   "audit_manifest_version": "1.1.0",
   "auditor_version": "yinxing-source-auditor/1.1.0",
   "build_timestamp_policy": "omitted",
-  "bundle_content_sha256": "39dd319c00826356da3fe5c768e10793f8d8b22fd5e4c44926f8fd84689fcef0",
+  "bundle_content_sha256": "ca26197b19c260efd9e059c52a5bdec70e89437c85029ece4c134a0fa7f11629",
   "bundle_id": "xiaohe-yinxing-production",
   "category_count": 12,
   "category_files": [
     {
-      "byte_size": 4595869,
+      "byte_size": 4595798,
       "category_id": "core",
       "default_enabled": true,
       "display_name": "首选",
-      "entry_count": 68568,
+      "entry_count": 68567,
       "file": "categories/core.lex",
       "order": 0,
       "role": "core_code_table",
-      "sha256": "b46d48f4b44068afadbbfe62c3a2fe6a4c894b3856b3dc9af8ccdd757521e0cf",
+      "sha256": "a204db8607e4728a051e27b867e9317142a3c9cc5ace733b19a52fe79239faa4",
       "source_file_id": "src-00",
-      "source_sha256": "e78c063a971a53bbf68112fa681ef99e624907690235b32ce9cd374f78ba810e"
+      "source_sha256": "6d0305bb26de36a6fac2b4921d645c8e00ae880eda71b72de1b36bbcb482b57a"
     },
     {
       "byte_size": 115950,
@@ -183,9 +183,9 @@
     "full-code-character",
     "ok-spelling"
   ],
-  "command_policy_sha256": "294a23190e1056f03fc4303bbb27bab276ea76febf7d1cd4c2fe9cac5330f6a9",
+  "command_policy_sha256": "42065919dbea27632dc6ad5e3f223cdbca6106e214e9c82f950c21e8b471d1bb",
   "conflict_record_count": 0,
-  "conversion_contract_sha256": "025240e58548bf0c14dedb16fea075a2b42b722396d63cbc91947c1d7bddfaa3",
+  "conversion_contract_sha256": "0d2de22b8870114ee5b775f40a83192bcbfbb0766dafc18523603a8b779d9868",
   "conversion_contract_version": "1.1.0",
   "converter_version": "yinxing-converter/1.0.0",
   "data_version": "source-receipt-1",
@@ -198,12 +198,12 @@
   "scheme_id": "xiaohe-yinxing",
   "source_files": [
     {
-      "byte_size": 907034,
+      "byte_size": 907017,
       "category_id": "core",
       "decision": "TRANSFORM",
       "order": 0,
       "relative_path": "小鹤音形/0.0.小鹤.txt",
-      "sha256": "e78c063a971a53bbf68112fa681ef99e624907690235b32ce9cd374f78ba810e",
+      "sha256": "6d0305bb26de36a6fac2b4921d645c8e00ae880eda71b72de1b36bbcb482b57a",
       "source_file_id": "src-00"
     },
     {
@@ -306,16 +306,16 @@
       "source_file_id": "src-11"
     }
   ],
-  "source_manifest_sha256": "f054132eb8b5e008601f215db50cf337214c35bf2100fcb03f63180b2c9252b8",
+  "source_manifest_sha256": "39386e1879db80921e80c2da42778485394ff0594bcf12efc2523fd668778e53",
   "statistics_file": {
     "byte_size": 32136,
     "path": "build-report.json",
-    "sha256": "993d2a9acf96c418cf7ea1519a1e3406fbdad5a4c0b0a95c039c67a95966c0d8"
+    "sha256": "e7e6b2debc727bd448ebe7d11c063d7f84b90087ae9f0ebcc96733fb60fc984e"
   },
   "trace_metadata_file": {
-    "byte_size": 46104787,
+    "byte_size": 46104508,
     "path": "trace-index.jsonl",
-    "sha256": "59f863557906a91d2a770ee635167e12c44a131b0bcc4f85a264795c053d9872"
+    "sha256": "019bb8d075717d2395853a938d4381688c0a3de18d6c5493dac668b5aa952473"
   },
   "transformed_record_count": 1008,
   "user_rule_file": {

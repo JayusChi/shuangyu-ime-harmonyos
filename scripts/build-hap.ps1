@@ -3,12 +3,25 @@ param(
     [switch]$Clean,
     [ValidateSet('debug', 'release')]
     [string]$BuildMode = 'release',
+    # BuildMode controls code generation; Product selects the signing identity.
+    [ValidateSet('', 'default', 'release', 'internalDebug')]
+    [string]$Product = '',
     [string]$DevEcoRoot = $(if ($env:DEVECO_STUDIO_ROOT) { $env:DEVECO_STUDIO_ROOT } else { 'C:\Program Files\Huawei\DevEco Studio' }),
     [string]$HarmonySdkRoot = $(if ($env:HARMONYOS_SDK_ROOT) { $env:HARMONYOS_SDK_ROOT } else { Join-Path $DevEcoRoot 'sdk' })
 )
 
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($Product)) {
+    $Product = if ($BuildMode -eq 'debug') { 'internalDebug' } else { 'release' }
+}
+if (($BuildMode -eq 'debug' -and $Product -ne 'internalDebug') -or
+    ($BuildMode -eq 'release' -and $Product -eq 'internalDebug')) {
+    throw 'Use internalDebug for debug fixtures, or default/release for production code.'
+}
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
+$customizationNode = Join-Path $DevEcoRoot 'tools\node\node.exe'
+& $customizationNode (Join-Path $PSScriptRoot 'configure-keyboard-customization-sharing.cjs') --check --product $Product
+if ($LASTEXITCODE -ne 0) { throw 'Keyboard customization shared-group/signing configuration mismatch.' }
 $debugFixtureRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot '.stage11_6_3_debug_fixture'))
 $debugFixtureResource = [IO.Path]::GetFullPath((Join-Path $repoRoot 'entry\src\internalDebug\resources\rawfile\code-table-fixture-synthetic.bundle'))
 $debugActionFixtureSource = [IO.Path]::GetFullPath((Join-Path $repoRoot 'engine-rust\tests\fixtures\code-table\stage11_6_6_actions.json'))
@@ -100,8 +113,8 @@ try {
         }
         $formalBundle = Get-Item -LiteralPath $formalBundleSource
         $formalHash = (Get-FileHash -LiteralPath $formalBundleSource -Algorithm SHA256).Hash.ToLowerInvariant()
-        if ($formalBundle.Length -ne 56104660 -or
-            $formalHash -ne '263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09') {
+        if ($formalBundle.Length -ne 56104310 -or
+            $formalHash -ne '7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0') {
             throw "Frozen formal bundle identity mismatch: bytes=$($formalBundle.Length) sha256=$formalHash"
         }
         Copy-Item -LiteralPath $formalBundleSource -Destination $formalBundleResource -Force
@@ -125,7 +138,7 @@ try {
     }
 
     $targetName = if ($BuildMode -eq 'debug') { 'internalDebug' } else { 'default' }
-    $productName = if ($BuildMode -eq 'debug') { 'internalDebug' } else { 'default' }
+    $productName = $Product
     # Release packages must never reuse test/debug intermediates. A previous ArkTS
     # test run can leave a default-product profile with debug metadata, so Release
     # builds always start from a clean Hvigor graph even when -Clean is omitted.
@@ -150,7 +163,17 @@ try {
         $destination = Join-Path $mainSourceRoot $mapping.Destination
         $backup = Join-Path $debugOverlayBackupRoot $mapping.Destination
         if ($mapping.Overlay -and (Test-Path -LiteralPath $backup -PathType Leaf)) {
-            Copy-Item -LiteralPath $backup -Destination $destination -Force
+            # The compiler can briefly keep the overlaid file memory-mapped
+            # after assembleHap finishes. Restore the original before cleanup.
+            for ($restoreAttempt = 1; $restoreAttempt -le 5; $restoreAttempt++) {
+                try {
+                    Copy-Item -LiteralPath $backup -Destination $destination -Force -ErrorAction Stop
+                    break
+                } catch {
+                    if ($restoreAttempt -eq 5) { throw }
+                    Start-Sleep -Milliseconds (250 * $restoreAttempt)
+                }
+            }
         } elseif (-not $mapping.Overlay -and (Test-Path -LiteralPath $destination)) {
             Remove-Item -LiteralPath $destination -Force
         }
@@ -172,7 +195,7 @@ try {
     }
 }
 
-$buildVariantRoot = if ($BuildMode -eq 'debug') { 'internalDebug' } else { 'default' }
+$buildVariantRoot = $Product
 $hapPath = Join-Path $repoRoot "entry\build\$buildVariantRoot\outputs\$targetName\entry-$targetName-unsigned.hap"
 if (-not (Test-Path -LiteralPath $hapPath)) { throw "HAP artifact not found: $hapPath" }
 $hap = Get-Item -LiteralPath $hapPath
@@ -193,6 +216,7 @@ Copy-Item -LiteralPath $hap.FullName -Destination $artifact -Force
 $artifactItem = Get-Item -LiteralPath $artifact
 
 Write-Host "BUILD_MODE=$BuildMode"
+Write-Host "PRODUCT=$Product"
 Write-Host "CLEAN_BUILD=$($shouldClean.ToString().ToLowerInvariant())"
 Write-Host "DEBUG=$($profile.app.debug.ToString().ToLowerInvariant())"
 Write-Host "HAP: $($artifactItem.FullName)"

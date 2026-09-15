@@ -14,8 +14,9 @@ mod path;
 mod scorer;
 mod t9_joint;
 
-pub use decoder::{DecodeResult, SentenceDecoder};
+pub use decoder::{DecodeResult, SentenceDecoder, XiaoheSentenceQuery};
 pub use error::DecodeError;
+pub use graph::FixedWordConstraint;
 pub use limits::DecodeLimits;
 pub use path::SentenceCandidate;
 pub use t9_joint::{

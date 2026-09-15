@@ -737,6 +737,7 @@ fn validate_production_label(value: &str) -> Result<(), CodeTableError> {
         || value.len() > MAX_ACTION_TEXT_BYTES
         || value.chars().any(char::is_control)
         || value.to_ascii_lowercase().contains("$cmd")
+        || value.to_ascii_lowercase().contains("$cc(")
     {
         return Err(field(
             "records.label",
@@ -757,6 +758,7 @@ fn validate_production_static_text(value: &str) -> Result<(), CodeTableError> {
         || forbidden_control
         || lower.contains("$cmd")
         || lower.contains("$ddcmd")
+        || lower.contains("$cc(")
         || unsafe_network
     {
         return Err(field(
@@ -769,6 +771,7 @@ fn validate_production_static_text(value: &str) -> Result<(), CodeTableError> {
 
 fn trusted_direct_control(action: &str, target: &str) -> bool {
     match action {
+        "clipboard.reverse" => target.is_empty(),
         "category.enable" | "category.disable" => target == "two-key-secondary",
         "category.preset" => matches!(target, "experienced" | "standard" | "beginner"),
         "settings.smart-period" => matches!(target, "0" | "600"),
@@ -778,7 +781,19 @@ fn trusted_direct_control(action: &str, target: &str) -> bool {
         "settings.numeric-period" => matches!(target, "enabled" | "disabled"),
         "settings.empty-clear" => matches!(target, "4" | "12"),
         "settings.commit-policy" => matches!(target, "top-screen" | "auto-commit"),
-        "url.open" => matches!(target, "flypy-home" | "flypy-help" | "flypy-help-mobile"),
+        "settings.split-mode" => matches!(target, "traditional" | "split"),
+        "settings.candidate-position" => matches!(target, "bar" | "floating"),
+        "settings.keyboard-height"
+        | "settings.keyboard-font"
+        | "settings.candidate-font"
+        | "settings.floating-font" => {
+            matches!(target, "default" | "increase" | "decrease")
+        }
+        "settings.keyboard-profile" => {
+            matches!(target, "xiaohe-26" | "xiaohe-yinxing-26" | "quanpin-26")
+        }
+        "settings.haptic" | "settings.key-sound" => matches!(target, "enabled" | "disabled"),
+        "url.open" => matches!(target, "flypy-home" | "flypy-help" | "flypy-help-mobile" | "flypy-shape"),
         "app.open" => matches!(target, "settings" | "user-lexicon"),
         "editor.delete-line" => target.is_empty(),
         _ => false,
@@ -965,8 +980,14 @@ mod tests {
                 .iter()
                 .filter(|record| record.scope == ActionScope::Direct)
                 .count(),
-            31
+            56
         );
+        assert!(matches!(
+            table.query_direct_exact_or_prefix("ofi")[0].action,
+            FunctionalAction::DirectControl { ref action, ref target }
+                if action == "clipboard.reverse" && target.is_empty()
+        ));
+        assert_eq!(table.query_direct_exact_or_prefix("ofi")[0].label, "[复制反查]");
         assert_eq!(table.file_sha256.len(), 64);
         assert!(matches!(
             table.query_direct_exact_or_prefix("xhgw")[0].action,
@@ -988,8 +1009,11 @@ mod tests {
     #[test]
     fn production_direct_data_rejects_raw_commands_and_unapproved_targets() {
         let cases = [
+            r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"DIRECT","code":"ofi","label":"x","type":"STATIC_TEXT","text":"$CC(clip(),type(clip()))"}]}"#.as_bytes(),
             r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"DIRECT","code":"abc","label":"x","type":"STATIC_TEXT","text":"$cmd(run(calc))"}]}"#.as_bytes(),
             r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"DIRECT","code":"abc","label":"x","type":"DIRECT_CONTROL","action":"url.open","target":"unapproved"}]}"#.as_bytes(),
+            r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"DIRECT","code":"ohx","label":"x","type":"DIRECT_CONTROL","action":"settings.candidate-position","target":"auto"}]}"#.as_bytes(),
+            r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"DIRECT","code":"ofa","label":"x","type":"DIRECT_CONTROL","action":"settings.keyboard-profile","target":"unknown-profile"}]}"#.as_bytes(),
             r#"{"formatVersion":1,"fixtureOnly":false,"source":"5.直通.txt","sourceRecordCount":1,"rejectedRecordCount":0,"records":[{"id":"x","scope":"GUIDE","code":"abc","label":"x","type":"IMPORT_USER_LEXICON"}]}"#.as_bytes(),
         ];
         for input in cases {

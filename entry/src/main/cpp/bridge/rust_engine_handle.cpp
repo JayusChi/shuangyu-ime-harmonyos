@@ -108,6 +108,12 @@ RustCallResult RustEngineHandle::PreviousCandidatePage() {
     return CopyResult(code, buffer);
 }
 
+RustCallResult RustEngineHandle::ReverseLookup(const std::string& text) {
+    RustBuffer buffer;
+    int32_t code = ime_engine_reverse_lookup(handle_, reinterpret_cast<const uint8_t*>(text.data()), text.size(), buffer.Out());
+    return CopyResult(code, buffer);
+}
+
 RustCallResult RustEngineHandle::GetLocalAssociations() {
     RustBuffer buffer;
     int32_t code = ime_engine_get_local_associations(handle_, buffer.Out());

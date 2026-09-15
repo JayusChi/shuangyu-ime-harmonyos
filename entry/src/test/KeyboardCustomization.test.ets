@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@ohos/hypium';
 import { createUnknownEditorContext, ShiftState } from '../main/ets/domain/editor/EditorContext';
-import { KeyboardMode } from '../main/ets/domain/keyboard/KeyboardAction';
+import { KeyboardActionType, KeyboardMode } from '../main/ets/domain/keyboard/KeyboardAction';
 import {
   BUILTIN_KEYBOARD_SKIN_ID,
   BUILTIN_KEYBOARD_STRUCTURE_ID,
@@ -26,6 +26,7 @@ import {
 import { KeyboardThemeResolver } from '../main/ets/presentation/keyboard/design/KeyboardThemeResolver';
 import { LIGHT_PALETTE } from '../main/ets/presentation/keyboard/design/KeyboardPalette';
 import { createStage10KeyboardLayout } from '../main/ets/presentation/keyboard/layouts/Stage10KeyboardLayouts';
+import { resolveKeyboardKeyLabel } from '../main/ets/presentation/keyboard/model/KeyboardLayoutSpec';
 
 const VALID_STRUCTURE_JSON: string = `{
   "schemaVersion": 1,
@@ -135,6 +136,33 @@ export default function keyboardCustomizationTest() {
         .assertEqual('number,punctuation-comma,space,punctuation-period,enter');
     });
 
+    it('preserves swapped punctuation actions and refreshes candidate labels after customization', 0, () => {
+      const swappedJson = VALID_STRUCTURE_JSON.replace(
+        '{ "id": "symbol" }, { "id": "space", "label": "空格" }',
+        '{ "id": "punctuation-period", "label": "句" }, { "id": "space" }, { "id": "punctuation-comma" }'
+      );
+      const parsed = parseKeyboardStructureJson(swappedJson);
+      expect(parsed.success).assertTrue();
+      const chinese = applyKeyboardStructure(createStage10KeyboardLayout(
+        KeyboardMode.CHINESE, createUnknownEditorContext(), ShiftState.LOWERCASE), parsed.value);
+      const keys = chinese.rows[3].keys;
+      expect(keys.map((key) => key.id).join(','))
+        .assertEqual('number,punctuation-period,space,punctuation-comma,enter');
+      expect(keys[1].action.type).assertEqual(KeyboardActionType.SECOND_CANDIDATE_OR_PERIOD);
+      expect(keys[3].action.type).assertEqual(KeyboardActionType.THIRD_CANDIDATE_OR_COMMA);
+      expect(keys[1].upperLabel).assertEqual('？');
+      expect(keys[3].upperLabel).assertEqual('=');
+      expect(resolveKeyboardKeyLabel(keys[1], KeyboardMode.CHINESE, false)).assertEqual('句');
+      expect(resolveKeyboardKeyLabel(keys[1], KeyboardMode.CHINESE, true)).assertEqual('次选');
+      expect(resolveKeyboardKeyLabel(keys[1], KeyboardMode.CHINESE, false)).assertEqual('句');
+      expect(resolveKeyboardKeyLabel(keys[3], KeyboardMode.CHINESE, true)).assertEqual('，');
+      const english = applyKeyboardStructure(createStage10KeyboardLayout(
+        KeyboardMode.ENGLISH, createUnknownEditorContext(), ShiftState.LOWERCASE), parsed.value);
+      expect(resolveKeyboardKeyLabel(english.rows[3].keys[1], KeyboardMode.ENGLISH, true)).assertEqual('句');
+      expect(english.rows[3].keys[1].action.type).assertEqual(KeyboardActionType.CHARACTER);
+      expect(english.rows[3].keys[1].upperLabel).assertEqual('?');
+    });
+
     it('keeps non-QWERTY layouts authoritative', 0, () => {
       const parsed = parseKeyboardStructureJson(VALID_STRUCTURE_JSON);
       const structure = parsed.value as KeyboardStructureDefinition;
@@ -147,9 +175,17 @@ export default function keyboardCustomizationTest() {
       const skin = parseKeyboardSkinJson(VALID_SKIN_JSON).value;
       const palette = new KeyboardThemeResolver().resolve(EffectiveTheme.LIGHT, skin, '/data/skin');
       expect(palette.panelBackground).assertEqual('#E8F2FF');
+      expect(palette.letterKeyText).assertEqual('#FF123456');
       expect(palette.functionKeyBackground).assertEqual(LIGHT_PALETTE.functionKeyBackground);
-      expect(palette.letterKeyBackgroundImage).assertEqual('/data/skin/assets/letter-key.png');
+      expect(palette.letterKeyBackgroundImage).assertEqual('file:///data/skin/assets/letter-key.png');
       expect(palette.useDanranKeyImages).assertFalse();
+    });
+
+    it('converts package RGBA alpha without altering the definition', 0, () => {
+      const skin = parseKeyboardSkinJson(VALID_SKIN_JSON.replace('#123456FF', '#12345680')).value;
+      const palette = new KeyboardThemeResolver().resolve(EffectiveTheme.LIGHT, skin);
+      expect(palette.letterKeyText).assertEqual('#80123456');
+      expect(skin?.colors.letterKeyText).assertEqual('#12345680');
     });
 
     it('preserves valid selected IDs and falls back for invalid values', 0, () => {

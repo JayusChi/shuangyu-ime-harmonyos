@@ -41,6 +41,7 @@ pub enum CodeTableSelection {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CodeTableCommitPolicy {
+    pub reverse_split_enabled: bool,
     pub auto_commit_length: usize,
     pub top_screen_length: usize,
     pub empty_code_clear_length: usize,
@@ -57,6 +58,7 @@ impl CodeTableCommitPolicy {
         normal_code_max_length: usize,
     ) -> Result<Self, CodeTableError> {
         let policy = Self {
+            reverse_split_enabled: false,
             auto_commit_length,
             top_screen_length,
             empty_code_clear_length,
@@ -96,6 +98,7 @@ impl CodeTableCommitPolicy {
 impl Default for CodeTableCommitPolicy {
     fn default() -> Self {
         Self {
+            reverse_split_enabled: false,
             auto_commit_length: Self::FROZEN_DEFAULT_LENGTH,
             top_screen_length: Self::FROZEN_DEFAULT_LENGTH,
             empty_code_clear_length: Self::FROZEN_DEFAULT_LENGTH,
@@ -107,6 +110,7 @@ impl Default for CodeTableCommitPolicy {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct CodeTableProcessOutcome {
     pub commit_text: Option<String>,
+    pub action: Option<FunctionalAction>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -130,9 +134,63 @@ pub struct CodeTableStateMachine {
     input_state: CodeTableInputState,
     commit_policy: CodeTableCommitPolicy,
     query_strategy: CodeTableQueryStrategy,
+    // Count before display truncation: one visible row is not necessarily unique.
+    reverse_split_candidate_count: usize,
 }
 
 impl CodeTableStateMachine {
+    /// Read-only lookup includes hidden character categories, so full codes
+    /// remain discoverable even when their extra candidates are disabled.
+    pub fn reverse_lookup(&self, text: &str) -> Vec<String> {
+        let mut chars = text.chars();
+        let Some(character) = chars.next() else {
+            return Vec::new();
+        };
+        if chars.next().is_some()
+            || !matches!(character as u32, 0x3007 | 0x3400..=0x9fff | 0xf900..=0xfaff | 0x20000..=0x323af)
+        {
+            return Vec::new();
+        }
+        let mut codes = std::collections::BTreeSet::new();
+        for category in &self.bundle.categories {
+            if category.id == QUICK_SYMBOL_CATEGORY_ID {
+                continue;
+            }
+            for entry in &category.lexicon.entries {
+                if entry.word == text {
+                    codes.insert(entry.pinyin_key.clone());
+                }
+            }
+        }
+        for entry in self
+            .user_lexicon
+            .entries()
+            .iter()
+            .filter(|entry| entry.text == text)
+        {
+            match entry.action {
+                UserLexiconAction::Delete => {
+                    codes.remove(&entry.code);
+                }
+                UserLexiconAction::Add
+                | UserLexiconAction::Fixed
+                | UserLexiconAction::Position(_) => {
+                    codes.insert(entry.code.clone());
+                }
+                _ => {}
+            }
+        }
+        let mut codes = codes
+            .into_iter()
+            .filter(|code| {
+                (1..=4).contains(&code.len()) && code.bytes().all(|byte| byte.is_ascii_lowercase())
+            })
+            .collect::<Vec<_>>();
+        codes.sort_by(|left, right| right.len().cmp(&left.len()).then_with(|| left.cmp(right)));
+        codes.truncate(64);
+        codes
+    }
+
     pub fn new(
         bundle: Arc<CodeTableBundle>,
         page_size: usize,
@@ -224,6 +282,7 @@ impl CodeTableStateMachine {
             input_state: CodeTableInputState::Idle,
             commit_policy,
             query_strategy,
+            reverse_split_candidate_count: 0,
         })
     }
 
@@ -238,7 +297,10 @@ impl CodeTableStateMachine {
                     .map(|candidate| candidate.text);
                 if commit_text.is_some() {
                     self.reset();
-                    return Ok(CodeTableProcessOutcome { commit_text });
+                    return Ok(CodeTableProcessOutcome {
+                        commit_text,
+                        action: None,
+                    });
                 }
             }
             self.raw_code.clear();
@@ -292,7 +354,19 @@ impl CodeTableStateMachine {
             self.requery_with_snapshots(&category_snapshot, &user_snapshot);
             return Ok(outcome);
         }
-        if self.input_state == CodeTableInputState::NormalCode
+        if self.reverse_split_candidate_count > 0 {
+            // A 2+1 split is provisional while no fourth code exists. A
+            // fourth code must re-enter the established full-code / 2+2 /
+            // empty-code decision instead of committing the three-code hint.
+            if self.raw_code.len() != 3 {
+                outcome.commit_text = self
+                    .all_candidates()
+                    .first()
+                    .filter(|row| !self.is_external_shortcut(row))
+                    .map(|row| row.text.clone());
+                self.reset();
+            }
+        } else if self.input_state == CodeTableInputState::NormalCode
             && self.raw_code.len() >= self.commit_policy.top_screen_length
             && !self.has_valid_continuation_for_snapshots(
                 &self.raw_code,
@@ -303,6 +377,7 @@ impl CodeTableStateMachine {
             outcome.commit_text = self
                 .exact_candidates_for_snapshots(&self.raw_code, &category_snapshot, &user_snapshot)
                 .first()
+                .filter(|candidate| !self.is_external_shortcut(candidate))
                 .map(|candidate| candidate.text.clone());
             self.raw_code.clear();
             self.clear_query_state();
@@ -324,13 +399,30 @@ impl CodeTableStateMachine {
         ) {
             self.input_state = CodeTableInputState::GuideCode;
             self.requery_guide();
-            if let Some(commit_text) = self.unique_exact_quick_symbol_text() {
-                outcome.commit_text = Some(commit_text);
+            if let Some(selection) = self.unique_exact_guide_selection() {
+                match selection {
+                    CodeTableSelection::CommitText(text) => outcome.commit_text = Some(text),
+                    CodeTableSelection::Action(action) => outcome.action = Some(action),
+                }
                 self.reset();
             }
         } else {
             self.input_state = CodeTableInputState::NormalCode;
             self.requery_with_snapshots(&category_snapshot, &user_snapshot);
+            if self.reverse_split_candidate_count > 0 {
+                if self.reverse_split_candidate_count == 1
+                    && self.raw_code.len() >= self.commit_policy.auto_commit_length
+                    && outcome.commit_text.is_none()
+                {
+                    outcome.commit_text = self
+                        .all_candidates()
+                        .first()
+                        .filter(|row| !self.is_external_shortcut(row))
+                        .map(|row| row.text.clone());
+                    self.reset();
+                }
+                return Ok(outcome);
+            }
             let exact = self.exact_candidates_for_snapshots(
                 &self.raw_code,
                 &category_snapshot,
@@ -342,12 +434,27 @@ impl CodeTableStateMachine {
                 &user_snapshot,
             );
             let has_direct_exact = self.has_direct_action_exact(&self.raw_code);
+            // Completing a sole four-code direct entry is its confirmation key.
+            // Keep shorter, ambiguous and extendable codes available for selection.
+            if outcome.commit_text.is_none()
+                && self.raw_code.len() == 4
+                && has_direct_exact
+                && !has_continuation
+                && exact.len() + self.direct_exact_count(&self.raw_code) == 1
+                && self.all_candidates().len() == 1
+            {
+                match self.select_current_page(0)? {
+                    CodeTableSelection::CommitText(text) => outcome.commit_text = Some(text),
+                    CodeTableSelection::Action(action) => outcome.action = Some(action),
+                }
+                return Ok(outcome);
+            }
             if self.raw_code.len() >= self.commit_policy.empty_code_clear_length
                 && exact.is_empty()
                 && !has_direct_exact
                 && !has_continuation
             {
-                // An empty full code is never split into a shorter candidate
+                // In traditional mode (or when 2+2 has no exact pair), never split into a shorter candidate
                 // plus a replayed tail. Such a split made the fourth key look
                 // like an early top-screen commit (for example `niu` + `o`).
                 // The customer contract is binary here: clear the four-code
@@ -356,6 +463,7 @@ impl CodeTableStateMachine {
             } else if outcome.commit_text.is_none()
                 && self.raw_code.len() >= self.commit_policy.auto_commit_length
                 && exact.len() == 1
+                && !self.is_external_shortcut(&exact[0])
                 && !has_direct_exact
                 && !has_continuation
             {
@@ -366,18 +474,20 @@ impl CodeTableStateMachine {
         Ok(outcome)
     }
 
-    /// One-letter quick symbols are confirmation keys, not a second-stage
-    /// candidate composition. Commit the sole exact text result immediately;
-    /// functional commands and ambiguous same-code rows still wait for an
-    /// explicit candidate selection so no action can fire accidentally.
-    fn unique_exact_quick_symbol_text(&self) -> Option<String> {
+    /// A guide letter is the confirmation key for a sole exact quick-symbol
+    /// result. Both plain symbols and closed functional actions execute at
+    /// this boundary; ambiguous same-code rows still wait for selection.
+    fn unique_exact_guide_selection(&self) -> Option<CodeTableSelection> {
+        if self.raw_code.len() != 1 {
+            return None;
+        }
         let query = self.query_cache.as_ref()?;
         if query.match_type != Some(CodeTableMatch::Exact) || query.candidates.len() != 1 {
             return None;
         }
         let candidate = query.candidates.first()?;
         if candidate.category_id == QUICK_SYMBOL_CATEGORY_ID {
-            return Some(candidate.text.clone());
+            return Some(CodeTableSelection::CommitText(candidate.text.clone()));
         }
         if candidate.category_id != FUNCTIONAL_CATEGORY_ID {
             return None;
@@ -387,8 +497,10 @@ impl CodeTableStateMachine {
         match action {
             FunctionalAction::StaticText(text)
             | FunctionalAction::StaticSymbol(text)
-            | FunctionalAction::QuickSymbol(text) => Some(text.clone()),
-            _ => None,
+            | FunctionalAction::QuickSymbol(text) => {
+                Some(CodeTableSelection::CommitText(text.clone()))
+            }
+            action => Some(CodeTableSelection::Action(action.clone())),
         }
     }
 
@@ -522,11 +634,31 @@ impl CodeTableStateMachine {
                 | FunctionalAction::QuickSymbol(text) => CodeTableSelection::CommitText(text),
                 action => CodeTableSelection::Action(action),
             }
+        } else if let Some(entry) = self.user_lexicon.entries().iter().find(|entry| {
+            entry.stable_id() == candidate.id && entry.action.external_action().is_some()
+        }) {
+            let action = entry.action.external_action().expect("external shortcut");
+            if !user_lexicon::valid_shortcut_target(action, &entry.text) {
+                return Err(CodeTableError::new(
+                    CodeTableErrorKind::InvalidCandidate,
+                    "invalid shortcut target",
+                ));
+            }
+            CodeTableSelection::Action(FunctionalAction::DirectControl {
+                action: action.to_owned(),
+                target: entry.text.clone(),
+            })
         } else {
             CodeTableSelection::CommitText(candidate.text)
         };
         self.reset();
         Ok(selection)
+    }
+
+    fn is_external_shortcut(&self, candidate: &CodeTableCandidate) -> bool {
+        self.user_lexicon.entries().iter().any(|entry| {
+            entry.action.external_action().is_some() && entry.stable_id() == candidate.id
+        })
     }
 
     pub fn raw_code(&self) -> &str {
@@ -601,6 +733,9 @@ impl CodeTableStateMachine {
     }
 
     pub fn exact_candidate_count(&self) -> usize {
+        if self.reverse_split_candidate_count > 0 {
+            return self.reverse_split_candidate_count;
+        }
         if self.raw_code.is_empty() {
             return 0;
         }
@@ -609,6 +744,10 @@ impl CodeTableStateMachine {
 
     pub fn is_unique_exact_match(&self) -> bool {
         self.exact_candidate_count() == 1
+    }
+
+    pub fn is_reverse_split(&self) -> bool {
+        self.reverse_split_candidate_count > 0
     }
 
     pub fn has_valid_continuation(&self) -> bool {
@@ -629,11 +768,15 @@ impl CodeTableStateMachine {
         policy: CodeTableCommitPolicy,
     ) -> Result<(), CodeTableError> {
         policy.validate()?;
-        if !self.raw_code.is_empty() {
+        let mode_changed = self.commit_policy.reverse_split_enabled != policy.reverse_split_enabled;
+        if !self.raw_code.is_empty() && !mode_changed {
             return Err(CodeTableError::new(
                 CodeTableErrorKind::InvalidCommitPolicy,
                 "commit policy can change only at a composition boundary",
             ));
+        }
+        if mode_changed {
+            self.reset();
         }
         self.commit_policy = policy;
         Ok(())
@@ -676,11 +819,77 @@ impl CodeTableStateMachine {
         category_snapshot: &CategorySelectionSnapshot,
         user_snapshot: &UserLexiconSnapshot,
     ) {
-        let mut query = self.query_for_snapshots(&self.raw_code, category_snapshot, user_snapshot);
+        let split = self.reverse_split_candidates_for_code(
+            &self.raw_code,
+            category_snapshot,
+            user_snapshot,
+        );
+        self.reverse_split_candidate_count = split.len();
+        let mut query = if split.is_empty() {
+            self.query_for_snapshots(&self.raw_code, category_snapshot, user_snapshot)
+        } else {
+            QuerySnapshot {
+                raw_code: self.raw_code.clone(),
+                match_type: Some(CodeTableMatch::Exact),
+                candidates: split,
+            }
+        };
         self.merge_direct_actions(&mut query, &self.raw_code);
         query.candidates.truncate(self.max_candidates);
         self.query_cache = Some(query);
         self.current_page = 0;
+    }
+
+    fn reverse_split_candidates_for_code(
+        &self,
+        code: &str,
+        categories: &CategorySelectionSnapshot,
+        user: &UserLexiconSnapshot,
+    ) -> Vec<CodeTableCandidate> {
+        if !self.commit_policy.reverse_split_enabled
+            || self.input_state != CodeTableInputState::NormalCode
+            || !matches!(code.len(), 3 | 4)
+            || !code.bytes().all(|byte| byte.is_ascii_lowercase())
+            || self.has_direct_action_exact(code)
+            // Keep existing long-code / OK spelling / direct-action paths reachable.
+            || self.has_valid_continuation_for_snapshots(code, categories, user)
+            || !self.exact_candidates_for_snapshots(code, categories, user).is_empty()
+        {
+            return Vec::new();
+        }
+        // Three-code dead ends split as 2+1 immediately; four-code dead ends
+        // retain the established 2+2 behavior. Both paths keep the two-code
+        // front fixed at its first exact candidate.
+        let front = self.exact_candidates_for_snapshots(&code[..2], categories, user);
+        let Some(front) = front.first() else {
+            return Vec::new();
+        };
+        self.exact_candidates_for_snapshots(&code[2..], categories, user)
+            .into_iter()
+            .enumerate()
+            .map(|(index, back)| {
+                let text = format!("{}{}", front.text, back.text);
+                let back_display = back.display_text.as_deref().unwrap_or(&back.text);
+                let display_text = if index == 0 {
+                    format!(
+                        "{}{}",
+                        front.display_text.as_deref().unwrap_or(&front.text),
+                        back_display
+                    )
+                } else {
+                    back_display.to_owned()
+                };
+                CodeTableCandidate {
+                    id: format!("split:{}:{}:{}", code, front.id, back.id),
+                    text,
+                    display_text: Some(display_text),
+                    code: code.to_owned(),
+                    category_id: "reverse-split".to_owned(),
+                    source_order: back.source_order,
+                    match_type: CodeTableMatch::Exact,
+                }
+            })
+            .collect()
     }
 
     fn query_for_snapshots(
@@ -729,9 +938,23 @@ impl CodeTableStateMachine {
         let make_user_candidate = |entry: &UserLexiconEntry| CodeTableCandidate {
             id: entry.stable_id(),
             text: entry.text.clone(),
-            display_text: entry.display_text.clone(),
+            display_text: entry.display_text.clone().or_else(|| {
+                entry.action.external_action().map(|_| {
+                    if matches!(entry.action, UserLexiconAction::OpenUrl) {
+                        "打开网页"
+                    } else {
+                        "打开目录"
+                    }
+                    .to_owned()
+                })
+            }),
             code: entry.code.clone(),
-            category_id: "user-lexicon".to_owned(),
+            category_id: if entry.action.external_action().is_some() {
+                "user-shortcut"
+            } else {
+                "user-lexicon"
+            }
+            .to_owned(),
             source_order: entry.source_order,
             match_type: if entry.code == raw_code {
                 CodeTableMatch::Exact
@@ -803,9 +1026,22 @@ impl CodeTableStateMachine {
         let make_user_candidate = |entry: &UserLexiconEntry| CodeTableCandidate {
             id: entry.stable_id(),
             text: entry.text.clone(),
-            display_text: entry.display_text.clone(),
+            display_text: entry.display_text.clone().or_else(|| {
+                entry.action.external_action().map(|_| {
+                    if matches!(entry.action, UserLexiconAction::OpenUrl) {
+                        "打开网页".to_owned()
+                    } else {
+                        "打开目录".to_owned()
+                    }
+                })
+            }),
             code: entry.code.clone(),
-            category_id: "user-lexicon".to_owned(),
+            category_id: if entry.action.external_action().is_some() {
+                "user-shortcut"
+            } else {
+                "user-lexicon"
+            }
+            .to_owned(),
             source_order: entry.source_order,
             match_type: CodeTableMatch::Exact,
         };
@@ -840,9 +1076,22 @@ impl CodeTableStateMachine {
             |entry: &UserLexiconEntry| CodeTableCandidate {
                 id: entry.stable_id(),
                 text: entry.text.clone(),
-                display_text: entry.display_text.clone(),
+                display_text: entry.display_text.clone().or_else(|| {
+                    entry.action.external_action().map(|_| {
+                        if matches!(entry.action, UserLexiconAction::OpenUrl) {
+                            "打开网页".to_owned()
+                        } else {
+                            "打开目录".to_owned()
+                        }
+                    })
+                }),
                 code: entry.code.clone(),
-                category_id: "user-lexicon".to_owned(),
+                category_id: if entry.action.external_action().is_some() {
+                    "user-shortcut"
+                } else {
+                    "user-lexicon"
+                }
+                .to_owned(),
                 source_order: entry.source_order,
                 match_type: CodeTableMatch::Prefix,
             },
@@ -972,16 +1221,43 @@ impl CodeTableStateMachine {
         query.match_type = Some(CodeTableMatch::Exact);
     }
 
+    fn direct_exact_count(&self, code: &str) -> usize {
+        let builtin = self.action_table.as_ref().map_or(0, |table| {
+            table.query_direct_exact_or_prefix(code).iter().filter(|record| record.code == code).count()
+        });
+        builtin + self.user_lexicon.entries_for_code(code).iter().filter(|entry| {
+            entry.action.external_action().is_some() && !self.user_lexicon.deletes(&entry.code, &entry.text)
+        }).count()
+    }
+
     fn has_direct_action_exact(&self, code: &str) -> bool {
+        if self
+            .user_lexicon
+            .entries_for_code(code)
+            .iter()
+            .any(|entry| entry.action.external_action().is_some())
+        {
+            return true;
+        }
         self.action_table
             .as_ref()
             .is_some_and(|table| table.has_direct_exact(code))
     }
 
     fn has_direct_action_continuation(&self, code: &str) -> bool {
-        self.action_table
-            .as_ref()
-            .is_some_and(|table| table.has_direct_continuation(code))
+        // External actions do not count as committable text, but their longer
+        // codes must still prevent top-screen commits and reverse splitting.
+        self.user_lexicon
+            .entries_for_longer_prefix(code)
+            .iter()
+            .any(|entry| {
+                entry.action.external_action().is_some()
+                    && !self.user_lexicon.deletes(&entry.code, &entry.text)
+            })
+            || self
+                .action_table
+                .as_ref()
+                .is_some_and(|table| table.has_direct_continuation(code))
     }
 
     fn exact_candidates_for(&self, code: &str) -> Vec<CodeTableCandidate> {
@@ -1005,16 +1281,33 @@ impl CodeTableStateMachine {
             |entry: &UserLexiconEntry| CodeTableCandidate {
                 id: entry.stable_id(),
                 text: entry.text.clone(),
-                display_text: entry.display_text.clone(),
+                display_text: entry.display_text.clone().or_else(|| {
+                    entry.action.external_action().map(|_| {
+                        if matches!(entry.action, UserLexiconAction::OpenUrl) {
+                            "打开网页".to_owned()
+                        } else {
+                            "打开目录".to_owned()
+                        }
+                    })
+                }),
                 code: entry.code.clone(),
-                category_id: "user-lexicon".to_owned(),
+                category_id: if entry.action.external_action().is_some() {
+                    "user-shortcut"
+                } else {
+                    "user-lexicon"
+                }
+                .to_owned(),
                 source_order: entry.source_order,
                 match_type: CodeTableMatch::Exact,
             },
         )
+        .into_iter()
+        .filter(|candidate| !self.is_external_shortcut(candidate))
+        .collect()
     }
 
     fn clear_query_state(&mut self) {
+        self.reverse_split_candidate_count = 0;
         self.query_cache = None;
         self.current_page = 0;
     }

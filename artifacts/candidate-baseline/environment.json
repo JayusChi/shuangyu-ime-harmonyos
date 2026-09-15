@@ -1,81 +1,81 @@
 {
-    "schema_version":  "candidate-baseline/environment/1",
-    "host":  {
-                 "os":  "Microsoft Windows 10.0.26200",
-                 "architecture":  "X64",
-                 "logical_processor_count":  16,
-                 "cargo":  "cargo 1.96.1 (356927216 2026-06-26)",
-                 "rustc":  "rustc 1.96.1 (31fca3adb 2026-06-26)"
-             },
-    "application":  {
-                        "bundle_name":  "com.corrosion.shuangyuime",
-                        "version_code":  1000000,
-                        "version_name":  "0.1.0",
-                        "engine_version":  "0.0.1-pinyin-stage1"
-                    },
-    "resources":  [
-                      {
-                          "id":  "production-v300-quanpin-lexicon",
-                          "path":  "dictionaries/generated/production.lex",
-                          "byte_size":  24049458,
-                          "sha256":  "005169f6050d45f93dd511d7de183338419419b67fb3556065b15432b0522a41"
-                      },
-                      {
-                          "id":  "production-flypy-shape-bundle",
-                          "path":  "dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx",
-                          "byte_size":  56184164,
-                          "sha256":  "f7bbfdf4473e9317d618c9ad02a792b47ff2dab8bfd74fa23416579e01f9bdc7"
-                      }
-                  ],
-    "page_size_contract":  {
-                               "arkts_requested_page_size":  50,
-                               "rust_default_page_size":  50,
-                               "rust_max_page_size":  500,
-                               "production_effective_page_size":  50,
-                               "normalization":  "min(caller_request, rust_max_page_size)"
-                           },
-    "environment_page_sizes":  [
-                                   {
-                                       "environment":  "Phone",
-                                       "source_level_effective_page_size":  50,
-                                       "actual_device_measurement":  "NOT_RUN",
-                                       "reason":  "No Phone simulator or physical device was attached during this host baseline run."
-                                   },
-                                   {
-                                       "environment":  "Pad",
-                                       "source_level_effective_page_size":  50,
-                                       "actual_device_measurement":  "NOT_RUN",
-                                       "reason":  "No Pad simulator or physical device was attached during this host baseline run."
-                                   },
-                                   {
-                                       "environment":  "Debug",
-                                       "source_level_effective_page_size":  50,
-                                       "actual_installed_build_measurement":  "NOT_RUN",
-                                       "reason":  "Debug and Release share EngineCoordinator and Rust QueryConfig; an installed Debug package was not instrumented."
-                                   },
-                                   {
-                                       "environment":  "Release",
-                                       "source_level_effective_page_size":  50,
-                                       "actual_installed_build_measurement":  "NOT_RUN",
-                                       "reason":  "Debug and Release share EngineCoordinator and Rust QueryConfig; an installed Release package was not instrumented."
-                                   }
-                               ],
-    "native_libraries":  [
-                             {
-                                 "path":  "entry/build/default/intermediates/stripped_native_libs/default/arm64-v8a/libime_bridge.so",
-                                 "byte_size":  3457064,
-                                 "sha256":  "57c39b9e96b98a671e3f17eb65e4d2fb198c617f4e6e21d1e645d4545eb0bbcc"
-                             },
-                             {
-                                 "path":  "entry/build/default/intermediates/stripped_native_libs/default/x86_64/libime_bridge.so",
-                                 "byte_size":  3881016,
-                                 "sha256":  "0579ce4eb9e733f878403c665873aaab951ea7fdcb6ff80c59d7a7c2ce1eb7d8"
-                             }
-                         ],
-    "native_library_status":  "HASHED_EXISTING_BUILD_ARTIFACTS",
-    "deterministic_fields_exclude":  [
-                                         "timestamp",
-                                         "temporary_directory",
-                                         "absolute_path"
-                                     ]
+  "schema_version": "candidate-baseline/environment/1",
+  "host": {
+    "os": "Microsoft Windows 10.0.26200",
+    "architecture": "X64",
+    "logical_processor_count": 16,
+    "cargo": "cargo 1.96.1 (356927216 2026-06-26)",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)"
+  },
+  "application": {
+    "bundle_name": "com.corrosion.shuangyuime",
+    "version_code": 1000000,
+    "version_name": "0.1.0",
+    "engine_version": "0.0.1-pinyin-stage1"
+  },
+  "resources": [
+    {
+      "id": "production-v300-quanpin-lexicon",
+      "path": "dictionaries/generated/production.lex",
+      "byte_size": 24049458,
+      "sha256": "005169f6050d45f93dd511d7de183338419419b67fb3556065b15432b0522a41"
+    },
+    {
+      "id": "production-flypy-shape-bundle",
+      "path": "dictionaries/generated/xiaohe-yinxing-production/xiaohe-yinxing-production.hsyx",
+      "byte_size": 56104310,
+      "sha256": "7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0"
+    }
+  ],
+  "page_size_contract": {
+    "arkts_requested_page_size": 50,
+    "rust_default_page_size": 50,
+    "rust_max_page_size": 500,
+    "production_effective_page_size": 50,
+    "normalization": "min(caller_request, rust_max_page_size)"
+  },
+  "environment_page_sizes": [
+    {
+      "environment": "Phone",
+      "source_level_effective_page_size": 50,
+      "actual_device_measurement": "NOT_RUN",
+      "reason": "No Phone simulator or physical device was attached during this host baseline run."
+    },
+    {
+      "environment": "Pad",
+      "source_level_effective_page_size": 50,
+      "actual_device_measurement": "NOT_RUN",
+      "reason": "No Pad simulator or physical device was attached during this host baseline run."
+    },
+    {
+      "environment": "Debug",
+      "source_level_effective_page_size": 50,
+      "actual_installed_build_measurement": "NOT_RUN",
+      "reason": "Debug and Release share EngineCoordinator and Rust QueryConfig; an installed Debug package was not instrumented."
+    },
+    {
+      "environment": "Release",
+      "source_level_effective_page_size": 50,
+      "actual_installed_build_measurement": "NOT_RUN",
+      "reason": "Debug and Release share EngineCoordinator and Rust QueryConfig; an installed Release package was not instrumented."
+    }
+  ],
+  "native_libraries": [
+    {
+      "path": "entry/build/default/intermediates/stripped_native_libs/default/arm64-v8a/libime_bridge.so",
+      "byte_size": 3478264,
+      "sha256": "9bf96f8f2dcfdd1ff1de6565395e77f92b84a1ebb339ae5abe772606340ffb70"
+    },
+    {
+      "path": "entry/build/default/intermediates/stripped_native_libs/default/x86_64/libime_bridge.so",
+      "byte_size": 3902056,
+      "sha256": "30907b1e39eb64fa6cd8f0c01b74e061da8a3c41bab14211cecde646768483d3"
+    }
+  ],
+  "native_library_status": "HASHED_EXISTING_BUILD_ARTIFACTS",
+  "deterministic_fields_exclude": [
+    "timestamp",
+    "temporary_directory",
+    "absolute_path"
+  ]
 }

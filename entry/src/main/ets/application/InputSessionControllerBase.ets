@@ -1,4 +1,5 @@
 import { inputMethodEngine, InputMethodExtensionContext } from '@kit.IMEKit';
+import { Want } from '@kit.AbilityKit';
 import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
 import {
@@ -9,7 +10,11 @@ import {
 } from '../domain/editor/EditorContext';
 import { KeyboardMode, isSingleAsciiLetter, isT9PinyinDigit } from '../domain/keyboard/KeyboardAction';
 import { transformDirectText } from '../domain/keyboard/DirectTextTransformer';
-import { ImeSettings, PINYIN_9_SCHEME_ID, XIAOHE_YINXING_SCHEME_ID } from '../domain/settings/ImeSettings';
+import {
+  ImeSettings,
+  PINYIN_9_SCHEME_ID,
+  XIAOHE_YINXING_SCHEME_ID
+} from '../domain/settings/ImeSettings';
 import { EditorAttributeMapper } from '../infrastructure/ime/EditorAttributeMapper';
 import { ImeConnectionService } from '../infrastructure/ime/ImeConnectionService';
 import {
@@ -33,7 +38,7 @@ import { initializeSharedKeySoundBackend } from '../infrastructure/audio/KeySoun
 import { UserModelCommandRepository } from '../infrastructure/storage/UserModelCommandRepository';
 import { UserModelCommandBus } from '../infrastructure/storage/UserModelCommandBus';
 import { UserLexiconSyncBus } from '../infrastructure/storage/UserLexiconSyncBus';
-import { CompositionResult, NativeEngineGatewayContract } from '../infrastructure/native/NativeEngineTypes';
+import { Candidate, CompositionResult, NativeEngineGatewayContract } from '../infrastructure/native/NativeEngineTypes';
 import { UserLexiconImportManager } from './UserLexiconImportManager';
 import { NativeEngineGateway } from '../infrastructure/native/NativeEngineGateway';
 import {
@@ -58,9 +63,15 @@ import { UserLexiconDocumentEditor } from './UserLexiconController';
 import { DirectControlService } from './DirectControlService';
 import {
   DirectSessionActionResult,
-  DirectSessionActionService
+  DirectSessionActionService,
+  DirectAbilityLauncher,
+  getSharedDirectAbilityLaunchers
 } from './DirectSessionActionService';
 
+import { ShapeLookupService } from './ShapeLookupService';
+import { ClipboardReverseLookupService } from './ClipboardReverseLookupService';
+import { CLIPBOARD_REVERSE_CODE, CLIPBOARD_REVERSE_LABEL } from '../domain/direct/ClipboardReverseLookup';
+import { SHAPE_LOOKUP_CODE, SHAPE_LOOKUP_TARGET, SHAPE_LOOKUP_LABEL } from '../domain/direct/ShapeLookup';
 import { ImeInputService } from './ImeInputService';
 import { SmartPeriodController, SmartPeriodInputAction } from './SmartPeriodController';
 import { AiAction } from '../domain/ai/AiContracts';
@@ -119,6 +130,15 @@ class SessionProtocolActionHandlers implements ProtocolActionHandlers {
   }
 }
 
+class InputMethodDirectAbilityLauncher implements DirectAbilityLauncher {
+  private readonly context: InputMethodExtensionContext;
+
+  constructor(context: InputMethodExtensionContext) { this.context = context; }
+  async startAbility(want: Want): Promise<void> {
+    await this.context.startAbility(want);
+  }
+}
+
 export class InputSessionControllerBase {
   protected readonly store: InputSessionStore;
   protected readonly imeService: ImeInputService;
@@ -136,6 +156,7 @@ export class InputSessionControllerBase {
   protected userModelPath?: string;
   protected userLexiconPath?: string;
   protected abilityContext?: InputMethodExtensionContext;
+  private abilityLauncher?: DirectAbilityLauncher;
   protected readonly userModelCommands: UserModelCommandRepository = new UserModelCommandRepository();
   protected readonly userModelCommandBus: UserModelCommandBus = new UserModelCommandBus();
   protected readonly userLexiconSyncBus: UserLexiconSyncBus = new UserLexiconSyncBus();
@@ -148,6 +169,10 @@ export class InputSessionControllerBase {
   protected readonly lexiconImportManager: UserLexiconImportManager = new UserLexiconImportManager();
   protected readonly directControlService: DirectControlService;
   protected readonly directSessionActionService: DirectSessionActionService;
+  protected readonly shapeLookupService: ShapeLookupService = new ShapeLookupService();
+  protected readonly clipboardReverseService: ClipboardReverseLookupService = new ClipboardReverseLookupService();
+  private shapeLookupGeneration: number = -1;
+  private shapeLookupText: string = '';
   protected readonly onEditorAttributeChanged = (attribute: inputMethodEngine.EditorAttribute): void => {
     this.handleEditorAttributeChanged(attribute);
   };
@@ -184,8 +209,7 @@ export class InputSessionControllerBase {
     this.smartPeriodController = smartPeriodController;
     this.directControlService = new DirectControlService(settingsController);
     this.directSessionActionService = new DirectSessionActionService(
-      (): InputMethodExtensionContext | undefined => this.abilityContext,
-      this.imeService
+      (): DirectAbilityLauncher | undefined => getSharedDirectAbilityLaunchers().get()
     );
     const actionHandlers: ProtocolActionHandlers = new SessionProtocolActionHandlers(
       (generation: number): Promise<boolean> => this.repeatLastCommit(generation),
@@ -193,6 +217,28 @@ export class InputSessionControllerBase {
       async (action: string, target: string, generation: number): Promise<boolean> => {
         if (!this.isInputSessionGenerationCurrent(generation)) {
           return false;
+        }
+        if (action === 'url.open' && target === SHAPE_LOOKUP_TARGET) {
+          const state = this.store.getSnapshot();
+          if (state.editorContext.isPassword || state.rawInput !== SHAPE_LOOKUP_CODE) { return false; }
+          // The oix preedit belongs to the IME. Remove it before reading the committed
+          // cursor context or handing focus to the browser/permission UI.
+          if (!(await this.imeService.clearPreviewText(generation)) ||
+            !this.isInputSessionGenerationCurrent(generation)) { return false; }
+          let character = this.shapeLookupGeneration === generation ? this.shapeLookupText : '';
+          if (character.length === 0) {
+            let before = '';
+            try { before = (await this.imeService.getTextBeforeCursor?.(4)) ?? ''; } catch (_) {}
+            character = await this.shapeLookupService.resolve(before, '', false);
+          }
+          if (!this.isInputSessionGenerationCurrent(generation)) { return false; }
+          this.store.clearComposition();
+          this.shapeLookupGeneration = -1;
+          this.shapeLookupText = '';
+          return (await this.directSessionActionService.execute(action, target, character)).success;
+        }
+        if (action === 'editor.delete-line') {
+          return target.length === 0 && (await this.deleteCurrentLine(generation)).success;
         }
         const sessionResult: DirectSessionActionResult =
           await this.directSessionActionService.execute(action, target);
@@ -239,6 +285,42 @@ export class InputSessionControllerBase {
     );
   }
 
+  async refreshClipboardReverseCandidate(generation: number = this.getInputSessionGeneration()): Promise<void> {
+    const request = this.store.beginClipboardReverseRequest();
+    const state = this.store.getSnapshot();
+    if (!this.isInputSessionGenerationCurrent(generation) || state.rawInput !== CLIPBOARD_REVERSE_CODE ||
+      state.editorContext.isPassword || !state.editorContext.chineseModeAllowed ||
+      state.keyboardMode !== KeyboardMode.CHINESE ||
+      !state.candidates.some((candidate: Candidate): boolean =>
+        candidate.source === 'functional' && candidate.text === CLIPBOARD_REVERSE_LABEL)) { return; }
+    const result = await this.clipboardReverseService.resolve(
+      (character: string): string[] => this.engineCoordinator.reverseLookup(character));
+    if (!this.isInputSessionGenerationCurrent(generation) ||
+      this.store.getSnapshot().rawInput !== CLIPBOARD_REVERSE_CODE || this.store.getSnapshot().editorContext.isPassword) { return; }
+    this.store.setClipboardReverseResult(request, result);
+  }
+
+  protected async refreshShapeLookupCandidate(generation: number): Promise<void> {
+    const state = this.store.getSnapshot();
+    if (state.rawInput !== SHAPE_LOOKUP_CODE || state.editorContext.isPassword ||
+      !state.candidates.some((candidate: Candidate): boolean =>
+        candidate.source === 'functional' && candidate.text === SHAPE_LOOKUP_LABEL)) {
+      this.shapeLookupGeneration = -1;
+      this.shapeLookupText = '';
+      return;
+    }
+    let before = '';
+    try { before = (await this.imeService.getTextBeforeCursor?.(8)) ?? ''; } catch (_) {}
+    if (!this.isInputSessionGenerationCurrent(generation)) { return; }
+    const character = await this.shapeLookupService.resolve(before, state.rawInput,
+      this.imeService.isCursorPreviewActive?.() === true);
+    if (!this.isInputSessionGenerationCurrent(generation) || this.store.getSnapshot().rawInput !== SHAPE_LOOKUP_CODE) { return; }
+    this.shapeLookupText = character;
+    this.shapeLookupGeneration = generation;
+    this.store.setFunctionalCandidateDisplay(SHAPE_LOOKUP_LABEL,
+      character.length > 0 ? '「查」：' + character : '「查」：剪贴板');
+  }
+
   getState(): InputSessionState {
     return this.store.getSnapshot();
   }
@@ -256,6 +338,7 @@ export class InputSessionControllerBase {
   }
 
   beginInputAction(timestampMs: number = Date.now()): SmartPeriodInputAction {
+    this.store.beginClipboardReverseRequest();
     this.aiAssistController.invalidateForInput();
     this.voiceInputController.invalidateForInput();
     this.store.clearLocalAssociations();
@@ -308,6 +391,10 @@ export class InputSessionControllerBase {
     this.imeService.clearDeletionRecovery?.();
     this.inputMethodSwitcher.setSessionActive(false);
     this.abilityContext = context;
+    if (context) {
+      this.abilityLauncher = new InputMethodDirectAbilityLauncher(context);
+      getSharedDirectAbilityLaunchers().bind(this.abilityLauncher);
+    }
     this.store.resetAll();
     if (capabilityState) {
       this.store.setInputMethodCapabilityState(capabilityState);
@@ -539,6 +626,8 @@ export class InputSessionControllerBase {
     this.settingsController.unsubscribe(this.onAssistSettingsChanged);
     this.userModelPath = undefined;
     this.userLexiconPath = undefined;
+    if (this.abilityLauncher) { getSharedDirectAbilityLaunchers().unbind(this.abilityLauncher); }
+    this.abilityLauncher = undefined;
     this.abilityContext = undefined;
     this.store.resetAll();
     LOGGER.info('ability destroyed');
@@ -727,6 +816,59 @@ export class InputSessionControllerBase {
     }
   }
 
+  async deleteCurrentLine(
+    generation: number = this.getInputSessionGeneration(),
+    cancelCompositionOnly: boolean = false
+  ): Promise<InputOperationResult> {
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('delete current line');
+    }
+    const sessionCheck = this.ensureInputSession('delete current line');
+    if (!sessionCheck.success) {
+      return sessionCheck;
+    }
+    const state = this.store.getSnapshot();
+    const hasComposition = state.rawInput.length > 0 || state.candidates.length > 0;
+    if (!(hasComposition && cancelCompositionOnly) && this.imeService.deleteCurrentLine === undefined) {
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line is unavailable');
+    }
+    if (hasComposition) {
+      const cleared = await this.imeService.clearPreviewText(generation);
+      if (!this.isInputSessionGenerationCurrent(generation)) {
+        return this.staleInputAction('delete current line preview cleanup');
+      }
+      if (!cleared) {
+        this.store.recordError(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'delete current line preview cleanup failed');
+        return inputOperationFailed(
+          ImeErrorCode.ENGINE_INTERNAL_ERROR,
+          'delete current line preview cleanup failed'
+        );
+      }
+    }
+    this.imeService.resetPreviewState();
+    this.imeService.clearPairState?.();
+    this.undoCommitManager?.invalidateUndo();
+    if (this.engineCoordinator.isInitialized()) {
+      this.engineCoordinator.reset();
+    }
+    this.store.clearComposition();
+    // 下滑优先取消尚未上屏的输入；直通命令仍保留显式删除整行的语义。
+    if (hasComposition && cancelCompositionOnly) {
+      this.store.clearError();
+      return inputOperationOk();
+    }
+    const deleted = await this.imeService.deleteCurrentLine?.();
+    if (!this.isInputSessionGenerationCurrent(generation)) {
+      return this.staleInputAction('delete current line completion');
+    }
+    if (deleted) {
+      this.store.clearError();
+      return inputOperationOk();
+    }
+    this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line failed');
+    return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'delete current line failed');
+  }
+
   protected async updateCompositionText(
     text: string,
     previewSupported: boolean,
@@ -748,6 +890,12 @@ export class InputSessionControllerBase {
       this.store.setCursorPreeditVisible(text.length > 0 && cursorPreviewActive);
     }
     return updated;
+  }
+
+  /** Embedded codes use the host's real preview range, never ordinary text insertion. */
+  protected shouldUseCursorPreedit(state: InputSessionState): boolean {
+    return this.settingsController.getSettings().inlinePreeditEnabled &&
+      state.editorContext.textPreviewSupported && !state.editorContext.isPassword;
   }
 
   protected syncCursorPreeditVisibility(rawInput: string): void {
@@ -886,6 +1034,19 @@ export class InputSessionControllerBase {
 
   setFloatingCandidateVisible(visible: boolean): void {
     this.store.setFloatingCandidateVisible(visible);
+  }
+
+  usesPhoneticSemicolon(): boolean {
+    const schemeId = this.engineCoordinator.getActiveSchemeId();
+    return schemeId === 'xiaohe' || schemeId === 'quanpin' || schemeId === PINYIN_9_SCHEME_ID;
+  }
+
+  setHardwareCandidatePageSize(pageSize: number, schemeId: string = ''): void {
+    this.store.setHardwareCandidatePageSize(pageSize, schemeId);
+  }
+
+  setFloatingCandidateExpanded(expanded: boolean): boolean {
+    return this.store.setFloatingCandidateExpanded(expanded);
   }
 
   setCandidatePanelExpanded(expanded: boolean): boolean {

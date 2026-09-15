@@ -11,7 +11,7 @@
 
 | 文件 | 行 | 类型 | 原因代码 | 摘要 |
 | --- | ---: | --- | --- | --- |
-| `小鹤音形/0.0.小鹤.txt` | 68571 | `url` | `REJECT_NETWORK_ACTION` | `1aa43a3bfc4de4d7` |
+| `小鹤音形/0.0.小鹤.txt` | 68570 | `url` | `REJECT_NETWORK_ACTION` | `1aa43a3bfc4de4d7` |
 | `小鹤音形/2.3.直通-安卓.txt` | 25 | `url` | `REJECT_NETWORK_ACTION` | `5fd51d98c52d6a4e` |
 | `小鹤音形/2.3.直通-安卓.txt` | 26 | `url` | `REJECT_NETWORK_ACTION` | `1aa43a3bfc4de4d7` |
 | `小鹤音形/2.3.直通-安卓.txt` | 27 | `url` | `REJECT_NETWORK_ACTION` | `5536cf367e878ea0` |

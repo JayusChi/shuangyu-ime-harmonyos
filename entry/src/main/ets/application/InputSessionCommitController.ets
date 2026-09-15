@@ -1,3 +1,6 @@
+import { SHAPE_LOOKUP_TARGET } from '../domain/direct/ShapeLookup';
+import { CLIPBOARD_REVERSE_CODE, CLIPBOARD_REVERSE_LABEL } from '../domain/direct/ClipboardReverseLookup';
+import { isConvenienceInput } from '../domain/keyboard/ConvenienceInput';
 import { inputMethodEngine, InputMethodExtensionContext } from '@kit.IMEKit';
 import { ImeErrorCode } from '../common/error/ImeError';
 import { Logger } from '../common/logging/Logger';
@@ -100,7 +103,7 @@ export class InputSessionCommitController extends InputSessionControllerBase {
     }
 
     const state = this.store.getSnapshot();
-    if (state.editorContext.isPassword || state.keyboardMode !== KeyboardMode.CHINESE ||
+    if (state.editorContext.isPassword || (state.keyboardMode !== KeyboardMode.CHINESE && !isConvenienceInput(state.rawInput)) ||
       !state.candidateBarVisible) {
       this.store.recordError(ImeErrorCode.UNSUPPORTED_OPERATION, 'candidate commit is disabled for this editor');
       return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, 'candidate commit is disabled for this editor');
@@ -123,7 +126,10 @@ export class InputSessionCommitController extends InputSessionControllerBase {
     try {
       LOGGER.info(`candidate commit started: stage=prepare, index=${candidateIndex}`);
       if (candidate.source === 'functional') {
-        return this.commitFunctionalCandidate(candidateIndex, generation);
+        if (state.rawInput === CLIPBOARD_REVERSE_CODE && candidate.text === CLIPBOARD_REVERSE_LABEL) {
+          return await this.commitClipboardReverseCandidate(candidateIndex, generation);
+        }
+        return await this.commitFunctionalCandidate(candidateIndex, generation);
       }
       const predictedRemainingRaw = remainingRawInputAfterCandidate(
         state.rawInput,
@@ -166,7 +172,7 @@ export class InputSessionCommitController extends InputSessionControllerBase {
       LOGGER.info(`candidate commit continuing: stage=nativeCommit, index=${candidateIndex}`);
       let result: CompositionResult;
       try {
-        result = this.engineCoordinator.selectCandidate(candidateIndex);
+        result = this.engineCoordinator.selectCandidate(this.store.resolveEngineCandidateIndex(candidateIndex));
       } catch (err) {
         return this.handleCandidateConfirmationFailure(
           candidateIndex,
@@ -188,7 +194,7 @@ export class InputSessionCommitController extends InputSessionControllerBase {
         // Chinese prefix if a future engine version returns a different tail.
         const reconciled = await this.updateCompositionText(
           result.rawInput,
-          false,
+          this.shouldUseCursorPreedit(state),
           generation
         );
         if (!this.isInputSessionGenerationCurrent(generation)) {
@@ -205,7 +211,7 @@ export class InputSessionCommitController extends InputSessionControllerBase {
         // reinsert that raw tail into the editor beside the committed prefix.
         const remainingPreviewUpdated = await this.updateCompositionText(
           result.rawInput,
-          false,
+          this.shouldUseCursorPreedit(state),
           generation,
           true
         );
@@ -244,13 +250,43 @@ export class InputSessionCommitController extends InputSessionControllerBase {
     }
   }
 
+  private async commitClipboardReverseCandidate(candidateIndex: number, generation: number): Promise<InputOperationResult> {
+    if (this.store.getClipboardReverseResult() === undefined) {
+      await this.refreshClipboardReverseCandidate(generation);
+    }
+    if (!this.isInputSessionGenerationCurrent(generation)) { return this.staleInputAction('clipboard reverse'); }
+    const lookup = this.store.getClipboardReverseResult();
+    if (lookup === undefined || !lookup.available) {
+      const message = '请点击候选区的粘贴按钮，读取单字后反查';
+      return inputOperationFailed(ImeErrorCode.UNSUPPORTED_OPERATION, message);
+    }
+    // Display and commit share the same snapshot. Never insert the placeholder,
+    // clipboard contents or the triggering code into the editor.
+    const inserted = lookup.text.length > 0
+      ? await this.imeService.commitPreviewText(lookup.text, generation)
+      : await this.imeService.clearPreviewText(generation);
+    if (!this.isInputSessionGenerationCurrent(generation)) { return this.staleInputAction('clipboard reverse completion'); }
+    if (!inserted) {
+      return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, '反查编码上屏失败，请重试');
+    }
+    if (lookup.text.length > 0) { this.recordCommittedText(lookup.text); }
+    // The clipboard action was fulfilled above; consume its native candidate
+    // only after the editor succeeds, without dispatching the action twice.
+    try { this.engineCoordinator.selectCandidate(this.store.resolveEngineCandidateIndex(candidateIndex)); } finally {
+      this.engineCoordinator.reset();
+      this.store.clearComposition();
+      this.syncCursorPreeditVisibility('');
+    }
+    return inputOperationOk();
+  }
+
   private async commitFunctionalCandidate(
     candidateIndex: number,
     generation: number
   ): Promise<InputOperationResult> {
     let result: CompositionResult;
     try {
-      result = this.engineCoordinator.selectCandidate(candidateIndex);
+      result = this.engineCoordinator.selectCandidate(this.store.resolveEngineCandidateIndex(candidateIndex));
     } catch (err) {
       this.store.recordError(ImeErrorCode.NATIVE_BRIDGE_ERROR, 'functional candidate confirmation failed');
       return inputOperationFailed(ImeErrorCode.NATIVE_BRIDGE_ERROR, 'functional candidate confirmation failed');
@@ -272,6 +308,20 @@ export class InputSessionCommitController extends InputSessionControllerBase {
         this.publishLocalAssociations();
       }
     } else if (result.action !== null && result.action !== undefined) {
+      // Navigation/settings actions must not strand embedded codes in the editor.
+      // Text-producing actions replace the preview through their own commit path.
+      const actionClearsPreview = result.action.type === 'DIRECT_CONTROL' &&
+        (result.action.formatId === 'editor.delete-line' ||
+          (result.action.formatId === 'url.open' && result.action.text === SHAPE_LOOKUP_TARGET));
+      if (!actionClearsPreview && result.action.type !== 'DATE_TIME_TEXT' && result.action.type !== 'INSERT_PAIR' &&
+        this.imeService.isCursorPreviewActive?.() === true) {
+        const cleared = await this.imeService.clearPreviewText(generation);
+        if (!this.isInputSessionGenerationCurrent(generation)) { return this.staleInputAction('functional preview clear'); }
+        if (!cleared) {
+          return inputOperationFailed(ImeErrorCode.ENGINE_INTERNAL_ERROR, 'functional preview clear failed');
+        }
+        this.store.setCursorPreeditVisible(false);
+      }
       const executed = await this.protocolActionExecutor.execute(result.action, generation);
       inserted = executed.textInserted;
       actionSucceeded = executed.status === ProtocolActionExecutionStatus.SUCCESS;

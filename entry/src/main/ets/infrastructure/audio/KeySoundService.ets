@@ -8,7 +8,7 @@ import { SettingsStore, getSharedSettingsStore } from '../../state/SettingsStore
 const LOGGER = new Logger('KeySoundService');
 
 export interface KeySoundBackend {
-  play(): Promise<void>;
+  play(volume?: number): Promise<void>;
   dispose(): Promise<void>;
 }
 
@@ -25,7 +25,7 @@ export class HarmonyKeySoundBackend implements KeySoundBackend {
     return this.initializationTask;
   }
 
-  async play(): Promise<void> {
+  async play(volume: number = 0.16): Promise<void> {
     if (this.initializationTask) {
       await this.initializationTask;
     }
@@ -35,8 +35,8 @@ export class HarmonyKeySoundBackend implements KeySoundBackend {
     const parameters: media.PlayParameters = {
       loop: 0,
       rate: audio.AudioRendererRate.RENDER_RATE_NORMAL,
-      leftVolume: 0.16,
-      rightVolume: 0.16,
+      leftVolume: Math.max(0, Math.min(1, volume)),
+      rightVolume: Math.max(0, Math.min(1, volume)),
       priority: 1
     };
     try {
@@ -152,7 +152,7 @@ export class KeySoundService {
       return;
     }
     this.lastPlayAt = now;
-    this.backend.play().catch((err: Object) => {
+    this.backend.play(this.settingsStore.getSnapshot().keySoundVolume / 100).catch((err: Object) => {
       LOGGER.debug(`key sound unavailable: ${JSON.stringify(err)}`);
     });
   }

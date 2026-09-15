@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@ohos/hypium';
+import { DeleteRepeatController } from '../main/ets/application/DeleteRepeatController';
 import {
   AlternateKeyGestureController,
   KEY_SWIPE_VERTICAL_DOMINANCE_RATIO,
@@ -15,6 +16,46 @@ function wait(ms: number): Promise<void> {
 
 export default function keyboardAlternateGestureTest() {
   describe('keyboard alternate gestures', () => {
+    it('lets a slow delete swipe finish without starting repeat deletion', 0, async () => {
+      const events: string[] = [];
+      const repeat = new DeleteRepeatController(() => { events.push('delete'); }, 30);
+      const gesture = new AlternateKeyGestureController(
+        () => repeat.triggerSingleDelete(),
+        () => { events.push('long'); },
+        () => { events.push('up'); },
+        30,
+        () => { repeat.cancelForAlternateGesture(); events.push('down'); },
+        KEY_SWIPE_DOWN_THRESHOLD_VP,
+        () => repeat.stop()
+      );
+      gesture.start(20, 100);
+      repeat.start();
+      expect(gesture.move(20, 107)).assertFalse();
+      await wait(70);
+      expect(events.length).assertEqual(0);
+      expect(gesture.move(20, 120)).assertTrue();
+      gesture.release();
+      repeat.stop();
+      gesture.click();
+      expect(events.join(',')).assertEqual('down');
+      gesture.destroy();
+      repeat.destroy();
+    });
+
+    it('keeps small finger jitter eligible for long press', 0, async () => {
+      const events: string[] = [];
+      const controller = new AlternateKeyGestureController(
+        () => { events.push('tap'); }, () => { events.push('long'); },
+        () => { events.push('up'); }, 5
+      );
+      controller.start(20, 100);
+      controller.move(22, 103);
+      await wait(15);
+      controller.release();
+      controller.click();
+      expect(events.join(',')).assertEqual('long');
+      controller.destroy();
+    });
     it('dispatches a short tap only once', 0, () => {
       const events: string[] = [];
       const controller = new AlternateKeyGestureController(

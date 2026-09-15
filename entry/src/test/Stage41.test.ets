@@ -157,6 +157,18 @@ export default function stage41Test() {
       expect(candidateFallback.displayText).assertEqual('ni');
       expect(candidateFallback.decoration).assertEqual(CompositionPreeditDecoration.UNDERLINE);
     });
+
+    it('keeps cursor-owned input code out of the floating candidate window', 0, () => {
+      const floating = resolveCompositionPreeditView({
+        rawInput: 'k',
+        preeditText: 'k',
+        cursorPreeditVisible: true,
+        placement: CompositionPreeditPlacement.FLOATING_WINDOW
+      });
+      expect(floating.visible).assertFalse();
+      expect(floating.displayText).assertEqual('');
+      expect(floating.decoration).assertEqual(CompositionPreeditDecoration.NONE);
+    });
   });
 
   // ── 8.2 InputSessionStore 中 rawInput 正确清空 ────────────────────────────

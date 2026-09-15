@@ -30,6 +30,7 @@ class RustEngineHandle {
     RustCallResult NextCandidatePage();
     RustCallResult PreviousCandidatePage();
     RustCallResult GetLocalAssociations();
+    RustCallResult ReverseLookup(const std::string& text);
     RustCallResult GetCodeTableCategoryConfig();
     RustCallResult SetCodeTableCategories(const std::string& categoryIdsJson);
     RustCallResult SetCodeTableCommitPolicy(const std::string& policyJson);

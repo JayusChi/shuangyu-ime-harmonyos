@@ -20,6 +20,10 @@
       "name": "Stage0InputMethodAbility_label",
       "value": "双羽输入法"
     },
+    { "name": "input_method_subtype_quanpin", "value": "中文全拼" },
+    { "name": "input_method_subtype_shuangpin", "value": "中文双拼" },
+    { "name": "input_method_subtype_yinxing", "value": "小鹤音形" },
+    { "name": "input_method_subtype_english", "value": "英文" },
     { "name": "settings_title", "value": "双羽输入法" },
     { "name": "settings_entry_page", "value": "pages/Index" },
     { "name": "settings_subtitle", "value": "本地设置，修改后立即应用" },

@@ -62,6 +62,28 @@ mod tests {
         path
     }
 
+    #[test]
+    fn convenience_uses_the_same_session_in_each_scheme() {
+        for scheme in ["xiaohe", "quanpin"] {
+            let mut engine = create_engine();
+            engine.change_scheme(scheme).unwrap();
+            for c in "=123+5*6".chars() {
+                assert!(engine.process_key(c).success);
+            }
+            assert_eq!(engine.current_state().candidates[1].text, "153");
+            assert_eq!(engine.select_candidate(1).unwrap().commit_text, "153");
+            assert!(engine.current_state().raw_input.is_empty());
+            for c in "'2026.5.5".chars() {
+                engine.process_key(c);
+            }
+            assert_eq!(engine.current_state().candidates.len(), 2);
+            assert_eq!(engine.backspace().raw_input, "'2026.5.");
+            assert_eq!(engine.current_state().candidates[0].text, "2026年5月");
+            engine.reset();
+            assert!(engine.current_state().raw_input.is_empty());
+        }
+    }
+
     fn create_engine() -> ImeEngine {
         let path = create_test_lexicon();
         ImeEngine::new(EngineConfig {
@@ -265,8 +287,7 @@ mod tests {
 
         assert!(!engine.t9_compatibility_decode_cache.is_empty());
         assert!(
-            engine.t9_compatibility_decode_cache.len()
-                <= T9_COMPATIBILITY_DECODE_CACHE_CAPACITY
+            engine.t9_compatibility_decode_cache.len() <= T9_COMPATIBILITY_DECODE_CACHE_CAPACITY
         );
 
         engine.set_user_learning_enabled(false);
@@ -601,8 +622,8 @@ mod tests {
     #[test]
     fn invalid_sequence_is_a_successful_composition_result_without_candidates() {
         let mut engine = create_engine();
-        engine.process_key('q');
-        let result = engine.process_key('g');
+        engine.process_key('a');
+        let result = engine.process_key('q');
         assert!(result.success);
         assert_eq!(result.error_code.as_i32(), 0);
         assert_eq!(result.parser_state, ProtocolParserState::Invalid);

@@ -14,17 +14,31 @@
     "requestPermissions": [
       {
         "name": "ohos.permission.VIBRATE"
+      },
+      {
+        "name": "ohos.permission.INTERNET"
       }
     ],
+    "metadata": [{ "name": "shuangyu.web.permission.profile", "value": "flypy-web-v1" }],
     "pages": "$profile:main_pages",
     "abilities": [
+      {
+        "name": "FlypyWebAbility",
+        "srcEntry": "./ets/entryability/FlypyWebAbility.ets",
+        "icon": "$media:layered_image",
+        "label": "$string:EntryAbility_label",
+        "startWindowIcon": "$media:start_window_blank",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": false,
+        "launchType": "singleton"
+      },
       {
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
         "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
-        "startWindowIcon": "$media:startIcon",
+        "startWindowIcon": "$media:start_window_blank",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
         "skills": [
@@ -60,6 +74,7 @@
         "icon": "$media:layered_image",
         "label": "$string:Stage0InputMethodAbility_label",
         "type": "inputMethod",
+        "dataGroupIds": ["group.1516753898738609081"],
         "exported": true,
         "metadata": [
           {

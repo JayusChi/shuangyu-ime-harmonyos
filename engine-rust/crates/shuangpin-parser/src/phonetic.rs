@@ -113,6 +113,13 @@ impl PhoneticParserKind {
         }
     }
 
+    pub fn xiaohe_pending_initial(&self) -> Option<&str> {
+        match self {
+            Self::Xiaohe(parser) => parser.inner().pending_initial(),
+            _ => None,
+        }
+    }
+
     pub fn has_explicit_pinyin_selection(&self) -> bool {
         matches!(self, Self::T9Pinyin(parser) if parser.has_explicit_selection())
     }

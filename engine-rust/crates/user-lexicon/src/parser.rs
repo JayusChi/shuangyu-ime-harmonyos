@@ -74,7 +74,8 @@ fn parse_user_lexicon_bytes_with_profile(
             continue;
         }
         let fields = line.split('\t').collect::<Vec<_>>();
-        if fields.len() != 2 && !(allow_embedded_metadata && fields.len() == 4) {
+        if fields.len() != 2 && fields.len() != 3 && !(allow_embedded_metadata && fields.len() == 4)
+        {
             return Err(error(
                 &path,
                 line_number,
@@ -85,25 +86,46 @@ fn parse_user_lexicon_bytes_with_profile(
             ));
         }
         let (code, action) = parse_code_and_action(&path, line_number, fields[1])?;
+        if fields.len() == 3 && action.external_action().is_none() {
+            return Err(error(
+                &path,
+                line_number,
+                UserLexiconField::Fields,
+                UserLexiconReason::FieldCount {
+                    actual: fields.len(),
+                },
+            ));
+        }
         let (text, inline_display_text) = if matches!(action, UserLexiconAction::Direct) {
             parse_direct_word_and_display(&path, line_number, fields[0])?
         } else {
             (fields[0], None)
         };
-        validate_word(text).map_err(|reason| {
-            let reason = match reason {
-                WordValidationError::Empty => UserLexiconReason::EmptyWord,
-                WordValidationError::TooLong { actual, max } => {
-                    UserLexiconReason::WordTooLong { actual, max }
-                }
-                WordValidationError::UnsupportedCharacter(ch) => {
-                    UserLexiconReason::UnsupportedWordCharacter {
-                        codepoint: ch as u32,
+        if let Some(external_action) = action.external_action() {
+            if !crate::valid_shortcut_target(external_action, text) {
+                return Err(error(
+                    &path,
+                    line_number,
+                    UserLexiconField::Word,
+                    UserLexiconReason::InvalidPath,
+                ));
+            }
+        } else {
+            validate_word(text).map_err(|reason| {
+                let reason = match reason {
+                    WordValidationError::Empty => UserLexiconReason::EmptyWord,
+                    WordValidationError::TooLong { actual, max } => {
+                        UserLexiconReason::WordTooLong { actual, max }
                     }
-                }
-            };
-            error(&path, line_number, UserLexiconField::Word, reason)
-        })?;
+                    WordValidationError::UnsupportedCharacter(ch) => {
+                        UserLexiconReason::UnsupportedWordCharacter {
+                            codepoint: ch as u32,
+                        }
+                    }
+                };
+                error(&path, line_number, UserLexiconField::Word, reason)
+            })?;
+        }
         let (display_text, category_id) = if fields.len() == 4 {
             let display_text = if fields[2].is_empty() {
                 inline_display_text.map(str::to_owned)
@@ -121,6 +143,18 @@ fn parse_user_lexicon_bytes_with_profile(
             };
             validate_category_id(&path, line_number, fields[3])?;
             (display_text, Some(fields[3].to_owned()))
+        } else if fields.len() == 3 {
+            if !fields[2].is_empty() {
+                validate_display_text(&path, line_number, fields[2])?;
+            }
+            (
+                if fields[2].is_empty() {
+                    None
+                } else {
+                    Some(fields[2].to_owned())
+                },
+                None,
+            )
         } else {
             (inline_display_text.map(str::to_owned), None)
         };
@@ -240,6 +274,8 @@ fn parse_code_and_action(
             let marker = &raw[index + 1..];
             let action = match marker {
                 "直" => UserLexiconAction::Direct,
+                "网页" => UserLexiconAction::OpenUrl,
+                "目录" => UserLexiconAction::OpenDirectory,
                 "删" => UserLexiconAction::Delete,
                 "固" => UserLexiconAction::Fixed,
                 "" => {

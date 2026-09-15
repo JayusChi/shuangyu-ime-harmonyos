@@ -1,8 +1,9 @@
-import { KeyboardKeySpec, KeyboardKeyKind } from '../model/KeyboardLayoutSpec';
+import { KeyboardKeySpec, KeyboardKeyKind, resolveKeyboardKeyLabel } from '../model/KeyboardLayoutSpec';
 import {
   DanranKeyBackgroundKind,
   KeyboardColorPalette,
-  resolveDanranKeyBackgroundSlice
+  resolveDanranKeyBackgroundSlice,
+  resolveModeSwitchKeyTextColor
 } from '../design/KeyboardPalette';
 import { OrientationMetrics } from '../design/KeyboardMetrics';
 import { KeyboardAction, KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
@@ -30,12 +31,14 @@ export interface BaseKeyProps {
   metrics: OrientationMetrics;
   keyboardMode: KeyboardMode;
   shiftState?: ShiftState;
+  hasCandidates?: boolean;
   longPressEnabled?: boolean;
   longPressDurationMs?: number;
   onKeyPress?: (spec: KeyboardKeySpec) => void;
   onKeyRelease?: (spec: KeyboardKeySpec) => void;
   onKeyClick?: (spec: KeyboardKeySpec) => void;
   onLongPressAction?: (action: KeyboardAction) => void;
+  onSwipeIntent?: () => void;
 }
 
 /**
@@ -49,6 +52,7 @@ export struct BaseKey {
   @Prop metrics: OrientationMetrics;
   @Prop keyboardMode: KeyboardMode = KeyboardMode.ENGLISH;
   @Prop shiftState: ShiftState = ShiftState.LOWERCASE;
+  @Prop hasCandidates: boolean = false;
   @Prop longPressEnabled: boolean = true;
   @Prop @Watch('resetGestureController') longPressDurationMs: number = DEFAULT_LONG_PRESS_DURATION_MS;
   @State private isPressed: boolean = false;
@@ -58,6 +62,7 @@ export struct BaseKey {
   onKeyRelease?: (spec: KeyboardKeySpec) => void;
   onKeyClick?: (spec: KeyboardKeySpec) => void;
   onLongPressAction?: (action: KeyboardAction) => void;
+  onSwipeIntent?: () => void;
 
   aboutToAppear(): void {
     this.resetGestureController();
@@ -73,7 +78,8 @@ export struct BaseKey {
       (): void => this.dispatchSwipeDown(),
       this.spec.kind === KeyboardKeyKind.LETTER
         ? LETTER_KEY_SWIPE_THRESHOLD_VP
-        : KEY_SWIPE_UP_THRESHOLD_VP
+        : KEY_SWIPE_UP_THRESHOLD_VP,
+      (): void => this.onSwipeIntent?.()
     );
   }
 
@@ -260,9 +266,7 @@ export struct BaseKey {
    */
   private getTextColor(): string {
     if (this.spec.kind === KeyboardKeyKind.MODE_SWITCH) {
-      return this.keyboardMode === KeyboardMode.ENGLISH
-        ? this.palette.modeKeyTextEnglish
-        : this.palette.modeKeyTextChinese;
+      return resolveModeSwitchKeyTextColor(this.spec.id, this.keyboardMode, this.palette);
     }
 
     if (this.spec.kind === KeyboardKeyKind.ENTER) {
@@ -300,11 +304,7 @@ export struct BaseKey {
    * 获取按键标签（模式切换键需要动态显示）
    */
   private getLabel(): string {
-    if (this.spec.kind === KeyboardKeyKind.MODE_SWITCH &&
-      (this.spec.id === 'mode-switch' || this.spec.id === 'language')) {
-      return this.keyboardMode === KeyboardMode.ENGLISH ? '英' : '中';
-    }
-    return this.spec.label;
+    return resolveKeyboardKeyLabel(this.spec, this.keyboardMode, this.hasCandidates);
   }
 
   build() {
@@ -345,6 +345,10 @@ export struct BaseKey {
             .fontColor(this.palette.candidateReading)
             .fontWeight(FontWeight.Regular)
             .maxLines(1)
+            .width('100%')
+            .textAlign(TextAlign.End)
+            .padding({ right: this.metrics.upperLabelRightMargin })
+            .translate({ y: -2 })
           Text(this.getLabel())
             .fontSize(this.getFontSize())
             .fontColor(this.getTextColor())
@@ -353,6 +357,7 @@ export struct BaseKey {
         }
         .justifyContent(FlexAlign.Center)
         .alignItems(HorizontalAlign.Center)
+        .width('100%')
       } else if (this.spec.secondaryLabel) {
         Column({ space: 1 }) {
           Text(this.getLabel())

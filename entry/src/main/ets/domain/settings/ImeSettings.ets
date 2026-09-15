@@ -12,7 +12,8 @@ import {
   normalizeSmartPunctuationSymbols
 } from '../keyboard/SmartPunctuation';
 import {
-  DEFAULT_LETTER_SWIPE_SYMBOLS,
+  DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS,
+  DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS,
   normalizeLetterSwipeSymbols
 } from '../keyboard/LetterSwipeSymbols';
 
@@ -29,6 +30,10 @@ export enum EffectiveTheme {
 
 export enum KeyboardHeightMode {
   EXTRA_COMPACT = 'extraCompact',
+  SCALE_085 = 'scale085',
+  SCALE_095 = 'scale095',
+  SCALE_105 = 'scale105',
+  SCALE_115 = 'scale115',
   COMPACT = 'compact',
   STANDARD = 'standard',
   TALL = 'tall',
@@ -37,26 +42,40 @@ export enum KeyboardHeightMode {
 
 export const KEYBOARD_HEIGHT_MODE_OPTIONS: KeyboardHeightMode[] = [
   KeyboardHeightMode.EXTRA_COMPACT,
+  KeyboardHeightMode.SCALE_085,
   KeyboardHeightMode.COMPACT,
+  KeyboardHeightMode.SCALE_095,
   KeyboardHeightMode.STANDARD,
+  KeyboardHeightMode.SCALE_105,
   KeyboardHeightMode.TALL,
+  KeyboardHeightMode.SCALE_115,
   KeyboardHeightMode.EXTRA_TALL
 ];
 
 export function keyboardHeightScale(mode: KeyboardHeightMode): number {
-  if (mode === KeyboardHeightMode.EXTRA_COMPACT) {
-    return 0.8;
-  }
-  if (mode === KeyboardHeightMode.COMPACT) {
-    return 0.9;
-  }
-  if (mode === KeyboardHeightMode.TALL) {
-    return 1.1;
-  }
-  if (mode === KeyboardHeightMode.EXTRA_TALL) {
-    return 1.2;
-  }
-  return 1;
+  const index = KEYBOARD_HEIGHT_MODE_OPTIONS.indexOf(mode);
+  return index < 0 ? 1 : (80 + index * 5) / 100;
+}
+
+export const DEFAULT_CANDIDATE_FONT_SIZE = 15;
+export const DEFAULT_CANDIDATE_DISPLAY_COUNT = 5;
+export const MIN_CANDIDATE_DISPLAY_COUNT = 1;
+export const MAX_CANDIDATE_DISPLAY_COUNT = 10;
+export const DEFAULT_KEYBOARD_FONT_SIZE = 12;
+export const MIN_KEYBOARD_FONT_SIZE = 8;
+export const MAX_KEYBOARD_FONT_SIZE = 32;
+export const DEFAULT_UPPER_LABEL_RIGHT_MARGIN = 10;
+export const MIN_UPPER_LABEL_RIGHT_MARGIN = 0;
+export const MAX_UPPER_LABEL_RIGHT_MARGIN = 16;
+export const DEFAULT_FLOATING_CANDIDATE_FONT_SIZE = 17;
+export const MIN_CANDIDATE_FONT_SIZE = 10;
+export const MAX_CANDIDATE_FONT_SIZE = 32;
+export const DEFAULT_KEY_SOUND_VOLUME = 16;
+
+export function legacyCandidateFontSize(mode: CandidateFontSizeMode, floating: boolean): number {
+  if (mode === CandidateFontSizeMode.SMALL) { return 12; }
+  if (mode === CandidateFontSizeMode.LARGE) { return 17; }
+  return floating ? DEFAULT_FLOATING_CANDIDATE_FONT_SIZE : DEFAULT_CANDIDATE_FONT_SIZE;
 }
 
 export enum CandidateFontSizeMode {
@@ -113,8 +132,15 @@ export interface ImeSettings {
   keyboardStructureId: string;
   keyboardSkinId: string;
   keyboardHeightMode: KeyboardHeightMode;
+  /** 保留旧版存储刻度；与 DEFAULT_KEYBOARD_FONT_SIZE 的差值作为自适应字号增减量。 */
+  keyboardFontSize: number;
+  upperLabelRightMargin: number;
   keyboardLiftLayerEnabled: boolean;
   candidateFontSizeMode: CandidateFontSizeMode;
+  candidateFontSize: number;
+  candidateDisplayCount: number;
+  floatingCandidateFontSize: number;
+  keySoundVolume: number;
   hapticLevel: HapticLevel;
   keySoundEnabled: boolean;
   userLearningEnabled: boolean;
@@ -141,8 +167,10 @@ export interface ImeSettings {
   traditionalOutputEnabled: boolean;
   codeTableEmptyClearLength: number;
   codeTableAutoCommitEnabled: boolean;
+  codeTableReverseSplitEnabled: boolean;
   inputPresentationPreference: InputPresentationPreference;
   candidatePresentationMode: CandidatePresentationMode;
+  inlinePreeditEnabled: boolean;
   xiaoheYinxingCategorySchemaVersion: number;
   xiaoheYinxingEnabledCategoryIds: string[];
   lexiconSources: LexiconSourceConfig[];
@@ -157,8 +185,14 @@ export interface SettingsRaw {
   keyboardStructureId?: string;
   keyboardSkinId?: string;
   keyboardHeightMode?: string;
+  keyboardFontSize?: string;
+  upperLabelRightMargin?: string;
   keyboardLiftLayerEnabled?: string;
   candidateFontSizeMode?: string;
+  candidateFontSize?: string;
+  candidateDisplayCount?: string;
+  floatingCandidateFontSize?: string;
+  keySoundVolume?: string;
   hapticLevel?: string;
   keySoundEnabled?: string;
   userLearningEnabled?: string;
@@ -185,8 +219,10 @@ export interface SettingsRaw {
   traditionalOutputEnabled?: string;
   codeTableEmptyClearLength?: string;
   codeTableAutoCommitEnabled?: string;
+  codeTableReverseSplitEnabled?: string;
   inputPresentationPreference?: string;
   candidatePresentationMode?: string;
+  inlinePreeditEnabled?: string;
   xiaoheYinxingCategorySchemaVersion?: string;
   xiaoheYinxingEnabledCategoryIds?: string;
   lexiconSources?: string;
@@ -201,9 +237,9 @@ export interface ShuangpinSchemeOption {
   displayName: string;
 }
 
-export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 16;
+export const CURRENT_SETTINGS_SCHEMA_VERSION: number = 24;
 export const DEFAULT_AI_ACTIONS: string[] = ['continue', 'concise', 'polite', 'formal', 'translate'];
-export const DEFAULT_SMART_PERIOD_TIMEOUT_MS: number = 500;
+export const DEFAULT_SMART_PERIOD_TIMEOUT_MS: number = 300;
 export const SMART_PERIOD_TIMEOUT_OPTIONS_MS: number[] = [0, 300, 500, 800, 1000];
 export const DEFAULT_LONG_PRESS_DURATION_MS: number = 300;
 export const MIN_LONG_PRESS_DURATION_MS: number = 150;
@@ -264,8 +300,14 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   keyboardStructureId: BUILTIN_KEYBOARD_STRUCTURE_ID,
   keyboardSkinId: BUILTIN_KEYBOARD_SKIN_ID,
   keyboardHeightMode: KeyboardHeightMode.STANDARD,
+  keyboardFontSize: DEFAULT_KEYBOARD_FONT_SIZE,
+  upperLabelRightMargin: DEFAULT_UPPER_LABEL_RIGHT_MARGIN,
   keyboardLiftLayerEnabled: true,
   candidateFontSizeMode: CandidateFontSizeMode.STANDARD,
+  candidateFontSize: DEFAULT_CANDIDATE_FONT_SIZE,
+  candidateDisplayCount: DEFAULT_CANDIDATE_DISPLAY_COUNT,
+  floatingCandidateFontSize: DEFAULT_FLOATING_CANDIDATE_FONT_SIZE,
+  keySoundVolume: DEFAULT_KEY_SOUND_VOLUME,
   hapticLevel: HapticLevel.LIGHT,
   keySoundEnabled: false,
   userLearningEnabled: true,
@@ -284,16 +326,18 @@ export const DEFAULT_IME_SETTINGS: ImeSettings = {
   smartPeriodTimeoutMs: DEFAULT_SMART_PERIOD_TIMEOUT_MS,
   longPressDurationMs: DEFAULT_LONG_PRESS_DURATION_MS,
   smartPunctuationSymbols: DEFAULT_SMART_PUNCTUATION_SYMBOLS,
-  chineseLetterSwipeSymbols: DEFAULT_LETTER_SWIPE_SYMBOLS,
-  englishLetterSwipeSymbols: DEFAULT_LETTER_SWIPE_SYMBOLS,
+  chineseLetterSwipeSymbols: DEFAULT_CHINESE_LETTER_SWIPE_SYMBOLS,
+  englishLetterSwipeSymbols: DEFAULT_ENGLISH_LETTER_SWIPE_SYMBOLS,
   punctuationMode: PunctuationMode.CHINESE,
   fullWidthEnabled: false,
   numericPeriodEnabled: false,
   traditionalOutputEnabled: false,
   codeTableEmptyClearLength: 4,
   codeTableAutoCommitEnabled: true,
+  codeTableReverseSplitEnabled: false,
   inputPresentationPreference: InputPresentationPreference.AUTO,
   candidatePresentationMode: CandidatePresentationMode.AUTO,
+  inlinePreeditEnabled: false,
   xiaoheYinxingCategorySchemaVersion: XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
   xiaoheYinxingEnabledCategoryIds: XIAOHE_YINXING_DEFAULT_ENABLED_CATEGORY_IDS.slice(),
   lexiconSources: []
@@ -328,8 +372,14 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     keyboardStructureId: settings.keyboardStructureId,
     keyboardSkinId: settings.keyboardSkinId,
     keyboardHeightMode: settings.keyboardHeightMode,
+    keyboardFontSize: settings.keyboardFontSize,
+    upperLabelRightMargin: settings.upperLabelRightMargin,
     keyboardLiftLayerEnabled: settings.keyboardLiftLayerEnabled,
     candidateFontSizeMode: settings.candidateFontSizeMode,
+    candidateFontSize: settings.candidateFontSize,
+    candidateDisplayCount: settings.candidateDisplayCount,
+    floatingCandidateFontSize: settings.floatingCandidateFontSize,
+    keySoundVolume: settings.keySoundVolume,
     hapticLevel: settings.hapticLevel,
     keySoundEnabled: settings.keySoundEnabled,
     userLearningEnabled: settings.userLearningEnabled,
@@ -356,8 +406,10 @@ export function copyImeSettings(settings: ImeSettings): ImeSettings {
     traditionalOutputEnabled: settings.traditionalOutputEnabled,
     codeTableEmptyClearLength: settings.codeTableEmptyClearLength,
     codeTableAutoCommitEnabled: settings.codeTableAutoCommitEnabled,
+    codeTableReverseSplitEnabled: settings.codeTableReverseSplitEnabled,
     inputPresentationPreference: settings.inputPresentationPreference,
     candidatePresentationMode: settings.candidatePresentationMode,
+    inlinePreeditEnabled: settings.inlinePreeditEnabled,
     xiaoheYinxingCategorySchemaVersion: settings.xiaoheYinxingCategorySchemaVersion,
     xiaoheYinxingEnabledCategoryIds: settings.xiaoheYinxingEnabledCategoryIds.slice(),
     lexiconSources: settings.lexiconSources.map((src: LexiconSourceConfig): LexiconSourceConfig => ({
@@ -379,8 +431,14 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.keyboardStructureId === right.keyboardStructureId &&
     left.keyboardSkinId === right.keyboardSkinId &&
     left.keyboardHeightMode === right.keyboardHeightMode &&
+    left.keyboardFontSize === right.keyboardFontSize &&
+    left.upperLabelRightMargin === right.upperLabelRightMargin &&
     left.keyboardLiftLayerEnabled === right.keyboardLiftLayerEnabled &&
     left.candidateFontSizeMode === right.candidateFontSizeMode &&
+    left.candidateFontSize === right.candidateFontSize &&
+    left.candidateDisplayCount === right.candidateDisplayCount &&
+    left.floatingCandidateFontSize === right.floatingCandidateFontSize &&
+    left.keySoundVolume === right.keySoundVolume &&
     left.hapticLevel === right.hapticLevel &&
     left.keySoundEnabled === right.keySoundEnabled &&
     left.userLearningEnabled === right.userLearningEnabled &&
@@ -408,11 +466,13 @@ export function imeSettingsEqual(left: ImeSettings, right: ImeSettings): boolean
     left.traditionalOutputEnabled === right.traditionalOutputEnabled &&
     left.codeTableEmptyClearLength === right.codeTableEmptyClearLength &&
     left.codeTableAutoCommitEnabled === right.codeTableAutoCommitEnabled &&
+    left.codeTableReverseSplitEnabled === right.codeTableReverseSplitEnabled &&
     left.fuzzyOptions.length === right.fuzzyOptions.length &&
     left.fuzzyOptions.every((option: QuanpinFuzzyOption, index: number): boolean =>
       option === right.fuzzyOptions[index]) &&
     left.inputPresentationPreference === right.inputPresentationPreference &&
     left.candidatePresentationMode === right.candidatePresentationMode &&
+    left.inlinePreeditEnabled === right.inlinePreeditEnabled &&
     left.xiaoheYinxingCategorySchemaVersion === right.xiaoheYinxingCategorySchemaVersion &&
     left.xiaoheYinxingEnabledCategoryIds.length === right.xiaoheYinxingEnabledCategoryIds.length &&
     left.xiaoheYinxingEnabledCategoryIds.every((id: string, index: number) =>
@@ -442,8 +502,14 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     keyboardStructureId: settings.keyboardStructureId,
     keyboardSkinId: settings.keyboardSkinId,
     keyboardHeightMode: settings.keyboardHeightMode,
+    keyboardFontSize: `${settings.keyboardFontSize}`,
+    upperLabelRightMargin: `${settings.upperLabelRightMargin}`,
     keyboardLiftLayerEnabled: settings.keyboardLiftLayerEnabled ? 'true' : 'false',
     candidateFontSizeMode: settings.candidateFontSizeMode,
+    candidateFontSize: `${settings.candidateFontSize}`,
+    candidateDisplayCount: `${settings.candidateDisplayCount}`,
+    floatingCandidateFontSize: `${settings.floatingCandidateFontSize}`,
+    keySoundVolume: `${settings.keySoundVolume}`,
     hapticLevel: settings.hapticLevel,
     keySoundEnabled: settings.keySoundEnabled ? 'true' : 'false',
     userLearningEnabled: settings.userLearningEnabled ? 'true' : 'false',
@@ -472,8 +538,10 @@ export function settingsToRaw(settings: ImeSettings): SettingsRaw {
     traditionalOutputEnabled: settings.traditionalOutputEnabled ? 'true' : 'false',
     codeTableEmptyClearLength: `${settings.codeTableEmptyClearLength}`,
     codeTableAutoCommitEnabled: settings.codeTableAutoCommitEnabled ? 'true' : 'false',
+    codeTableReverseSplitEnabled: settings.codeTableReverseSplitEnabled ? 'true' : 'false',
     inputPresentationPreference: settings.inputPresentationPreference,
     candidatePresentationMode: settings.candidatePresentationMode,
+    inlinePreeditEnabled: `${settings.inlinePreeditEnabled}`,
     xiaoheYinxingCategorySchemaVersion: `${settings.xiaoheYinxingCategorySchemaVersion}`,
     xiaoheYinxingEnabledCategoryIds: JSON.stringify(settings.xiaoheYinxingEnabledCategoryIds),
     lexiconSources: JSON.stringify(settings.lexiconSources)

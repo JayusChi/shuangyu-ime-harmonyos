@@ -1,5 +1,9 @@
+import { SettingsNavigationRow } from './SettingsNavigationComponents';
+import { openKeyboardSkinEditor } from '../../application/KeyboardSkinEditorLauncher';
 import common from '@ohos.app.ability.common';
 import picker from '@ohos.file.picker';
+import fs from '@ohos.file.fs';
+import util from '@ohos.util';
 import {
   getSharedSettingsController,
   SettingsController,
@@ -25,17 +29,26 @@ import {
 } from '../../application/SettingsWindowCoordinator';
 import {
   LETTER_SWIPE_KEYS,
+  LETTER_SWIPE_TAB_SYMBOL,
+  LetterSwipeSymbolProfileParseResult,
   MAX_LETTER_SWIPE_SYMBOL_UNITS,
   normalizeLetterSwipeSymbol,
+  parseLetterSwipeSymbolProfile,
   parseLetterSwipeSymbols,
-  RECOMMENDED_LETTER_SWIPE_SYMBOLS
+  RECOMMENDED_CHINESE_LETTER_SWIPE_SYMBOLS,
+  RECOMMENDED_ENGLISH_LETTER_SWIPE_SYMBOLS,
+  serializeLetterSwipeSymbolProfile
 } from '../../domain/keyboard/LetterSwipeSymbols';
 
 type CustomizationKind = 'structure' | 'skin';
 type SwipeSymbolMode = 'chinese' | 'english';
+const MAX_SWIPE_SYMBOL_PROFILE_BYTES: number = 64 * 1024;
+const SWIPE_SYMBOL_PROFILE_FILE_NAME: string = 'shuangyu_letter_swipe_symbols.sy-swipe';
 
 @Component
 export struct KeyboardCustomizationPage {
+  @Prop section: string = 'overview';
+  onNavigate: (destination: string) => void = () => {};
   private readonly settingsController: SettingsController = getSharedSettingsController();
   private readonly repository: KeyboardCustomizationRepository = getSharedKeyboardCustomizationRepository();
   @State private structures: KeyboardCustomizationOption[] = [];
@@ -45,8 +58,15 @@ export struct KeyboardCustomizationPage {
   @State private swipeSymbolMode: SwipeSymbolMode = 'chinese';
   @State private chineseSwipeSymbols: string[] = [];
   @State private englishSwipeSymbols: string[] = [];
-  @State private theme: SettingsThemeTokens = resolveSettingsTheme(false);
+  @Prop theme: SettingsThemeTokens = resolveSettingsTheme(false);
   @State private busy: boolean = false;
+  @State private openingEditor: boolean = false;
+  @State private editorError: string = '';
+  @State private storageMessage: string = '';
+  @State private importError: string = '';
+  @State private importErrorKind: CustomizationKind = 'skin';
+  @State private unavailableOptions: string[] = [];
+  private pageGeneration: number = 0;
   @State private safeArea: SettingsSafeAreaInsets = EMPTY_SETTINGS_SAFE_AREA;
   private windowCoordinator?: SettingsWindowCoordinator;
   private readonly onSafeAreaChanged: SettingsSafeAreaListener = (insets: SettingsSafeAreaInsets): void => {
@@ -55,13 +75,21 @@ export struct KeyboardCustomizationPage {
 
   aboutToAppear(): void {
     const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    this.repository.initialize(context);
+    const generation = ++this.pageGeneration;
+    this.busy = true;
+    this.repository.initialize(context, true).then((): void => {
+      if (generation === this.pageGeneration) {
+        this.busy = false;
+        this.refresh();
+      }
+    });
     this.windowCoordinator = getSharedSettingsWindowCoordinator();
     this.windowCoordinator?.subscribeSafeArea(this.onSafeAreaChanged);
     this.refresh();
   }
 
   aboutToDisappear(): void {
+    this.pageGeneration++;
     this.windowCoordinator?.unsubscribeSafeArea(this.onSafeAreaChanged);
     this.windowCoordinator = undefined;
   }
@@ -74,6 +102,15 @@ export struct KeyboardCustomizationPage {
     this.englishSwipeSymbols = parseLetterSwipeSymbols(settings.englishLetterSwipeSymbols);
     this.structures = this.repository.listStructures();
     this.skins = this.repository.listSkins();
+    this.storageMessage = this.repository.getStorageMessage();
+    this.unavailableOptions = this.structures
+      .filter((option: KeyboardCustomizationOption): boolean =>
+        this.repository.selectionError('structure', option.id).length > 0)
+      .map((option: KeyboardCustomizationOption): string => `structure:${option.id}`)
+      .concat(this.skins
+        .filter((option: KeyboardCustomizationOption): boolean =>
+          this.repository.selectionError('skin', option.id).length > 0)
+        .map((option: KeyboardCustomizationOption): string => `skin:${option.id}`));
     this.theme = resolveSettingsTheme(this.settingsController.isDarkMode());
   }
 
@@ -81,6 +118,20 @@ export struct KeyboardCustomizationPage {
     try {
       this.getUIContext().getPromptAction().showToast({ message });
     } catch (_) {}
+  }
+
+  private async openEditor(): Promise<void> {
+    if (this.openingEditor) { return; }
+    this.openingEditor = true;
+    this.editorError = '';
+    try {
+      await openKeyboardSkinEditor(this.getUIContext().getHostContext() as common.UIAbilityContext);
+    } catch (_) {
+      this.editorError = '暂时无法打开皮肤工坊，请确认已安装可打开 HTML 文件的浏览器后重试。';
+      this.showToast(this.editorError);
+    } finally {
+      this.openingEditor = false;
+    }
   }
 
   private goBack(): void {
@@ -95,6 +146,11 @@ export struct KeyboardCustomizationPage {
     if (this.busy) {
       return;
     }
+    const selectionError = this.repository.selectionError(kind, id);
+    if (selectionError.length > 0) {
+      this.showToast(selectionError);
+      return;
+    }
     this.busy = true;
     const result = kind === 'structure'
       ? await this.settingsController.setKeyboardStructureId(id)
@@ -106,6 +162,12 @@ export struct KeyboardCustomizationPage {
     if (this.busy) {
       return;
     }
+    if (!this.repository.canImport()) {
+      this.showToast(this.repository.getStorageMessage());
+      return;
+    }
+    this.importError = '';
+    this.importErrorKind = kind;
     try {
       const selected = await new picker.DocumentViewPicker().select({ maxSelectNumber: 1 });
       if (selected.length <= 0) {
@@ -118,19 +180,24 @@ export struct KeyboardCustomizationPage {
         : await this.repository.importSkinPackage(context, selected[0]);
       if (!imported.success || !imported.id) {
         this.busy = false;
+        this.importError = imported.message || '模板包无效，请重新导出后再导入';
         this.showToast(imported.message);
         return;
       }
       const selectedResult = kind === 'structure'
         ? await this.settingsController.setKeyboardStructureId(imported.id)
         : await this.settingsController.setKeyboardSkinId(imported.id);
+      if (!selectedResult.success) {
+        this.importError = selectedResult.message;
+      }
       this.finish(
         selectedResult,
-        selectedResult.success ? `${imported.name ?? '模板'}已导入并应用` : selectedResult.message
+        selectedResult.success ? `${imported.name ?? '模板'}已导入并设为当前模板` : selectedResult.message
       );
     } catch (err) {
       this.busy = false;
-      this.showToast(`选择模板包失败：${JSON.stringify(err)}`);
+      this.importError = `选择模板包失败：${JSON.stringify(err)}`;
+      this.showToast(this.importError);
     }
   }
 
@@ -157,6 +224,10 @@ export struct KeyboardCustomizationPage {
   }
 
   private async removeOptionConfirmed(kind: CustomizationKind, option: KeyboardCustomizationOption): Promise<void> {
+    if (!this.repository.canImport()) {
+      this.showToast(this.repository.getStorageMessage());
+      return;
+    }
     this.busy = true;
     const selected = kind === 'structure' ? this.selectedStructureId : this.selectedSkinId;
     if (selected === option.id) {
@@ -188,12 +259,17 @@ export struct KeyboardCustomizationPage {
 
   private updateSwipeSymbol(index: number, value: string): void {
     const symbols = this.currentSwipeSymbols().slice();
-    symbols[index] = normalizeLetterSwipeSymbol(value);
+    symbols[index] = value === '\\t' ? LETTER_SWIPE_TAB_SYMBOL : normalizeLetterSwipeSymbol(value);
     if (this.swipeSymbolMode === 'chinese') {
       this.chineseSwipeSymbols = symbols;
     } else {
       this.englishSwipeSymbols = symbols;
     }
+  }
+
+  private swipeSymbolInputText(index: number): string {
+    const symbol = this.currentSwipeSymbols()[index] ?? '';
+    return symbol === LETTER_SWIPE_TAB_SYMBOL ? '\\t' : symbol;
   }
 
   private clearSwipeSymbols(): void {
@@ -206,7 +282,11 @@ export struct KeyboardCustomizationPage {
   }
 
   private applyRecommendedSwipeSymbols(): void {
-    const recommended = parseLetterSwipeSymbols(RECOMMENDED_LETTER_SWIPE_SYMBOLS);
+    const recommended = parseLetterSwipeSymbols(
+      this.swipeSymbolMode === 'chinese'
+        ? RECOMMENDED_CHINESE_LETTER_SWIPE_SYMBOLS
+        : RECOMMENDED_ENGLISH_LETTER_SWIPE_SYMBOLS
+    );
     if (this.swipeSymbolMode === 'chinese') {
       this.chineseSwipeSymbols = recommended;
     } else {
@@ -224,6 +304,89 @@ export struct KeyboardCustomizationPage {
       JSON.stringify(this.englishSwipeSymbols)
     );
     this.finish(result, result.success ? '中英文下滑符号已保存' : result.message);
+  }
+
+  private readSwipeSymbolProfile(uri: string): string {
+    const file = fs.openSync(uri, fs.OpenMode.READ_ONLY);
+    try {
+      const size = fs.statSync(file.fd).size;
+      if (size <= 0 || size > MAX_SWIPE_SYMBOL_PROFILE_BYTES) {
+        throw new Error('文件大小必须在 1B～64KB 之间');
+      }
+      const buffer = new ArrayBuffer(size);
+      const bytesRead = fs.readSync(file.fd, buffer);
+      if (bytesRead !== size) {
+        throw new Error('文件读取不完整');
+      }
+      return new util.TextDecoder('utf-8').decode(new Uint8Array(buffer, 0, bytesRead));
+    } finally {
+      fs.closeSync(file);
+    }
+  }
+
+  private async importSwipeSymbolProfile(): Promise<void> {
+    if (this.busy) {
+      return;
+    }
+    try {
+      const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+      const selected = await new picker.DocumentViewPicker(context).select({
+        maxSelectNumber: 1,
+        fileSuffixFilters: ['双羽下滑符号|.sy-swipe,.json']
+      });
+      if (selected.length <= 0) {
+        return;
+      }
+      this.busy = true;
+      const parsed: LetterSwipeSymbolProfileParseResult = parseLetterSwipeSymbolProfile(
+        this.readSwipeSymbolProfile(selected[0])
+      );
+      if (!parsed.success || !parsed.value) {
+        this.busy = false;
+        this.showToast(parsed.message);
+        return;
+      }
+      const result = await this.settingsController.setLetterSwipeSymbols(
+        JSON.stringify(parsed.value.chineseSymbols),
+        JSON.stringify(parsed.value.englishSymbols)
+      );
+      this.finish(result, result.success ? '下滑符号已导入并保存，可继续修改' : result.message);
+    } catch (err) {
+      this.busy = false;
+      this.showToast(`下滑符号导入失败：${JSON.stringify(err)}`);
+    }
+  }
+
+  private async exportSwipeSymbolProfile(): Promise<void> {
+    if (this.busy) {
+      return;
+    }
+    try {
+      const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+      const selected = await new picker.DocumentViewPicker(context).save({
+        newFileNames: [SWIPE_SYMBOL_PROFILE_FILE_NAME],
+        fileSuffixChoices: ['双羽下滑符号|.sy-swipe']
+      });
+      if (selected.length <= 0) {
+        return;
+      }
+      this.busy = true;
+      const content = serializeLetterSwipeSymbolProfile(this.chineseSwipeSymbols, this.englishSwipeSymbols);
+      const file = fs.openSync(
+        selected[0],
+        fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC
+      );
+      try {
+        fs.writeSync(file.fd, content);
+      } finally {
+        fs.closeSync(file);
+      }
+      this.busy = false;
+      this.showToast('当前中英文下滑符号已导出');
+    } catch (err) {
+      this.busy = false;
+      this.showToast(`下滑符号导出失败：${JSON.stringify(err)}`);
+    }
   }
 
   @Builder
@@ -245,7 +408,10 @@ export struct KeyboardCustomizationPage {
         .width(22)
       Column({ space: 3 }) {
         Text(option.name).fontSize(15).fontColor(this.theme.primaryText).fontWeight(FontWeight.Medium)
-        Text(option.id).fontSize(11).fontColor(this.theme.secondaryText)
+        Text(option.builtIn ? (kind === 'structure' ? '内置结构' : '内置皮肤') : '已导入').fontSize(12).fontColor(this.theme.secondaryText)
+        if (this.unavailableOptions.indexOf(`${kind}:${option.id}`) >= 0) {
+          Text('尚未同步到输入法，请更新安装包后重新导入').fontSize(11).fontColor(this.theme.secondaryText)
+        }
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
@@ -260,9 +426,9 @@ export struct KeyboardCustomizationPage {
     }
     .width('100%')
     .padding({ left: 12, right: 8, top: 12, bottom: 12 })
-    .borderRadius(12)
+    .borderRadius(14)
     .backgroundColor(
-      this.isOptionSelected(kind, option.id) ? this.theme.selectedChipBackground : this.theme.chipBackground
+      this.isOptionSelected(kind, option.id) ? this.theme.selectedChipBackground : this.theme.pageBackground
     )
     .onClick((): void => {
       if (!this.isOptionSelected(kind, option.id)) {
@@ -272,63 +438,65 @@ export struct KeyboardCustomizationPage {
   }
 
   private isOptionSelected(kind: CustomizationKind, id: string): boolean {
+    if (this.unavailableOptions.indexOf(`${kind}:${id}`) >= 0) {
+      return false;
+    }
     return kind === 'structure' ? id === this.selectedStructureId : id === this.selectedSkinId;
   }
 
-  build() {
-    Stack() {
-      Column() {
-        Row({ space: 12 }) {
-          Button('‹')
-            .fontSize(28)
-            .fontColor(this.theme.primaryText)
-            .backgroundColor(Color.Transparent)
-            .onClick((): void => this.goBack())
-          Text('键盘结构与皮肤')
-            .fontSize(20)
-            .fontWeight(FontWeight.Bold)
-            .fontColor(this.theme.primaryText)
-            .layoutWeight(1)
-        }
-        .height(56)
-        .width('100%')
-        .padding({ left: 8, right: 18 })
+  @Builder
+  private Overview() {
+    Column() {
+      SettingsNavigationRow({ title: '设计自己的皮肤与布局',
+        description: this.openingEditor ? '正在打开皮肤工坊…' : '在浏览器中调整配色、图片和按键布局',
+        theme: this.theme, disabled: this.openingEditor,
+        controlId: 'settings-open-skin-editor', onOpen: (): void => { this.openEditor(); } })
+      Divider().color(this.theme.divider).margin({ left: 16, right: 16 })
+      Text('设计完成后导出皮肤包或结构包，回到此页，在下方对应项目中导入。关闭设计器前请先导出保存。')
+        .fontSize(12).fontColor(this.theme.secondaryText).width('100%')
+        .padding({ left: 16, right: 16, top: 14, bottom: 17 })
+      if (this.editorError.length > 0) {
+        Text(this.editorError).id('settings-skin-editor-error').fontSize(12)
+          .fontColor(this.theme.primaryText).width('100%').padding({ left: 16, right: 16, bottom: 17 })
+      }
+    }.width('100%').borderRadius(18).clip(true).backgroundColor(this.theme.cardBackground)
+    Column() {
+      SettingsNavigationRow({ title: '键盘结构', description: '选择按键布局，或导入自己的结构包', theme: this.theme,
+        controlId: 'settings-open-customization-structure', onOpen: () => this.onNavigate('customization-structure') })
+      Divider().color(this.theme.divider).margin({ left: 16, right: 16 })
+      SettingsNavigationRow({ title: '键盘皮肤', description: '选择配色与图片，或导入皮肤包', theme: this.theme,
+        controlId: 'settings-open-customization-skin', onOpen: () => this.onNavigate('customization-skin') })
+      Divider().color(this.theme.divider).margin({ left: 16, right: 16 })
+      SettingsNavigationRow({ title: '字母键下滑符号', description: '中英文分别设置，支持导入、导出映射', theme: this.theme,
+        controlId: 'settings-open-customization-swipe', onOpen: () => this.onNavigate('customization-swipe') })
+    }.width('100%').borderRadius(18).clip(true)
+    Column({ space: 8 }) {
+      Text('键盘内快捷切换').fontSize(16).fontWeight(FontWeight.Medium).fontColor(this.theme.primaryText)
+      Text('同时按“ϟ12 + 空格”切换皮肤；同时按“符 + 空格”切换结构。')
+        .fontSize(14).fontColor(this.theme.secondaryText)
+    }.width('100%').padding(18).alignItems(HorizontalAlign.Start)
+      .borderRadius(18).backgroundColor(this.theme.cardBackground)
+  }
 
-        Scroll() {
-          Column({ space: 18 }) {
-            this.SectionTitle('键盘结构', '结构只负责按键排列、宽度和显示文字，不改变输入引擎')
-            Button('导入结构包')
-              .width('100%')
-              .enabled(!this.busy)
-              .fontColor(Color.White)
-              .backgroundColor(this.theme.accent)
-              .onClick((): void => {
-                this.importPackage('structure');
-              })
-            ForEach(this.structures, (option: KeyboardCustomizationOption) => {
-              this.OptionRow('structure', option)
-            }, (option: KeyboardCustomizationOption): string =>
-              `${option.id}:${option.id === this.selectedStructureId ? 'selected' : 'idle'}`)
+  @Builder
+  private TemplateList(kind: CustomizationKind) {
+    Column({ space: 16 }) {
+      this.SectionTitle(kind === 'structure' ? '已安装结构' : '已安装皮肤',
+        kind === 'structure' ? '选择按键排列与宽度' : '皮肤可与已安装的键盘结构自由组合')
+      ForEach(kind === 'structure' ? this.structures : this.skins, (option: KeyboardCustomizationOption) => {
+        this.OptionRow(kind, option)
+      }, (option: KeyboardCustomizationOption): string =>
+        `${option.id}:${option.id === (kind === 'structure' ? this.selectedStructureId : this.selectedSkinId) ? 'selected' : 'idle'}`)
+    }.width('100%').padding(18).borderRadius(18).backgroundColor(this.theme.cardBackground)
+    Button(kind === 'structure' ? '导入结构包' : '导入皮肤包')
+      .width('100%').height(48).borderRadius(14).fontSize(16).enabled(!this.busy)
+      .fontColor('#FFFFFF').backgroundColor(this.theme.accent)
+      .id('settings-import-' + kind).onClick((): void => { this.importPackage(kind); })
+  }
 
-            Divider().color(this.theme.divider).margin({ top: 4, bottom: 4 })
-
-            this.SectionTitle('键盘皮肤', '皮肤只负责颜色和本地图片，可与任意已安装结构自由组合')
-            Button('导入皮肤包')
-              .width('100%')
-              .enabled(!this.busy)
-              .fontColor(Color.White)
-              .backgroundColor(this.theme.accent)
-              .onClick((): void => {
-                this.importPackage('skin');
-              })
-            ForEach(this.skins, (option: KeyboardCustomizationOption) => {
-              this.OptionRow('skin', option)
-            }, (option: KeyboardCustomizationOption): string =>
-              `${option.id}:${option.id === this.selectedSkinId ? 'selected' : 'idle'}`)
-
-            Divider().color(this.theme.divider).margin({ top: 4, bottom: 4 })
-
-            this.SectionTitle('字母键下滑符号', '中英文键盘分别设置；符号只在此页显示，不会标在键面上')
+  @Builder
+  private SwipeSymbols() {
+    this.SectionTitle('下滑符号映射', '中英文分别设置；制表符显示为 \\t。修改后点击保存。')
             Row({ space: 10 }) {
               Button('中文键盘')
                 .layoutWeight(1)
@@ -343,34 +511,21 @@ export struct KeyboardCustomizationPage {
             }
             .width('100%')
 
-            Column({ space: 8 }) {
-              ForEach(LETTER_SWIPE_KEYS, (letter: string, index: number) => {
-                Row({ space: 12 }) {
-                  Text(letter.toUpperCase())
-                    .width(34)
-                    .fontSize(16)
-                    .fontWeight(FontWeight.Medium)
-                    .fontColor(this.theme.primaryText)
-                    .textAlign(TextAlign.Center)
-                  TextInput({
-                    text: this.currentSwipeSymbols()[index],
-                    placeholder: '未设置'
-                  })
-                    .layoutWeight(1)
-                    .height(40)
-                    .maxLength(MAX_LETTER_SWIPE_SYMBOL_UNITS)
-                    .fontColor(this.theme.primaryText)
-                    .placeholderColor(this.theme.secondaryText)
-                    .backgroundColor(this.theme.chipBackground)
-                    .onChange((value: string): void => this.updateSwipeSymbol(index, value))
-                }
-                .width('100%')
-              }, (letter: string): string => `${this.swipeSymbolMode}-${letter}`)
+            Row({ space: 8 }) {
+              Button('导入映射')
+                .layoutWeight(1)
+                .enabled(!this.busy)
+                .fontColor(this.theme.primaryText)
+                .backgroundColor(this.theme.chipBackground)
+                .onClick((): void => { this.importSwipeSymbolProfile(); })
+              Button('导出映射')
+                .layoutWeight(1)
+                .enabled(!this.busy)
+                .fontColor(this.theme.primaryText)
+                .backgroundColor(this.theme.chipBackground)
+                .onClick((): void => { this.exportSwipeSymbolProfile(); })
             }
             .width('100%')
-            .padding(14)
-            .borderRadius(14)
-            .backgroundColor(this.theme.cardBackground)
 
             Row({ space: 8 }) {
               Button('推荐预设')
@@ -388,42 +543,63 @@ export struct KeyboardCustomizationPage {
               Button('保存')
                 .layoutWeight(1)
                 .enabled(!this.busy)
-                .fontColor(Color.White)
+                .fontColor('#FFFFFF')
                 .backgroundColor(this.theme.accent)
+                .height(44).borderRadius(14)
                 .onClick((): void => { this.saveSwipeSymbols(); })
             }
             .width('100%')
 
             Column({ space: 8 }) {
-              Text('键盘内快捷切换').fontSize(15).fontWeight(FontWeight.Medium).fontColor(this.theme.primaryText)
-              Text('同时按“ϟ12 + 空格”切换皮肤；同时按“符 + 空格”切换结构。')
-                .fontSize(12)
-                .fontColor(this.theme.secondaryText)
+              ForEach(LETTER_SWIPE_KEYS, (letter: string, index: number) => {
+                Row({ space: 12 }) {
+                  Text(letter.toUpperCase())
+                    .width(34)
+                    .fontSize(16)
+                    .fontWeight(FontWeight.Medium)
+                    .fontColor(this.theme.primaryText)
+                    .textAlign(TextAlign.Center)
+                  TextInput({
+                    text: this.swipeSymbolInputText(index),
+                    placeholder: '未设置'
+                  })
+                    .layoutWeight(1)
+                    .height(40)
+                    .maxLength(MAX_LETTER_SWIPE_SYMBOL_UNITS)
+                    .fontColor(this.theme.primaryText)
+                    .placeholderColor(this.theme.secondaryText)
+                    .backgroundColor(this.theme.chipBackground)
+                    .onChange((value: string): void => this.updateSwipeSymbol(index, value))
+                }
+                .width('100%')
+              }, (letter: string): string => `${this.swipeSymbolMode}-${letter}`)
             }
             .width('100%')
-            .padding(16)
-            .alignItems(HorizontalAlign.Start)
-            .borderRadius(14)
+            .padding(14)
+            .borderRadius(18)
             .backgroundColor(this.theme.cardBackground)
-          }
-          .width('100%')
-          .padding({ left: 20, right: 20, top: 12, bottom: 36 })
-          .alignItems(HorizontalAlign.Start)
+
+  }
+
+  build() {
+    Scroll() {
+      Column({ space: 16 }) {
+        if (this.importError.length > 0 && this.section === this.importErrorKind) {
+          Text(this.importError).fontSize(13).fontColor(this.theme.danger)
+            .width('100%').padding(18).backgroundColor(this.theme.cardBackground).borderRadius(18)
+            .id('settings-import-error')
         }
-        .layoutWeight(1)
-        .width('100%')
-      }
-      .width('100%')
-      .height('100%')
-      .padding({
-        top: this.safeArea.top,
-        bottom: this.safeArea.bottom,
-        left: this.safeArea.left,
-        right: this.safeArea.right
-      })
-    }
-    .width('100%')
-    .height('100%')
-    .backgroundColor(this.theme.pageBackground)
+        if (this.storageMessage.length > 0 && this.section !== 'swipe') {
+          Text(this.storageMessage).fontSize(13).fontColor(this.theme.danger)
+            .width('100%').padding(18).backgroundColor(this.theme.cardBackground).borderRadius(18)
+        }
+        if (this.section === 'overview') { this.Overview() }
+        else if (this.section === 'structure') { this.TemplateList('structure') }
+        else if (this.section === 'skin') { this.TemplateList('skin') }
+        else { this.SwipeSymbols() }
+      }.width('100%').constraintSize({ maxWidth: 720 })
+        .padding({ left: 20, right: 20, top: 8, bottom: 32 }).alignItems(HorizontalAlign.Start)
+    }.width('100%').height('100%').align(Alignment.Top).scrollBar(BarState.Auto)
+      .backgroundColor(this.theme.pageBackground)
   }
 }

@@ -17,9 +17,11 @@ import {
 import {
   LIGHT_PALETTE,
   DARK_PALETTE,
-  getPaletteForColorMode
+  getPaletteForColorMode,
+  resolveModeSwitchKeyTextColor
 } from '../main/ets/presentation/keyboard/design/KeyboardPalette';
 import { DeleteRepeatController } from '../main/ets/application/DeleteRepeatController';
+import { KeyboardMode } from '../main/ets/domain/keyboard/KeyboardAction';
 
 function delay(ms: number): Promise<void> {
   return new Promise<void>((resolve: () => void) => {
@@ -169,9 +171,46 @@ export default function stage3Tests() {
         expect(LIGHT_PALETTE.modeKeyBackgroundEnglish === LIGHT_PALETTE.modeKeyBackgroundChinese).assertFalse();
         expect(LIGHT_PALETTE.modeKeyTextEnglish === LIGHT_PALETTE.modeKeyTextChinese).assertFalse();
       });
+
+      it('uses the normal function-key text color for Chinese ϟ12 only', 0, () => {
+        expect(resolveModeSwitchKeyTextColor('number', KeyboardMode.CHINESE, LIGHT_PALETTE))
+          .assertEqual(LIGHT_PALETTE.functionKeyText);
+        expect(resolveModeSwitchKeyTextColor('mode-switch', KeyboardMode.CHINESE, LIGHT_PALETTE))
+          .assertEqual(LIGHT_PALETTE.modeKeyTextChinese);
+        expect(resolveModeSwitchKeyTextColor('number', KeyboardMode.ENGLISH, LIGHT_PALETTE))
+          .assertEqual(LIGHT_PALETTE.modeKeyTextEnglish);
+      });
     });
 
     describe('DeleteRepeatController', () => {
+      it('consumes a rebuilt delete keys trailing click after a swipe', 0, () => {
+        let deleteCount = 0;
+        const controller = new DeleteRepeatController(() => { deleteCount++; });
+        controller.start();
+        controller.cancelForAlternateGesture();
+        // The replacement key receives Up/Click after composition clears.
+        controller.stop();
+        controller.triggerSingleDelete();
+        expect(deleteCount).assertEqual(0);
+        controller.start();
+        controller.stop();
+        controller.triggerSingleDelete();
+        expect(deleteCount).assertEqual(1);
+        controller.destroy();
+      });
+
+      it('accepts the next tap when a swipe has no trailing click', 0, () => {
+        let deleteCount = 0;
+        const controller = new DeleteRepeatController(() => { deleteCount++; });
+        controller.start();
+        controller.cancelForAlternateGesture();
+        controller.stop();
+        controller.start();
+        controller.stop();
+        controller.triggerSingleDelete();
+        expect(deleteCount).assertEqual(1);
+        controller.destroy();
+      });
       it('starts in inactive state', 0, () => {
         let deleteCount = 0;
         const controller = new DeleteRepeatController(() => {

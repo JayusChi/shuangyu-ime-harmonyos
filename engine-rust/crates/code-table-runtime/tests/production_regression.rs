@@ -10,10 +10,10 @@ use code_table_runtime::{
 };
 use user_lexicon::UserLexiconAction;
 
-const ARCHIVE_SHA256: &str = "263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09";
+const ARCHIVE_SHA256: &str = "7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0";
 const SNAPSHOT: &str = include_str!("data/xiaohe_yinxing_stage11_6_3.tsv");
 const CATEGORY_PROFILE: [(&str, usize); 12] = [
-    ("core", 68_568),
+    ("core", 68_567),
     ("category-secondary", 1_690),
     ("quick-symbol", 17),
     ("one-key-secondary", 26),
@@ -71,7 +71,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
     let path = bundle_path();
     assert_eq!(
         fs::metadata(&path).expect("bundle metadata").len(),
-        56_104_660
+        56_104_310
     );
     let bundle =
         CodeTableBundle::load_frozen_production_file(&path).expect("load frozen production bundle");
@@ -111,7 +111,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        162_695
+        162_694
     );
     for category in &bundle.categories {
         assert_eq!(
@@ -150,7 +150,7 @@ fn frozen_formal_bundle_matches_identity_profile_and_reference_snapshot() {
             ))
             .collect::<Vec<_>>(),
         vec![
-            ("core", CategoryKind::Primary, 0, true, true, false, 68_568),
+            ("core", CategoryKind::Primary, 0, true, true, false, 68_567),
             (
                 "category-secondary",
                 CategoryKind::PrimaryEquivalent,
@@ -457,7 +457,7 @@ fn frozen_rule_profile_is_separate_complete_and_deterministic() {
             .iter()
             .map(|category| category.lexicon.entries.len())
             .sum::<usize>(),
-        162_695
+        162_694
     );
 }
 

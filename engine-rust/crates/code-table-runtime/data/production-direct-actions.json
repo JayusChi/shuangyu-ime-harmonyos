@@ -2,9 +2,18 @@
   "formatVersion": 1,
   "fixtureOnly": false,
   "source": "双羽词库分类/双羽词库/5.直通.txt",
-  "sourceRecordCount": 44,
-  "rejectedRecordCount": 13,
+  "sourceRecordCount": 68,
+  "rejectedRecordCount": 12,
   "records": [
+    {
+      "id": "customer-direct-000-ofi",
+      "scope": "DIRECT",
+      "code": "ofi",
+      "label": "[复制反查]",
+      "type": "DIRECT_CONTROL",
+      "action": "clipboard.reverse",
+      "target": ""
+    },
     {
       "id": "customer-direct-001-orq",
       "scope": "DIRECT",
@@ -223,7 +232,25 @@
       "target": "auto-commit"
     },
     {
-      "id": "customer-direct-038-ojj",
+      "id": "customer-direct-038-oit",
+      "scope": "DIRECT",
+      "code": "oit",
+      "label": "[传统]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.split-mode",
+      "target": "traditional"
+    },
+    {
+      "id": "customer-direct-039-oit",
+      "scope": "DIRECT",
+      "code": "oit",
+      "label": "[切分]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.split-mode",
+      "target": "split"
+    },
+    {
+      "id": "customer-direct-040-ojj",
       "scope": "DIRECT",
       "code": "ojj",
       "label": "[熟手]",
@@ -232,7 +259,7 @@
       "target": "experienced"
     },
     {
-      "id": "customer-direct-039-ojj",
+      "id": "customer-direct-041-ojj",
       "scope": "DIRECT",
       "code": "ojj",
       "label": "[常规]",
@@ -241,7 +268,7 @@
       "target": "standard"
     },
     {
-      "id": "customer-direct-040-ojj",
+      "id": "customer-direct-042-ojj",
       "scope": "DIRECT",
       "code": "ojj",
       "label": "[初学]",
@@ -250,7 +277,7 @@
       "target": "beginner"
     },
     {
-      "id": "customer-direct-041-oej",
+      "id": "customer-direct-043-oej",
       "scope": "DIRECT",
       "code": "oej",
       "label": "启用<二简次选>",
@@ -259,7 +286,7 @@
       "target": "two-key-secondary"
     },
     {
-      "id": "customer-direct-042-oej",
+      "id": "customer-direct-044-oej",
       "scope": "DIRECT",
       "code": "oej",
       "label": "[关闭]",
@@ -268,12 +295,210 @@
       "target": "two-key-secondary"
     },
     {
-      "id": "customer-direct-043-jysi",
+      "id": "customer-direct-045-jysi",
       "scope": "DIRECT",
       "code": "jysi",
       "label": "『静夜思』",
       "type": "STATIC_TEXT",
       "text": "　　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n"
+    },
+    {
+      "id": "customer-direct-046-ohx",
+      "scope": "DIRECT",
+      "code": "ohx",
+      "label": "[固定]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.candidate-position",
+      "target": "bar"
+    },
+    {
+      "id": "customer-direct-047-ohx",
+      "scope": "DIRECT",
+      "code": "ohx",
+      "label": "[浮动]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.candidate-position",
+      "target": "floating"
+    },
+    {
+      "id": "customer-direct-048-ojg",
+      "scope": "DIRECT",
+      "code": "ojg",
+      "label": "[键高1.0]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-height",
+      "target": "default"
+    },
+    {
+      "id": "customer-direct-049-ojg",
+      "scope": "DIRECT",
+      "code": "ojg",
+      "label": "[+0.05]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-height",
+      "target": "increase"
+    },
+    {
+      "id": "customer-direct-050-ojg",
+      "scope": "DIRECT",
+      "code": "ojg",
+      "label": "[-0.05]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-height",
+      "target": "decrease"
+    },
+    {
+      "id": "customer-direct-051-ohz",
+      "scope": "DIRECT",
+      "code": "ohz",
+      "label": "[候字15号]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.candidate-font",
+      "target": "default"
+    },
+    {
+      "id": "customer-direct-052-ohz",
+      "scope": "DIRECT",
+      "code": "ohz",
+      "label": "[+2]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.candidate-font",
+      "target": "increase"
+    },
+    {
+      "id": "customer-direct-053-ohz",
+      "scope": "DIRECT",
+      "code": "ohz",
+      "label": "[-1]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.candidate-font",
+      "target": "decrease"
+    },
+    {
+      "id": "customer-direct-054-ofz",
+      "scope": "DIRECT",
+      "code": "ofz",
+      "label": "[浮字17号]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.floating-font",
+      "target": "default"
+    },
+    {
+      "id": "customer-direct-055-ofz",
+      "scope": "DIRECT",
+      "code": "ofz",
+      "label": "[+2]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.floating-font",
+      "target": "increase"
+    },
+    {
+      "id": "customer-direct-056-ofz",
+      "scope": "DIRECT",
+      "code": "ofz",
+      "label": "[-1]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.floating-font",
+      "target": "decrease"
+    },
+    {
+      "id": "customer-direct-057-ofa",
+      "scope": "DIRECT",
+      "code": "ofa",
+      "label": "[音形]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-profile",
+      "target": "xiaohe-yinxing-26"
+    },
+    {
+      "id": "customer-direct-058-ofa",
+      "scope": "DIRECT",
+      "code": "ofa",
+      "label": "[双拼]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-profile",
+      "target": "xiaohe-26"
+    },
+    {
+      "id": "customer-direct-059-ofa",
+      "scope": "DIRECT",
+      "code": "ofa",
+      "label": "[全拼]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-profile",
+      "target": "quanpin-26"
+    },
+    {
+      "id": "customer-direct-060-ovd",
+      "scope": "DIRECT",
+      "code": "ovd",
+      "label": "[震动_开]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.haptic",
+      "target": "enabled"
+    },
+    {
+      "id": "customer-direct-061-ovd",
+      "scope": "DIRECT",
+      "code": "ovd",
+      "label": "[关]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.haptic",
+      "target": "disabled"
+    },
+    {
+      "id": "customer-direct-062-oyx",
+      "scope": "DIRECT",
+      "code": "oyx",
+      "label": "[音效_开]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.key-sound",
+      "target": "enabled"
+    },
+    {
+      "id": "customer-direct-063-oyx",
+      "scope": "DIRECT",
+      "code": "oyx",
+      "label": "[关]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.key-sound",
+      "target": "disabled"
+    },
+    {
+      "id": "customer-direct-064-ojz",
+      "scope": "DIRECT",
+      "code": "ojz",
+      "label": "[键字12号]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-font",
+      "target": "default"
+    },
+    {
+      "id": "customer-direct-065-ojz",
+      "scope": "DIRECT",
+      "code": "ojz",
+      "label": "[+2]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-font",
+      "target": "increase"
+    },
+    {
+      "id": "customer-direct-066-ojz",
+      "scope": "DIRECT",
+      "code": "ojz",
+      "label": "[-1]",
+      "type": "DIRECT_CONTROL",
+      "action": "settings.keyboard-font",
+      "target": "decrease"
+    },
+    {
+      "id": "customer-direct-067-oix",
+      "scope": "DIRECT",
+      "code": "oix",
+      "label": "「查」：{last_0}",
+      "type": "DIRECT_CONTROL",
+      "action": "url.open",
+      "target": "flypy-shape"
     }
   ]
 }

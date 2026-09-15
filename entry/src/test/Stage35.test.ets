@@ -1,5 +1,6 @@
 import { describe, it, expect } from '@ohos/hypium';
 import { ShortLongPressController } from '../main/ets/application/ShortLongPressController';
+import { InputMethodAppPicker } from '../main/ets/application/InputMethodAppPicker';
 import { createUnknownEditorContext, ShiftState } from '../main/ets/domain/editor/EditorContext';
 import {
   KeyboardDeviceFormFactor,
@@ -88,6 +89,83 @@ function delay(ms: number): Promise<void> {
 
 export default function stage35Test() {
   describe('customer stage 3.5 input method switcher and auxiliary area', () => {
+    it('lists each enabled input method application once using its system label', 0, async () => {
+      const backend = new FakeInputMethodBackend();
+      backend.enabled = [
+        { name: 'first.bundle', id: 'OtherAbility', label: '小艺输入法' },
+        { name: 'first.bundle', id: 'FirstIme', label: '小艺输入法' },
+        { name: 'second.bundle', id: 'SecondIme', label: '百度输入法' },
+        { name: 'third.bundle', id: 'ThirdIme', label: '双羽输入法' }
+      ];
+      const options = await new InputMethodAppPicker(backend).load();
+      expect(options.map((item) => item.label).join(',')).assertEqual('小艺输入法,百度输入法,双羽输入法');
+      expect(options[0].current).assertTrue();
+      expect(options[0].id).assertEqual('FirstIme');
+      expect(options[1].current).assertFalse();
+    });
+
+    it('selects the chosen system application and preserves the current app subtype', 0, async () => {
+      const backend = new FakeInputMethodBackend();
+      const picker = new InputMethodAppPicker(backend);
+      await picker.load();
+      expect(await picker.select('first.bundle')).assertTrue();
+      expect(backend.switchCount).assertEqual(0);
+      expect(await picker.select('second.bundle')).assertTrue();
+      expect(backend.switchedTarget?.name).assertEqual('second.bundle');
+      expect(backend.switchedTarget?.id).assertEqual('SecondIme');
+      expect(backend.pickerCount).assertEqual(0);
+    });
+
+    it('rejects removed applications and unlisted keyboard profile names', 0, async () => {
+      const backend = new FakeInputMethodBackend();
+      const picker = new InputMethodAppPicker(backend);
+      await picker.load();
+      expect(await picker.select('xiaohe-yinxing-26')).assertFalse();
+      backend.enabled = [backend.enabled[0]];
+      expect(await picker.select('second.bundle')).assertFalse();
+      expect(backend.switchCount).assertEqual(0);
+    });
+
+    it('cancels a pending selection on close and suppresses duplicate selections', 0, async () => {
+      const backend = new FakeInputMethodBackend();
+      const picker = new InputMethodAppPicker(backend);
+      await picker.load();
+      backend.listGate = new Deferred();
+      const pending = picker.select('second.bundle');
+      expect(await picker.select('second.bundle')).assertFalse();
+      picker.close();
+      backend.listGate.resolve();
+      expect(await pending).assertFalse();
+      expect(backend.switchCount).assertEqual(0);
+    });
+
+    it('does not publish a late list or switch after another input method becomes current', 0, async () => {
+      const backend = new FakeInputMethodBackend();
+      const picker = new InputMethodAppPicker(backend);
+      backend.listGate = new Deferred();
+      const pending = picker.load();
+      picker.close();
+      backend.listGate.resolve();
+      expect((await pending).length).assertEqual(0);
+      expect(picker.isActive()).assertFalse();
+      backend.listGate = undefined;
+      await picker.load();
+      backend.current = backend.enabled[1];
+      expect(await picker.select('second.bundle')).assertFalse();
+      expect(backend.switchCount).assertEqual(0);
+    });
+
+    it('allows retry after the system rejects an application switch', 0, async () => {
+      const backend = new FakeInputMethodBackend();
+      const picker = new InputMethodAppPicker(backend);
+      await picker.load();
+      backend.switchResult = false;
+      expect(await picker.select('second.bundle')).assertFalse();
+      backend.switchResult = true;
+      expect(await picker.select('second.bundle')).assertTrue();
+      expect(backend.switchCount).assertEqual(2);
+    });
+
     it('uses an inline switch only for tablets and special phone layouts', 0, () => {
       const phonePortrait = createScreenMetrics({
         widthPx: 1080, heightPx: 2340, densityPixels: 3, bottomSystemInsetPx: 120
@@ -140,7 +218,7 @@ export default function stage35Test() {
       expect(phoneIds.indexOf('input-method-switch')).assertEqual(-1);
       expect(tabletIds.indexOf('input-method-switch') > -1).assertTrue();
       const switchKey = tablet.rows[3].keys.find((key) => key.id === 'input-method-switch');
-      expect(switchKey?.action.type).assertEqual(KeyboardActionType.SWITCH_INPUT_METHOD);
+      expect(switchKey?.action.type).assertEqual(KeyboardActionType.SHOW_INPUT_METHOD_PICKER);
       expect(switchKey?.longPressAction?.type)
         .assertEqual(KeyboardActionType.SHOW_INPUT_METHOD_PICKER);
       expect(phone.rows[0].keys.map((key) => key.id).join(','))
@@ -159,11 +237,17 @@ export default function stage35Test() {
         const layout = createStage10KeyboardLayout(mode, context, ShiftState.LOWERCASE, '', false, true);
         const bottom = layout.rows[layout.rows.length - 1].keys;
         const switchKey = bottom.find((key) => key.id === 'input-method-switch');
-        expect(switchKey?.action.type).assertEqual(KeyboardActionType.SWITCH_INPUT_METHOD);
+        expect(switchKey?.action.type).assertEqual(KeyboardActionType.SHOW_INPUT_METHOD_PICKER);
         expect(switchKey?.longPressAction?.type).assertEqual(KeyboardActionType.SHOW_INPUT_METHOD_PICKER);
         if (mode === KeyboardMode.SYMBOL) {
           expect(bottom.find((key) => key.id === 'symbol-return')?.action.type)
             .assertEqual(KeyboardActionType.TOGGLE_SYMBOL);
+        }
+        if (mode === KeyboardMode.NUMBER) {
+          expect(bottom.find((key) => key.id === 'number-return')?.action.type)
+            .assertEqual(KeyboardActionType.TOGGLE_NUMBER);
+          expect(bottom[0].action.character).assertEqual('/');
+          expect(layout.rows[0].keys[4].action.type).assertEqual(KeyboardActionType.SECOND_CANDIDATE_OR_PASTE);
         }
       });
     });
@@ -181,6 +265,17 @@ export default function stage35Test() {
       expect(backend.switchCount).assertEqual(1);
       expect(backend.switchedTarget?.name).assertEqual('second.bundle');
       expect(backend.pickerCount).assertEqual(0);
+    });
+
+    it('opens the system input method list without cycling input methods', 0, async () => {
+      const backend = new FakeInputMethodBackend();
+      const switcher = new InputMethodSwitcher(backend, 0);
+      switcher.setSessionActive(true);
+      const result = await switcher.requestShowSystemPicker();
+      expect(result.type).assertEqual(InputMethodSwitchResultType.SYSTEM_PICKER_OPENED);
+      expect(result.success).assertTrue();
+      expect(backend.pickerCount).assertEqual(1);
+      expect(backend.switchCount).assertEqual(0);
     });
 
     it('falls back to the system picker when direct switching fails', 0, async () => {

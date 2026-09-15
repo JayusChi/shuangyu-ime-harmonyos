@@ -1,9 +1,9 @@
 # 小鹤音形正式来源审计
 
 - 阶段状态：**COMPLETED**
-- 文件：27（3529695 bytes）
-- Manifest SHA-256：`f054132eb8b5e008601f215db50cf337214c35bf2100fcb03f63180b2c9252b8`
-- Conversion contract SHA-256：`025240e58548bf0c14dedb16fea075a2b42b722396d63cbc91947c1d7bddfaa3`
+- 文件：27（3529678 bytes）
+- Manifest SHA-256：`39386e1879db80921e80c2da42778485394ff0594bcf12efc2523fd668778e53`
+- Conversion contract SHA-256：`0d2de22b8870114ee5b775f40a83192bcbfbb0766dafc18523603a8b779d9868`
 - 不可读取文件：0
 - 未识别角色：0
 - 阻断原因：none

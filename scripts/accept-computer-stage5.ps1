@@ -34,13 +34,30 @@ Assert-SourceContains 'entry\src\main\ets\inputmethod\Stage0InputMethodAbilityBa
     "keyboardDelegate\.on\('keyUp'" 'IME subscribes to the PC-compatible keyUp channel'
 $subtypeProfilePath = Join-Path $repoRoot 'entry\src\main\resources\base\profile\stage0_input_method.json'
 $subtypeProfile = Get-Content -LiteralPath $subtypeProfilePath -Raw -Encoding UTF8 | ConvertFrom-Json
-$zhCnSubtypes = @($subtypeProfile.subtypes | Where-Object {
-    [string]$_.id -eq 'shuangyu_zh_cn' -and [string]$_.locale -eq 'zh-CN'
-})
-if ($zhCnSubtypes.Count -ne 1) {
-    throw 'Source gate failed: subtype profile must declare exactly one shuangyu_zh_cn / zh-CN subtype'
+$expectedSubtypeIds = @(
+    'shuangyu_quanpin_zh_cn',
+    'shuangyu_zh_cn',
+    'shuangyu_yinxing_zh_cn',
+    'shuangyu_en_us'
+)
+$expectedSubtypeModes = @('lower', 'double', 'wubi', 'lower')
+$actualSubtypeIds = @($subtypeProfile.subtypes | ForEach-Object { [string]$_.id })
+if (($actualSubtypeIds -join '|') -ne ($expectedSubtypeIds -join '|')) {
+    throw "Source gate failed: subtype order is invalid: $($actualSubtypeIds -join ', ')"
 }
-Write-Host 'PASS: subtype profile declares shuangyu_zh_cn / zh-CN'
+$invalidSubtypeLocales = @($subtypeProfile.subtypes | Where-Object {
+    $expectedLocale = if ([string]$_.id -eq 'shuangyu_en_us') { 'en-US' } else { 'zh-CN' }
+    [string]$_.locale -ne $expectedLocale
+})
+if ($invalidSubtypeLocales.Count -ne 0) {
+    throw 'Source gate failed: one or more input-method subtype locales are invalid'
+}
+for ($index = 0; $index -lt $expectedSubtypeModes.Count; $index++) {
+    if ([string]$subtypeProfile.subtypes[$index].mode -ne $expectedSubtypeModes[$index]) {
+        throw "Source gate failed: subtype mode is invalid for $($expectedSubtypeIds[$index])"
+    }
+}
+Write-Host 'PASS: subtype profile declares ordered 全拼/双拼/音形/英文 choices'
 Assert-SourceContains 'entry\src\main\ets\domain\display\InputPresentationMode.ets' `
     "normalizedDeviceType === 'tablet' && physicalKeyboardPresent" `
     'AUTO routes connected-keyboard Tablet to hardware mode'
@@ -63,7 +80,7 @@ if (-not $SkipBuild) {
             (Join-Path $repoRoot 'scripts\build-hap.ps1') -SkipRust -BuildMode debug
         if ($LASTEXITCODE -ne 0) { throw "internalDebug build failed: $LASTEXITCODE" }
         & powershell -NoProfile -ExecutionPolicy Bypass -File `
-            (Join-Path $repoRoot 'scripts\build-hap.ps1') -SkipRust -BuildMode release
+            (Join-Path $repoRoot 'scripts\build-hap.ps1') -SkipRust -BuildMode release -Product default
         if ($LASTEXITCODE -ne 0) { throw "Release build failed: $LASTEXITCODE" }
     } finally {
         Pop-Location

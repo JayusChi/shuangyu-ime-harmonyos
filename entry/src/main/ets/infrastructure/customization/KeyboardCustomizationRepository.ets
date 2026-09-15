@@ -1,6 +1,7 @@
 import common from '@ohos.app.ability.common';
 import fs from '@ohos.file.fs';
 import zlib from '@ohos.zlib';
+import { KEYBOARD_CUSTOMIZATION_DATA_GROUP_ID } from './KeyboardCustomizationStorageConfig';
 import { Logger } from '../../common/logging/Logger';
 import {
   KeyboardCustomizationOption,
@@ -54,20 +55,122 @@ interface ExtractPackageResult {
 export class KeyboardCustomizationRepository {
   private rootDirectory: string = '';
   private cacheDirectory: string = '';
+  private legacyRootDirectory: string = '';
+  private initialization?: Promise<void>;
+  private publisher: boolean = false;
+  private storageMessage: string = '正在准备模板存储，请稍后重试';
 
-  initialize(context: common.Context): void {
-    this.rootDirectory = `${context.filesDir}/${ROOT_DIRECTORY_NAME}`;
-    this.cacheDirectory = `${context.cacheDir}/${ROOT_DIRECTORY_NAME}`;
-    this.ensureDirectory(this.rootDirectory);
-    this.ensureDirectory(this.structuresDirectory());
-    this.ensureDirectory(this.skinsDirectory());
-    this.ensureDirectory(this.cacheDirectory);
+  async initialize(context: common.Context, publisher: boolean = false): Promise<void> {
+    if (this.initialization) {
+      await this.initialization;
+    }
+    if (!this.ready()) {
+      this.initialization = this.openSharedDirectory(context);
+      await this.initialization;
+      this.initialization = undefined;
+    }
+    if (publisher) {
+      this.publisher = true;
+      this.legacyRootDirectory = `${context.filesDir}/${ROOT_DIRECTORY_NAME}`;
+      this.cacheDirectory = `${context.cacheDir}/${ROOT_DIRECTORY_NAME}`;
+      if (this.ready()) {
+        try {
+          // Only the main App creates or migrates shared files. In BASIC mode
+          // the input-method extension has read-only access to this directory.
+          this.ensureDirectory(this.rootDirectory);
+          this.ensureDirectory(this.structuresDirectory());
+          this.ensureDirectory(this.skinsDirectory());
+          this.ensureDirectory(this.cacheDirectory);
+          this.migrateLegacyPackages();
+        } catch (err) {
+          this.rootDirectory = '';
+          this.storageMessage = '共享模板目录不可写，模板尚未应用，请检查应用签名配置';
+          LOGGER.warn(`shared customization preparation failed: ${JSON.stringify(err)}`);
+        }
+      }
+    }
+  }
+
+  getStorageMessage(): string {
+    return this.storageMessage;
+  }
+
+  canImport(): boolean {
+    return this.publisher && this.ready();
+  }
+
+  selectionError(kind: 'structure' | 'skin', id: string): string {
+    if (id.startsWith('builtin.')) {
+      return '';
+    }
+    if (!this.ready()) {
+      return this.storageMessage;
+    }
+    const available = kind === 'structure' ? this.loadStructure(id) !== undefined : this.loadSkin(id) !== undefined;
+    return available ? '' : '模板尚未同步到输入法或文件已损坏，请重新导入';
+  }
+
+  private async openSharedDirectory(context: common.Context): Promise<void> {
+    if (KEYBOARD_CUSTOMIZATION_DATA_GROUP_ID.length === 0) {
+      this.storageMessage = '当前安装包未开通模板共享，导入的结构和皮肤暂不能应用；请联系开发者更新安装包';
+      LOGGER.warn('customization sharing unavailable: no provisioned data-group-id configured');
+      return;
+    }
+    try {
+      const groupDirectory = await context.getGroupDir(KEYBOARD_CUSTOMIZATION_DATA_GROUP_ID);
+      if (!groupDirectory || !groupDirectory.startsWith('/') ||
+        groupDirectory === context.filesDir || groupDirectory === context.cacheDir) {
+        throw new Error('invalid shared group directory');
+      }
+      this.rootDirectory = `${groupDirectory}/${ROOT_DIRECTORY_NAME}`;
+      this.storageMessage = '';
+      LOGGER.info(`shared customization storage ready: ${this.rootDirectory}`);
+    } catch (err) {
+      this.rootDirectory = '';
+      this.storageMessage = '无法访问共享模板目录，模板尚未应用，请检查应用签名配置';
+      LOGGER.warn(`shared customization directory unavailable: ${JSON.stringify(err)}`);
+    }
+  }
+
+  private migrateLegacyPackages(): void {
+    const kinds: string[] = [STRUCTURES_DIRECTORY_NAME, SKINS_DIRECTORY_NAME];
+    let failed: boolean = false;
+    kinds.forEach((kind: string): void => {
+      const legacyDirectory = `${this.legacyRootDirectory}/${kind}`;
+      this.installedDirectoryNames(legacyDirectory).forEach((id: string): void => {
+        const targetDirectory = `${this.rootDirectory}/${kind}/${id}`;
+        const existing = kind === STRUCTURES_DIRECTORY_NAME ? this.loadStructure(id) : this.loadSkin(id);
+        if (existing) {
+          return;
+        }
+        const sourceDirectory = `${legacyDirectory}/${id}`;
+        try {
+          const valid = kind === STRUCTURES_DIRECTORY_NAME
+            ? this.readStructure(sourceDirectory, id) !== undefined
+            : this.readSkin(sourceDirectory, id) !== undefined;
+          if (!valid) {
+            throw new Error('invalid legacy package');
+          }
+          const summary = this.summarizePackage(sourceDirectory);
+          this.installDirectory(sourceDirectory, targetDirectory, summary.files);
+          LOGGER.info(`legacy customization migrated: ${kind}/${id}`);
+        } catch (err) {
+          failed = true;
+          LOGGER.warn(`legacy customization migration failed: ${kind}/${id}, ${JSON.stringify(err)}`);
+        }
+      });
+    });
+    this.storageMessage = failed ? '部分旧模板迁移失败，请重新导入对应模板' : '';
   }
 
   listStructures(): KeyboardCustomizationOption[] {
     const options: KeyboardCustomizationOption[] = bundledKeyboardStructureOptions();
-    this.installedDirectoryNames(this.structuresDirectory()).forEach((directoryName: string): void => {
-      const definition = this.loadStructure(directoryName);
+    this.optionDirectoryNames(STRUCTURES_DIRECTORY_NAME).forEach((directoryName: string): void => {
+      let definition = this.loadStructure(directoryName);
+      if (!definition && this.publisher && this.legacyRootDirectory.length > 0) {
+        definition = this.readStructure(
+          `${this.legacyRootDirectory}/${STRUCTURES_DIRECTORY_NAME}/${directoryName}`, directoryName);
+      }
       if (definition) {
         options.push({ id: definition.id, name: definition.name, builtIn: false });
       }
@@ -77,8 +180,11 @@ export class KeyboardCustomizationRepository {
 
   listSkins(): KeyboardCustomizationOption[] {
     const options: KeyboardCustomizationOption[] = bundledKeyboardSkinOptions();
-    this.installedDirectoryNames(this.skinsDirectory()).forEach((directoryName: string): void => {
-      const installed = this.loadSkin(directoryName);
+    this.optionDirectoryNames(SKINS_DIRECTORY_NAME).forEach((directoryName: string): void => {
+      let installed = this.loadSkin(directoryName);
+      if (!installed && this.publisher && this.legacyRootDirectory.length > 0) {
+        installed = this.readSkin(`${this.legacyRootDirectory}/${SKINS_DIRECTORY_NAME}/${directoryName}`, directoryName);
+      }
       if (installed) {
         options.push({ id: installed.definition.id, name: installed.definition.name, builtIn: false });
       }
@@ -94,12 +200,16 @@ export class KeyboardCustomizationRepository {
     if (id.startsWith('builtin.') || !this.ready()) {
       return undefined;
     }
-    const manifestPath = `${this.structuresDirectory()}/${id}/${STRUCTURE_MANIFEST_NAME}`;
+    return this.readStructure(`${this.structuresDirectory()}/${id}`, id);
+  }
+
+  private readStructure(directory: string, id: string): KeyboardStructureDefinition | undefined {
+    const manifestPath = `${directory}/${STRUCTURE_MANIFEST_NAME}`;
     try {
       const parsed = parseKeyboardStructureJson(fs.readTextSync(manifestPath));
       return parsed.success && parsed.value?.id === id ? parsed.value : undefined;
     } catch (err) {
-      LOGGER.warn(`custom structure load failed: ${JSON.stringify(err)}`);
+      LOGGER.warn(`custom structure load failed: path=${manifestPath}, error=${JSON.stringify(err)}`);
       return undefined;
     }
   }
@@ -112,7 +222,10 @@ export class KeyboardCustomizationRepository {
     if (id.startsWith('builtin.') || !this.ready()) {
       return undefined;
     }
-    const packageDirectory = `${this.skinsDirectory()}/${id}`;
+    return this.readSkin(`${this.skinsDirectory()}/${id}`, id);
+  }
+
+  private readSkin(packageDirectory: string, id: string): InstalledKeyboardSkin | undefined {
     try {
       const parsed = parseKeyboardSkinJson(fs.readTextSync(`${packageDirectory}/${SKIN_MANIFEST_NAME}`));
       if (!parsed.success || !parsed.value || parsed.value.id !== id ||
@@ -121,7 +234,7 @@ export class KeyboardCustomizationRepository {
       }
       return { definition: parsed.value, assetRoot: packageDirectory };
     } catch (err) {
-      LOGGER.warn(`custom skin load failed: ${JSON.stringify(err)}`);
+      LOGGER.warn(`custom skin load failed: path=${packageDirectory}, error=${JSON.stringify(err)}`);
       return undefined;
     }
   }
@@ -130,7 +243,10 @@ export class KeyboardCustomizationRepository {
     context: common.Context,
     sourceUri: string
   ): Promise<KeyboardCustomizationImportResult> {
-    this.initialize(context);
+    await this.initialize(context, true);
+    if (!this.canImport()) {
+      return { success: false, message: this.storageMessage };
+    }
     const extracted = await this.extractPackage(sourceUri, STRUCTURE_MANIFEST_NAME);
     if (!extracted.success || !extracted.directory) {
       if (extracted.cleanupDirectory) {
@@ -167,7 +283,10 @@ export class KeyboardCustomizationRepository {
     context: common.Context,
     sourceUri: string
   ): Promise<KeyboardCustomizationImportResult> {
-    this.initialize(context);
+    await this.initialize(context, true);
+    if (!this.canImport()) {
+      return { success: false, message: this.storageMessage };
+    }
     const extracted = await this.extractPackage(sourceUri, SKIN_MANIFEST_NAME);
     if (!extracted.success || !extracted.directory) {
       if (extracted.cleanupDirectory) {
@@ -204,17 +323,19 @@ export class KeyboardCustomizationRepository {
   }
 
   removeStructure(id: string): boolean {
-    if (id.startsWith('builtin.') || !this.ready()) {
+    if (id.startsWith('builtin.') || !this.canImport()) {
       return false;
     }
-    return this.removeTree(`${this.structuresDirectory()}/${id}`);
+    return this.removeTree(`${this.legacyRootDirectory}/${STRUCTURES_DIRECTORY_NAME}/${id}`) &&
+      this.removeTree(`${this.structuresDirectory()}/${id}`);
   }
 
   removeSkin(id: string): boolean {
-    if (id.startsWith('builtin.') || !this.ready()) {
+    if (id.startsWith('builtin.') || !this.canImport()) {
       return false;
     }
-    return this.removeTree(`${this.skinsDirectory()}/${id}`);
+    return this.removeTree(`${this.legacyRootDirectory}/${SKINS_DIRECTORY_NAME}/${id}`) &&
+      this.removeTree(`${this.skinsDirectory()}/${id}`);
   }
 
   private ready(): boolean {
@@ -230,7 +351,7 @@ export class KeyboardCustomizationRepository {
   }
 
   private installedDirectoryNames(directory: string): string[] {
-    if (!this.ready()) {
+    if (!this.exists(directory)) {
       return [];
     }
     try {
@@ -242,6 +363,18 @@ export class KeyboardCustomizationRepository {
       LOGGER.warn(`customization directory scan failed: ${JSON.stringify(err)}`);
       return [];
     }
+  }
+
+  private optionDirectoryNames(kind: string): string[] {
+    const names: string[] = this.ready() ? this.installedDirectoryNames(`${this.rootDirectory}/${kind}`) : [];
+    if (this.publisher && this.legacyRootDirectory.length > 0) {
+      this.installedDirectoryNames(`${this.legacyRootDirectory}/${kind}`).forEach((name: string): void => {
+        if (names.indexOf(name) < 0) {
+          names.push(name);
+        }
+      });
+    }
+    return names.sort();
   }
 
   private async extractPackage(sourceUri: string, manifestName: string): Promise<ExtractPackageResult> {

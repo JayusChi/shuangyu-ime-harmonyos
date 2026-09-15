@@ -44,6 +44,10 @@ export class UserLexiconDocumentEditor {
     const ordered = entries.slice().sort((left: UserLexiconEntryRecord, right: UserLexiconEntryRecord) =>
       left.sourceOrder - right.sourceOrder);
     return ordered.map((entry: UserLexiconEntryRecord) => {
+      if (entry.action === 'OPEN_URL' || entry.action === 'OPEN_DIRECTORY') {
+        const marker = entry.action === 'OPEN_URL' ? '#网页' : '#目录';
+        return entry.text + '\t' + entry.code + marker + '\t' + entry.displayText + '\n';
+      }
       let marker = '';
       if (entry.action === 'DIRECT') {
         marker = '#直';
@@ -73,7 +77,7 @@ export class UserLexiconDocumentEditor {
     next.push({
       id: '',
       text,
-      displayText: action === 'DIRECT' ? displayText : '',
+      displayText: action === 'DIRECT' || action === 'OPEN_URL' || action === 'OPEN_DIRECTORY' ? displayText : '',
       code,
       action,
       position: action === 'POSITION' ? position : 0,
@@ -104,7 +108,7 @@ export class UserLexiconDocumentEditor {
     return entries.map((entry: UserLexiconEntryRecord): UserLexiconEntryRecord => ({
       id: entry.id,
       text: entry.text,
-      displayText: ids.indexOf(entry.id) >= 0 && action !== 'DIRECT' ? '' : entry.displayText,
+      displayText: ids.indexOf(entry.id) >= 0 && action !== 'DIRECT' && action !== 'OPEN_URL' && action !== 'OPEN_DIRECTORY' ? '' : entry.displayText,
       code: entry.code,
       action: ids.indexOf(entry.id) >= 0 ? action : entry.action,
       position: ids.indexOf(entry.id) >= 0 && action === 'POSITION' ? position :

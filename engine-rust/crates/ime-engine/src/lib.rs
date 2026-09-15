@@ -1,4 +1,5 @@
 mod candidate_session;
+mod convenience_input;
 mod engine_error;
 mod formal;
 mod quanpin_context_reranking;

@@ -196,7 +196,8 @@ Invoke-Step 'Stage 9 architecture boundary checks' {
     Assert-TreeNotContains -Root (Join-Path $engineRoot 'crates\user-model\src') -Pattern '@kit|ohos|openharmony|IMEKit|inputMethodEngine' -Message 'user-model must not depend on HarmonyOS APIs' -Extensions @('.rs')
     Assert-TreeNotContains -Root (Join-Path $engineRoot 'crates\candidate-query\src') -Pattern 'user_model|user_model\.dat|write_snapshot|read_snapshot|File::create|fs::write' -Message 'candidate-query must not directly operate user model files' -Extensions @('.rs')
     Assert-TreeNotContains -Root (Join-Path $engineRoot 'crates\sentence-decoder\src') -Pattern 'user_model\.dat|write_snapshot|read_snapshot|File::create|fs::write' -Message 'sentence-decoder must not directly operate user model files' -Extensions @('.rs')
-    Assert-TreeNotContains -Root (Join-Path $repoRoot 'entry\src\main') -Pattern 'ohos.permission.INTERNET' -Message 'stage9 must not add network permission' -Extensions @('.json5', '.json', '.ets')
+    & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-release-hap.ps1') -ResourceInputOnly
+    if ($LASTEXITCODE -ne 0) { throw 'Release resources or approved web permission profile failed.' }
     Assert-TreeNotContains -Root (Join-Path $repoRoot 'entry\src\main') -Pattern 'rawInput_SENTINEL|password content|raw input content' -Message 'logs and app sources must not contain user input logging sentinels' -Extensions @('.ets', '.cpp', '.h', '.json5')
 }
 

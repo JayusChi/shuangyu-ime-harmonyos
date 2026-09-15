@@ -16,6 +16,19 @@
         }
       },
       {
+        "name": "release",
+        "targetSdkVersion": "6.1.1(24)",
+        "compatibleSdkVersion": "6.1.1(24)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "nativeCompiler": "BiSheng",
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      },
+      {
         "name": "internalDebug",
         "targetSdkVersion": "6.1.1(24)",
         "compatibleSdkVersion": "6.1.1(24)",
@@ -46,7 +59,8 @@
         {
           "name": "default",
           "applyToProducts": [
-            "default"
+            "default",
+            "release"
           ]
         },
         {

@@ -535,3 +535,43 @@ fn test_stable_id_generation() {
     // ID应该有user-lexicon前缀
     assert!(entry1.stable_id().starts_with("user-lexicon-"));
 }
+
+#[test]
+fn external_shortcuts_round_trip_without_splitting_uri_commas_or_fragments() {
+    let source = "https://example.com/Help?q=a,b#Part\tzzweb#网页\t帮助\nfile://docs/storage/Users/currentUser/文档,资料\tzzdir#目录\t文档\n";
+    let snapshot = parse_user_lexicon_bytes("shortcuts.txt", source.as_bytes())
+        .unwrap()
+        .into_snapshot();
+    assert_eq!(snapshot.entries()[0].action, UserLexiconAction::OpenUrl);
+    assert_eq!(
+        snapshot.entries()[1].action,
+        UserLexiconAction::OpenDirectory
+    );
+    assert_eq!(snapshot.entries()[0].display_text.as_deref(), Some("帮助"));
+    assert_eq!(snapshot.normalized_bytes(), source.as_bytes());
+    let path = test_file_path("external-shortcuts");
+    save_snapshot_atomic(&path, &snapshot).unwrap();
+    assert_eq!(fs::read(path).unwrap(), source.as_bytes());
+}
+
+#[test]
+fn external_shortcuts_reject_commands_and_mismatched_targets() {
+    for row in [
+        "javascript:alert(1)\ta#网页",
+        "file://docs/private\ta#网页",
+        "https://\ta#网页",
+        "https://user:pass@example.com\ta#网页",
+        "https://example.com\ta#目录",
+        "C:\\Users\\test\ta#目录",
+        "file://other.app/private\ta#目录",
+        "file://docs/\ta#目录",
+        "https://example.com/a b\ta#网页",
+        "$cmd(run(foo))\ta#网页",
+    ] {
+        assert!(
+            parse_user_lexicon_bytes("invalid.txt", row.as_bytes()).is_err(),
+            "{row}"
+        );
+    }
+    assert!(parse_user_lexicon_bytes("plain.txt", "https://example.com\ta#直".as_bytes()).is_err());
+}

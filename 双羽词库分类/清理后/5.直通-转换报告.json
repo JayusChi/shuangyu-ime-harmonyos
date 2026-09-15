@@ -1,14 +1,9 @@
 {
   "source": "双羽词库分类/双羽词库/5.直通.txt",
-  "sourceRecordCount": 44,
-  "acceptedRecordCount": 31,
-  "rejectedRecordCount": 13,
+  "sourceRecordCount": 68,
+  "acceptedRecordCount": 56,
+  "rejectedRecordCount": 12,
   "rejected": [
-    {
-      "sourceOrder": 0,
-      "code": "ofi",
-      "reason": "UNSUPPORTED_OR_UNSAFE_ACTION"
-    },
     {
       "sourceOrder": 8,
       "code": "xhwp",

@@ -1,3 +1,6 @@
+import { resolveCandidateUiMode, resolveVisibleCandidates } from '../domain/candidate/CandidateUiPolicy';
+import { ClipboardReverseLookupResult, CLIPBOARD_REVERSE_CODE, CLIPBOARD_REVERSE_LABEL } from '../domain/direct/ClipboardReverseLookup';
+import { isConvenienceInput } from '../domain/keyboard/ConvenienceInput';
 import { EnglishShiftController } from '../application/EnglishShiftController';
 import { KeyboardModePolicy } from '../application/KeyboardModePolicy';
 import { ImeErrorCode, imeErrorMessage } from '../common/error/ImeError';
@@ -41,6 +44,7 @@ import {
 } from '../domain/ai/LocalAssociationContracts';
 
 export interface InputSessionState {
+  hardwareCandidatePaging?: boolean;
   sessionActive: boolean;
   keyboardVisible: boolean;
   keyboardMode: KeyboardMode;
@@ -51,6 +55,7 @@ export interface InputSessionState {
   enterAction: EnterAction;
   candidateBarVisible: boolean;
   floatingCandidateVisible: boolean;
+  floatingCandidateExpanded: boolean;
   /** 非空输入码当前是否由编辑器光标处的系统预编辑负责展示。 */
   cursorPreeditVisible: boolean;
   candidatePanelExpanded: boolean;
@@ -123,6 +128,7 @@ function createInitialState(): InputSessionState {
     enterAction: editorContext.enterAction,
     candidateBarVisible: false,
     floatingCandidateVisible: false,
+    floatingCandidateExpanded: false,
     cursorPreeditVisible: false,
     candidatePanelExpanded: false,
     candidatePageLoading: false,
@@ -153,6 +159,85 @@ function createInitialState(): InputSessionState {
 }
 
 export class InputSessionStore {
+  private hardwarePageSize: number = 0;
+  private hardwareSchemeId: string = '';
+  private hardwarePage: number = 0;
+  private hardwarePageBase: number = 0;
+  private hardwareBatchPageCounts: number[] = [];
+
+  setHardwareCandidatePageSize(pageSize: number, schemeId: string = ''): void {
+    const size = Number.isFinite(pageSize) ? Math.max(0, Math.min(9, Math.floor(pageSize))) : 0;
+    if (size === this.hardwarePageSize && schemeId === this.hardwareSchemeId) { return; }
+    this.hardwareSchemeId = schemeId;
+    this.hardwarePageSize = size;
+    this.resetHardwarePages();
+    this.state.highlightedIndex = this.state.candidates.length > 0 ? 0 : -1;
+    this.state.floatingCandidateExpanded = false;
+    this.state.candidatePanelExpanded = false;
+    this.notify();
+  }
+
+  resolveEngineCandidateIndex(index: number): number {
+    if (this.hardwarePageSize <= 0) { return index; }
+    const candidate = this.hardwareCandidates()[this.hardwarePage * this.hardwarePageSize + index];
+    return candidate === undefined ? -1 : this.state.candidates.findIndex((item: Candidate): boolean => item.id === candidate.id);
+  }
+
+  /** Visit every numbered slice before crossing a native candidate batch. */
+  moveHardwareCandidatePage(next: boolean): boolean {
+    if (this.hardwarePageSize <= 0) { return false; }
+    const target = this.hardwarePage + (next ? 1 : -1);
+    if (target < 0 || target * this.hardwarePageSize >= this.hardwareCandidates().length) { return false; }
+    this.hardwarePage = target;
+    this.state.highlightedIndex = this.resolveEngineCandidateIndex(0);
+    this.clearErrorInternal();
+    this.notify();
+    return true;
+  }
+
+  updateCandidateBatch(result: CompositionResult, previous: boolean): void {
+    const oldPage = this.state.candidatePage;
+    const oldCount = Math.max(1, Math.ceil(this.hardwareCandidates().length / Math.max(1, this.hardwarePageSize)));
+    const oldBase = this.hardwarePageBase;
+    const previousCount = this.hardwareBatchPageCounts[result.candidatePage];
+    this.updateComposition(result, false);
+    if (this.hardwarePageSize > 0 && result.candidatePage !== oldPage) {
+      this.hardwareBatchPageCounts[oldPage] = oldCount;
+      const count = Math.max(1, Math.ceil(this.hardwareCandidates().length / this.hardwarePageSize));
+      this.hardwarePageBase = previous ? Math.max(0, oldBase - (previousCount ?? count)) : oldBase + oldCount;
+      this.hardwarePage = previous ? count - 1 : 0;
+      this.state.highlightedIndex = result.candidates.length > 0 ? this.resolveEngineCandidateIndex(0) : -1;
+    }
+    this.notify();
+  }
+
+  private hardwareCandidates(): Candidate[] {
+    return resolveVisibleCandidates(resolveCandidateUiMode(this.hardwareSchemeId), this.state.rawInput, this.state.candidates);
+  }
+
+  private resetHardwarePages(): void {
+    this.hardwarePage = 0;
+    this.hardwarePageBase = 0;
+    this.hardwareBatchPageCounts = [];
+  }
+
+  private clipboardReverseResult?: ClipboardReverseLookupResult;
+  private clipboardReverseRevision: number = 0;
+
+  beginClipboardReverseRequest(): number { return ++this.clipboardReverseRevision; }
+  getClipboardReverseResult(): ClipboardReverseLookupResult | undefined { return this.clipboardReverseResult; }
+  setClipboardReverseResult(request: number, result: ClipboardReverseLookupResult): void {
+    if (request !== this.clipboardReverseRevision || this.state.rawInput !== CLIPBOARD_REVERSE_CODE ||
+      this.state.editorContext.isPassword) { return; }
+    this.clipboardReverseResult = result;
+    this.clearErrorInternal();
+    this.setFunctionalCandidateDisplay(CLIPBOARD_REVERSE_LABEL, result.text || CLIPBOARD_REVERSE_LABEL);
+  }
+  private clearClipboardReverseResult(): void {
+    this.clipboardReverseRevision += 1;
+    this.clipboardReverseResult = undefined;
+  }
+
   private state: InputSessionState = createInitialState();
   private sessionGeneration: number = 0;
   private readonly modePolicy: KeyboardModePolicy = new KeyboardModePolicy();
@@ -161,7 +246,12 @@ export class InputSessionStore {
   private listeners: InputSessionStateListener[] = [];
 
   getSnapshot(): InputSessionState {
+    const start = this.hardwarePageSize > 0 ? this.hardwarePage * this.hardwarePageSize : 0;
+    const available = this.hardwarePageSize > 0 ? this.hardwareCandidates() : this.state.candidates;
+    const candidates = this.hardwarePageSize > 0 ? available.slice(start, start + this.hardwarePageSize) : available.slice();
+    const highlighted = this.state.candidates[this.state.highlightedIndex];
     return {
+      hardwareCandidatePaging: this.hardwarePageSize > 0,
       sessionActive: this.state.sessionActive,
       keyboardVisible: this.state.keyboardVisible,
       keyboardMode: this.state.keyboardMode,
@@ -172,6 +262,7 @@ export class InputSessionStore {
       enterAction: this.state.enterAction,
       candidateBarVisible: this.state.candidateBarVisible,
       floatingCandidateVisible: this.state.floatingCandidateVisible,
+      floatingCandidateExpanded: this.state.floatingCandidateExpanded,
       cursorPreeditVisible: this.state.cursorPreeditVisible,
       candidatePanelExpanded: this.state.candidatePanelExpanded,
       candidatePageLoading: this.state.candidatePageLoading,
@@ -190,11 +281,11 @@ export class InputSessionStore {
       currentPinyin: this.state.currentPinyin,
       pinyinCombinations: this.state.pinyinCombinations.slice(),
       parserState: this.state.parserState,
-      candidates: this.state.candidates.slice(),
-      highlightedIndex: this.state.highlightedIndex,
-      hasNextPage: this.state.hasNextPage,
-      hasPreviousPage: this.state.hasPreviousPage,
-      candidatePage: this.state.candidatePage,
+      candidates,
+      highlightedIndex: highlighted === undefined ? -1 : candidates.findIndex((item: Candidate): boolean => item.id === highlighted.id),
+      hasNextPage: this.state.hasNextPage || (this.hardwarePageSize > 0 && start + candidates.length < available.length),
+      hasPreviousPage: this.state.hasPreviousPage || this.hardwarePage > 0,
+      candidatePage: this.hardwarePageSize > 0 ? this.hardwarePageBase + this.hardwarePage : this.state.candidatePage,
       lastErrorCode: this.state.lastErrorCode,
       lastErrorMessage: this.state.lastErrorMessage,
       screenMetrics: copyScreenMetrics(this.state.screenMetrics)
@@ -227,6 +318,7 @@ export class InputSessionStore {
   }
 
   advanceSessionGeneration(): number {
+    this.clearClipboardReverseResult();
     this.sessionGeneration += 1;
     return this.sessionGeneration;
   }
@@ -253,6 +345,7 @@ export class InputSessionStore {
     this.state.floatingCandidateVisible = false;
     this.state.cursorPreeditVisible = false;
     this.state.candidatePanelExpanded = false;
+    this.state.floatingCandidateExpanded = false;
     this.state.candidatePageLoading = false;
     this.state.sessionLearningAllowed = false;
     this.state.chineseCapsLock = false;
@@ -293,6 +386,7 @@ export class InputSessionStore {
     this.state.keyboardVisible = false;
     this.state.floatingCandidateVisible = false;
     this.state.candidatePanelExpanded = false;
+    this.state.floatingCandidateExpanded = false;
     this.state.candidatePageLoading = false;
     this.state.chineseCapsLock = false;
     this.clearAssistInternal();
@@ -339,7 +433,7 @@ export class InputSessionStore {
       this.state.editorContext.chineseModeAllowed && this.state.editorContext.englishModeAllowed) {
       this.lastTextKeyboardMode = resolvedTarget;
     }
-    if (resolvedTarget !== KeyboardMode.CHINESE) {
+    if (resolvedTarget !== KeyboardMode.CHINESE && !isConvenienceInput(this.state.rawInput)) {
       this.clearCompositionInternal();
     }
     if (resolvedTarget === KeyboardMode.NUMBER || resolvedTarget === KeyboardMode.PHONE) {
@@ -394,10 +488,13 @@ export class InputSessionStore {
     this.notify();
   }
 
-  updateComposition(result: CompositionResult): void {
+  updateComposition(result: CompositionResult, notify: boolean = true): void {
+    if (result.rawInput !== this.state.rawInput || result.candidatePage === 0) { this.resetHardwarePages(); }
+    this.hardwarePage = 0;
+    if (this.state.rawInput !== result.rawInput) { this.clearClipboardReverseResult(); }
     this.state.localAssociations = [];
     this.state.candidatePageLoading = false;
-    if (!this.isCandidateBarAllowed()) {
+    if (!this.isCandidateBarAllowed(result.rawInput)) {
       this.clearCompositionInternal();
       if (result.success) {
         this.clearErrorInternal();
@@ -408,6 +505,7 @@ export class InputSessionStore {
       this.notify();
       return;
     }
+    if (this.state.rawInput !== result.rawInput) { this.state.floatingCandidateExpanded = false; }
     this.state.rawInput = result.rawInput;
     this.state.preeditText = result.preeditText;
     this.state.parsedSyllables = result.parsedSyllables;
@@ -421,6 +519,13 @@ export class InputSessionStore {
     }
     this.state.parserState = result.parserState;
     this.state.candidates = result.candidates;
+    if (this.clipboardReverseResult !== undefined && result.rawInput === CLIPBOARD_REVERSE_CODE) {
+      this.state.candidates.forEach((candidate: Candidate): void => {
+        if (candidate.source === 'functional' && candidate.text === CLIPBOARD_REVERSE_LABEL) {
+          candidate.displayText = this.clipboardReverseResult?.text || CLIPBOARD_REVERSE_LABEL;
+        }
+      });
+    }
     this.state.highlightedIndex = result.highlightedIndex;
     this.state.hasNextPage = result.hasNextPage;
     this.state.hasPreviousPage = result.hasPreviousPage;
@@ -437,8 +542,16 @@ export class InputSessionStore {
     // page must remain visible so the user can navigate back or collapse it.
     if (this.state.candidates.length === 0 || !result.success) {
       this.state.candidatePanelExpanded = false;
+    this.state.floatingCandidateExpanded = false;
     }
     this.refreshCandidateVisibility();
+    if (notify) { this.notify(); }
+  }
+
+  setFunctionalCandidateDisplay(label: string, displayText: string): void {
+    this.state.candidates.forEach((candidate: Candidate): void => {
+      if (candidate.source === 'functional' && candidate.text === label) { candidate.displayText = displayText; }
+    });
     this.notify();
   }
 
@@ -446,6 +559,16 @@ export class InputSessionStore {
     this.clearCompositionInternal();
     this.refreshCandidateVisibility();
     this.notify();
+  }
+
+  setFloatingCandidateExpanded(expanded: boolean): boolean {
+    const resolved = expanded && this.hardwarePageSize === 0 && this.state.sessionActive && this.state.candidates.length > 0 &&
+      this.state.lastErrorCode === ImeErrorCode.SUCCESS;
+    if (resolved !== this.state.floatingCandidateExpanded) {
+      this.state.floatingCandidateExpanded = resolved;
+      this.notify();
+    }
+    return resolved;
   }
 
   setFloatingCandidateVisible(visible: boolean): void {
@@ -466,7 +589,7 @@ export class InputSessionStore {
   }
 
   setCandidatePanelExpanded(expanded: boolean): boolean {
-    const canExpand = this.state.sessionActive &&
+    const canExpand = this.hardwarePageSize === 0 && this.state.sessionActive &&
       this.state.keyboardVisible &&
       this.state.candidateBarVisible &&
       this.state.candidates.length >= MIN_CANDIDATES_FOR_EXPANSION &&
@@ -495,6 +618,13 @@ export class InputSessionStore {
   moveCandidateHighlight(delta: number): number {
     if (!Number.isInteger(delta) || delta === 0 || this.state.candidates.length === 0) {
       return this.state.highlightedIndex;
+    }
+    if (this.hardwarePageSize > 0) {
+      const page = this.getSnapshot();
+      const selected = Math.max(0, Math.min(page.candidates.length - 1, Math.max(0, page.highlightedIndex) + delta));
+      this.state.highlightedIndex = this.resolveEngineCandidateIndex(selected);
+      this.notify();
+      return selected;
     }
     const current = this.state.highlightedIndex >= 0 &&
       this.state.highlightedIndex < this.state.candidates.length
@@ -593,7 +723,11 @@ export class InputSessionStore {
     this.state.candidateBarVisible = allowed;
   }
 
-  private isCandidateBarAllowed(): boolean {
+  private isCandidateBarAllowed(rawInput: string = this.state.rawInput): boolean {
+    if (isConvenienceInput(rawInput)) {
+      return !this.state.editorContext.isPassword &&
+        (this.state.editorContext.chineseModeAllowed || this.state.editorContext.englishModeAllowed);
+    }
     return this.modePolicy.shouldShowCandidateBar(
       this.state.editorContext,
       this.state.keyboardMode
@@ -601,6 +735,8 @@ export class InputSessionStore {
   }
 
   private clearCompositionInternal(): void {
+    this.resetHardwarePages();
+    this.clearClipboardReverseResult();
     this.state.rawInput = '';
     this.state.preeditText = '';
     this.state.parsedSyllables = [];
@@ -618,6 +754,7 @@ export class InputSessionStore {
     this.state.floatingCandidateVisible = false;
     this.state.cursorPreeditVisible = false;
     this.state.candidatePanelExpanded = false;
+    this.state.floatingCandidateExpanded = false;
     this.state.candidatePageLoading = false;
     this.state.localAssociations = [];
   }
@@ -632,6 +769,7 @@ export class InputSessionStore {
     this.state.lastErrorCode = code;
     this.state.lastErrorMessage = message ?? imeErrorMessage(code);
     this.state.candidatePanelExpanded = false;
+    this.state.floatingCandidateExpanded = false;
     this.state.candidatePageLoading = false;
   }
 

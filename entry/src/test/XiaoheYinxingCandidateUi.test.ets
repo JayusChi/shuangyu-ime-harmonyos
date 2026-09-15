@@ -19,21 +19,33 @@ function candidate(id: string, text: string, reading: string, source: string = '
 
 export default function xiaoheYinxingCandidateUiTest() {
   describe('xiaohe yinxing precise match stage 3 candidate UI', () => {
+    it('convenience candidates keep both formats and use convenience empty guidance', 0, () => {
+      for (const mode of [CandidateUiMode.BROWSABLE, CandidateUiMode.PRECISE_MATCH]) {
+        const values = [candidate('q0', '2026年5月5日', '=2026.5.5', 'convenience'),
+          candidate('q1', '2026-05-05', '=2026.5.5', 'convenience')];
+        expect(resolveVisibleCandidates(mode, '=2026.5.5', values).length).assertEqual(2);
+        expect(resolveCandidateEmptyFeedback(mode, '=').text).assertEqual('数字、日期、算式或英文');
+        expect(resolveCandidateEmptyFeedback(mode, '=1/0').text).assertEqual('请继续输入或检查格式');
+      }
+    });
+
     it('routes shuangpin and yinxing by stable scheme ID', 0, () => {
       expect(resolveCandidateUiMode('xiaohe')).assertEqual(CandidateUiMode.BROWSABLE);
       expect(resolveCandidateUiMode('xiaohe-yinxing')).assertEqual(CandidateUiMode.PRECISE_MATCH);
       expect(resolveCandidateUiMode('unknown')).assertEqual(CandidateUiMode.BROWSABLE);
     });
 
-    it('requires three candidates and allows precise-mode expansion only for universal input', 0, () => {
+    it('requires three candidates and allows every precise-mode result to expand', 0, () => {
       expect(allowsCandidateBrowsing(CandidateUiMode.BROWSABLE)).assertTrue();
       expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 50)).assertTrue();
       expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 2)).assertFalse();
-      expect(allowsCandidateBrowsing(CandidateUiMode.PRECISE_MATCH)).assertFalse();
+      expect(allowsCandidateBrowsing(CandidateUiMode.PRECISE_MATCH)).assertTrue();
+      expect(allowsCandidateBrowsing(CandidateUiMode.PRECISE_MATCH, 'obh')).assertTrue();
       expect(allowsCandidateBrowsing(CandidateUiMode.PRECISE_MATCH, 'ju`')).assertTrue();
-      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 3, 'ju')).assertFalse();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 4, 'obh', 3)).assertTrue();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 2, 'obh')).assertFalse();
       expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 2, 'ju`')).assertFalse();
-      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 3, 'ju`')).assertTrue();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 3, 'ju`', 2)).assertTrue();
     });
 
     it('describes recoverable empty precise states without creating candidates', 0, () => {
@@ -178,17 +190,26 @@ export default function xiaoheYinxingCandidateUiTest() {
 
     it('keeps every Rust-filtered universal-key candidate visible', 0, () => {
       const wildcardCandidates: Candidate[] = [
-        candidate('universal-1', '驹', 'jumk'),
-        candidate('universal-2', '居', 'juko'),
-        candidate('universal-3', '句', 'juwj')
+        candidate('universal-1', '坎', 'kjtv'),
+        candidate('universal-2', '阔', 'kjmw'),
+        candidate('universal-3', '冕', 'kjrl')
       ];
 
       expect(resolveVisibleCandidates(
-        CandidateUiMode.PRECISE_MATCH, 'ju`', wildcardCandidates
-      ).map((item: Candidate): string => item.text).join('|')).assertEqual('驹|居|句');
+        CandidateUiMode.PRECISE_MATCH, 'kj``', wildcardCandidates
+      ).map((item: Candidate): string => item.text).join('|')).assertEqual('坎|阔|冕');
       expect(resolveVisibleCandidates(
         CandidateUiMode.PRECISE_MATCH, '``an', wildcardCandidates
       ).length).assertEqual(3);
+      expect(resolveCandidateCodeHint(
+        CandidateUiMode.PRECISE_MATCH, 'kj``', 'kjtv'
+      )).assertEqual('tv');
+      expect(toContextualCandidateDisplayItem(
+        wildcardCandidates[0], 0, CandidateUiMode.PRECISE_MATCH, 'kj``'
+      ).displayText).assertEqual('坎 tv');
+      expect(resolveCandidateAccessibilityText(
+        CandidateUiMode.PRECISE_MATCH, 'kj``', 0, '坎', 'kjtv'
+      )).assertEqual('万能键候选，第 1 个，坎，实际编码 tv');
     });
   });
 }

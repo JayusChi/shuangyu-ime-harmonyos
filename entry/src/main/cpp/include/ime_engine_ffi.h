@@ -45,6 +45,7 @@ int32_t ime_engine_next_candidate_page(ImeEngineHandle handle, ImeBuffer* out_bu
 int32_t ime_engine_previous_candidate_page(ImeEngineHandle handle, ImeBuffer* out_buffer);
 
 int32_t ime_engine_get_local_associations(ImeEngineHandle handle, ImeBuffer* out_buffer);
+int32_t ime_engine_reverse_lookup(ImeEngineHandle handle, const uint8_t* text_utf8, size_t text_len, ImeBuffer* out_buffer);
 
 int32_t ime_engine_get_code_table_category_config(ImeEngineHandle handle, ImeBuffer* out_buffer);
 

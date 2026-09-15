@@ -242,6 +242,24 @@ function nextTurn(): Promise<void> {
 
 export default function textPreviewManagerTest() {
   describe('TextPreviewManager', () => {
+    it('embeddedCodesReplaceAndCancelWithoutLeavingLettersInExistingText', 0, async () => {
+      const manager = new CompositionTextManager();
+      const client = new FakeCompositionClient();
+      client.text = '原文';
+      client.cursor = 2;
+      for (const raw of ['k', 'kj', 'kjk', 'kj']) {
+        expect(await manager.update(client, raw, true, 91)).assertTrue();
+        expect(client.text).assertEqual(`原文${raw}`);
+      }
+      expect(await manager.commitWithRemaining(client, '看看', '', 91)).assertTrue();
+      expect(client.text).assertEqual('原文看看');
+      expect(await manager.update(client, 'kj', true, 91)).assertTrue();
+      expect(await manager.clear(client, 91)).assertTrue();
+      expect(client.text).assertEqual('原文看看');
+      expect(client.insertCount).assertEqual(0);
+      expect(client.compatibleDeleteCount).assertEqual(0);
+    });
+
     it('anchorsFirstPreviewAtCursorAndReplacesPreviousPreviewRange', 0, async () => {
       const manager = new TextPreviewManager();
       const client = new FakeTextPreviewClient();
@@ -326,6 +344,19 @@ export default function textPreviewManagerTest() {
   });
 
   describe('CompositionTextManager', () => {
+    it('commits literal paired symbols while the composition manager is idle', 0, async () => {
+      const manager = new CompositionTextManager();
+      const client = new FakeCompositionClient();
+      client.text = '前';
+      client.cursor = 1;
+
+      expect(await manager.commit(client, '（）', 7)).assertTrue();
+      expect(client.text).assertEqual('前（）');
+      expect(client.cursor).assertEqual(3);
+      expect(client.insertCount).assertEqual(1);
+      expect(manager.getMode()).assertEqual(CompositionTextMode.NONE);
+    });
+
     it('supportedEditorKeepsPreviewPath', 0, async () => {
       const manager = new CompositionTextManager();
       const client = new FakeCompositionClient();
@@ -336,6 +367,26 @@ export default function textPreviewManagerTest() {
       expect(client.previewCount).assertEqual(2);
       expect(client.insertCount).assertEqual(0);
       expect(client.text).assertEqual('ni');
+    });
+
+    it('candidateBarCompositionNeverLeaksFirstLetterIntoExistingEditorText', 0, async () => {
+      const manager = new CompositionTextManager();
+      const client = new FakeCompositionClient();
+      client.text = '原文';
+      client.cursor = 2;
+
+      for (const code of ['n', 'ni', 'n', '']) {
+        expect(await manager.update(client, code, false, 8)).assertTrue();
+        expect(client.text).assertEqual('原文');
+        expect(client.cursor).assertEqual(2);
+        expect(client.previewCount).assertEqual(0);
+        expect(client.insertCount).assertEqual(0);
+      }
+      expect(await manager.update(client, 'ni', false, 8)).assertTrue();
+      expect(await manager.commit(client, '你', 8)).assertTrue();
+      expect(client.text).assertEqual('原文你');
+      expect(client.insertCount).assertEqual(1);
+      expect(client.previewCount).assertEqual(0);
     });
 
     it('unsupportedEditorKeepsRawInputOnlyInCandidateBar', 0, async () => {

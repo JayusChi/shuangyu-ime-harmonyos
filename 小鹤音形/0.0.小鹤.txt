@@ -4512,6 +4512,7 @@ B超	biic
 别有用心	byyx
 别有一番风味	byyw
 不要再	byzd
+病秧子	byzi
 布依族	byzu
 白羊座	byzo
 不言自明	byzm
@@ -12591,7 +12592,7 @@ B超	biic
 放心不下	fxbx
 发祥地	fxdi
 翻箱倒柜	fxdg
-繁星点点	fxdd
+放心大胆	fxdd
 负心多是读书人	fxdr
 拂袖而去	fxeq
 复习复习	fxfx
@@ -62316,9 +62317,7 @@ IP地址	ipdv
 一等功	ydgs
 以毒攻毒	ydgd
 以点概面	ydgm
-运动会	ydh
 一段话	ydhx
-移动互联	ydhl
 焉得虎子	ydhz
 一大串	ydir
 远渡重洋	ydiy

@@ -1,3 +1,5 @@
+import { KeyboardMode } from '../../../domain/keyboard/KeyboardAction';
+
 /**
  * 键盘颜色配置
  * 支持浅色和深色模式
@@ -54,6 +56,22 @@ export interface KeyboardColorPalette {
 
   // 边框
   keyBorder: string;
+}
+
+/**
+ * ϟ12 在中文键盘中是普通功能键，不使用模式强调色。
+ */
+export function resolveModeSwitchKeyTextColor(
+  keyId: string,
+  keyboardMode: KeyboardMode,
+  palette: KeyboardColorPalette
+): string {
+  if (keyId === 'number' && keyboardMode === KeyboardMode.CHINESE) {
+    return palette.functionKeyText;
+  }
+  return keyboardMode === KeyboardMode.ENGLISH
+    ? palette.modeKeyTextEnglish
+    : palette.modeKeyTextChinese;
 }
 
 export enum DanranKeyBackgroundKind {

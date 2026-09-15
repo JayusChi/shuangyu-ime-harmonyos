@@ -29,6 +29,7 @@ class EngineRegistry {
     RustCallResult NextCandidatePage(uint32_t id);
     RustCallResult PreviousCandidatePage(uint32_t id);
     RustCallResult GetLocalAssociations(uint32_t id);
+    RustCallResult ReverseLookup(uint32_t id, const std::string& text);
     RustCallResult GetCodeTableCategoryConfig(uint32_t id);
     RustCallResult SetCodeTableCategories(uint32_t id, const std::string& categoryIdsJson);
     RustCallResult SetCodeTableCommitPolicy(uint32_t id, const std::string& policyJson);

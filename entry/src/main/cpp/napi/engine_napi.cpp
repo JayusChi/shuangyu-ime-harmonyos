@@ -493,7 +493,8 @@ bool ReadHandleAndIndexArguments(napi_env env, napi_callback_info info, uint32_t
 bool IsSingleCodeTableKey(const std::string& value) {
     return value.length() == 1 &&
            ((value[0] >= 'a' && value[0] <= 'z') ||
-            (value[0] >= '2' && value[0] <= '9') || value[0] == ';' || value[0] == '`');
+            (value[0] >= 'A' && value[0] <= 'Z') ||
+            (value[0] >= '0' && value[0] <= '9') || std::string(";`='.+-*/_@").find(value[0]) != std::string::npos);
 }
 } // namespace
 
@@ -621,7 +622,7 @@ napi_value ProcessKey(napi_env env, napi_callback_info info) {
         ThrowNativeError(
             env,
             IME_INVALID_ARGUMENT,
-            "processKey requires one lowercase ASCII letter, T9 digit, guide key, or universal key");
+            "processKey requires one ASCII input letter, digit, operator, or guide key");
         return nullptr;
     }
 
@@ -643,7 +644,7 @@ napi_value ProcessKeyAsync(napi_env env, napi_callback_info info) {
         ThrowNativeError(
             env,
             IME_INVALID_ARGUMENT,
-            "processKeyAsync requires one lowercase ASCII letter, T9 digit, guide key, or universal key");
+            "processKeyAsync requires one ASCII input letter, digit, operator, or guide key");
         return nullptr;
     }
 
@@ -798,6 +799,21 @@ napi_value PreviousCandidatePage(napi_env env, napi_callback_info info) {
         return CreateCompositionErrorResult(env, result.code, ErrorMessageForCode(result.code));
     }
     return ConvertCompositionJsonToArkObject(env, result.payload);
+}
+
+napi_value ReverseLookup(napi_env env, napi_callback_info info) {
+    uint32_t handle = 0;
+    std::string text;
+    if (!ReadHandleAndStringArguments(env, info, handle, text) || text.size() > 4) {
+        ThrowNativeError(env, IME_INVALID_ARGUMENT, "reverseLookup requires handle and one character");
+        return nullptr;
+    }
+    RustCallResult result = ReverseLookupRegisteredEngine(handle, text);
+    if (result.code != IME_SUCCESS) {
+        ThrowNativeError(env, result.code, ErrorMessageForCode(result.code));
+        return nullptr;
+    }
+    return CreateString(env, result.payload);
 }
 
 napi_value GetLocalAssociations(napi_env env, napi_callback_info info) {

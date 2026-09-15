@@ -3,6 +3,7 @@ import {
   DELETE_ACTION,
   ENTER_ACTION,
   KeyboardAction,
+  KeyboardActionType,
   KeyboardMode,
   SPACE_ACTION,
   TOGGLE_LANGUAGE_ACTION
@@ -45,6 +46,23 @@ export interface KeyboardKeySpec {
   alternatives?: KeyboardKeyAlternativeSpec[];
 }
 
+/** Resolve transient labels independently of the cached structure and key position. */
+export function resolveKeyboardKeyLabel(
+  spec: KeyboardKeySpec,
+  mode: KeyboardMode,
+  hasCandidates: boolean
+): string {
+  if (mode === KeyboardMode.CHINESE && hasCandidates &&
+    spec.action.type === KeyboardActionType.SECOND_CANDIDATE_OR_PERIOD) {
+    return '次选';
+  }
+  if (spec.kind === KeyboardKeyKind.MODE_SWITCH &&
+    (spec.id === 'mode-switch' || spec.id === 'language')) {
+    return mode === KeyboardMode.ENGLISH ? '英' : '中';
+  }
+  return spec.label;
+}
+
 /**
  * 一个组合键帽内可直接点选的子项。18 键分组布局在同一键帽内为每个
  * 字母提供独立点击目标，保证 26 个字母均可直接输入。
@@ -71,6 +89,8 @@ export enum KeyboardRowKind {
  * 键盘行规格
  */
 export interface KeyboardRowSpec {
+  /** Center a shorter row on the same equal-width grid as the full letter row. */
+  uniformKeyColumns?: number;
   keys: KeyboardKeySpec[];
   kind?: KeyboardRowKind;
 }

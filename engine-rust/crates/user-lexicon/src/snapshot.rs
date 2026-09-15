@@ -36,7 +36,10 @@ impl UserLexiconSnapshot {
         for (index, entry) in entries.iter().enumerate() {
             by_code.entry(entry.code.clone()).or_default().push(index);
             match entry.action {
-                UserLexiconAction::Add | UserLexiconAction::Direct => stats.added += 1,
+                UserLexiconAction::Add
+                | UserLexiconAction::Direct
+                | UserLexiconAction::OpenUrl
+                | UserLexiconAction::OpenDirectory => stats.added += 1,
                 UserLexiconAction::Delete => stats.deleted += 1,
                 UserLexiconAction::Fixed => stats.fixed += 1,
                 UserLexiconAction::Position(_) => stats.positioned += 1,
@@ -144,6 +147,8 @@ impl UserLexiconSnapshot {
             match entry.action {
                 UserLexiconAction::Add => {}
                 UserLexiconAction::Direct => output.push_str("#直"),
+                UserLexiconAction::OpenUrl => output.push_str("#网页"),
+                UserLexiconAction::OpenDirectory => output.push_str("#目录"),
                 UserLexiconAction::Delete => output.push_str("#删"),
                 UserLexiconAction::Fixed => output.push_str("#固"),
                 UserLexiconAction::Position(position) => {
@@ -156,6 +161,9 @@ impl UserLexiconSnapshot {
                 output.push_str(entry.display_text.as_deref().unwrap_or(""));
                 output.push('\t');
                 output.push_str(category_id);
+            } else if entry.action.external_action().is_some() {
+                output.push('\t');
+                output.push_str(entry.display_text.as_deref().unwrap_or(""));
             }
             output.push('\n');
         }

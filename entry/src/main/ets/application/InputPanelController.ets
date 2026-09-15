@@ -105,6 +105,7 @@ export class InputPanelController {
   private panelContentReady: boolean = false;
   private lifecycleGeneration: number = 0;
   private inputSessionActive: boolean = false;
+  private keyboardShowRequested: boolean = false;
   private targetVisible: boolean = false;
   private lifecycleState: PanelLifecycleState = PanelLifecycleState.UNINITIALIZED;
   private lifecycleQueue: Promise<void> = Promise.resolve();
@@ -153,6 +154,7 @@ export class InputPanelController {
     }) : Promise.resolve();
     this.disposed = false;
     this.inputSessionActive = false;
+    this.keyboardShowRequested = false;
     this.targetVisible = false;
     this.lifecycleGeneration += 1;
     this.lifecycleState = this.panel ? PanelLifecycleState.HIDDEN : PanelLifecycleState.UNINITIALIZED;
@@ -173,9 +175,12 @@ export class InputPanelController {
     this.lifecycleGeneration += 1;
     this.inputSessionActive = true;
     this.presentationMode = mode;
-    this.targetVisible = mode === InputPresentationMode.TOUCH;
-    if (this.targetVisible) {
-      this.queueShow(this.lifecycleGeneration, 'inputStart');
+    // Binding an editor does not request a keyboard (chat apps may bind on entry).
+    // Each new session must wait for its own platform keyboardShow event.
+    this.keyboardShowRequested = false;
+    this.targetVisible = false;
+    if (mode === InputPresentationMode.TOUCH) {
+      this.queueHide(this.lifecycleGeneration, 'inputStart');
     } else {
       this.queueReleaseForHardware(this.lifecycleGeneration);
     }
@@ -186,10 +191,12 @@ export class InputPanelController {
       return;
     }
     this.presentationMode = mode;
-    this.targetVisible = mode === InputPresentationMode.TOUCH;
+    this.targetVisible = mode === InputPresentationMode.TOUCH && this.keyboardShowRequested;
     this.lifecycleGeneration += 1;
     if (this.targetVisible) {
       this.queueShow(this.lifecycleGeneration, 'presentationMode');
+    } else if (mode === InputPresentationMode.TOUCH) {
+      this.queueHide(this.lifecycleGeneration, 'presentationMode');
     } else {
       this.queueReleaseForHardware(this.lifecycleGeneration);
     }
@@ -200,13 +207,18 @@ export class InputPanelController {
       return;
     }
     this.inputSessionActive = false;
+    this.keyboardShowRequested = false;
     this.targetVisible = false;
     this.lifecycleGeneration += 1;
     this.queueHide(this.lifecycleGeneration, 'inputStop');
   }
 
   showKeyboardPanel(): void {
-    if (this.disposed || !this.inputSessionActive || this.presentationMode !== InputPresentationMode.TOUCH) {
+    if (this.disposed || !this.inputSessionActive) {
+      return;
+    }
+    this.keyboardShowRequested = true;
+    if (this.presentationMode !== InputPresentationMode.TOUCH) {
       return;
     }
     if (!this.targetVisible) {
@@ -220,6 +232,7 @@ export class InputPanelController {
     if (this.disposed) {
       return;
     }
+    this.keyboardShowRequested = false;
     if (this.targetVisible) {
       this.targetVisible = false;
       this.lifecycleGeneration += 1;
@@ -233,6 +246,7 @@ export class InputPanelController {
     }
     this.disposed = true;
     this.inputSessionActive = false;
+    this.keyboardShowRequested = false;
     this.targetVisible = false;
     this.lifecycleGeneration += 1;
     const generation = this.lifecycleGeneration;

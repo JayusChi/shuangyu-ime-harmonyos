@@ -3,13 +3,21 @@ use std::sync::{Arc, OnceLock};
 use lexicon_core::BinaryLexicon;
 
 use crate::context::CharacterBigramModel;
-use crate::graph::{SyllableGraph, WordEdge};
+use crate::graph::{FixedWordConstraint, InitialLexiconIndex, SyllableGraph, WordEdge};
 use crate::path::{
     compare_path, compare_path_parts, deduplicate_candidates, SentenceCandidate, SentencePath,
 };
-use crate::scorer::SentenceScorer;
+use crate::scorer::{SentenceScorer, SentenceScoring};
 use crate::t9_joint::{T9JointDecodeResult, T9JointLimits, T9JointSession, T9LexiconIndex};
 use crate::{DecodeError, DecodeLimits};
+
+pub struct XiaoheSentenceQuery<'a> {
+    pub raw_input: &'a str,
+    pub syllables: &'a [String],
+    pub initials: &'a [bool],
+    pub raw_lengths: &'a [usize],
+    pub fixed_words: &'a [FixedWordConstraint],
+}
 
 /// Decoded sentence candidates and debug-friendly graph counts.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -25,6 +33,7 @@ pub struct SentenceDecoder {
     context_model: CharacterBigramModel,
     limits: DecodeLimits,
     t9_index: Arc<OnceLock<T9LexiconIndex>>,
+    initial_index: Arc<OnceLock<InitialLexiconIndex>>,
 }
 
 impl SentenceDecoder {
@@ -43,6 +52,7 @@ impl SentenceDecoder {
             context_model,
             limits,
             t9_index: Arc::new(OnceLock::new()),
+            initial_index: Arc::new(OnceLock::new()),
         })
     }
 
@@ -115,6 +125,12 @@ impl SentenceDecoder {
         ))
     }
 
+    /// Build once at Xiaohe engine load, rather than on the first odd key.
+    pub fn prepare_initial_queries(&self) {
+        self.initial_index
+            .get_or_init(|| InitialLexiconIndex::build(&self.lexicon));
+    }
+
     /// Moves one-time digit-index construction into explicit pinyin-9 engine
     /// load instead of charging it to the first key latency.
     pub fn prepare_t9_joint(&self) {
@@ -152,7 +168,123 @@ impl SentenceDecoder {
         }
 
         let graph = SyllableGraph::build(&self.lexicon, syllables, &self.limits)?;
-        let complete_paths = self.search_complete_paths(&graph, !pending_code.is_empty());
+        self.decode_graph(
+            &graph,
+            !pending_code.is_empty(),
+            &vec![2; syllables.len()],
+            SentenceScoring::Standard,
+            &mut user_score,
+        )
+    }
+
+    /// Initial slots are lexical constraints, never committed raw Latin text.
+    /// Their raw lengths also keep partial selections aligned after a 声声 pair.
+    pub fn decode_with_initials_and_user_scores(
+        &self,
+        raw_input: &str,
+        syllables: &[String],
+        initials: &[bool],
+        raw_lengths: &[usize],
+        user_score: impl FnMut(&SentenceCandidate) -> i64,
+    ) -> Result<DecodeResult, DecodeError> {
+        self.decode_xiaohe_query(
+            XiaoheSentenceQuery {
+                raw_input,
+                syllables,
+                initials,
+                raw_lengths,
+                fixed_words: &[],
+            },
+            SentenceScoring::Initials,
+            user_score,
+        )
+    }
+
+    pub fn decode_xiaohe_with_user_scores(
+        &self,
+        query: XiaoheSentenceQuery<'_>,
+        user_score: impl FnMut(&SentenceCandidate) -> i64,
+    ) -> Result<DecodeResult, DecodeError> {
+        let scoring = if query.initials.iter().any(|flag| *flag) {
+            SentenceScoring::Initials
+        } else {
+            SentenceScoring::Xiaohe
+        };
+        self.decode_xiaohe_query(query, scoring, user_score)
+    }
+
+    fn decode_xiaohe_query(
+        &self,
+        query: XiaoheSentenceQuery<'_>,
+        scoring: SentenceScoring,
+        mut user_score: impl FnMut(&SentenceCandidate) -> i64,
+    ) -> Result<DecodeResult, DecodeError> {
+        let XiaoheSentenceQuery {
+            raw_input,
+            syllables,
+            initials,
+            raw_lengths,
+            fixed_words,
+        } = query;
+        if raw_input.len() > self.limits.max_raw_len {
+            return Err(DecodeError::RawInputTooLong {
+                actual: raw_input.len(),
+                max: self.limits.max_raw_len,
+            });
+        }
+        if syllables.len() != initials.len() || syllables.len() != raw_lengths.len() {
+            return Err(DecodeError::InvalidLimit {
+                field: "syllable constraint lengths",
+            });
+        }
+        if syllables.is_empty() {
+            return Ok(DecodeResult {
+                candidates: Vec::new(),
+                graph_edge_count: 0,
+            });
+        }
+        if syllables.len() > self.limits.max_syllables {
+            return Err(DecodeError::TooManySyllables {
+                actual: syllables.len(),
+                max: self.limits.max_syllables,
+            });
+        }
+        let index = self
+            .initial_index
+            .get_or_init(|| InitialLexiconIndex::build(&self.lexicon));
+        let mut graph_limits = self.limits.clone();
+        if fixed_words.len() >= graph_limits.max_edges {
+            return Err(DecodeError::InvalidLimit {
+                field: "fixed word edge budget",
+            });
+        }
+        graph_limits.max_edges -= fixed_words.len();
+        let mut graph = if initials.iter().any(|flag| *flag) {
+            SyllableGraph::build_with_initials(
+                &self.lexicon,
+                syllables,
+                initials,
+                &graph_limits,
+                index,
+            )?
+        } else {
+            SyllableGraph::build(&self.lexicon, syllables, &graph_limits)?
+        };
+        graph.apply_fixed_words(fixed_words)?;
+        let pending_tail =
+            raw_lengths.iter().sum::<usize>() < raw_input.chars().filter(|ch| *ch != '\'').count();
+        self.decode_graph(&graph, pending_tail, raw_lengths, scoring, &mut user_score)
+    }
+
+    fn decode_graph(
+        &self,
+        graph: &SyllableGraph,
+        pending_tail: bool,
+        raw_lengths: &[usize],
+        scoring: SentenceScoring,
+        mut user_score: impl FnMut(&SentenceCandidate) -> i64,
+    ) -> Result<DecodeResult, DecodeError> {
+        let complete_paths = self.search_complete_paths(graph, pending_tail, scoring);
         let mut candidates = Vec::new();
         let has_clean_complete_path = complete_paths.iter().any(|path| path.fallback_count() == 0);
         for path in complete_paths
@@ -161,15 +293,15 @@ impl SentenceDecoder {
             .take(self.limits.max_output_paths)
         {
             let complete_coverage =
-                path.consumed_syllables() == syllables.len() && pending_code.is_empty();
+                path.consumed_syllables() == graph.syllable_count() && !pending_tail;
             candidates.push(SentenceCandidate::from_path(
                 path,
-                path.consumed_syllables() * 2,
+                raw_lengths[..path.consumed_syllables()].iter().sum(),
                 complete_coverage,
             ));
         }
 
-        candidates.extend(self.prefix_candidates(&graph, syllables.len()));
+        candidates.extend(self.prefix_candidates(graph, raw_lengths, scoring));
         let mut candidates = deduplicate_candidates(candidates);
         candidates
             .sort_by(|left, right| compare_candidate_with_user_score(left, right, &mut user_score));
@@ -184,6 +316,7 @@ impl SentenceDecoder {
         &self,
         graph: &SyllableGraph,
         pending_tail: bool,
+        scoring: SentenceScoring,
     ) -> Vec<SentencePath> {
         let node_count = graph.syllable_count();
         let mut beams = vec![Vec::<PathState>::new(); node_count + 1];
@@ -196,7 +329,13 @@ impl SentenceDecoder {
             }
             for state in states {
                 for edge in graph.edges_from(position) {
-                    let mut next = state.extend(edge.clone(), &self.context_model);
+                    let mut next = state.extend(edge.clone(), &self.context_model, scoring);
+                    // Broad initial matches must retain word segmentation in
+                    // the beam; otherwise high-frequency single characters
+                    // crowd out words before the terminal penalty is applied.
+                    if !state.edges.is_empty() {
+                        next.score -= scoring.extra_word_penalty();
+                    }
                     if edge.end == node_count {
                         next.score +=
                             SentenceScorer::terminal_score(next.edges.len(), true, pending_tail);
@@ -222,8 +361,10 @@ impl SentenceDecoder {
     fn prefix_candidates(
         &self,
         graph: &SyllableGraph,
-        syllable_count: usize,
+        raw_lengths: &[usize],
+        scoring: SentenceScoring,
     ) -> Vec<SentenceCandidate> {
+        let syllable_count = graph.syllable_count();
         if syllable_count < 3 {
             return Vec::new();
         }
@@ -232,10 +373,17 @@ impl SentenceDecoder {
             .edges_from(0)
             .iter()
             .filter(|edge| !edge.fallback && edge.end < syllable_count)
+            // Do not cut a 声声 pair in half: re-pairing its second key with
+            // the next syllable would change the untouched input's reading.
+            .filter(|edge| raw_lengths[..edge.end].iter().sum::<usize>() % 2 == 0)
             .map(|edge| {
-                let score = SentenceScorer::edge_score(edge)
-                    + SentenceScorer::terminal_score(1, false, false);
-                SentenceCandidate::from_prefix_edge(edge, score)
+                let score =
+                    scoring.edge_score(edge) + SentenceScorer::terminal_score(1, false, false);
+                SentenceCandidate::from_prefix_edge(
+                    edge,
+                    raw_lengths[..edge.end].iter().sum(),
+                    score,
+                )
             })
             .collect::<Vec<_>>();
         candidates.sort_by(|left, right| {
@@ -257,13 +405,18 @@ struct PathState {
 }
 
 impl PathState {
-    fn extend(&self, edge: WordEdge, context_model: &CharacterBigramModel) -> Self {
+    fn extend(
+        &self,
+        edge: WordEdge,
+        context_model: &CharacterBigramModel,
+        scoring: SentenceScoring,
+    ) -> Self {
         let mut edges = self.edges.clone();
         let transition_score = edges
             .last()
             .map(|previous| context_model.transition_score(&previous.text, &edge.text))
             .unwrap_or(0);
-        let score = self.score + SentenceScorer::edge_score(&edge) + transition_score;
+        let score = self.score + scoring.edge_score(&edge) + transition_score;
         edges.push(edge);
         Self { edges, score }
     }
@@ -311,6 +464,97 @@ mod tests {
 
         assert!(result.candidates.is_empty());
         assert_eq!(result.graph_edge_count, 0);
+    }
+
+    #[test]
+    fn initial_queries_match_words_and_keep_actual_raw_coverage() {
+        let decoder = sample_decoder();
+        let result = decoder
+            .decode_with_initials_and_user_scores(
+                "ni'h",
+                &syllables(["ni", "h"]),
+                &[false, true],
+                &[2, 1],
+                |_| 0,
+            )
+            .unwrap();
+        assert_eq!(result.candidates[0].text, "你好");
+        assert_eq!(result.candidates[0].reading, "ni hao");
+        assert_eq!(result.candidates[0].raw_end, 3);
+        assert!(result.candidates[0].id.starts_with("sentence:3:"));
+        assert!(result.candidates[0].complete_coverage);
+        let pending = decoder
+            .decode_with_initials_and_user_scores(
+                "niha",
+                &syllables(["ni", "h"]),
+                &[false, true],
+                &[2, 1],
+                |_| 0,
+            )
+            .unwrap();
+        assert!(!pending.candidates[0].complete_coverage);
+        assert_eq!(pending.candidates[0].raw_end, 3);
+    }
+
+    #[test]
+    fn unresolved_initials_never_become_latin_fallback_candidates() {
+        let decoder = sample_decoder();
+        let result = decoder
+            .decode_with_initials_and_user_scores(
+                "niz",
+                &syllables(["ni", "z"]),
+                &[false, true],
+                &[2, 1],
+                |_| 0,
+            )
+            .unwrap();
+        assert!(result.candidates.is_empty());
+    }
+
+    #[test]
+    fn initial_query_validation_and_search_limits_are_preserved() {
+        let decoder = sample_decoder();
+        assert!(decoder
+            .decode_with_initials_and_user_scores("", &[], &[], &[], |_| 0)
+            .unwrap()
+            .candidates
+            .is_empty());
+        assert!(matches!(
+            decoder.decode_with_initials_and_user_scores("h", &syllables(["h"]), &[], &[1], |_| 0),
+            Err(DecodeError::InvalidLimit { .. })
+        ));
+        assert!(matches!(
+            decoder.decode_with_initials_and_user_scores(&"h".repeat(65), &[], &[], &[], |_| 0),
+            Err(DecodeError::RawInputTooLong { .. })
+        ));
+        let long_syllables = vec!["h".to_owned(); 33];
+        assert!(matches!(
+            decoder.decode_with_initials_and_user_scores(
+                &"h".repeat(33),
+                &long_syllables,
+                &[true; 33],
+                &[1; 33],
+                |_| 0
+            ),
+            Err(DecodeError::TooManySyllables { .. })
+        ));
+        let limits = DecodeLimits {
+            max_edges: 2,
+            max_output_candidates: 1,
+            ..DecodeLimits::default()
+        };
+        let bounded = SentenceDecoder::new(sample_lexicon(), limits).unwrap();
+        let result = bounded
+            .decode_with_initials_and_user_scores(
+                "nih",
+                &syllables(["ni", "h"]),
+                &[false, true],
+                &[2, 1],
+                |_| 0,
+            )
+            .unwrap();
+        assert!(result.graph_edge_count <= 2);
+        assert!(result.candidates.len() <= 1);
     }
 
     #[test]

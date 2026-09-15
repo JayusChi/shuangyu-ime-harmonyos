@@ -1,7 +1,16 @@
 import {
   CandidateFontSizeMode,
+  KEYBOARD_HEIGHT_MODE_OPTIONS,
+  legacyCandidateFontSize,
+  MIN_CANDIDATE_FONT_SIZE,
+  MIN_KEYBOARD_FONT_SIZE,
+  MAX_KEYBOARD_FONT_SIZE,
+  MIN_UPPER_LABEL_RIGHT_MARGIN,
+  MAX_UPPER_LABEL_RIGHT_MARGIN,
+  MAX_CANDIDATE_FONT_SIZE,
   CandidatePresentationMode,
   CURRENT_SETTINGS_SCHEMA_VERSION,
+  MIN_CANDIDATE_DISPLAY_COUNT, MAX_CANDIDATE_DISPLAY_COUNT,
   DEFAULT_AI_ACTIONS,
   DEFAULT_IME_SETTINGS,
   HapticLevel,
@@ -43,11 +52,20 @@ export class SettingsValidator {
       ),
       keyboardSkinId: this.customizationId(raw.keyboardSkinId, DEFAULT_IME_SETTINGS.keyboardSkinId),
       keyboardHeightMode: this.height(raw.keyboardHeightMode),
+      keyboardFontSize: this.boundedInteger(raw.keyboardFontSize, MIN_KEYBOARD_FONT_SIZE,
+        MAX_KEYBOARD_FONT_SIZE, DEFAULT_IME_SETTINGS.keyboardFontSize),
+      upperLabelRightMargin: this.boundedInteger(raw.upperLabelRightMargin, MIN_UPPER_LABEL_RIGHT_MARGIN,
+        MAX_UPPER_LABEL_RIGHT_MARGIN, DEFAULT_IME_SETTINGS.upperLabelRightMargin),
       keyboardLiftLayerEnabled: this.booleanValue(
         raw.keyboardLiftLayerEnabled,
         DEFAULT_IME_SETTINGS.keyboardLiftLayerEnabled
       ),
       candidateFontSizeMode: this.candidateFont(raw.candidateFontSizeMode),
+      candidateFontSize: this.fontSize(raw.candidateFontSize, raw.candidateFontSizeMode, false),
+      candidateDisplayCount: this.boundedInteger(raw.candidateDisplayCount, MIN_CANDIDATE_DISPLAY_COUNT,
+        MAX_CANDIDATE_DISPLAY_COUNT, DEFAULT_IME_SETTINGS.candidateDisplayCount),
+      floatingCandidateFontSize: this.fontSize(raw.floatingCandidateFontSize, raw.candidateFontSizeMode, true),
+      keySoundVolume: this.boundedInteger(raw.keySoundVolume, 0, 100, DEFAULT_IME_SETTINGS.keySoundVolume),
       hapticLevel: this.haptic(raw.hapticLevel),
       keySoundEnabled: this.booleanValue(raw.keySoundEnabled, DEFAULT_IME_SETTINGS.keySoundEnabled),
       userLearningEnabled: this.booleanValue(
@@ -109,12 +127,17 @@ export class SettingsValidator {
         [4, 12],
         DEFAULT_IME_SETTINGS.codeTableEmptyClearLength
       ),
+      codeTableReverseSplitEnabled: this.booleanValue(
+        raw.codeTableReverseSplitEnabled,
+        DEFAULT_IME_SETTINGS.codeTableReverseSplitEnabled
+      ),
       codeTableAutoCommitEnabled: this.booleanValue(
         raw.codeTableAutoCommitEnabled,
         DEFAULT_IME_SETTINGS.codeTableAutoCommitEnabled
       ),
       inputPresentationPreference: this.inputPresentationPreference(raw.inputPresentationPreference),
       candidatePresentationMode: this.candidatePresentation(raw.candidatePresentationMode),
+      inlinePreeditEnabled: raw.inlinePreeditEnabled === 'true',
       xiaoheYinxingCategorySchemaVersion: XIAOHE_YINXING_CATEGORY_SCHEMA_VERSION,
       xiaoheYinxingEnabledCategoryIds: this.yinxingCategories(raw.xiaoheYinxingEnabledCategoryIds),
       lexiconSources: this.lexiconSources(raw.lexiconSources)
@@ -254,12 +277,21 @@ export class SettingsValidator {
   }
 
   private height(value?: string): KeyboardHeightMode {
-    if (value === KeyboardHeightMode.EXTRA_COMPACT || value === KeyboardHeightMode.COMPACT ||
-      value === KeyboardHeightMode.STANDARD || value === KeyboardHeightMode.TALL ||
-      value === KeyboardHeightMode.EXTRA_TALL) {
+    if (KEYBOARD_HEIGHT_MODE_OPTIONS.indexOf(value as KeyboardHeightMode) >= 0) {
       return value as KeyboardHeightMode;
     }
     return DEFAULT_IME_SETTINGS.keyboardHeightMode;
+  }
+
+  private boundedInteger(value: string | undefined, min: number, max: number, fallback: number): number {
+    const parsed = Number(value);
+    return value !== undefined && value.trim().length > 0 && Number.isInteger(parsed) &&
+      parsed >= min && parsed <= max ? parsed : fallback;
+  }
+
+  private fontSize(value: string | undefined, legacy: string | undefined, floating: boolean): number {
+    return this.boundedInteger(value, MIN_CANDIDATE_FONT_SIZE, MAX_CANDIDATE_FONT_SIZE,
+      legacyCandidateFontSize(this.candidateFont(legacy), floating));
   }
 
   private candidateFont(value?: string): CandidateFontSizeMode {

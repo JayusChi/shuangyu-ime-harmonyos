@@ -1,3 +1,5 @@
+import clipboardReverseLookupTest from './ClipboardReverseLookup.test';
+import externalDirectShortcutsTest from './ExternalDirectShortcuts.test';
 import localUnitTest from './LocalUnit.test';
 import stage2ControllerTest from './Stage2Controller.test';
 import stage3Tests from './Stage3.test';
@@ -40,8 +42,11 @@ import editorExtendActionTest from './EditorExtendAction.test';
 import deletionRecoveryTest from './DeletionRecovery.test';
 import keyboardSwipeActionsTest from './KeyboardSwipeActions.test';
 import keyboardLiftLayerTest from './KeyboardLiftLayer.test';
+import cursorMovementServiceTest from './CursorMovementService.test';
+import pairCursorPositionerTest from './PairCursorPositioner.test';
 
 export default function testsuite() {
+  clipboardReverseLookupTest();
   localUnitTest();
   stage2ControllerTest();
   stage3Tests();
@@ -84,4 +89,7 @@ export default function testsuite() {
   deletionRecoveryTest();
   keyboardSwipeActionsTest();
   keyboardLiftLayerTest();
+  cursorMovementServiceTest();
+  pairCursorPositionerTest();
+  externalDirectShortcutsTest();
 }

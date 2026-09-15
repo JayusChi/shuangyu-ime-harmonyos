@@ -27,6 +27,7 @@ import { InputSessionStore } from '../main/ets/state/InputSessionStore';
 import { SettingsStore } from '../main/ets/state/SettingsStore';
 import { InputPresentationMode } from '../main/ets/domain/display/InputPresentationMode';
 import { createScreenMetrics } from '../main/ets/domain/display/ScreenMetrics';
+import { FloatingCandidateViewStore, isFloatingCandidateViewCurrent } from '../main/ets/state/FloatingCandidateViewStore';
 
 class FakeFloatingPanel implements ManagedFloatingCandidatePanel {
   contentPath: string = '';
@@ -39,6 +40,19 @@ class FakeFloatingPanel implements ManagedFloatingCandidatePanel {
   lastWidth: number = -1;
   lastHeight: number = -1;
   failShow: boolean = false;
+  private resizeGate?: Promise<void>;
+  private resizeStarted?: () => void;
+  private releaseResize?: () => void;
+
+  holdNextResize(): Promise<void> {
+    this.resizeGate = new Promise<void>((resolve) => { this.releaseResize = resolve; });
+    return new Promise<void>((resolve) => { this.resizeStarted = resolve; });
+  }
+
+  resumeResize(): void {
+    this.releaseResize?.();
+    this.releaseResize = undefined;
+  }
 
   async setUiContent(path: string): Promise<void> {
     this.contentPath = path;
@@ -46,6 +60,11 @@ class FakeFloatingPanel implements ManagedFloatingCandidatePanel {
 
   async resize(width: number, height: number): Promise<void> {
     this.resizeCount += 1;
+    const gate = this.resizeGate;
+    this.resizeGate = undefined;
+    this.resizeStarted?.();
+    this.resizeStarted = undefined;
+    if (gate) { await gate; }
     this.lastWidth = width;
     this.lastHeight = height;
   }
@@ -145,26 +164,31 @@ interface RuntimeFixture {
   store: InputSessionStore;
   settings: SettingsStore;
   backend: FakeFloatingBackend;
+  viewStore: FloatingCandidateViewStore;
 }
 
-function createFixture(phone: boolean = false): RuntimeFixture {
+function createFixture(phone: boolean = false, mode: InputPresentationMode = InputPresentationMode.HARDWARE): RuntimeFixture {
   const store = new InputSessionStore();
   const session = new InputSessionController(store);
   const settings = new SettingsStore();
   const configured = copyImeSettings(DEFAULT_IME_SETTINGS);
-  configured.candidatePresentationMode = CandidatePresentationMode.AUTO;
+  configured.candidatePresentationMode = mode === InputPresentationMode.TOUCH
+    ? CandidatePresentationMode.FLOATING : CandidatePresentationMode.AUTO;
   settings.replace(configured);
   const backend = new FakeFloatingBackend();
+  const viewStore = new FloatingCandidateViewStore();
   const controller = new FloatingCandidateWindowController(
     session,
     settings,
     backend,
     new SupportedCapability(),
-    new FakePhysicalKeyboard()
+    new FakePhysicalKeyboard(),
+    viewStore
   );
-  controller.handleInputStart(InputPresentationMode.HARDWARE);
+  controller.handleInputStart(mode);
   store.markSessionStarted();
   store.applyEditorContext(createUnknownEditorContext());
+  if (mode === InputPresentationMode.TOUCH) { store.markKeyboardVisible(); }
   store.setScreenMetrics(phone ? createScreenMetrics({
     widthPx: 1080,
     heightPx: 2340,
@@ -176,11 +200,127 @@ function createFixture(phone: boolean = false): RuntimeFixture {
   }));
   store.updateComposition(composition());
   controller.handleCursorContextChange(120, 400, 40);
-  return { controller, store, settings, backend };
+  return { controller, store, settings, backend, viewStore };
+}
+
+function wideComposition(rawInput: string): CompositionResult {
+  const updated = composition();
+  updated.rawInput = rawInput;
+  updated.preeditText = rawInput;
+  updated.candidates = [
+    { id: '1', text: '可以看到完整候选文字', reading: rawInput, source: 'runtime-test' },
+    { id: '2', text: '快速打字保持窗口稳定', reading: rawInput, source: 'runtime-test' }
+  ];
+  return updated;
+}
+
+async function verifySynchronizedCandidateResize(mode: InputPresentationMode): Promise<void> {
+  const fixture = createFixture(false, mode);
+  await fixture.controller.waitForIdle();
+  const initialWidth = fixture.backend.panel.lastWidth;
+  const initialHeight = fixture.backend.panel.lastHeight;
+  const published: string[] = [];
+  fixture.viewStore.subscribe(() => {
+    const view = fixture.viewStore.getSnapshot();
+    if (view) { published.push(view.session.rawInput); }
+  });
+  const resizing = fixture.backend.panel.holdNextResize();
+  fixture.store.updateComposition(wideComposition('k'));
+  await resizing;
+  expect(fixture.backend.panel.lastWidth).assertEqual(initialWidth);
+  expect(fixture.viewStore.getSnapshot()?.session.rawInput).assertEqual('ni');
+  fixture.store.updateComposition(wideComposition('kn'));
+  fixture.store.updateComposition(wideComposition('kni'));
+  fixture.backend.panel.resumeResize();
+  await fixture.controller.waitForIdle();
+  expect(published.join(',')).assertEqual('kni');
+  expect(fixture.viewStore.getSnapshot()?.session.rawInput).assertEqual('kni');
+  expect(fixture.backend.panel.lastWidth > initialWidth).assertTrue();
+  expect(fixture.backend.panel.lastHeight).assertEqual(initialHeight);
+  const wideWidth = fixture.backend.panel.lastWidth;
+  const resizeCount = fixture.backend.panel.resizeCount;
+  const short = composition();
+  short.highlightedIndex = 1;
+  fixture.store.updateComposition(short);
+  fixture.controller.handleCursorContextChange(140, 410, 40);
+  await fixture.controller.waitForIdle();
+  expect(fixture.viewStore.getSnapshot()?.session.highlightedIndex).assertEqual(1);
+  expect(fixture.backend.panel.lastWidth).assertEqual(wideWidth);
+  expect(fixture.backend.panel.lastHeight).assertEqual(initialHeight);
+  expect(fixture.backend.panel.resizeCount).assertEqual(resizeCount);
+  fixture.controller.destroy();
+  await fixture.controller.waitForIdle();
 }
 
 export default function stage38RuntimeTest() {
   describe('computer remediation stage 4 floating candidate runtime', () => {
+    it('waits for geometry and drops obsolete content during rapid HARDWARE typing', 0, async () => {
+      await verifySynchronizedCandidateResize(InputPresentationMode.HARDWARE);
+    });
+
+    it('waits for geometry and keeps dimensions stable during rapid TOUCH typing', 0, async () => {
+      await verifySynchronizedCandidateResize(InputPresentationMode.TOUCH);
+    });
+
+    it('clears a pending presentation immediately and restores compact width for the next composition', 0, async () => {
+      const fixture = createFixture();
+      await fixture.controller.waitForIdle();
+      const initialWidth = fixture.backend.panel.lastWidth;
+      const resizing = fixture.backend.panel.holdNextResize();
+      fixture.store.updateComposition(wideComposition('kn'));
+      await resizing;
+      fixture.store.clearComposition();
+      expect(fixture.viewStore.getSnapshot() === undefined).assertTrue();
+      fixture.backend.panel.resumeResize();
+      await fixture.controller.waitForIdle();
+      expect(fixture.viewStore.getSnapshot() === undefined).assertTrue();
+      expect(fixture.backend.panel.hideCount).assertEqual(1);
+      fixture.store.updateComposition(composition());
+      await fixture.controller.waitForIdle();
+      expect(fixture.backend.panel.lastWidth).assertEqual(initialWidth);
+      expect(fixture.viewStore.getSnapshot()?.session.rawInput).assertEqual('ni');
+      fixture.controller.destroy();
+      await fixture.controller.waitForIdle();
+    });
+
+    it('applies larger fonts only after the panel has enough line height', 0, async () => {
+      const fixture = createFixture();
+      await fixture.controller.waitForIdle();
+      const initialHeight = fixture.backend.panel.lastHeight;
+      const resizing = fixture.backend.panel.holdNextResize();
+      const settings = copyImeSettings(fixture.settings.getSnapshot());
+      settings.floatingCandidateFontSize = 24;
+      fixture.settings.replace(settings);
+      await resizing;
+      expect(fixture.viewStore.getSnapshot() === undefined).assertTrue();
+      fixture.backend.panel.resumeResize();
+      await fixture.controller.waitForIdle();
+      expect(fixture.backend.panel.lastHeight > initialHeight).assertTrue();
+      expect(fixture.viewStore.getSnapshot()?.settings.floatingCandidateFontSize).assertEqual(24);
+      fixture.controller.destroy();
+      await fixture.controller.waitForIdle();
+    });
+
+    it('does not let an older displayed candidate commit a newer item or a new session', 0, async () => {
+      const fixture = createFixture();
+      await fixture.controller.waitForIdle();
+      const view = fixture.viewStore.getSnapshot();
+      if (!view) { throw new Error('expected a published view'); }
+      expect(isFloatingCandidateViewCurrent(view, fixture.store.getSnapshot(), fixture.store.getSessionGeneration()))
+        .assertTrue();
+      const replacement = composition();
+      replacement.candidates[0].text = '拟';
+      fixture.store.updateComposition(replacement);
+      expect(isFloatingCandidateViewCurrent(view, fixture.store.getSnapshot(), fixture.store.getSessionGeneration()))
+        .assertFalse();
+      fixture.store.updateComposition(composition());
+      fixture.store.markSessionStarted();
+      expect(isFloatingCandidateViewCurrent(view, fixture.store.getSnapshot(), fixture.store.getSessionGeneration()))
+        .assertFalse();
+      fixture.controller.destroy();
+      await fixture.controller.waitForIdle();
+    });
+
     it('creates, positions and shows the candidate panel in HARDWARE mode', 0, async () => {
       const fixture = createFixture();
       await fixture.controller.waitForIdle();
@@ -292,6 +432,34 @@ export default function stage38RuntimeTest() {
       await fixture.controller.waitForIdle();
       expect(fixture.backend.panel.showCount).assertEqual(2);
       expect(fixture.store.getSnapshot().floatingCandidateVisible).assertTrue();
+      fixture.controller.destroy();
+      await fixture.controller.waitForIdle();
+    });
+
+    it('shares the collapsed count with floating panel sizing and expands without opening the keyboard', 0, async () => {
+      const fixture = createFixture();
+      const updated = composition();
+      updated.candidates = [];
+      for (let index = 0; index < 8; index += 1) {
+        updated.candidates.push({ id: 'limit-' + index, text: '词' + index, reading: 'ni', source: 'runtime-test' });
+      }
+      fixture.store.updateComposition(updated);
+      await fixture.controller.waitForIdle();
+      const initialWidth = fixture.backend.panel.lastWidth;
+      const initialHeight = fixture.backend.panel.lastHeight;
+      const settings = copyImeSettings(fixture.settings.getSnapshot());
+      settings.candidateDisplayCount = 2;
+      fixture.settings.replace(settings);
+      await fixture.controller.waitForIdle();
+      expect(fixture.backend.panel.lastWidth < initialWidth).assertTrue();
+      const keyboardVisible = fixture.store.getSnapshot().keyboardVisible;
+      expect(fixture.store.setFloatingCandidateExpanded(true)).assertTrue();
+      await fixture.controller.waitForIdle();
+      expect(fixture.backend.panel.lastHeight > initialHeight).assertTrue();
+      expect(fixture.store.getSnapshot().keyboardVisible).assertEqual(keyboardVisible);
+      fixture.store.setFloatingCandidateExpanded(false);
+      await fixture.controller.waitForIdle();
+      expect(fixture.backend.panel.lastHeight).assertEqual(initialHeight);
       fixture.controller.destroy();
       await fixture.controller.waitForIdle();
     });

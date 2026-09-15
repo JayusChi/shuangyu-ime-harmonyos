@@ -1,5 +1,11 @@
 import {
   DEFAULT_LONG_PRESS_DURATION_MS,
+  DEFAULT_KEYBOARD_FONT_SIZE,
+  MIN_KEYBOARD_FONT_SIZE,
+  MAX_KEYBOARD_FONT_SIZE,
+  DEFAULT_UPPER_LABEL_RIGHT_MARGIN,
+  MIN_UPPER_LABEL_RIGHT_MARGIN,
+  MAX_UPPER_LABEL_RIGHT_MARGIN,
   KeyboardHeightMode,
   keyboardHeightScale
 } from '../../../domain/settings/ImeSettings';
@@ -37,6 +43,7 @@ export interface OrientationMetrics {
   letterFontSize: number;
   functionFontSize: number;
   previewFontSize: number;
+  upperLabelRightMargin: number;
 }
 
 export interface KeyboardKeyWeights {
@@ -95,9 +102,10 @@ export const PORTRAIT_METRICS: OrientationMetrics = {
   topPadding: 6,
   bottomPadding: KEYBOARD_BOTTOM_PADDING,
   keyBorderRadius: 9,
-  letterFontSize: 14,
-  functionFontSize: 11,
-  previewFontSize: 22
+  letterFontSize: DEFAULT_KEYBOARD_FONT_SIZE,
+  functionFontSize: DEFAULT_KEYBOARD_FONT_SIZE - 3,
+  previewFontSize: 18,
+  upperLabelRightMargin: DEFAULT_UPPER_LABEL_RIGHT_MARGIN
 };
 
 /**
@@ -117,9 +125,10 @@ export const LANDSCAPE_METRICS: OrientationMetrics = {
   topPadding: 6,
   bottomPadding: KEYBOARD_BOTTOM_PADDING,
   keyBorderRadius: 8,
-  letterFontSize: 13,
-  functionFontSize: 10,
-  previewFontSize: 20
+  letterFontSize: DEFAULT_KEYBOARD_FONT_SIZE,
+  functionFontSize: DEFAULT_KEYBOARD_FONT_SIZE - 3,
+  previewFontSize: 18,
+  upperLabelRightMargin: DEFAULT_UPPER_LABEL_RIGHT_MARGIN
 };
 
 /**
@@ -166,14 +175,17 @@ export const KEY_PREVIEW_CONFIG: KeyPreviewConfig = {
 export function getMetricsForOrientation(
   isLandscape: boolean,
   heightMode: KeyboardHeightMode = KeyboardHeightMode.STANDARD,
-  screenMetrics?: ScreenMetricsPx
+  screenMetrics?: ScreenMetricsPx,
+  keyboardFontSize: number = DEFAULT_KEYBOARD_FONT_SIZE,
+  upperLabelRightMargin: number = DEFAULT_UPPER_LABEL_RIGHT_MARGIN
 ): OrientationMetrics {
   if (screenMetrics) {
-    return calculateDynamicMetrics(screenMetrics, heightMode);
+    return calculateDynamicMetrics(screenMetrics, heightMode, keyboardFontSize, upperLabelRightMargin);
   }
   const base = isLandscape ? LANDSCAPE_METRICS : PORTRAIT_METRICS;
   const scale = keyboardHeightScale(heightMode);
-  if (scale === 1) {
+  if (scale === 1 && keyboardFontSize === DEFAULT_KEYBOARD_FONT_SIZE &&
+    upperLabelRightMargin === DEFAULT_UPPER_LABEL_RIGHT_MARGIN) {
     return base;
   }
   return {
@@ -190,18 +202,39 @@ export function getMetricsForOrientation(
     topPadding: base.topPadding,
     bottomPadding: KEYBOARD_BOTTOM_PADDING,
     keyBorderRadius: base.keyBorderRadius,
-    letterFontSize: base.letterFontSize,
-    functionFontSize: base.functionFontSize,
-    previewFontSize: base.previewFontSize
+    letterFontSize: normalizeKeyboardFontSize(keyboardFontSize),
+    functionFontSize: Math.max(8, normalizeKeyboardFontSize(keyboardFontSize) - 3),
+    previewFontSize: Math.max(18, Math.round(normalizeKeyboardFontSize(keyboardFontSize) * 1.5)),
+    upperLabelRightMargin: normalizeUpperLabelRightMargin(upperLabelRightMargin)
   };
 }
 
 /**
  * 根据同一份屏幕 px 快照计算 ArkUI 使用的 vp 度量。
  */
+function normalizeKeyboardFontSize(value: number): number {
+  return Number.isFinite(value) ? clamp(Math.round(value), MIN_KEYBOARD_FONT_SIZE, MAX_KEYBOARD_FONT_SIZE) :
+    DEFAULT_KEYBOARD_FONT_SIZE;
+}
+
+function normalizeUpperLabelRightMargin(value: number): number {
+  return Number.isFinite(value) ? clamp(Math.round(value), MIN_UPPER_LABEL_RIGHT_MARGIN,
+    MAX_UPPER_LABEL_RIGHT_MARGIN) : DEFAULT_UPPER_LABEL_RIGHT_MARGIN;
+}
+
+/** 按逻辑短边适配；相同逻辑尺寸和横竖屏得到相同的默认字号。 */
+export function resolveDefaultKeyboardFontSize(screenMetrics: ScreenMetricsPx): number {
+  const valid = createScreenMetrics({ widthPx: screenMetrics.widthPx, heightPx: screenMetrics.heightPx,
+    densityPixels: screenMetrics.densityPixels }, screenMetrics.isLandscape);
+  const shortSideVp = pxToVp(Math.min(valid.widthPx, valid.heightPx), valid);
+  return clamp(Math.round(DEFAULT_KEYBOARD_FONT_SIZE * shortSideVp / 360), DEFAULT_KEYBOARD_FONT_SIZE, 24);
+}
+
 export function calculateDynamicMetrics(
   screenMetrics: ScreenMetricsPx,
-  heightMode: KeyboardHeightMode = KeyboardHeightMode.STANDARD
+  heightMode: KeyboardHeightMode = KeyboardHeightMode.STANDARD,
+  keyboardFontSize: number = DEFAULT_KEYBOARD_FONT_SIZE,
+  upperLabelRightMargin: number = DEFAULT_UPPER_LABEL_RIGHT_MARGIN
 ): OrientationMetrics {
   const validMetrics = createScreenMetrics({
     widthPx: screenMetrics.widthPx,
@@ -246,10 +279,12 @@ export function calculateDynamicMetrics(
   // A-L 行相对十列基准缩进半个字母槽，所有设备形态使用同一计算方式。
   const secondRowInset = clamp(Math.round((usableRowWidth + keySpacing) / 20), 14, 48);
 
-  // 字母保持清晰但不抢占键帽留白；手机、横屏和 Pad 共用同一比例与上限。
-  const letterFontSize = clamp(Math.round(letterKeyHeight * 0.31), 12, 18);
-  const functionFontSize = clamp(Math.round(letterKeyHeight * 0.24), 9, 14);
-  const previewFontSize = clamp(Math.round(letterFontSize * 1.5), 18, 27);
+  // 旧版 12 为零增减；保留已保存的相对调整，平板默认随逻辑短边放大。
+  const fontSizeOffset = normalizeKeyboardFontSize(keyboardFontSize) - DEFAULT_KEYBOARD_FONT_SIZE;
+  const letterFontSize = clamp(resolveDefaultKeyboardFontSize(validMetrics) + fontSizeOffset,
+    MIN_KEYBOARD_FONT_SIZE, MAX_KEYBOARD_FONT_SIZE);
+  const functionFontSize = Math.max(8, letterFontSize - 3);
+  const previewFontSize = Math.max(18, Math.round(letterFontSize * 1.5));
 
   // “淡然”键帽使用明显的柔和圆角；按实际键高等比例缩放并限制极端屏幕。
   const keyBorderRadius = clamp(Math.round(letterKeyHeight * 0.2), 7, 12);
@@ -270,7 +305,8 @@ export function calculateDynamicMetrics(
     keyBorderRadius,
     letterFontSize,
     functionFontSize,
-    previewFontSize
+    previewFontSize,
+    upperLabelRightMargin: normalizeUpperLabelRightMargin(upperLabelRightMargin)
   };
 }
 

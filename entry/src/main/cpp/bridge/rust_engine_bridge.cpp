@@ -74,6 +74,10 @@ RustCallResult PreviousRegisteredEngineCandidatePage(uint32_t id) {
     return EngineRegistry::Instance().PreviousCandidatePage(id);
 }
 
+RustCallResult ReverseLookupRegisteredEngine(uint32_t id, const std::string& text) {
+    return EngineRegistry::Instance().ReverseLookup(id, text);
+}
+
 RustCallResult GetRegisteredEngineLocalAssociations(uint32_t id) {
     return EngineRegistry::Instance().GetLocalAssociations(id);
 }

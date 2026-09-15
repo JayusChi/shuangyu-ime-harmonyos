@@ -2,6 +2,18 @@ import common from '@ohos.app.ability.common';
 import { Logger } from '../common/logging/Logger';
 import {
   CandidateFontSizeMode,
+  DEFAULT_CANDIDATE_FONT_SIZE,
+  DEFAULT_KEYBOARD_FONT_SIZE,
+  MIN_KEYBOARD_FONT_SIZE,
+  MAX_KEYBOARD_FONT_SIZE,
+  MIN_UPPER_LABEL_RIGHT_MARGIN,
+  MAX_UPPER_LABEL_RIGHT_MARGIN,
+  DEFAULT_FLOATING_CANDIDATE_FONT_SIZE,
+  MIN_CANDIDATE_DISPLAY_COUNT, MAX_CANDIDATE_DISPLAY_COUNT,
+  KEYBOARD_HEIGHT_MODE_OPTIONS,
+  legacyCandidateFontSize,
+  MAX_CANDIDATE_FONT_SIZE,
+  MIN_CANDIDATE_FONT_SIZE,
   CandidatePresentationMode,
   copyImeSettings,
   DEFAULT_IME_SETTINGS,
@@ -119,7 +131,7 @@ export class SettingsController {
     this.store.setSystemDarkMode(isDark);
   }
 
-  startCrossRuntimeSync(): void {
+  startCrossRuntimeSync(readOnlySharedFile: boolean = false): void {
     this.settingsSyncBus.subscribe((raw): void => {
       this.settingsMutationQueue.enqueue(async (): Promise<void> => {
         const previous = this.store.getSnapshot();
@@ -153,6 +165,7 @@ export class SettingsController {
             const schemeResult = this.engine.changeScheme(next.schemeId, bundlePath);
             if (!schemeResult.success) {
               this.engine.changeScheme(previous.schemeId);
+              this.applyCurrentSettingsToEngine();
               LOGGER.warn('synchronized scheme could not be applied');
               return;
             }
@@ -178,7 +191,7 @@ export class SettingsController {
         let categoryHandled: boolean = false;
         if (this.engine.isInitialized() && this.engine.getActiveSchemeId() === XIAOHE_YINXING_SCHEME_ID) {
           categoryHandled = true;
-          if (previous.xiaoheYinxingEnabledCategoryIds.join('|') !==
+          if (runtimeProfileChanged || previous.xiaoheYinxingEnabledCategoryIds.join('|') !==
             next.xiaoheYinxingEnabledCategoryIds.join('|')) {
             const categoryResult = this.engine.setCodeTableCategories(
               next.xiaoheYinxingEnabledCategoryIds
@@ -189,11 +202,13 @@ export class SettingsController {
             }
             this.sessionStore.updateComposition(categoryResult);
           }
-          if (previous.codeTableAutoCommitEnabled !== next.codeTableAutoCommitEnabled ||
-            previous.codeTableEmptyClearLength !== next.codeTableEmptyClearLength) {
+          if (runtimeProfileChanged || previous.codeTableAutoCommitEnabled !== next.codeTableAutoCommitEnabled ||
+            previous.codeTableEmptyClearLength !== next.codeTableEmptyClearLength ||
+            previous.codeTableReverseSplitEnabled !== next.codeTableReverseSplitEnabled) {
             const policyResult = this.engine.setCodeTableCommitPolicy(
               next.codeTableAutoCommitEnabled,
-              next.codeTableEmptyClearLength
+              next.codeTableEmptyClearLength,
+              next.codeTableReverseSplitEnabled
             );
             if (!policyResult.success || policyResult.commitText.length > 0) {
               LOGGER.warn('synchronized code table commit policy could not be applied');
@@ -208,7 +223,7 @@ export class SettingsController {
       }).catch((err: Object): void => {
         LOGGER.warn(`cross-runtime settings apply failed: ${JSON.stringify(err)}`);
       });
-    }).catch((err: Object) => {
+    }, readOnlySharedFile ? this.context : undefined).catch((err: Object) => {
       LOGGER.warn(`settings synchronization failed: ${JSON.stringify(err)}`);
     });
   }
@@ -256,7 +271,105 @@ export class SettingsController {
   async setCandidateFontSizeMode(value: CandidateFontSizeMode): Promise<SettingsOperationResult> {
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.candidateFontSizeMode = value;
+      settings.candidateFontSize = legacyCandidateFontSize(value, false);
+      settings.floatingCandidateFontSize = legacyCandidateFontSize(value, true);
     });
+  }
+
+  async adjustKeyboardHeight(target: string): Promise<SettingsOperationResult> {
+    if (target !== 'default' && target !== 'increase' && target !== 'decrease') {
+      return { success: false, message: '键盘高度操作无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      const index = KEYBOARD_HEIGHT_MODE_OPTIONS.indexOf(settings.keyboardHeightMode);
+      const next = target === 'default' ? 4 : index + (target === 'increase' ? 1 : -1);
+      settings.keyboardHeightMode = KEYBOARD_HEIGHT_MODE_OPTIONS[
+        Math.max(0, Math.min(KEYBOARD_HEIGHT_MODE_OPTIONS.length - 1, next))];
+    });
+  }
+
+  async setKeyboardHeightScale(value: number): Promise<SettingsOperationResult> {
+    const index = Math.round((value * 100 - 80) / 5);
+    if (!Number.isFinite(value) || value < 0.8 || value > 1.2 ||
+      index < 0 || index >= KEYBOARD_HEIGHT_MODE_OPTIONS.length) {
+      return { success: false, message: '键盘高度无效' };
+    }
+    return this.setKeyboardHeightMode(KEYBOARD_HEIGHT_MODE_OPTIONS[index]);
+  }
+
+  async adjustKeyboardFontSize(target: string): Promise<SettingsOperationResult> {
+    if (target !== 'default' && target !== 'increase' && target !== 'decrease') {
+      return { success: false, message: '键盘字号操作无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      const next = target === 'default' ? DEFAULT_KEYBOARD_FONT_SIZE :
+        settings.keyboardFontSize + (target === 'increase' ? 2 : -1);
+      settings.keyboardFontSize = Math.max(MIN_KEYBOARD_FONT_SIZE, Math.min(MAX_KEYBOARD_FONT_SIZE, next));
+    });
+  }
+
+  async setKeyboardFontSizeOffset(value: number): Promise<SettingsOperationResult> {
+    const size = DEFAULT_KEYBOARD_FONT_SIZE + value;
+    if (!Number.isInteger(value) || size < MIN_KEYBOARD_FONT_SIZE || size > MAX_KEYBOARD_FONT_SIZE) {
+      return { success: false, message: '键盘字号增减量无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.keyboardFontSize = size;
+    });
+  }
+
+  async setUpperLabelRightMargin(value: number): Promise<SettingsOperationResult> {
+    if (!Number.isInteger(value) || value < MIN_UPPER_LABEL_RIGHT_MARGIN ||
+      value > MAX_UPPER_LABEL_RIGHT_MARGIN) {
+      return { success: false, message: '上档符号右边距无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.upperLabelRightMargin = value;
+    });
+  }
+
+  async adjustCandidateFontSize(floating: boolean, target: string): Promise<SettingsOperationResult> {
+    if (target !== 'default' && target !== 'increase' && target !== 'decrease') {
+      return { success: false, message: '候选字号操作无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      const current = floating ? settings.floatingCandidateFontSize : settings.candidateFontSize;
+      const next = target === 'default' ?
+        (floating ? DEFAULT_FLOATING_CANDIDATE_FONT_SIZE : DEFAULT_CANDIDATE_FONT_SIZE) :
+        current + (target === 'increase' ? 2 : -1);
+      const size = Math.max(MIN_CANDIDATE_FONT_SIZE, Math.min(MAX_CANDIDATE_FONT_SIZE, next));
+      if (floating) { settings.floatingCandidateFontSize = size; } else { settings.candidateFontSize = size; }
+    });
+  }
+
+  async setCandidateFontSize(value: number, floating: boolean = false): Promise<SettingsOperationResult> {
+    if (!Number.isInteger(value) || value < MIN_CANDIDATE_FONT_SIZE || value > MAX_CANDIDATE_FONT_SIZE) {
+      return { success: false, message: '候选字号无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      if (floating) { settings.floatingCandidateFontSize = value; } else { settings.candidateFontSize = value; }
+    });
+  }
+
+  async setHapticEnabled(enabled: boolean): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => {
+      settings.hapticLevel = enabled ?
+        (settings.hapticLevel === HapticLevel.OFF ? HapticLevel.LIGHT : settings.hapticLevel) : HapticLevel.OFF;
+    });
+  }
+
+  async setCandidateDisplayCount(value: number): Promise<SettingsOperationResult> {
+    if (!Number.isInteger(value) || value < MIN_CANDIDATE_DISPLAY_COUNT || value > MAX_CANDIDATE_DISPLAY_COUNT) {
+      return { success: false, message: '候选显示数量无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => { settings.candidateDisplayCount = value; });
+  }
+
+  async setKeySoundVolume(value: number): Promise<SettingsOperationResult> {
+    if (!Number.isInteger(value) || value < 0 || value > 100) {
+      return { success: false, message: '按键音量无效' };
+    }
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => { settings.keySoundVolume = value; });
   }
 
   async setHapticLevel(value: HapticLevel): Promise<SettingsOperationResult> {
@@ -335,16 +448,20 @@ export class SettingsController {
   }
 
   async setCodeTableCommitPolicy(
-    autoCommitEnabled: boolean,
-    emptyClearLength: number
+    autoCommitEnabled?: boolean,
+    emptyClearLength?: number,
+    reverseSplitEnabled?: boolean
   ): Promise<SettingsOperationResult> {
-    if (emptyClearLength !== 4 && emptyClearLength !== 12) {
+    if (emptyClearLength !== undefined && emptyClearLength !== 4 && emptyClearLength !== 12) {
       return { success: false, message: '音形清码阈值无效' };
     }
     return this.enqueueSettingsMutationTask(async (previous: ImeSettings): Promise<SettingsOperationResult> => {
+      const splitEnabled = reverseSplitEnabled ?? previous.codeTableReverseSplitEnabled;
+      const nextAutoCommitEnabled = autoCommitEnabled ?? previous.codeTableAutoCommitEnabled;
+      const nextEmptyClearLength = emptyClearLength ?? previous.codeTableEmptyClearLength;
       let applied = false;
       if (this.engine.isInitialized() && this.engine.getActiveSchemeId() === XIAOHE_YINXING_SCHEME_ID) {
-        const result = this.engine.setCodeTableCommitPolicy(autoCommitEnabled, emptyClearLength);
+        const result = this.engine.setCodeTableCommitPolicy(nextAutoCommitEnabled, nextEmptyClearLength, splitEnabled);
         if (!result.success || result.commitText.length > 0) {
           return { success: false, message: '音形顶屏策略应用失败' };
         }
@@ -352,26 +469,41 @@ export class SettingsController {
         this.sessionStore.updateComposition(result);
       }
       const next = copyImeSettings(previous);
-      next.codeTableAutoCommitEnabled = autoCommitEnabled;
-      next.codeTableEmptyClearLength = emptyClearLength;
-      const saved = await this.persist(next);
+      next.codeTableAutoCommitEnabled = nextAutoCommitEnabled;
+      next.codeTableEmptyClearLength = nextEmptyClearLength;
+      next.codeTableReverseSplitEnabled = splitEnabled;
+      let saved: SettingsOperationResult;
+      try {
+        saved = await this.persist(next);
+      } catch (_err) {
+        saved = { success: false, message: '音形输入设置保存失败' };
+      }
       if (saved.success) {
         return saved;
       }
       if (applied) {
         this.engine.setCodeTableCommitPolicy(
           previous.codeTableAutoCommitEnabled,
-          previous.codeTableEmptyClearLength
+          previous.codeTableEmptyClearLength,
+          previous.codeTableReverseSplitEnabled
         );
       }
       return saved;
     });
   }
 
+  async setCodeTableReverseSplitEnabled(enabled: boolean): Promise<SettingsOperationResult> {
+    return this.setCodeTableCommitPolicy(undefined, undefined, enabled);
+  }
+
   async setCandidatePresentationMode(value: CandidatePresentationMode): Promise<SettingsOperationResult> {
     return this.enqueueSettingsMutation((settings: ImeSettings): void => {
       settings.candidatePresentationMode = value;
     });
+  }
+
+  async setInlinePreeditEnabled(value: boolean): Promise<SettingsOperationResult> {
+    return this.enqueueSettingsMutation((settings: ImeSettings): void => { settings.inlinePreeditEnabled = value; });
   }
 
   async setInputPresentationPreference(value: InputPresentationPreference): Promise<SettingsOperationResult> {
@@ -615,6 +747,7 @@ export class SettingsController {
           const result = this.engine.changeScheme(schemeId, bundlePath);
           if (!result.success) {
             this.engine.changeScheme(previous.schemeId);
+            this.applyCurrentSettingsToEngine();
             return { success: false, message: '键盘方案切换失败' };
           }
           if (schemeId === QUANPIN_SCHEME_ID) {
@@ -624,7 +757,21 @@ export class SettingsController {
             );
             if (!featureResult.success) {
               this.engine.changeScheme(previous.schemeId);
+              this.applyCurrentSettingsToEngine();
               return { success: false, message: '全拼纠错设置恢复失败' };
+            }
+          }
+          if (schemeId === XIAOHE_YINXING_SCHEME_ID) {
+            const categoryResult = this.engine.setCodeTableCategories(previous.xiaoheYinxingEnabledCategoryIds);
+            const policyResult = this.engine.setCodeTableCommitPolicy(
+              previous.codeTableAutoCommitEnabled,
+              previous.codeTableEmptyClearLength,
+              previous.codeTableReverseSplitEnabled
+            );
+            if (!categoryResult.success || !policyResult.success) {
+              this.engine.changeScheme(previous.schemeId);
+              this.applyCurrentSettingsToEngine();
+              return { success: false, message: '音形输入设置恢复失败' };
             }
           }
         }
@@ -647,9 +794,15 @@ export class SettingsController {
       const next = copyImeSettings(previous);
       next.keyboardProfileId = profileId;
       next.schemeId = schemeId;
-      const saved = await this.persist(next);
+      let saved: SettingsOperationResult;
+      try {
+        saved = await this.persist(next);
+      } catch (_err) {
+        saved = { success: false, message: '键盘方案保存失败' };
+      }
       if (!saved.success && schemeChanged && this.engine.isInitialized()) {
         this.engine.changeScheme(previous.schemeId);
+        this.applyCurrentSettingsToEngine();
       }
       return saved;
     });
@@ -731,7 +884,8 @@ export class SettingsController {
       }
       const policyResult = this.engine.setCodeTableCommitPolicy(
         settings.codeTableAutoCommitEnabled,
-        settings.codeTableEmptyClearLength
+        settings.codeTableEmptyClearLength,
+        settings.codeTableReverseSplitEnabled
       );
       if (!policyResult.success) {
         LOGGER.warn('persisted code table commit policy could not be applied');

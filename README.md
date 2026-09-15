@@ -12,6 +12,15 @@ ArkTS InputMethodExtensionAbility -> C++ Node-API -> Rust C ABI
 
 ## 当前状态
 
+- 2026-09-15 已生成 **0.13.0 正式签名 APP**（`versionCode=13000000`），包含皮肤工坊入口及当前反馈修复。双 ABI 构建、签名、升级身份、版本及资源门禁通过，正式 Profile 的皮肤共享目录授权匹配。[下载 APP](artifacts/0.13.0/ShuangYuIME-0.13.0-13000000-release-signed.app) · [发布核查](outputs/release-0.13.0/RELEASE_READINESS.md)。本轮未重新安装或上传 AGC，下方为历史记录。
+
+- 2026-09-14 已生成 **0.12.0 正式签名客户 APP**（`versionCode=12000000`），包含手机、电脑模拟器九项反馈验收后的修复。代码、双ABI引擎和资源与验收包一致；签名、升级身份、版本及资源门禁通过。交付见 [0.12.0 客户测试包](artifacts/0.12.0/AGC_UPLOAD_README.md)，详情见 [发布核查](outputs/release-0.12.0/RELEASE_READINESS.md)。下方为历史阶段记录。
+
+- 2026-09-11 已构建 `0.11.0` 正式签名 APP（`versionCode=11000000`），包含最新键盘/双拼反馈及应用内查形修复。双 ABI、正式签名、与0.10.0升级身份、版本/权限/网页路由/资源门禁通过。交付见 [0.11.0 客户测试包](artifacts/0.11.0/AGC_UPLOAD_README.md)，核查见 [发布报告](outputs/release-0.11.0/RELEASE_READINESS.md)。本轮未上传AGC或重新执行0.11.0设备安装；下述旧版本记录保留为历史证据。
+
+- 2026-09-10 已构建 `0.10.0` 客户测试正式签名 APP（`versionCode=10000000`），纳入最新客户反馈及全部设置详情/子页统一 UI。新运行 ArkTS 686 项、双 ABI 构建、签名与发布资源门禁通过；手机/电脑 0.10.0 模拟器升级与导航补测通过。用户确认本次暂不包含自定义结构/皮肤导入（待华为共享沙箱授权），内置项可测；真实宿主与实体键盘仍需客户验证。下载文件、限制和测试重点见 [0.10.0 客户测试包](artifacts/0.10.0/AGC_UPLOAD_README.md)，完整证据见 [发布核查](outputs/release-0.10.0/RELEASE_READINESS.md)。
+
+- 2026-09-08 已构建 `0.9.0` 客户测试 signed APP（`versionCode=9000000`），包含三/四码自动切分、成对符号及系统子类型同步修复；双 ABI Native、clean Release 构建、正式发布签名与包内资源门禁通过。交付文件和说明见 [0.9.0 客户测试包](artifacts/0.9.0/AGC_UPLOAD_README.md)。最低系统为 HarmonyOS 6.1.1（API 24）；最终 0.9.0 包未新增设备验收，指定第三方宿主和真实实体键盘仍待测试。
 - 2026-08-31 已按客户澄清把 0.6.0 第 1～6 点统一纳入实体键盘验收：补齐 PC 新旧按键 API 的按键相位去重，避免 `o→oo`、`ok→okk`；客户 `5.直通.txt` 直接生成可增删的受控动作词条数据，不再逐编码固化；浮动候选窗中的输入码取消下划线，嵌入/固定展示位继续用下划线表达未上屏。signed 0.6.0 HAP 已在 x86_64 2in1 模拟器以系统按键注入逐项通过，Phone 固定候选栏下划线对照通过；真实 USB/蓝牙/内置键盘仍未验收。详见 [0.6.0 实体键盘反馈矩阵](docs/features/input-method/PHYSICAL_KEYBOARD_0_6_0_FEEDBACK.md)与[模拟器验收证据](docs/evidence/2026-08-31-v0.6.0-physical-keyboard/README.md)。
 - 2026-08-27 已完成 `0.5.1` 客户反馈闭环修复：复制后使用原生光标移动收起选区，并以受控进程内副本兼容 HarmonyOS 6.1 的扩展粘贴权限限制；删行/恢复不再依赖部分宿主失效的范围选择；中文输入码统一只在候选区域以实线下划线显示；小鹤音形万能键不再被 UI 二次过滤。Rust workspace（FFI `39/39`）、Release 资源/实包门禁及 Phone/Pad/2in1 复验通过；最新 ArkTS `567` 项源码编译通过，但 Windows Previewer 因 AMD OpenGL 驱动崩溃未生成最终执行报告，最近一次完整报告为 `565/565 PASS`。完整证据见 [0.5.1 客户反馈闭环](docs/evidence/2026-08-27-v0.5.1-customer-feedback/README.md)。
 - 2026-08-27 皮肤键盘新增可开关架高层：左侧系统输入法、右侧隐藏键盘，中间集中键盘菜单；数字/符号入口统一为 `ϟ12`，辅键盘返回统一左下，逗号/句号分列空格两侧并支持第三/第二候选快捷选择。
@@ -21,7 +30,7 @@ ArkTS InputMethodExtensionAbility -> C++ Node-API -> Rust C ABI
 - 2026-08-20 按客户要求调整小鹤音形默认分类：在完整直通语法尚未支持期间，二简次选、全码词、生僻字、全码字默认关闭，需要时可在设置页手动开启；新装、重置、旧版全开快照迁移和正式 bundle 已保持一致，非全开自定义组合不被覆盖。
 - 2026-08-19 已完成 9 键候选召回、排序与延迟优化：public-regression 900 条 Top1/Top3/Top5 从 `14.667%/17.556%/18.556%` 提升到 `34.333%/42.667%/45.222%`，未召回从 `39.889%` 降到 `34.667%`，每键 P95 从 `237.583 ms` 降到 `71.588 ms`；dev 155 条 Top1 从 `9.032%` 提升到 `15.484%`，P95 从 `247.365 ms` 降到 `65.560 ms`。两组 Release 三轮候选确定，安全计数为 0；blind 与设备未重跑。详见 [9 键候选优化](docs/features/pinyin/PINYIN9_OPTIMIZATION_20260819.md)。
 - 2026-08-18 已完成全拼候选质量提升：正式随包词库启用 V2 全领域 131 条增量，并加入 ≥5 音节正式长词精确召回保护；V2 dev Top1/Top3/Top5 为 `97.917%/97.917%/97.917%`。评测器新增三类互斥失败指标、隔离用户学习效果探针和只接受长度桶的匿名分布加权入口；真实匿名分布尚未提供，未伪造真实数据结论。详见 [全拼候选质量提升 V3](docs/features/pinyin/QUANPIN_QUALITY_IMPROVEMENT_V3.md)。
-- 2026-08-13 已完成客户提出的六项直通编码：`;f` 重复上屏、`;i` 安全撤销、六组成对符号居中、`;n` 行末定位、分类词库原子组合开关，以及授权固定来源用户词库的合并/补充/替换导入。实现使用有限动作白名单，不执行任意 `$cmd`；Rust workspace、Clippy、ArkTS、双 ABI Native、Release HAP 与内容门禁通过，设备专项未运行。详见 [六项直通编码实现说明](docs/features/direct-control/DIRECT_ENCODING_SIX_REQUIREMENTS.md)。
+- 2026-09-03 修正实体键盘分号引导的确认时机：`;f` 重复上屏、`;i` 安全撤销、六组成对符号居中和 `;n` 行末定位均在字母按下后立即执行，不再要求额外空格；分类词库原子组合开关及授权固定来源用户词库导入保持不变。实现使用有限动作白名单，不执行任意 `$cmd`。详见 [六项直通编码实现说明](docs/features/direct-control/DIRECT_ENCODING_SIX_REQUIREMENTS.md)。
 - 2026-08-13 阶段 5 已完成四正式档案的主机联合收口：`xiaohe-17`、`xiaohe-26`、`quanpin-26`、`pinyin-9` 均从统一入口启用；Rust `505/505`、ArkTS `440/440`、双 ABI Native、Release HAP 与实包内容门禁通过。x86_64 Phone/Pad signed Release 已完成核心全拼/T9/双拼链路，但 ARM64 真机、真实第三方应用和完整旋转/性能矩阵未运行，因此状态为 `IMPLEMENTED / HOST_VALIDATION_COMPLETED / DEVICE_VALIDATION_PARTIAL`；详见 [阶段 5 验收](docs/features/pinyin/PINYIN_STAGE5_FINAL_ACCEPTANCE.md)。
 - 2026-08-25 工程版本已升级为 `0.5.0`（`versionCode=5000000`），用于客户测试发布；本版纳入 26 键全拼、9 键拼音、六项直通编码、全领域词库和小鹤音形冷启动/内存优化，并修复横屏 T9 首次面板创建及实体键盘智能句号连续输入。AGC 上传前仍需核对应用身份、完成软件包基础检测和所需设备矩阵。
 - 当前四个拼音正式档案：`xiaohe-17`、默认 `xiaohe-26`、`quanpin-26`、`pinyin-9`；小鹤音形另以 `xiaohe-yinxing-17/26` 隔离提供。
@@ -127,11 +136,16 @@ powershell -ExecutionPolicy Bypass -File scripts\verify-release-hap.ps1
 ```powershell
 $env:DEVECO_SDK_HOME='C:\Program Files\Huawei\DevEco Studio\sdk'
 & 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' `
-  --no-daemon --mode project -p product=default -p buildMode=release assembleApp
+  --no-daemon --mode project -p product=release -p buildMode=release assembleApp
 ```
 
-当前 `default` 产品已引用发布签名配置，构建会同时保留
-`build/outputs/default/HarmonyOS_Input-default-signed.app` 和对应 unsigned 中间产物。
+`default` 产品用于 DevEco 日常运行，固定引用开发签名；`release` 产品引用正式发布签名，
+共用 `entry@default` 正式源码，产物目录彼此独立。发布构建会同时保留
+`build/outputs/release/HarmonyOS_Input-release-signed.app` 和对应 unsigned 中间产物。
+`scripts/build-hap.ps1` 默认构建 `release` 产品，其签名 HAP 位于
+`entry/build/release/outputs/default/entry-default-signed.hap`。
+本机 `build-profile.json5` 不纳入版本控制；新环境从示例创建配置后，分别为
+`default` / `internalDebug` 绑定同一开发签名，为 `release` 绑定正式发布签名。
 上传候选只能使用 signed APP；上传前仍必须用签名检查工具复核证书/Profile/包名，确认
 Profile 为 `type=release` 且 APP ID 为 `6917611076350696172`，同时确认
 `com.corrosion.shuangyuime`、vendor、`0.6.0`/`6000000` 与 AGC 正式应用记录一致，并通过 AGC 软件包基础检测；调试 Profile 即使本地验签通过，也会被 AGC 以错误码 `993` 拒绝。
@@ -143,15 +157,22 @@ powershell -ExecutionPolicy Bypass -File scripts\install-signed-hap.ps1 -AllConn
 ```
 
 如果设备曾安装同包名但不同证书的旧 Debug 包，系统会返回 `9568332 / install sign info inconsistent`。
-这种证书切换无法保留旧应用沙箱，`bm uninstall -k` 也会保留旧签名绑定而继续失败；先导出需要的数据，
-再显式执行一次签名重置。脚本会在重装后恢复原有输入法启用状态和当前输入法选择：
+先使用与旧包匹配的证书覆盖安装，以保留数据。若旧签名材料已丢失，需要导出所需数据后，
+再显式执行一次签名重置（会删除该应用的数据）；`bm uninstall -k` 会保留旧签名绑定，无法解决跨证书覆盖问题。
+脚本会在重装后恢复原有输入法启用状态和当前输入法选择：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\install-signed-hap.ps1 -AllConnected -ResetSignature
 ```
 
-完成一次迁移后，继续使用 `default` 产品生成的固定 Release 签名包即可直接覆盖，不要再让同一包名混用
-DevEco 自动 Debug 证书。
+开发设备统一使用 `default` 产品生成的固定开发签名包。正式交付使用 `release` 产品，
+不要把正式签名包覆盖到已安装开发签名包的设备上。Build Mode 的 debug/release 控制编译模式，
+不决定证书；证书由 Product 选择。需要用正式代码做开发设备验收时执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\build-hap.ps1 -SkipRust -BuildMode release -Product default
+powershell -ExecutionPolicy Bypass -File scripts\install-signed-hap.ps1 -AllConnected
+```
 
 阶段 3 验证：
 

@@ -13,6 +13,12 @@ function entry(id: string, text: string, code: string, order: number): UserLexic
 
 export default function directControlUserLexiconTest() {
   describe('DirectControlUserLexicon', () => {
+    it('accepts only the two oit mode targets', 0, () => {
+      expect(parseDirectControlCommand('settings.split-mode', 'traditional').success).assertTrue();
+      expect(parseDirectControlCommand('settings.split-mode', 'split').success).assertTrue();
+      expect(parseDirectControlCommand('settings.split-mode', '').success).assertFalse();
+      expect(parseDirectControlCommand('settings.split-mode', 'unknown').success).assertFalse();
+    });
     it('parses only the closed direct command contract', 0, () => {
       expect(parseDirectControlCommand('scheme.set', 'xiaohe-yinxing').success).assertTrue();
       expect(parseDirectControlCommand('category.toggle', 'rare-character').success).assertTrue();

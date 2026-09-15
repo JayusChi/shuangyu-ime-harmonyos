@@ -1,3 +1,4 @@
+import { SettingsController } from '../main/ets/application/SettingsController';
 import { describe, it, expect } from '@ohos/hypium';
 import { inputMethodEngine } from '@kit.IMEKit';
 import {
@@ -11,6 +12,7 @@ import { EngineCoordinator } from '../main/ets/application/EngineCoordinator';
 import { InputSessionController, ImeInputService } from '../main/ets/application/InputSessionController';
 import { InputSessionStore } from '../main/ets/state/InputSessionStore';
 import {
+  Candidate,
   CodeTableCategoryConfig,
   CompositionResult,
   EngineConfig,
@@ -20,7 +22,7 @@ import {
 } from '../main/ets/infrastructure/native/NativeEngineTypes';
 import { QWERTY_KEY_ROWS } from '../main/ets/presentation/keyboard/KeyboardLayout';
 import { createUnknownEditorContext } from '../main/ets/domain/editor/EditorContext';
-import { copyImeSettings, DEFAULT_IME_SETTINGS, ImeSettings } from '../main/ets/domain/settings/ImeSettings';
+import { copyImeSettings, DEFAULT_IME_SETTINGS, ImeSettings, PunctuationMode } from '../main/ets/domain/settings/ImeSettings';
 import { ChineseTextConverter } from '../main/ets/infrastructure/text/ChineseTextConverter';
 
 class FakeImeInputService implements ImeInputService {
@@ -30,6 +32,8 @@ class FakeImeInputService implements ImeInputService {
   previewAnchorValues: boolean[] = [];
   finishPreviewCount: number = 0;
   clearPreviewCount: number = 0;
+  clearPreviewSucceeds: boolean = true;
+  onClearPreview?: () => void;
   deleteCount: number = 0;
   deleteLineCount: number = 0;
   restoreDeletionCount: number = 0;
@@ -70,7 +74,8 @@ class FakeImeInputService implements ImeInputService {
 
   async clearPreviewText(): Promise<boolean> {
     this.clearPreviewCount += 1;
-    return true;
+    this.onClearPreview?.();
+    return this.clearPreviewSucceeds;
   }
 
   async isPreviewTextAttached(): Promise<boolean> {
@@ -798,6 +803,49 @@ class CandidateTransactionGateway extends FakeNativeGateway {
   }
 }
 
+class ConvenienceGateway extends FakeNativeGateway {
+  raw: string = '';
+  selected: number[] = [];
+  processKey(_handle: number, key: string): CompositionResult {
+    this.processKeys.push(key);
+    if (this.raw.length === 1 && this.raw === key) {
+      this.raw = '';
+      const result = createCompositionResult('', '', 'empty');
+      result.commitText = key;
+      return result;
+    }
+    this.raw += key;
+    return this.snapshot();
+  }
+  snapshot(): CompositionResult {
+    const result = createCompositionResult(this.raw, this.raw, 'complete');
+    if (this.raw.length > 1) {
+      result.candidates = ['第一项', '第二项'].map((text: string, index: number): Candidate => {
+        return { id: 'quick-' + index, text, source: 'convenience', reading: this.raw,
+          consumedRawLen: this.raw.length };
+      });
+      result.highlightedIndex = 0;
+    }
+    return result;
+  }
+  reset(_handle: number): CompositionResult {
+    this.raw = '';
+    return this.snapshot();
+  }
+  backspace(_handle: number): CompositionResult {
+    this.raw = this.raw.slice(0, -1);
+    return this.snapshot();
+  }
+  selectCandidate(_handle: number, index: number): CompositionResult {
+    this.selected.push(index);
+    const text = this.snapshot().candidates[index].text;
+    this.raw = '';
+    const result = this.snapshot();
+    result.commitText = text;
+    return result;
+  }
+}
+
 function createCompositionResult(
   rawInput: string,
   preeditText: string,
@@ -839,8 +887,273 @@ function createFakeEngineCoordinator(gateway: FakeNativeGateway = new FakeNative
   return new EngineCoordinator(gateway);
 }
 
+function createInitializedFeedbackEngine(gateway: FakeNativeGateway = new FakeNativeGateway()): EngineCoordinator {
+  const engine = new EngineCoordinator(gateway);
+  expect(engine.initialize().success).assertTrue();
+  return engine;
+}
+
+class PreviewFunctionalIme extends FakeImeInputService {
+  moveCount: number = 0;
+  isCursorPreviewActive(): boolean { return true; }
+  async moveToLineEnd(): Promise<boolean> {
+    expect(this.clearPreviewCount).assertEqual(1);
+    this.moveCount += 1;
+    return true;
+  }
+}
+
+class PreviewFunctionalGateway extends FakeNativeGateway {
+  selectCandidate(_handle: number, _index: number): CompositionResult {
+    const result = createCompositionResult('', '', 'empty');
+    result.action = { type: 'MOVE_LINE_END', formatId: '', text: '', cursorOffsetUtf16: 0 };
+    return result;
+  }
+}
+
+class InlinePreeditTestSettings extends SettingsController {
+  enabled: boolean = false;
+  getSettings(): ImeSettings {
+    const settings = copyImeSettings(DEFAULT_IME_SETTINGS);
+    settings.inlinePreeditEnabled = this.enabled;
+    return settings;
+  }
+}
+
+class SemicolonTestSettings extends SettingsController {
+  punctuationMode: PunctuationMode = PunctuationMode.CHINESE;
+  getSettings(): ImeSettings {
+    const settings = copyImeSettings(DEFAULT_IME_SETTINGS);
+    settings.punctuationMode = this.punctuationMode;
+    return settings;
+  }
+}
+
+class HardwarePagingGateway extends FakeNativeGateway {
+  selectedIndex: number = -1;
+  nextCount: number = 0;
+  previousCount: number = 0;
+
+  selectCandidate(handle: number, index: number): CompositionResult {
+    this.selectedIndex = index;
+    return super.selectCandidate(handle, index);
+  }
+
+  nextCandidatePage(_handle: number): CompositionResult {
+    this.nextCount += 1;
+    return hardwareBatch(4, 1);
+  }
+
+  previousCandidatePage(_handle: number): CompositionResult {
+    this.previousCount += 1;
+    return hardwareBatch(50, 0);
+  }
+}
+
+function hardwareBatch(count: number, page: number = 0): CompositionResult {
+  const result = createCandidateComposition();
+  result.candidates = [];
+  for (let i = 0; i < count; i++) {
+    result.candidates.push({ id: `page-${page}-${i}`, text: `词${page * 50 + i + 1}`, reading: 'ni', source: 'test' });
+  }
+  result.hasNextPage = page === 0;
+  result.hasPreviousPage = page > 0;
+  result.candidatePage = page;
+  return result;
+}
+
 export default function stage2ControllerTest() {
   describe('stage2ControllerTest', () => {
+    it('phoneticSemicolonCommitsTopCandidateAndPunctuationWithoutEnteringGuide', 0, async () => {
+      for (const physical of [false, true]) {
+        for (const count of [0, 1, 3]) {
+          for (const mode of [PunctuationMode.CHINESE, PunctuationMode.ENGLISH]) {
+            const store = new InputSessionStore();
+            const ime = new FakeImeInputService();
+            const gateway = new HardwarePagingGateway();
+            const settings = new SemicolonTestSettings();
+            settings.punctuationMode = mode;
+            const session = new InputSessionController(store, ime, createInitializedFeedbackEngine(gateway),
+              undefined, undefined, undefined, settings);
+            const keyboard = new KeyboardController(session, gateway);
+            store.markSessionStarted();
+            store.applyEditorContext(createUnknownEditorContext());
+            if (count > 0) { store.updateComposition(hardwareBatch(count)); }
+            const result = physical
+              ? await keyboard.insertPhysicalPunctuation('；')
+              : await keyboard.handleAction({ type: KeyboardActionType.SECOND_CANDIDATE_OR_PUNCTUATION });
+            expect(result.success).assertTrue();
+            const punctuation = mode === PunctuationMode.CHINESE ? '；' : ';';
+            expect(ime.insertedTexts.join('')).assertEqual(count > 0 ? `词1${punctuation}` : punctuation);
+            expect(gateway.selectedIndex).assertEqual(count > 0 ? 0 : -1);
+            expect(gateway.processKeys.length).assertEqual(0);
+            expect(store.getSnapshot().rawInput).assertEqual('');
+            expect(store.getSnapshot().candidates.length).assertEqual(0);
+            await keyboard.handleAction({ type: KeyboardActionType.LETTER, letter: 'n' });
+            expect(gateway.processKeys.join('')).assertEqual('n');
+            expect(store.getSnapshot().rawInput).assertEqual('n');
+            keyboard.dispose();
+          }
+        }
+      }
+    });
+
+    it('phoneticSemicolonClearsUnmatchedRawBeforeInsertingPunctuation', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new FakeImeInputService();
+      const gateway = new FakeNativeGateway();
+      const session = new InputSessionController(store, ime, createInitializedFeedbackEngine(gateway));
+      store.markSessionStarted();
+      store.applyEditorContext(createUnknownEditorContext());
+      store.updateComposition(createCompositionResult('ae', 'ae', 'invalid'));
+      expect((await session.insertPhysicalPunctuation('；')).success).assertTrue();
+      expect(ime.insertedTexts.join('')).assertEqual('；');
+      expect(store.getSnapshot().rawInput).assertEqual('');
+      expect(gateway.resetCount).assertEqual(1);
+      expect(gateway.processKeys.length).assertEqual(0);
+    });
+
+    it('quanpinAndPinyin9SemicolonAlsoInsertOrdinaryPunctuation', 0, async () => {
+      for (const schemeId of ['quanpin', 'pinyin-9']) {
+        const gateway: FakeNativeGateway = schemeId === 'quanpin' ? new QuanpinGateway() : new T9Gateway();
+        const engine = new EngineCoordinator(gateway);
+        expect(engine.initialize(schemeId).success).assertTrue();
+        const store = new InputSessionStore();
+        const ime = new FakeImeInputService();
+        const session = new InputSessionController(store, ime, engine);
+        store.markSessionStarted();
+        store.applyEditorContext(createUnknownEditorContext());
+        expect((await session.insertCharacter(';')).success).assertTrue();
+        expect(ime.insertedTexts.join('')).assertEqual('；');
+        expect(store.getSnapshot().rawInput).assertEqual('');
+        expect(gateway.processKeys.length).assertEqual(0);
+      }
+    });
+
+    it('embeddedFunctionalCandidateClearsPreviewBeforeMovingTheEditorCursor', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new PreviewFunctionalIme();
+      const session = new InputSessionController(store, ime, createInitializedFeedbackEngine(new PreviewFunctionalGateway()));
+      store.markSessionStarted();
+      store.applyEditorContext(createUnknownEditorContext());
+      const result = createCandidateComposition('移到行尾');
+      result.candidates[0].source = 'functional';
+      store.updateComposition(result);
+      expect((await session.commitCandidate(0)).success).assertTrue();
+      expect(ime.moveCount).assertEqual(1);
+      expect(store.getSnapshot().rawInput).assertEqual('');
+    });
+
+    it('embeddedPreeditRequiresBothUserChoiceAndHostSupport', 0, async () => {
+      for (const enabled of [false, true]) {
+        for (const supported of [false, true]) {
+          const store = new InputSessionStore();
+          const ime = new FakeImeInputService();
+          const settings = new InlinePreeditTestSettings();
+          settings.enabled = enabled;
+          const session = new InputSessionController(store, ime, createInitializedFeedbackEngine(),
+            undefined, undefined, undefined, settings);
+          store.markSessionStarted();
+          const context = createUnknownEditorContext();
+          context.textPreviewSupported = supported;
+          store.applyEditorContext(context);
+          expect((await session.insertLetter('n')).success).assertTrue();
+          expect(ime.previewSupportedValues[0]).assertEqual(enabled && supported);
+          expect(ime.insertedTexts.length).assertEqual(0);
+        }
+      }
+    });
+
+    it('hardwarePagesVisitAllCandidatesAcrossNativeBatchAndReverseWithoutExpanding', 0, async () => {
+      const store = new InputSessionStore();
+      const gateway = new HardwarePagingGateway();
+      const session = new InputSessionController(store, new FakeImeInputService(), createInitializedFeedbackEngine(gateway));
+      store.markSessionStarted();
+      store.applyEditorContext(createUnknownEditorContext());
+      store.setHardwareCandidatePageSize(7);
+      store.updateComposition(hardwareBatch(50));
+      for (let page = 0; page < 8; page++) {
+        const state = store.getSnapshot();
+        expect(state.candidatePage).assertEqual(page);
+        expect(state.candidates[0].text).assertEqual(`词${page * 7 + 1}`);
+        expect(state.candidates.length).assertEqual(page === 7 ? 1 : 7);
+        expect(store.setFloatingCandidateExpanded(true)).assertFalse();
+        expect(store.setCandidatePanelExpanded(true)).assertFalse();
+        expect((await session.nextCandidatePage()).success).assertTrue();
+      }
+      expect(gateway.nextCount).assertEqual(1);
+      expect(store.getSnapshot().candidatePage).assertEqual(8);
+      expect(store.getSnapshot().candidates[0].text).assertEqual('词51');
+      expect(store.getSnapshot().hasNextPage).assertFalse();
+      expect((await session.previousCandidatePage()).success).assertTrue();
+      expect(gateway.previousCount).assertEqual(1);
+      expect(store.getSnapshot().candidatePage).assertEqual(7);
+      expect(store.getSnapshot().candidates[0].text).assertEqual('词50');
+      expect((await session.previousCandidatePage()).success).assertTrue();
+      expect(store.getSnapshot().candidates[0].text).assertEqual('词43');
+      expect(gateway.previousCount).assertEqual(1);
+    });
+
+    it('hardwareNumberSelectionConfirmsTheSameNativeCandidateShownOnCurrentPage', 0, async () => {
+      for (const size of [3, 5, 9]) {
+        const store = new InputSessionStore();
+        const gateway = new HardwarePagingGateway();
+        const ime = new FakeImeInputService();
+        const session = new InputSessionController(store, ime, createInitializedFeedbackEngine(gateway));
+        store.markSessionStarted();
+        store.applyEditorContext(createUnknownEditorContext());
+        store.setHardwareCandidatePageSize(size);
+        store.updateComposition(hardwareBatch(50));
+        expect((await session.nextCandidatePage()).success).assertTrue();
+        expect(store.getSnapshot().highlightedIndex).assertEqual(0);
+        expect(store.moveCandidateHighlight(100)).assertEqual(size - 1);
+        expect(store.getSnapshot().highlightedIndex).assertEqual(size - 1);
+        expect((await session.commitCandidate(1)).success).assertTrue();
+        expect(ime.insertedTexts.join('')).assertEqual(`词${size + 2}`);
+        expect(gateway.selectedIndex).assertEqual(size + 1);
+        expect(store.getSnapshot().candidatePage).assertEqual(0);
+      }
+    });
+
+    it('hardwarePagingResetsOnEditingSettingsAndTouchMode', 0, () => {
+      const store = new InputSessionStore();
+      store.markSessionStarted();
+      store.applyEditorContext(createUnknownEditorContext());
+      store.setHardwareCandidatePageSize(5);
+      store.updateComposition(hardwareBatch(50));
+      store.moveHardwareCandidatePage(true);
+      const edited = hardwareBatch(2);
+      edited.rawInput = 'nih';
+      edited.hasNextPage = false;
+      store.updateComposition(edited);
+      expect(store.getSnapshot().candidatePage).assertEqual(0);
+      expect(store.getSnapshot().hasPreviousPage).assertFalse();
+      expect(store.getSnapshot().candidates.length).assertEqual(2);
+      store.updateComposition(hardwareBatch(50));
+      store.moveHardwareCandidatePage(true);
+      store.setHardwareCandidatePageSize(9);
+      expect(store.getSnapshot().candidatePage).assertEqual(0);
+      expect(store.getSnapshot().candidates.length).assertEqual(9);
+      store.setHardwareCandidatePageSize(0);
+      expect(store.getSnapshot().candidates.length).assertEqual(50);
+      expect(store.setFloatingCandidateExpanded(true)).assertTrue();
+    });
+
+    it('hardwarePreciseMatchFiltersBeforePagingAndMapsVisibleIndicesToNative', 0, () => {
+      const store = new InputSessionStore();
+      store.markSessionStarted();
+      store.applyEditorContext(createUnknownEditorContext());
+      store.setHardwareCandidatePageSize(3, 'xiaohe-yinxing');
+      const batch = hardwareBatch(8);
+      batch.candidates[0].reading = 'nih';
+      store.updateComposition(batch);
+      expect(store.getSnapshot().candidates[0].text).assertEqual('词2');
+      expect(store.resolveEngineCandidateIndex(0)).assertEqual(1);
+      store.moveHardwareCandidatePage(true);
+      expect(store.getSnapshot().candidates[0].text).assertEqual('词5');
+      expect(store.resolveEngineCandidateIndex(0)).assertEqual(4);
+    });
+
     it('converts normal candidates and commit text after the approved traditional toggle', 0, () => {
       const engine = new EngineCoordinator(new TraditionalGateway(), new FakeTraditionalConverter());
       expect(engine.initialize().success).assertTrue();
@@ -983,6 +1296,65 @@ export default function stage2ControllerTest() {
       expect(engineCoordinator.getActiveSchemeId()).assertEqual('pinyin-9');
     });
 
+    it('clipboard reverse commits its shared displayed snapshot and never the fallback label', 0, async () => {
+      for (const text of ['nirx ni', '']) {
+        const store = new InputSessionStore();
+        const ime = new FakeImeInputService();
+        const engine = createFakeEngineCoordinator();
+        engine.initialize();
+        const session = new InputSessionController(store, ime, engine);
+        store.markSessionStarted();
+        session.toggleKeyboardMode();
+        const composition = createCompositionResult('ofi', 'ofi', 'complete');
+        composition.candidates = [{ id: 'reverse', text: '[复制反查]', reading: 'ofi', source: 'functional' }];
+        composition.highlightedIndex = 0;
+        store.updateComposition(composition);
+        store.setClipboardReverseResult(store.beginClipboardReverseRequest(), { available: true, character: '你', text });
+        const result = await session.commitCandidate(0);
+        expect(result.success).assertTrue();
+        expect(ime.insertedTexts.join('|')).assertEqual(text);
+        expect(ime.clearPreviewCount).assertEqual(text.length === 0 ? 1 : 0);
+        expect(store.getSnapshot().rawInput).assertEqual('');
+        expect(store.getClipboardReverseResult()).assertUndefined();
+      }
+    });
+    it('clipboard reverse rejects stale reads across edits and session changes', 0, () => {
+      const store = new InputSessionStore();
+      store.markSessionStarted();
+      store.toggleKeyboardMode();
+      const composition = createCompositionResult('ofi', 'ofi', 'complete');
+      composition.candidates = [{ id: 'reverse', text: '[复制反查]', reading: 'ofi', source: 'functional' }];
+      store.updateComposition(composition);
+      const oldRequest = store.beginClipboardReverseRequest();
+      store.updateComposition(createCompositionResult('of', 'of', 'complete'));
+      store.updateComposition(composition);
+      store.setClipboardReverseResult(oldRequest, { available: true, character: '你', text: 'nirx' });
+      expect(store.getClipboardReverseResult()).assertUndefined();
+      const current = store.beginClipboardReverseRequest();
+      store.setClipboardReverseResult(current, { available: true, character: '你', text: 'nirx' });
+      expect(store.getSnapshot().candidates[0].displayText).assertEqual('nirx');
+      store.advanceSessionGeneration();
+      store.setClipboardReverseResult(current, { available: true, character: '你', text: 'nirx' });
+      expect(store.getClipboardReverseResult()).assertUndefined();
+    });
+    it('clipboard denial preserves the paste action in the candidate bar', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new FakeImeInputService();
+      const engine = createFakeEngineCoordinator();
+      engine.initialize();
+      const session = new InputSessionController(store, ime, engine);
+      store.markSessionStarted();
+      session.toggleKeyboardMode();
+      const composition = createCompositionResult('ofi', 'ofi', 'complete');
+      composition.candidates = [{ id: 'reverse', text: '[复制反查]', reading: 'ofi', source: 'functional' }];
+      store.updateComposition(composition);
+      store.setClipboardReverseResult(store.beginClipboardReverseRequest(), { available: false, character: '', text: '' });
+      expect((await session.commitCandidate(0)).success).assertFalse();
+      expect(ime.insertedTexts.length).assertEqual(0);
+      expect(store.getSnapshot().rawInput).assertEqual('ofi');
+      expect(store.getSnapshot().lastErrorCode).assertEqual(ImeErrorCode.SUCCESS);
+    });
+
     it('defaultKeyboardModeIsEnglish', 0, () => {
       const store = new InputSessionStore();
       expect(store.getSnapshot().keyboardMode).assertEqual(KeyboardMode.ENGLISH);
@@ -1071,6 +1443,124 @@ export default function stage2ControllerTest() {
       expect(store.getSnapshot().keyboardVisible).assertEqual(false);
     });
 
+    it('swipe delete clears fixed candidates before it can delete committed text', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new FakeImeInputService();
+      const gateway = new FakeNativeGateway();
+      const session = new InputSessionController(store, ime, createFakeEngineCoordinator(gateway));
+      const keyboard = new KeyboardController(session, gateway);
+      store.markSessionStarted();
+      store.markKeyboardVisible();
+      store.updateComposition(createCandidateComposition());
+      expect((await keyboard.handleAction({ type: KeyboardActionType.DELETE_CURRENT_LINE })).success).assertTrue();
+      expect(store.getSnapshot().rawInput).assertEqual('');
+      expect(store.getSnapshot().candidates.length).assertEqual(0);
+      expect(ime.clearPreviewCount).assertEqual(1);
+      expect(ime.deleteLineCount).assertEqual(0);
+      expect(ime.deleteCount).assertEqual(0);
+      expect(ime.insertedTexts.length).assertEqual(0);
+      expect((await keyboard.handleAction({ type: KeyboardActionType.DELETE_CURRENT_LINE })).success).assertTrue();
+      expect(ime.deleteLineCount).assertEqual(1);
+    });
+
+    it('swipe delete also cancels an incomplete code with no candidates', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new FakeImeInputService();
+      const session = new InputSessionController(store, ime, createFakeEngineCoordinator());
+      store.markSessionStarted();
+      store.updateComposition(createCompositionResult('n', 'n', 'incomplete'));
+      expect((await session.deleteCurrentLine(session.getInputSessionGeneration(), true)).success).assertTrue();
+      expect(store.getSnapshot().rawInput).assertEqual('');
+      expect(ime.deleteLineCount).assertEqual(0);
+    });
+
+    it('swipe delete preserves candidates and committed text when preview cleanup fails', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new FakeImeInputService();
+      const session = new InputSessionController(store, ime, createFakeEngineCoordinator());
+      store.markSessionStarted();
+      store.updateComposition(createCandidateComposition());
+      ime.clearPreviewSucceeds = false;
+      expect((await session.deleteCurrentLine(session.getInputSessionGeneration(), true)).success).assertFalse();
+      expect(store.getSnapshot().rawInput).assertEqual('ni');
+      expect(store.getSnapshot().candidates.length).assertEqual(1);
+      expect(ime.deleteLineCount).assertEqual(0);
+    });
+
+    it('swipe delete cannot clear a new session after asynchronous preview cleanup', 0, async () => {
+      const store = new InputSessionStore();
+      const ime = new FakeImeInputService();
+      const session = new InputSessionController(store, ime, createFakeEngineCoordinator());
+      store.markSessionStarted();
+      store.updateComposition(createCandidateComposition());
+      ime.onClearPreview = (): void => {
+        store.markSessionStarted();
+        store.updateComposition(createCandidateComposition('新'));
+      };
+      expect((await session.deleteCurrentLine(session.getInputSessionGeneration(), true)).success).assertFalse();
+      expect(store.getSnapshot().candidates[0].text).assertEqual('新');
+      expect(ime.deleteLineCount).assertEqual(0);
+    });
+
+    it('restricted editors cannot retain convenience candidates', 0, () => {
+      const store = new InputSessionStore();
+      const context = createUnknownEditorContext();
+      context.isPassword = true;
+      store.applyEditorContext(context);
+      const result = createCompositionResult('=1', '=1', 'complete');
+      result.candidates = [{ id: 'quick', text: '壹元整', reading: '=1', source: 'convenience' }];
+      store.updateComposition(result);
+      expect(store.getSnapshot().rawInput).assertEqual('');
+      expect(store.getSnapshot().candidates.length).assertEqual(0);
+    });
+
+    it('numeric convenience queues guide digits and selection using live candidates', 0, async () => {
+      for (const type of [KeyboardActionType.CONVENIENCE_GUIDE, KeyboardActionType.SECOND_CANDIDATE_OR_PASTE]) {
+        const store = new InputSessionStore();
+        const gateway = new ConvenienceGateway();
+        const ime = new FakeImeInputService();
+        const session = new InputSessionController(store, ime, createFakeEngineCoordinator(gateway));
+        const keyboard = new KeyboardController(session, gateway);
+        store.markSessionStarted();
+        session.toggleKeyboardMode();
+        await session.toggleNumberMode();
+        const guide = keyboard.handleAction({ type: KeyboardActionType.CONVENIENCE_GUIDE, character: '=' });
+        const digit = keyboard.handleAction({ type: KeyboardActionType.CHARACTER, character: '1' });
+        const select = keyboard.handleAction({ type, character: '=' });
+        expect((await guide).success).assertTrue();
+        expect((await digit).success).assertTrue();
+        expect((await select).success).assertTrue();
+        expect(gateway.processKeys.join('')).assertEqual('=1');
+        expect(gateway.selected[0]).assertEqual(type === KeyboardActionType.CONVENIENCE_GUIDE ? 0 : 1);
+        expect(ime.insertedTexts.join('')).assertEqual(type === KeyboardActionType.CONVENIENCE_GUIDE ? '第一项' : '第二项');
+        expect(store.getSnapshot().rawInput).assertEqual('');
+      }
+    });
+
+    it('convenience survives returning to letters and supports delete cancel and double guide', 0, async () => {
+      const store = new InputSessionStore();
+      const gateway = new ConvenienceGateway();
+      const ime = new FakeImeInputService();
+      const session = new InputSessionController(store, ime, createFakeEngineCoordinator(gateway));
+      store.markSessionStarted();
+      session.toggleKeyboardMode();
+      await session.toggleNumberMode();
+      await session.insertConvenienceCharacter('=');
+      expect(store.getSnapshot().candidateBarVisible).assertTrue();
+      await session.insertConvenienceCharacter('=');
+      expect(ime.insertedTexts.join('')).assertEqual('=');
+      await session.insertConvenienceCharacter('=');
+      await session.toggleNumberMode();
+      await session.insertLetter('A');
+      expect(store.getSnapshot().rawInput).assertEqual('=A');
+      await session.deleteBackward();
+      expect(store.getSnapshot().rawInput).assertEqual('=');
+      expect(ime.deleteCount).assertEqual(0);
+      await session.cancelComposition();
+      expect(store.getSnapshot().rawInput).assertEqual('');
+      expect(gateway.raw).assertEqual('');
+    });
+
     it('keyboardControllerRoutesLiftLayerCursorMovementThroughInputClient', 0, async () => {
       const store = new InputSessionStore();
       const imeService = new FakeImeInputService();
@@ -1085,6 +1575,56 @@ export default function stage2ControllerTest() {
       expect(imeService.cursorDirections.length).assertEqual(2);
       expect(imeService.cursorDirections[0]).assertEqual(inputMethodEngine.Direction.CURSOR_LEFT);
       expect(imeService.cursorDirections[1]).assertEqual(inputMethodEngine.Direction.CURSOR_RIGHT);
+    });
+
+    it('liftLayerArrowsCommitCandidatesLikeSpaceAfterQueuedLetters', 0, async () => {
+      const actions: KeyboardActionType[] = [
+        KeyboardActionType.MOVE_CURSOR_LEFT, KeyboardActionType.MOVE_CURSOR_RIGHT, KeyboardActionType.SPACE
+      ];
+      for (const type of actions) {
+        const store = new InputSessionStore();
+        const imeService = new FakeImeInputService();
+        const gateway = new TraditionalGateway();
+        const sessionController = new InputSessionController(store, imeService, createFakeEngineCoordinator(gateway));
+        const controller = new KeyboardController(sessionController, gateway);
+        store.markSessionStarted();
+        sessionController.toggleKeyboardMode();
+
+        const letter = controller.handleAction({ type: KeyboardActionType.LETTER, letter: 'n' });
+        const selection = controller.handleAction({ type });
+        expect((await letter).success).assertTrue();
+        expect((await selection).success).assertTrue();
+        expect(imeService.insertedTexts.join('')).assertEqual('你');
+        expect(imeService.cursorDirections.length).assertEqual(0);
+        expect(store.getSnapshot().candidates.length).assertEqual(0);
+        expect(store.getSnapshot().rawInput).assertEqual('');
+
+        if (type !== KeyboardActionType.SPACE) {
+          expect((await controller.handleAction({ type })).success).assertTrue();
+          expect(imeService.cursorDirections.length).assertEqual(1);
+          expect(imeService.cursorDirections[0]).assertEqual(type === KeyboardActionType.MOVE_CURSOR_LEFT
+            ? inputMethodEngine.Direction.CURSOR_LEFT : inputMethodEngine.Direction.CURSOR_RIGHT);
+          expect(imeService.insertedTexts.join('')).assertEqual('你');
+        }
+      }
+    });
+
+    it('liftLayerArrowsDoNotMoveCursorWhenCandidateCommitFails', 0, async () => {
+      const actions: KeyboardActionType[] = [KeyboardActionType.MOVE_CURSOR_LEFT, KeyboardActionType.MOVE_CURSOR_RIGHT];
+      for (const type of actions) {
+        const store = new InputSessionStore();
+        const imeService = new OrderedImeInputService();
+        const sessionController = new InputSessionController(store, imeService, createFakeEngineCoordinator());
+        const controller = new KeyboardController(sessionController, new FakeNativeGateway());
+        store.markSessionStarted();
+        sessionController.toggleKeyboardMode();
+        store.updateComposition(createCandidateComposition());
+        imeService.failNextInsert = true;
+
+        expect((await controller.handleAction({ type })).success).assertFalse();
+        expect(imeService.cursorDirections.length).assertEqual(0);
+        expect(imeService.insertedTexts.length).assertEqual(0);
+      }
     });
 
     it('keyboardControllerSerializesRapidLettersInArrivalOrder', 0, async () => {
@@ -1461,7 +2001,7 @@ export default function stage2ControllerTest() {
       expect(gateway.processKeys[0]).assertEqual('q');
     });
 
-    it('quanpinKeepsRawCodeInTheCandidateBarWhenEditorPreviewIsSupported', 0, async () => {
+    it('quanpinKeepsCodesBesideCandidatesEvenWhenEditorPreviewIsSupported', 0, async () => {
       const store = new InputSessionStore();
       const imeService = new FakeImeInputService();
       const gateway = new QuanpinGateway();
@@ -1502,7 +2042,7 @@ export default function stage2ControllerTest() {
       expect(gateway.processKeys.join(',')).assertEqual('g');
     });
 
-    it('quanpinNoCandidateActionsNeverFinishRawAsciiIntoTheEditor', 0, async () => {
+    it('quanpinOnlyExplicitEnterCommitsRawCodesWithoutCandidates', 0, async () => {
       const store = new InputSessionStore();
       const imeService = new FakeImeInputService();
       const gateway = new QuanpinGateway();
@@ -1521,14 +2061,15 @@ export default function stage2ControllerTest() {
       await controller.insertLetter('j');
       await controller.sendEnter();
       expect(imeService.finishPreviewCount).assertEqual(0);
-      expect(imeService.clearPreviewCount).assertEqual(2);
-      expect(imeService.enterCount).assertEqual(1);
+      expect(imeService.clearPreviewCount).assertEqual(1);
+      expect(imeService.enterCount).assertEqual(0);
+      expect(imeService.insertedTexts.join(',')).assertEqual(' ,j');
 
       await controller.insertLetter('d');
       await controller.insertCharacter('，');
       expect(imeService.finishPreviewCount).assertEqual(0);
-      expect(imeService.clearPreviewCount).assertEqual(3);
-      expect(imeService.insertedTexts.join(',')).assertEqual(' ,，');
+      expect(imeService.clearPreviewCount).assertEqual(2);
+      expect(imeService.insertedTexts.join(',')).assertEqual(' ,j,，');
     });
 
     it('stage1167TopScreenCommitsOnceAndStoresNewSegment', 0, async () => {

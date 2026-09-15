@@ -13,13 +13,13 @@
           "parser_state": "incomplete",
           "first_page": [
             {
-              "id": "lex-v115-n-嗯",
+              "id": "lex-v300-n-嗯",
               "text": "嗯",
               "reading": "n",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-n-唔",
+              "id": "lex-v300-n-唔",
               "text": "唔",
               "reading": "n",
               "source": "rime_pinyin_simp"
@@ -33,55 +33,55 @@
           "parser_state": "complete",
           "first_page": [
             {
-              "id": "lex-v115-ni-你",
+              "id": "lex-v300-ni-你",
               "text": "你",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-拟",
+              "id": "lex-v300-ni-拟",
               "text": "拟",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-尼",
+              "id": "lex-v300-ni-尼",
               "text": "尼",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-呢",
+              "id": "lex-v300-ni-呢",
               "text": "呢",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-泥",
+              "id": "lex-v300-ni-泥",
               "text": "泥",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-妳",
+              "id": "lex-v300-ni-妳",
               "text": "妳",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-妮",
+              "id": "lex-v300-ni-妮",
               "text": "妮",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-腻",
+              "id": "lex-v300-ni-腻",
               "text": "腻",
               "reading": "ni",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni-逆",
+              "id": "lex-v300-ni-逆",
               "text": "逆",
               "reading": "ni",
               "source": "rime_pinyin_simp"
@@ -95,57 +95,57 @@
           "parser_state": "incomplete",
           "first_page": [
             {
-              "id": "lex-v115-ni_hao-你好",
+              "id": "lex-v300-ni_hao-你好",
               "text": "你好",
               "reading": "ni hao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni_hui-你会",
+              "id": "lex-v300-ni_hui-你会",
               "text": "你会",
               "reading": "ni hui",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni_hai-你还",
+              "id": "lex-v300-ni_hai-你还",
               "text": "你还",
               "reading": "ni hai",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni_he-你和",
+              "id": "lex-v300-ni_he-你和",
               "text": "你和",
               "reading": "ni he",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni_hen-你很",
+              "id": "lex-v300-ni_hen-你很",
               "text": "你很",
               "reading": "ni hen",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni_hao_a-你好啊",
+              "id": "lex-v300-ni_hao_a-你好啊",
               "text": "你好啊",
               "reading": "ni hao a",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni_hai_hui-你还会",
+              "id": "lex-v300-ni_hui_yan-泥灰岩",
+              "text": "泥灰岩",
+              "reading": "ni hui yan",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-ni_hai_hui-你还会",
               "text": "你还会",
               "reading": "ni hai hui",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-ni_hao_ma-你好吗",
+              "id": "lex-v300-ni_hao_ma-你好吗",
               "text": "你好吗",
               "reading": "ni hao ma",
-              "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "lex-v115-ni_he-拟合",
-              "text": "拟合",
-              "reading": "ni he",
               "source": "rime_pinyin_simp"
             }
           ]
@@ -229,55 +229,55 @@
           "parser_state": "complete",
           "first_page": [
             {
-              "id": "lex-v115-shu-书",
+              "id": "lex-v300-shu-书",
               "text": "书",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-数",
+              "id": "lex-v300-shu-数",
               "text": "数",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-树",
+              "id": "lex-v300-shu-树",
               "text": "树",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-输",
+              "id": "lex-v300-shu-输",
               "text": "输",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-属",
+              "id": "lex-v300-shu-属",
               "text": "属",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-熟",
+              "id": "lex-v300-shu-熟",
               "text": "熟",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-术",
+              "id": "lex-v300-shu-术",
               "text": "术",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-舒",
+              "id": "lex-v300-shu-舒",
               "text": "舒",
               "reading": "shu",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu-鼠",
+              "id": "lex-v300-shu-鼠",
               "text": "鼠",
               "reading": "shu",
               "source": "rime_pinyin_simp"
@@ -291,55 +291,55 @@
           "parser_state": "incomplete",
           "first_page": [
             {
-              "id": "lex-v115-shu_ru_fa_bu_yao_zi_dong_shang_ping-输入法不要自动上屏",
+              "id": "lex-v300-shu_ru_fa_bu_yao_zi_dong_shang_ping-输入法不要自动上屏",
               "text": "输入法不要自动上屏",
               "reading": "shu ru fa bu yao zi dong shang ping",
               "source": "project_common_sentence"
             },
             {
-              "id": "lex-v115-shu_ru_fa_hou_xuan_bu_zhun_que-输入法候选不准确",
+              "id": "lex-v300-shu_ru_fa_hou_xuan_bu_zhun_que-输入法候选不准确",
               "text": "输入法候选不准确",
               "reading": "shu ru fa hou xuan bu zhun que",
               "source": "project_common_sentence"
             },
             {
-              "id": "lex-v115-shu_ru_fa_fan_ying_hen_man-输入法反应很慢",
+              "id": "lex-v300-shu_ru_fa_fan_ying_hen_man-输入法反应很慢",
               "text": "输入法反应很慢",
               "reading": "shu ru fa fan ying hen man",
               "source": "project_common_sentence"
             },
             {
-              "id": "lex-v115-shu_ru-输入",
+              "id": "lex-v300-shu_ru-输入",
               "text": "输入",
               "reading": "shu ru",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu_ru_fa-输入法",
+              "id": "lex-v300-shu_ru_fa-输入法",
               "text": "输入法",
               "reading": "shu ru fa",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu_ren-熟人",
+              "id": "lex-v300-shu_ren-熟人",
               "text": "熟人",
               "reading": "shu ren",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu_ru_kuang-输入框",
+              "id": "lex-v300-shu_ru_kuang-输入框",
               "text": "输入框",
               "reading": "shu ru kuang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu_rong-殊荣",
+              "id": "lex-v300-shu_rong-殊荣",
               "text": "殊荣",
               "reading": "shu rong",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shu_ri-数日",
+              "id": "lex-v300-shu_ri-数日",
               "text": "数日",
               "reading": "shu ri",
               "source": "rime_pinyin_simp"
@@ -483,16 +483,10 @@
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "sentence:6:shu_ru_fa:输入阀",
-              "text": "输入阀",
+              "id": "sentence:6:shu_ru_fa:输入彂",
+              "text": "输入彂",
               "reading": "shu ru fa",
-              "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "sentence:6:shu_ru_fa:输入發",
-              "text": "输入發",
-              "reading": "shu ru fa",
-              "source": "rime_pinyin_simp"
+              "source": "jieba_0_42_1_pypinyin_0_55_0,rime_pinyin_simp"
             },
             {
               "id": "sentence:4:shu_ru:输入",
@@ -505,13 +499,19 @@
               "text": "书",
               "reading": "shu",
               "source": "rime_pinyin_simp"
+            },
+            {
+              "id": "sentence:2:shu:数",
+              "text": "数",
+              "reading": "shu",
+              "source": "rime_pinyin_simp"
             }
           ]
         }
       ],
       "first_choice": "输入法",
       "has_next_page": true,
-      "paging_probe": "next_page_candidate_count=7",
+      "paging_probe": "next_page_candidate_count=6",
       "committed_text": "输入法",
       "target_is_first_and_committed": true,
       "raw_after_backspace": "uuruf",
@@ -529,55 +529,55 @@
           "parser_state": "incomplete",
           "first_page": [
             {
-              "id": "lex-v115-xian_zai-现在",
+              "id": "lex-v300-xian_zai-现在",
               "text": "现在",
               "reading": "xian zai",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xia-下",
+              "id": "lex-v300-xia-下",
               "text": "下",
               "reading": "xia",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiang-想",
+              "id": "lex-v300-xiang-想",
               "text": "想",
               "reading": "xiang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-小",
+              "id": "lex-v300-xiao-小",
               "text": "小",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xian-先",
+              "id": "lex-v300-xian-先",
               "text": "先",
               "reading": "xian",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xu_yao-需要",
+              "id": "lex-v300-xu_yao-需要",
               "text": "需要",
               "reading": "xu yao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xin-新",
+              "id": "lex-v300-xin-新",
               "text": "新",
               "reading": "xin",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xi_huan-喜欢",
+              "id": "lex-v300-xi_huan-喜欢",
               "text": "喜欢",
               "reading": "xi huan",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xi_tong-系统",
+              "id": "lex-v300-xi_tong-系统",
               "text": "系统",
               "reading": "xi tong",
               "source": "rime_pinyin_simp"
@@ -591,55 +591,55 @@
           "parser_state": "complete",
           "first_page": [
             {
-              "id": "lex-v115-xiao-小",
+              "id": "lex-v300-xiao-小",
               "text": "小",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-笑",
+              "id": "lex-v300-xiao-笑",
               "text": "笑",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-晓",
+              "id": "lex-v300-xiao-晓",
               "text": "晓",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-肖",
+              "id": "lex-v300-xiao-肖",
               "text": "肖",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-校",
+              "id": "lex-v300-xiao-校",
               "text": "校",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-萧",
+              "id": "lex-v300-xiao-萧",
               "text": "萧",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-消",
+              "id": "lex-v300-xiao-消",
               "text": "消",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-孝",
+              "id": "lex-v300-xiao-孝",
               "text": "孝",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao-销",
+              "id": "lex-v300-xiao-销",
               "text": "销",
               "reading": "xiao",
               "source": "rime_pinyin_simp"
@@ -653,57 +653,57 @@
           "parser_state": "incomplete",
           "first_page": [
             {
-              "id": "lex-v115-xiao_hai-小孩",
+              "id": "lex-v300-xiao_hai-小孩",
               "text": "小孩",
               "reading": "xiao hai",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao_hua-笑话",
+              "id": "lex-v300-xiao_hua-笑话",
               "text": "笑话",
               "reading": "xiao hua",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao_hai_zi-小孩子",
+              "id": "lex-v300-xiao_hai_zi-小孩子",
               "text": "小孩子",
               "reading": "xiao hai zi",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao_hao-消耗",
+              "id": "lex-v300-xiao_hao-消耗",
               "text": "消耗",
               "reading": "xiao hao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao_hao-小号",
+              "id": "lex-v300-xiao_hao-小号",
               "text": "小号",
               "reading": "xiao hao",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao_hua-消化",
+              "id": "lex-v300-xiao_hua-消化",
               "text": "消化",
               "reading": "xiao hua",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao_huo_zi-小伙子",
+              "id": "lex-v300-xiao_hong_shu-小红书",
+              "text": "小红书",
+              "reading": "xiao hong shu",
+              "source": "project_v2_proper"
+            },
+            {
+              "id": "lex-v300-xiao_huo_zi-小伙子",
               "text": "小伙子",
               "reading": "xiao huo zi",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-xiao_hei-小黑",
+              "id": "lex-v300-xiao_hei-小黑",
               "text": "小黑",
               "reading": "xiao hei",
-              "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "lex-v115-xiao_huo-小伙",
-              "text": "小伙",
-              "reading": "xiao huo",
               "source": "rime_pinyin_simp"
             }
           ]
@@ -733,6 +733,12 @@
               "source": "rime_pinyin_simp"
             },
             {
+              "id": "sentence:4:xiao_he:孝和",
+              "text": "孝和",
+              "reading": "xiao he",
+              "source": "rime_pinyin_simp"
+            },
+            {
               "id": "sentence:4:xiao_he:晓和",
               "text": "晓和",
               "reading": "xiao he",
@@ -753,12 +759,6 @@
             {
               "id": "sentence:4:xiao_he:萧和",
               "text": "萧和",
-              "reading": "xiao he",
-              "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "sentence:4:xiao_he:孝和",
-              "text": "孝和",
               "reading": "xiao he",
               "source": "rime_pinyin_simp"
             }
@@ -793,56 +793,56 @@
           "parser_state": "complete",
           "first_page": [
             {
-              "id": "lex-v115-shuang-爽",
+              "id": "lex-v300-shuang-爽",
               "text": "爽",
               "reading": "shuang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shuang-双",
+              "id": "lex-v300-shuang-双",
               "text": "双",
               "reading": "shuang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shuang-霜",
+              "id": "lex-v300-shuang-霜",
               "text": "霜",
               "reading": "shuang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shuang-雙",
+              "id": "lex-v300-shuang-雙",
               "text": "雙",
               "reading": "shuang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shuang-孀",
+              "id": "lex-v300-shuang-孀",
               "text": "孀",
               "reading": "shuang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shuang-泷",
+              "id": "lex-v300-shuang-泷",
               "text": "泷",
               "reading": "shuang",
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "lex-v115-shuang-滝",
+              "id": "lex-v300-shuang-骦",
+              "text": "骦",
+              "reading": "shuang",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang-鏯",
+              "text": "鏯",
+              "reading": "shuang",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang-滝",
               "text": "滝",
-              "reading": "shuang",
-              "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "lex-v115-shuang-塽",
-              "text": "塽",
-              "reading": "shuang",
-              "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "lex-v115-shuang-孇",
-              "text": "孇",
               "reading": "shuang",
               "source": "rime_pinyin_simp"
             }
@@ -854,6 +854,60 @@
           "parsed_syllables": ["shuang"],
           "parser_state": "incomplete",
           "first_page": [
+            {
+              "id": "lex-v300-shuang_pai-双排",
+              "text": "双排",
+              "reading": "shuang pai",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_pan-双盘",
+              "text": "双盘",
+              "reading": "shuang pan",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_pin-双频",
+              "text": "双频",
+              "reading": "shuang pin",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_ping-双屏",
+              "text": "双屏",
+              "reading": "shuang ping",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_ping_shuang_xian-双屏双显",
+              "text": "双屏双显",
+              "reading": "shuang ping shuang xian",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_ping_mu-双屏幕",
+              "text": "双屏幕",
+              "reading": "shuang ping mu",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_pin-双拼",
+              "text": "双拼",
+              "reading": "shuang pin",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_pin_jia_jia-双拼加加",
+              "text": "双拼加加",
+              "reading": "shuang pin jia jia",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "lex-v300-shuang_pian-双片",
+              "text": "双片",
+              "reading": "shuang pian",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            }
           ]
         },
         {
@@ -862,6 +916,18 @@
           "parsed_syllables": ["shuang", "pin"],
           "parser_state": "complete",
           "first_page": [
+            {
+              "id": "sentence:4:shuang_pin:双拼",
+              "text": "双拼",
+              "reading": "shuang pin",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
+            {
+              "id": "sentence:4:shuang_pin:双频",
+              "text": "双频",
+              "reading": "shuang pin",
+              "source": "jieba_0_42_1_pypinyin_0_55_0"
+            },
             {
               "id": "sentence:4:shuang_pin:爽品",
               "text": "爽品",
@@ -881,12 +947,6 @@
               "source": "rime_pinyin_simp"
             },
             {
-              "id": "sentence:4:shuang_pin:双拼",
-              "text": "双拼",
-              "reading": "shuang pin",
-              "source": "rime_pinyin_simp"
-            },
-            {
               "id": "sentence:4:shuang_pin:爽嫔",
               "text": "爽嫔",
               "reading": "shuang pin",
@@ -897,27 +957,15 @@
               "text": "爽聘",
               "reading": "shuang pin",
               "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "sentence:4:shuang_pin:爽贫",
-              "text": "爽贫",
-              "reading": "shuang pin",
-              "source": "rime_pinyin_simp"
-            },
-            {
-              "id": "sentence:4:shuang_pin:爽频",
-              "text": "爽频",
-              "reading": "shuang pin",
-              "source": "rime_pinyin_simp"
             }
           ]
         }
       ],
-      "first_choice": "爽品",
+      "first_choice": "双拼",
       "has_next_page": false,
       "paging_probe": "no_next_page",
-      "committed_text": "爽品",
-      "target_is_first_and_committed": false,
+      "committed_text": "双拼",
+      "target_is_first_and_committed": true,
       "raw_after_backspace": "ulp",
       "reset_clears_composition": true,
       "recreated_session_same_first_choice": true

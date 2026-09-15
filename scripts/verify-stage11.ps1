@@ -104,7 +104,9 @@ try {
             }
         }
         $module = Get-Content -LiteralPath (Join-Path $repoRoot 'entry\src\main\module.json5') -Raw -Encoding UTF8
-        if ($module -match 'INTERNET|MICROPHONE') { throw 'Network or microphone permission must not be added.' }
+        if ($module -match 'MICROPHONE') { throw 'Microphone permission remains unapproved.' }
+        & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-release-hap.ps1') -ResourceInputOnly
+        if ($LASTEXITCODE -ne 0) { throw 'Release resources or approved web permission profile failed.' }
         $formalKeyboard = Get-Content -LiteralPath (Join-Path $repoRoot 'entry\src\main\ets\presentation\keyboard\KeyboardRootStage3.ets') -Raw -Encoding UTF8
         if ($formalKeyboard -match 'BuildProfile|回归|模型|Regression|getTestCandidates|getDebugUserModelRecordCount') {
             throw 'Formal keyboard must not contain interactive regression or model-debug controls.'

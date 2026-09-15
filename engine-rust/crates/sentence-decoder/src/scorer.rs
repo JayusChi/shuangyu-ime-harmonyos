@@ -10,6 +10,38 @@ const MULTI_SYLLABLE_BONUS: i64 = 520;
 #[derive(Clone, Debug, Default)]
 pub struct SentenceScorer;
 
+#[derive(Clone, Copy)]
+pub(crate) enum SentenceScoring {
+    Standard,
+    Initials,
+    Xiaohe,
+}
+
+impl SentenceScoring {
+    pub(crate) fn edge_score(self, edge: &WordEdge) -> i64 {
+        if !matches!(self, Self::Xiaohe) || edge.fallback {
+            return SentenceScorer::edge_score(edge);
+        }
+        // A bounded log-frequency cost per word avoids giving a rare long
+        // dictionary entry a quadratic advantage over common shorter words.
+        // The linear coverage term is constant for every complete path.
+        let frequency = edge.frequency.clamp(1, 1_000_000);
+        let magnitude = frequency.ilog2();
+        let base = 1_u64 << magnitude;
+        let fraction = ((frequency - base) * 100 / base) as i64;
+        i64::from(magnitude) * 100 + fraction - 2_000
+            + edge.syllable_count as i64 * MULTI_SYLLABLE_BONUS
+    }
+
+    pub(crate) fn extra_word_penalty(self) -> i64 {
+        if matches!(self, Self::Initials) {
+            1_400
+        } else {
+            0
+        }
+    }
+}
+
 impl SentenceScorer {
     pub fn edge_score(edge: &WordEdge) -> i64 {
         if edge.fallback {
@@ -63,6 +95,16 @@ mod tests {
         let fallback = edge("xian", "xian", 1, 0, true);
 
         assert!(SentenceScorer::edge_score(&fallback) < SentenceScorer::edge_score(&known));
+    }
+
+    #[test]
+    fn xiaohe_retains_frequency_order_within_a_logarithmic_bucket() {
+        let common = edge("期间", "qi jian", 2, 50_000, false);
+        let less_common = edge("其间", "qi jian", 2, 49_000, false);
+        assert!(
+            SentenceScoring::Xiaohe.edge_score(&common)
+                > SentenceScoring::Xiaohe.edge_score(&less_common)
+        );
     }
 
     fn edge(

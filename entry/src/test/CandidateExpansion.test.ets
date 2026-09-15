@@ -1,4 +1,5 @@
 import { describe, it, expect } from '@ohos/hypium';
+import { resolveCollapsedCandidates, shouldShowCandidateExpansionAction, CandidateUiMode } from '../main/ets/domain/candidate/CandidateUiPolicy';
 import { ImeErrorCode } from '../main/ets/common/error/ImeError';
 import {
   canExpandCandidates,
@@ -12,10 +13,15 @@ import { KeyboardDeviceFormFactor } from '../main/ets/domain/display/KeyboardAux
 import { createUnknownEditorContext } from '../main/ets/domain/editor/EditorContext';
 import { Candidate, CompositionResult } from '../main/ets/infrastructure/native/NativeEngineTypes';
 import {
+  COLLAPSED_CANDIDATE_LIMIT,
   CANDIDATE_EXPANSION_ACTION,
   KEYBOARD_STATUS_BAR_LAYOUT
 } from '../main/ets/presentation/candidate/CandidateBar';
 import { CANDIDATE_PAGER_ACCESSIBILITY } from '../main/ets/presentation/candidate/CandidateExpansionPanel';
+import {
+  FLOATING_CANDIDATE_NEXT_PAGE_ACCESSIBILITY,
+  FLOATING_CANDIDATE_PREVIOUS_PAGE_ACCESSIBILITY
+} from '../main/ets/presentation/candidate/FloatingCandidateRoot';
 import { InputSessionStore } from '../main/ets/state/InputSessionStore';
 
 function makeCandidates(count: number, prefix: string = 'p0'): Candidate[] {
@@ -80,11 +86,11 @@ function availability(): CandidateExpansionAvailability {
 
 export default function candidateExpansionTest() {
   describe('candidate improvement stage 2 expansion and paging', () => {
-    it('opens only when at least three candidates exist', 0, () => {
+    it('allows nonempty expansion for configurable collapsed limits', 0, () => {
       const store = readyStore();
       expect(store.setCandidatePanelExpanded(true)).assertFalse();
       store.updateComposition(makeComposition(makeCandidates(2)));
-      expect(store.setCandidatePanelExpanded(true)).assertFalse();
+      expect(store.setCandidatePanelExpanded(true)).assertTrue();
       store.updateComposition(makeComposition(makeCandidates(3)));
       expect(store.setCandidatePanelExpanded(true)).assertTrue();
       store.setCandidatePanelExpanded(false);
@@ -93,6 +99,36 @@ export default function candidateExpansionTest() {
       expect(store.getSnapshot().candidatePanelExpanded).assertTrue();
       expect(store.setCandidatePanelExpanded(false)).assertFalse();
       expect(store.getSnapshot().candidatePanelExpanded).assertFalse();
+    });
+
+    it('caps collapsed candidates and exposes count, page and width overflow', 0, () => {
+      const candidates = makeCandidates(8);
+      expect(resolveCollapsedCandidates(candidates, 5).length).assertEqual(5);
+      expect(resolveCollapsedCandidates(candidates, 1)[0].id).assertEqual(candidates[0].id);
+      expect(candidates.length).assertEqual(8);
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 5)).assertFalse();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 6)).assertTrue();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.PRECISE_MATCH, 2, 'obh', 1)).assertTrue();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 5, 'ni', 5, true)).assertTrue();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 3, 'ni', 5, false, true)).assertTrue();
+      expect(shouldShowCandidateExpansionAction(CandidateUiMode.BROWSABLE, 0, '', 5, true)).assertFalse();
+    });
+
+    it('expands a standalone floating window and keeps paging but resets for a new code', 0, () => {
+      const store = readyStore();
+      store.markKeyboardHidden();
+      store.updateComposition(makeComposition(makeCandidates(8)));
+      expect(store.setFloatingCandidateExpanded(true)).assertTrue();
+      expect(store.getSnapshot().candidatePanelExpanded).assertFalse();
+      store.updateComposition(makeComposition(makeCandidates(2), 1, true));
+      expect(store.getSnapshot().floatingCandidateExpanded).assertTrue();
+      const next = makeComposition(makeCandidates(8));
+      next.rawInput = 'ha';
+      store.updateComposition(next);
+      expect(store.getSnapshot().floatingCandidateExpanded).assertFalse();
+      store.setFloatingCandidateExpanded(true);
+      store.clearComposition();
+      expect(store.getSnapshot().floatingCandidateExpanded).assertFalse();
     });
 
     it('keeps expansion through a non-empty refresh and closes on empty candidates', 0, () => {
@@ -187,7 +223,7 @@ export default function candidateExpansionTest() {
         sessionActive: first.sessionActive,
         keyboardVisible: first.keyboardVisible,
         candidateBarVisible: first.candidateBarVisible,
-        candidateCount: 2,
+        candidateCount: 0,
         hasPreviousPage: false,
         hasNextPage: false,
         pageLoading: false,
@@ -208,11 +244,12 @@ export default function candidateExpansionTest() {
       expect(canNavigateCandidatePage(shortFinalPage, CandidatePageDirection.PREVIOUS)).assertTrue();
     });
 
-    it('uses compact phone grids and a 50-cell pad first screen', 0, () => {
+    it('uses a four-column full-keyboard phone grid and a 50-cell pad grid', 0, () => {
       const portrait = resolveCandidateExpansionLayout(KeyboardDeviceFormFactor.PHONE, false);
       const landscape = resolveCandidateExpansionLayout(KeyboardDeviceFormFactor.PHONE, true);
       const pad = resolveCandidateExpansionLayout(KeyboardDeviceFormFactor.TABLET, false);
-      expect(portrait.columnCount).assertEqual(5);
+      expect(portrait.columnCount).assertEqual(4);
+      expect(portrait.visibleRowCount).assertEqual(5);
       expect(landscape.columnCount).assertEqual(8);
       expect(pad.columnCount * pad.visibleRowCount >= 30).assertTrue();
       expect(pad.columnCount * pad.visibleRowCount).assertEqual(50);
@@ -220,11 +257,15 @@ export default function candidateExpansionTest() {
     });
 
     it('keeps expansion paging and keyboard hide accessibility labels distinct', 0, () => {
+      expect(COLLAPSED_CANDIDATE_LIMIT).assertEqual(5);
       expect(CANDIDATE_EXPANSION_ACTION.expandAccessibilityText).assertEqual('展开候选');
       expect(CANDIDATE_EXPANSION_ACTION.collapseAccessibilityText).assertEqual('收起候选');
       expect(KEYBOARD_STATUS_BAR_LAYOUT.actionAccessibilityText).assertEqual('收起键盘');
       expect(CANDIDATE_PAGER_ACCESSIBILITY.previous).assertEqual('上一页候选');
       expect(CANDIDATE_PAGER_ACCESSIBILITY.next).assertEqual('下一页候选');
+      expect(CANDIDATE_PAGER_ACCESSIBILITY.back).assertEqual('返回键盘');
+      expect(FLOATING_CANDIDATE_PREVIOUS_PAGE_ACCESSIBILITY).assertEqual('浮动候选上一页');
+      expect(FLOATING_CANDIDATE_NEXT_PAGE_ACCESSIBILITY).assertEqual('浮动候选下一页');
       expect(CANDIDATE_EXPANSION_ACTION.actionId === KEYBOARD_STATUS_BAR_LAYOUT.actionId).assertFalse();
     });
   });

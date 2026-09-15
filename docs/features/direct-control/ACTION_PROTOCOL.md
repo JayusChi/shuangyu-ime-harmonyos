@@ -72,7 +72,7 @@ interface DirectControlAction {
     'category.set' | 'category.all' | 'category.core' | 'category.preset' |
     'settings.smart-period' | 'settings.punctuation' | 'settings.fullwidth' |
     'settings.traditional' | 'settings.numeric-period' | 'settings.empty-clear' |
-    'settings.commit-policy' | 'url.open' | 'app.open' | 'editor.delete-line'
+    'settings.commit-policy' | 'url.open' | 'directory.open' | 'app.open' | 'editor.delete-line'
   text: string
   cursorOffsetUtf16: 0
 }
@@ -106,9 +106,11 @@ action 非空 => commitText 必须为空
 
 日期时间每次动作只读取一次 `TimeProvider.now()` 快照，然后按有限格式 ID 生成本地时间文本。成对符号以一次插入完成；提交后等待 80 ms 让编辑器光标状态稳定，再读取一次光标并定位。成功后保存受会话与 120 秒有效期约束的右符号状态，Tab/Enter 跳出前再次核对编辑器；光标读取或定位失败后都不重复插入。
 
-客户确认的生产动作只来自 Rust 内建动作表。网址仅允许 `flypy-home`、`flypy-help`、`flypy-help-mobile` 三个固定目标，由 ArkTS 映射为预置 HTTPS；应用入口仅允许本应用设置页和用户词库页；删行先用有界编辑器查询计算当前行范围，再执行一次删除。设置动作的参数也全部闭合：智能句号仅 `0/600`，数字句点仅 `enabled/disabled`，空码阈值仅 `4/12`，四码策略仅 `top-screen/auto-commit`，三组词库预设只改变全码词、全码字、生僻字。
+内置网址动作保留 `flypy-home`、`flypy-help`、`flypy-help-mobile` 三个固定目标。用户词库另外支持 `OPEN_URL`（`#网页`）和 `OPEN_DIRECTORY`（`#目录`），保存完整目标并在显式选择候选后返回 `url.open` 或 `directory.open`。Rust 导入及选择、ArkTS Gateway 和执行服务校验目标：网页限 HTTP(S)，目录限系统选择器的 `file://docs/` 文档 URI；目标不转小写，保留路径、查询参数、逗号和片段。参见 [自定义网页和目录直通](CUSTOM_SHORTCUTS.md)。应用入口仅允许本应用设置页和用户词库页；删行先用有界编辑器查询计算当前行范围，再执行一次删除。设置动作的参数也全部闭合：智能句号仅 `0/600`，数字句点仅 `enabled/disabled`，空码阈值仅 `4/12`，四码策略仅 `top-screen/auto-commit`，三组词库预设只改变全码词、全码字、生僻字。
 
 `ohos.permission.READ_PASTEBOARD` 的平台定义要求 `system_basic` APL，而客户测试包为 normal APL。因而 `ofi` 的“复制单字反查且不粘贴”没有进入正式动作表，Release 也不声明剪贴板读取权限；该项必须等待替代交互或系统级签名条件确认。
+
+2026-09-11 用户批准应用内小鹤网页及联网权限：`oix` 光标查形、经系统粘贴按钮授权的剪贴板查形，与上述官网/帮助目标统一通过非导出的 `FlypyWebAbility` 打开。精确的 `https://flypy.cc` 目标进入应用内网页，其他已验证的 HTTP(S) 网址保持系统路由；路径、查询参数和片段保持原值。输入法执行器只交付 Want，网页在独立界面加载。发布权限配置与边界见 [应用内小鹤网页权限配置](FLYPY_WEB_PERMISSION_PROFILE.md)。
 
 ## 参数边界
 
@@ -131,3 +133,7 @@ fixtureOnly = true
 ```
 
 它只能与 `code-table-fixture` 方案组合，只在 internalDebug 构建时临时复制，构建后立即清理；Release 源资源与最终 HAP 均不得包含它。
+
+### 复制反查
+
+`ofi` 的旧 `querycode` 记录及客户 `$CC(default(dict.rev(clip()), "[复制反查]"), type(dict.rev(clip())))` 表达式转换为 `clipboard.reverse`，目标仅允许空字符串。候选保留 `[复制反查]` 作为稳定标识，展示内容来自会话内的本地反查结果；无结果时选中不输出文字。受限剪贴板通过候选区 `PasteButton` 授权后刷新，见 [复制反查说明](CLIPBOARD_REVERSE_LOOKUP.md)。

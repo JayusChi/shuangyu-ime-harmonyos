@@ -9,6 +9,13 @@
 # 环境检查
 powershell -ExecutionPolicy Bypass -File scripts\check-environment.ps1
 
+# 逆切分的 Native bridge 主机适配器回归（模拟原生桥接）
+node scripts/test-reverse-split-gateway.cjs
+
+# 基础模式共享设置与安装后共享沙箱授权门禁
+node scripts/test-settings-shared-file.cjs
+node scripts/test-installed-sharing.cjs
+
 # Rust 格式、Clippy 和 workspace 测试
 powershell -ExecutionPolicy Bypass -File scripts\test-rust.ps1
 
@@ -18,7 +25,22 @@ powershell -ExecutionPolicy Bypass -File scripts\build-native.ps1 -Abi all
 # Release HAP 与内容门禁
 powershell -ExecutionPolicy Bypass -File scripts\build-hap.ps1
 powershell -ExecutionPolicy Bypass -File scripts\verify-release-hap.ps1
+
+# 开发设备安装：正式代码 + 固定开发签名（与发布产品隔离）
+powershell -ExecutionPolicy Bypass -File scripts\build-hap.ps1 -SkipRust -BuildMode release -Product default
+powershell -ExecutionPolicy Bypass -File scripts\install-signed-hap.ps1 -AllConnected
 ```
+
+`build-hap.ps1` 的 Release 默认选择 `release` 产品，签名包位于
+`entry/build/release/outputs/default/entry-default-signed.hap`；DevEco Run 使用 `default` 产品，
+签名包位于 `entry/build/default/outputs/default/entry-default-signed.hap`。
+本机配置中 `default` / `internalDebug` 应绑定同一开发签名，`release` 绑定发布签名。
+出现 `9568332` 时先核对现有安装的证书，优先沿用匹配的签名保留数据；
+只有明确接受清除旧应用数据后才使用 `install-signed-hap.ps1 -ResetSignature`。
+
+输入法 HAP 声明了共享组时，安装脚本还会核对设备 `bm dump` 中输入法扩展的
+`validDataGroupIds`。仅有 `dataGroupIds` 声明或 `bm install` 成功不算授权生效；
+市场发布签名包应通过官方测试分发渠道验收，不能把模拟器容许安装的未受信包记为通过。
 
 ## 命名分类
 
@@ -42,3 +64,9 @@ powershell -ExecutionPolicy Bypass -File scripts\verify-release-hap.ps1
 - 入口脚本使用稳定、可搜索的前缀；新增脚本时同步更新本文件和相关构建/测试文档。
 - 生成物写入已约定的 `build/`、`target/`、`artifacts/` 或临时目录，不写到仓库根目录。
 - 发布脚本必须保留 Release/Debug 隔离、正式资源身份和敏感文件门禁。
+
+## 复制反查直通
+
+`pwsh -File scripts/test-clipboard-reverse-import.ps1` 验证客户 `$CC` 和旧 `querycode` 格式的转换。
+`import-shuangyu-customer-lexicon.ps1 -UpdateProject -DirectActionsOnly` 仅更新直通清理稿、动作表和报告，跳过字词资源写入。
+行为与设备验收见 [复制反查说明](../docs/features/direct-control/CLIPBOARD_REVERSE_LOOKUP.md)。

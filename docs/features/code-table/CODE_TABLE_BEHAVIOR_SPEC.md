@@ -1,5 +1,9 @@
 # 阶段 11.6.1 码表输入行为与状态机规范
 
+## 2026-09-07 补充：可选逆切分
+
+默认传统模式继续遵守本规范原有四码边界。开启独立“切分模式”后，允许在四码空码且前后两组均有精确二简时按 `2+2` 组合；前组固定首选，后组可选重码，第五码顶前后首选并保留新码。完整规则、`oit`、符号二简和接口见 [REVERSE_SPLIT_MODE.md](REVERSE_SPLIT_MODE.md)。下文“不拆分空码”的历史约束适用于传统模式及切分未命中的回退路径。
+
 ## 阶段 11.6.6 补充：引导与动作
 
 - Rust 状态枚举冻结为 `Idle / NormalCode / GuidePrefix / GuideCode`。
@@ -177,7 +181,7 @@ GuidePrefix / GuideCode --方案切换、会话结束、编辑框切换、异常
 | --- | --- | --- |
 | Idle 按分号 | 消费为引导前缀；显示快符 `_` 默认候选 | GuidePrefix |
 | NormalCode 按分号 | 不猜测或提交普通码首选；无提交清空普通组合，再进入引导前缀 | GuidePrefix |
-| GuidePrefix 输入一个字母 | 查询专用引导表的精确/更长前缀 | GuideCode |
+| GuidePrefix 输入一个字母 | 查询专用引导表；若唯一精确命中，则立即返回 `commitText` 或唯一封闭 `action` 并执行，不再等待空格；否则保留候选/前缀 | Idle / GuideCode |
 | GuideCode 连续输入字母 | 追加并重新查询专用引导表 | GuideCode |
 | GuidePrefix 按退格 | 删除分号引导，不影响编辑框 | Idle |
 | GuideCode 连续退格 | 先逐字删除；删完字母后停在 GuidePrefix；再退格退出 | GuideCode / GuidePrefix / Idle |
@@ -191,6 +195,8 @@ GuidePrefix / GuideCode --方案切换、会话结束、编辑框切换、异常
 | 引导状态选择候选 | 提交所选候选并清空引导会话 | Idle |
 | 引导状态切换方案/模式 | 无提交 reset，不把引导内容带入新方案 | Idle |
 | 引导表无候选 | 保持可编辑引导码；允许继续输入或退格；不自动清屏 | GuideCode |
+
+单字母唯一精确命中的直接执行同样适用于 `INSERT_PAIR`、`REPEAT_COMMIT`、`UNDO_COMMIT` 和 `MOVE_LINE_END`。成对符号成功插入后必须按动作携带的 UTF-16 偏移定位光标；处理 `UNDO_COMMIT` 前不得因该引导字母使上一条提交的撤销记录失效。该规则不扩展到多字母动作或同码多候选。
 
 普通编码中按分号、连续分号、非法键、空格和回车规则是缺少正式提供方规则时的保守默认，必须列入来源确认清单。引导表是否允许用户 `#删/#固/#N`、是否使用与普通表相同的 ExactOrPrefix，也保持“未确认”；在书面规则到达前，测试 fixture 只验证本表的状态退出和专用表隔离，不声称是官方规则。
 

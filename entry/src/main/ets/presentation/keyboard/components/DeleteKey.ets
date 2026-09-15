@@ -60,6 +60,7 @@ export struct DeleteKey {
       onKeyPress: (spec: KeyboardKeySpec) => this.handlePress(spec),
       onKeyRelease: (spec: KeyboardKeySpec) => this.handleRelease(spec),
       onKeyClick: (spec: KeyboardKeySpec) => this.handleClick(spec),
+      onSwipeIntent: () => this.onDeleteRelease?.(),
       onLongPressAction: (action: KeyboardAction) => this.handleAlternateAction(action)
     })
   }

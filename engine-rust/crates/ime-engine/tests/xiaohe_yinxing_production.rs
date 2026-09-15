@@ -23,6 +23,341 @@ const ALL_CATEGORY_IDS: [&str; 12] = [
     "ok-spelling",
 ];
 
+#[test]
+fn display_feedback_direct_commands_keep_customer_order_and_do_not_commit_labels() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9)).unwrap();
+    type DirectCommandCase<'a> = (&'a str, &'a str, &'a [(&'a str, &'a str)]);
+    let commands: &[DirectCommandCase<'_>] = &[
+        (
+            "ohx",
+            "settings.candidate-position",
+            &[("[固定]", "bar"), ("[浮动]", "floating")],
+        ),
+        (
+            "ojg",
+            "settings.keyboard-height",
+            &[
+                ("[键高1.0]", "default"),
+                ("[+0.05]", "increase"),
+                ("[-0.05]", "decrease"),
+            ],
+        ),
+        (
+            "ojz",
+            "settings.keyboard-font",
+            &[
+                ("[键字12号]", "default"),
+                ("[+2]", "increase"),
+                ("[-1]", "decrease"),
+            ],
+        ),
+        (
+            "ohz",
+            "settings.candidate-font",
+            &[
+                ("[候字15号]", "default"),
+                ("[+2]", "increase"),
+                ("[-1]", "decrease"),
+            ],
+        ),
+        (
+            "ofz",
+            "settings.floating-font",
+            &[
+                ("[浮字17号]", "default"),
+                ("[+2]", "increase"),
+                ("[-1]", "decrease"),
+            ],
+        ),
+        (
+            "ofa",
+            "settings.keyboard-profile",
+            &[
+                ("[音形]", "xiaohe-yinxing-26"),
+                ("[双拼]", "xiaohe-26"),
+                ("[全拼]", "quanpin-26"),
+            ],
+        ),
+        (
+            "ovd",
+            "settings.haptic",
+            &[("[震动_开]", "enabled"), ("[关]", "disabled")],
+        ),
+        (
+            "oyx",
+            "settings.key-sound",
+            &[("[音效_开]", "enabled"), ("[关]", "disabled")],
+        ),
+    ];
+    for &(code, action, options) in commands {
+        for (index, &(label, target)) in options.iter().enumerate() {
+            engine.reset();
+            let state = enter(&mut engine, code);
+            assert!(state.commit_text.is_empty(), "{code}");
+            assert_eq!(state.candidates[index].text, label, "{code}/{index}");
+            assert_eq!(state.candidates[index].source, "functional");
+            let selected = engine.select_candidate(index).unwrap();
+            assert!(selected.commit_text.is_empty(), "{code}/{index}");
+            assert_eq!(
+                selected.action,
+                Some(ProtocolAction::DirectControl {
+                    action: action.to_owned(),
+                    target: target.to_owned(),
+                })
+            );
+            assert!(engine.current_state().raw_input.is_empty());
+        }
+    }
+}
+
+#[test]
+fn oix_returns_a_shape_lookup_action_only_after_selection() {
+    let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9)).unwrap();
+    let state = enter(&mut engine, "oix");
+    assert!(state.commit_text.is_empty());
+    assert!(state.action.is_none());
+    assert!(!state.candidates.is_empty());
+    assert_eq!(state.candidates[0].text, "「查」：{last_0}");
+    assert_eq!(state.candidates[0].source, "functional");
+    let selected = engine.select_candidate(0).unwrap();
+    assert!(selected.commit_text.is_empty());
+    assert_eq!(selected.action, Some(ProtocolAction::DirectControl {
+        action: "url.open".to_owned(), target: "flypy-shape".to_owned(),
+    }));
+    assert!(engine.current_state().raw_input.is_empty());
+}
+
+#[test]
+fn ofa_is_available_in_both_phonetic_schemes_with_paging() {
+    for scheme in ["xiaohe", "quanpin"] {
+        for page_size in [1, 2, 5, 9] {
+            for (selection, target) in ["xiaohe-yinxing-26", "xiaohe-26", "quanpin-26"]
+                .iter()
+                .enumerate()
+            {
+                let mut engine = ImeEngine::new(config(scheme, None, None, page_size)).unwrap();
+                let first = enter(&mut engine, "ofa");
+                assert_eq!(first.candidates[0].text, "[音形]");
+                assert_eq!(first.candidates.len(), page_size.min(3));
+                assert_eq!(engine.current_state(), first);
+                assert!(engine.select_candidate(first.candidates.len()).is_err());
+                for _ in 0..selection / page_size {
+                    engine.next_candidate_page().unwrap();
+                }
+                let selected = engine.select_candidate(selection % page_size).unwrap();
+                assert!(selected.commit_text.is_empty());
+                assert_eq!(
+                    selected.action,
+                    Some(ProtocolAction::DirectControl {
+                        action: "settings.keyboard-profile".to_owned(),
+                        target: (*target).to_owned()
+                    })
+                );
+                assert!(engine.current_state().raw_input.is_empty());
+                enter(&mut engine, "ofa");
+                let shorter = engine.backspace();
+                assert_eq!(shorter.raw_input, "of");
+                assert!(shorter
+                    .candidates
+                    .iter()
+                    .all(|candidate| candidate.source != "functional"));
+                engine.reset();
+                let normal = enter(&mut engine, "ni");
+                assert!(!normal.candidates.is_empty());
+                assert!(normal
+                    .candidates
+                    .iter()
+                    .all(|candidate| candidate.source != "functional"));
+            }
+        }
+    }
+}
+
+#[test]
+fn reverse_split_customer_sentences_use_the_formal_dictionary() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 5)).unwrap();
+    engine
+        .configure_code_table_commit_policy(4, 4, true)
+        .unwrap();
+    for (code, expected) in [
+        ("alyghfry", "按理应该很容易"),
+        ("gmycxnta", "干嘛要笑她"),
+        ("xtupjdma", "学双拼简单吗"),
+        ("nivtsmne", "你折腾什么呢"),
+    ] {
+        engine.reset();
+        let mut text = String::new();
+        for key in code.chars() {
+            let result = engine.process_key(key);
+            assert!(result.success);
+            text.push_str(&result.commit_text);
+        }
+        if !engine.current_state().raw_input.is_empty() {
+            text.push_str(&engine.select_candidate(0).unwrap().commit_text);
+        }
+        assert_eq!(text, expected, "{code}");
+        assert!(engine.current_state().raw_input.is_empty());
+    }
+}
+
+#[test]
+fn reverse_split_formal_candidates_and_oit_preserve_protocol_semantics() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 5)).unwrap();
+    enable_all_categories(&mut engine);
+    engine
+        .configure_code_table_commit_policy(4, 4, true)
+        .unwrap();
+    let result = enter(&mut engine, "hfkn");
+    assert!(result.commit_text.is_empty());
+    assert_eq!(result.candidates[0].text, "很可能");
+    assert_eq!(result.candidates[1].text, "很困难");
+    assert_eq!(result.candidates[1].display_text, "困难");
+    assert_eq!(result.candidates[1].reading, "hfkn");
+    assert_eq!(result.candidates[1].consumed_raw_len, 4);
+    assert_eq!(result.display_segments, ["hf", "kn"]);
+    assert_eq!(result.preedit_text, "hfkn");
+    assert_eq!(engine.select_candidate(1).unwrap().commit_text, "很困难");
+    enter(&mut engine, "hfkn");
+    let next = engine.process_key('n');
+    assert_eq!(next.commit_text, "很可能");
+    assert_eq!(next.raw_input, "n");
+    engine.reset();
+    let modes = enter(&mut engine, "oit");
+    assert_eq!(
+        modes
+            .candidates
+            .iter()
+            .take(2)
+            .map(|row| row.text.as_str())
+            .collect::<Vec<_>>(),
+        ["[传统]", "[切分]"]
+    );
+    // Existing same-code symbols remain available after the two mode actions.
+    assert!(modes.candidates.iter().skip(2).any(|row| row.text == "🤭"));
+    let selected = engine.select_candidate(0).unwrap();
+    assert!(selected.commit_text.is_empty());
+    assert_eq!(
+        selected.action,
+        Some(ProtocolAction::DirectControl {
+            action: "settings.split-mode".to_owned(),
+            target: "traditional".to_owned(),
+        })
+    );
+}
+
+#[test]
+fn reverse_split_formal_three_code_dead_end_starts_two_plus_one() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 5)).unwrap();
+    enable_all_categories(&mut engine);
+    engine
+        .configure_code_table_commit_policy(4, 4, true)
+        .unwrap();
+
+    let result = enter(&mut engine, "jda");
+    assert!(result.commit_text.is_empty());
+    assert_eq!(result.raw_input, "jda");
+    assert_eq!(result.display_segments, ["jd", "a"]);
+    assert_eq!(result.candidates[0].text, "简单啊");
+    assert_eq!(result.candidates[0].display_text, "简单啊");
+    assert_eq!(result.candidates[1].text, "简单安装");
+    assert_eq!(result.candidates[1].display_text, "安装");
+    assert_eq!(result.candidates[1].reading, "jda");
+    assert_eq!(result.candidates[1].consumed_raw_len, 3);
+
+    let selected = engine.select_candidate(1).unwrap();
+    assert_eq!(selected.commit_text, "简单安装");
+    assert!(selected.raw_input.is_empty());
+}
+
+#[test]
+fn reverse_split_formal_page_sizes_preserve_ambiguity_and_fifth_key() {
+    for page_size in [1, 2, 5, 9] {
+        let mut engine = ImeEngine::new(config(
+            "xiaohe-yinxing",
+            Some(formal_bundle()),
+            None,
+            page_size,
+        ))
+        .unwrap();
+        enable_all_categories(&mut engine);
+        engine
+            .configure_code_table_commit_policy(4, 4, true)
+            .unwrap();
+        let state = enter(&mut engine, "hfkn");
+        assert!(state.commit_text.is_empty(), "page size {page_size}");
+        assert_eq!(state.raw_input, "hfkn");
+        assert_eq!(state.candidates.len(), page_size.min(2));
+        if page_size == 1 {
+            assert!(state.has_next_page);
+            let second = engine.next_candidate_page().unwrap();
+            assert_eq!(second.candidates[0].display_text, "困难");
+            assert_eq!(engine.select_candidate(0).unwrap().commit_text, "很困难");
+            enter(&mut engine, "hfkn");
+            engine.next_candidate_page().unwrap();
+        }
+        let next = engine.process_key('n');
+        assert_eq!(next.commit_text, "很可能");
+        assert_eq!(next.raw_input, "n");
+    }
+}
+
+#[test]
+fn reverse_split_formal_category_switch_changes_unique_commit() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 5)).unwrap();
+    engine
+        .configure_code_table_commit_policy(4, 4, true)
+        .unwrap();
+    engine
+        .set_code_table_categories(vec!["core".to_owned()])
+        .unwrap();
+    let unique = enter(&mut engine, "hfkn");
+    assert_eq!(unique.commit_text, "很可能");
+    assert!(unique.raw_input.is_empty());
+    engine
+        // The customer table stores 困难/kn in 分类, not 二简次选.
+        .set_code_table_categories(vec!["core".to_owned(), "category-secondary".to_owned()])
+        .unwrap();
+    let ambiguous = enter(&mut engine, "hfkn");
+    assert!(ambiguous.commit_text.is_empty());
+    assert_eq!(ambiguous.candidates[1].display_text, "困难");
+    assert_eq!(engine.select_candidate(1).unwrap().commit_text, "很困难");
+}
+
+#[test]
+fn reverse_split_formal_symbol_halves_and_missing_category_fallback() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 5)).unwrap();
+    engine
+        .configure_code_table_commit_policy(4, 4, true)
+        .unwrap();
+    engine
+        .set_code_table_categories(vec!["core".to_owned(), "symbol".to_owned()])
+        .unwrap();
+    for (code, expected) in [("hfoi", "很😊"), ("oihf", "😊很")] {
+        let state = enter(&mut engine, code);
+        assert_eq!(state.commit_text, expected, "{code}");
+        assert!(state.raw_input.is_empty());
+    }
+    engine
+        .set_code_table_categories(vec!["core".to_owned()])
+        .unwrap();
+    for clear_length in [4, 12] {
+        engine
+            .configure_code_table_commit_policy(4, clear_length, true)
+            .unwrap();
+        let state = enter(&mut engine, "hfoi");
+        assert!(state.commit_text.is_empty());
+        assert!(state.candidates.is_empty());
+        assert_eq!(state.raw_input, if clear_length == 4 { "" } else { "hfoi" });
+        engine.reset();
+    }
+}
+
 fn workspace() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
@@ -121,22 +456,19 @@ fn production_guide_exposes_repeat_pair_undo_and_line_end_actions() {
     let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9))
         .expect("formal engine");
 
-    for (code, expected_label) in [("f", "重复"), ("i", "[撤销]"), ("j", "“”"), ("n", "[End]")]
-    {
+    for code in ["f", "i", "j", "n"] {
         engine.reset();
         let state = enter(&mut engine, &format!(";{code}"));
-        assert_eq!(state.candidates[0].text, expected_label);
-        let selected = engine
-            .select_candidate(0)
-            .expect("select production action");
+        assert!(state.raw_input.is_empty(), "guide code {code}");
+        assert!(state.candidates.is_empty(), "guide code {code}");
         match code {
-            "f" => assert_eq!(selected.action, Some(ProtocolAction::RepeatCommit)),
-            "i" => assert_eq!(selected.action, Some(ProtocolAction::UndoCommit)),
+            "f" => assert_eq!(state.action, Some(ProtocolAction::RepeatCommit)),
+            "i" => assert_eq!(state.action, Some(ProtocolAction::UndoCommit)),
             "j" => assert!(matches!(
-                selected.action,
+                state.action,
                 Some(ProtocolAction::InsertPair { .. })
             )),
-            "n" => assert_eq!(selected.action, Some(ProtocolAction::MoveLineEnd)),
+            "n" => assert_eq!(state.action, Some(ProtocolAction::MoveLineEnd)),
             _ => unreachable!(),
         }
     }
@@ -1020,9 +1352,149 @@ fn switching_between_formal_and_xiaohe_resets_backend_state() {
     assert!(committed.raw_input.is_empty());
 
     let guide = enter(&mut engine, ";f");
-    assert_eq!(guide.candidates[0].text, "重复");
-    let selected = engine
-        .select_candidate(0)
-        .expect("select restored production guide action");
-    assert_eq!(selected.action, Some(ProtocolAction::RepeatCommit));
+    assert!(guide.raw_input.is_empty());
+    assert!(guide.candidates.is_empty());
+    assert_eq!(guide.action, Some(ProtocolAction::RepeatCommit));
 }
+
+#[test]
+fn user_external_shortcuts_confirm_at_four_codes_or_by_selection_without_text() {
+    let path = temporary_user_file("external-shortcuts");
+    fs::write(&path, "https://example.com/Help?q=a,b#Part\tzzweb#网页\t帮助网页\nfile://docs/storage/Users/currentUser/Documents\tzzda#目录\t工作目录\n").unwrap();
+    let mut engine = ImeEngine::new(config(
+        "xiaohe-yinxing",
+        Some(formal_bundle()),
+        Some(path),
+        9,
+    ))
+    .unwrap();
+    engine
+        .configure_code_table_commit_policy(4, 4, true)
+        .unwrap();
+    for (code, label, action, target) in [
+        (
+            "zzweb",
+            "帮助网页",
+            "url.open",
+            "https://example.com/Help?q=a,b#Part",
+        ),
+        (
+            "zzda",
+            "工作目录",
+            "directory.open",
+            "file://docs/storage/Users/currentUser/Documents",
+        ),
+    ] {
+        engine.reset();
+        let state = enter(&mut engine, code);
+        assert!(state.commit_text.is_empty());
+        let selected = if code.len() == 4 {
+            assert!(state.raw_input.is_empty());
+            assert!(state.candidates.is_empty());
+            state
+        } else {
+            assert!(state.action.is_none());
+            let index = state.candidates.iter().position(|candidate| candidate.text == target).unwrap();
+            assert_eq!(state.candidates[index].display_text, label);
+            assert_eq!(state.candidates[index].source, "functional");
+            engine.select_candidate(index).unwrap()
+        };
+        assert!(selected.commit_text.is_empty());
+        assert_eq!(
+            selected.action,
+            Some(ProtocolAction::DirectControl {
+                action: action.to_owned(),
+                target: target.to_owned()
+            })
+        );
+        engine.reset();
+        enter(&mut engine, code);
+        let continued = engine.process_key('z');
+        assert!(continued.commit_text.is_empty());
+        assert!(continued.action.is_none());
+    }
+}
+
+#[test]
+fn convenience_input_bypasses_production_auto_commit_and_preserves_normal_codes() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9)).unwrap();
+    for c in "=1234.5".chars() {
+        let state = engine.process_key(c);
+        assert!(state.success);
+        assert!(state.commit_text.is_empty());
+    }
+    assert_eq!(
+        engine.current_state().candidates[0].text,
+        "壹仟贰佰叁拾肆元伍角整"
+    );
+    assert_eq!(
+        engine.select_candidate(0).unwrap().commit_text,
+        "壹仟贰佰叁拾肆元伍角整"
+    );
+    for c in "'2026.5.5".chars() {
+        engine.process_key(c);
+    }
+    assert_eq!(
+        engine.select_candidate(1).unwrap().commit_text,
+        "2026-05-05"
+    );
+    for c in "ofa".chars() {
+        engine.process_key(c);
+    }
+    assert_eq!(engine.current_state().candidates.len(), 3);
+    engine.reset();
+    engine.process_key('=');
+    engine.change_scheme("xiaohe").unwrap();
+    assert!(engine.current_state().raw_input.is_empty());
+}
+
+#[test]
+fn xhgw_executes_on_the_unique_fourth_key_and_does_not_reexecute_afterward() {
+    let mut engine = ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 9)).unwrap();
+    for key in "xhg".chars() {
+        let prefix = engine.process_key(key);
+        assert!(prefix.action.is_none());
+        assert!(prefix.commit_text.is_empty());
+    }
+    let fourth = engine.process_key('w');
+    assert!(fourth.success);
+    assert!(fourth.raw_input.is_empty());
+    assert!(fourth.candidates.is_empty());
+    assert!(fourth.commit_text.is_empty());
+    assert_eq!(fourth.action, Some(ProtocolAction::DirectControl {
+        action: "url.open".to_owned(), target: "flypy-home".to_owned()
+    }));
+    assert!(engine.current_state().action.is_none());
+    assert!(engine.process_key('n').action.is_none());
+}
+
+#[test]
+fn clipboard_reverse_ofi_is_a_functional_candidate_and_lookup_does_not_commit() {
+    let mut engine =
+        ImeEngine::new(config("xiaohe-yinxing", Some(formal_bundle()), None, 5)).unwrap();
+    let result = enter(&mut engine, "ofi");
+    let index = result
+        .candidates
+        .iter()
+        .position(|candidate| candidate.text == "[复制反查]")
+        .unwrap();
+    assert_eq!(result.candidates[index].source, "functional");
+    assert!(result.commit_text.is_empty());
+    assert!(result.action.is_none());
+    let codes = engine.reverse_lookup("你");
+    assert!(codes.iter().any(|code| code == "nirx"), "{codes:?}");
+    assert_eq!(engine.current_state().raw_input, "ofi");
+    let selected = engine.select_candidate(index).unwrap();
+    assert!(selected.commit_text.is_empty());
+    assert_eq!(
+        selected.action,
+        Some(ProtocolAction::DirectControl {
+            action: "clipboard.reverse".to_owned(),
+            target: String::new(),
+        })
+    );
+    let phonetic = ImeEngine::new(config("xiaohe", Some(formal_bundle()), None, 5)).unwrap();
+    assert!(phonetic.reverse_lookup("你").is_empty());
+}
+

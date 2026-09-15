@@ -11,6 +11,290 @@ use user_lexicon::{parse_user_lexicon_bytes, UserLexiconSnapshot};
 
 const HEADER_LEN: usize = 128;
 
+fn split_state(
+    entries: Vec<(&'static str, &'static str)>,
+    page_size: usize,
+    limit: usize,
+) -> CodeTableStateMachine {
+    let mut machine = state_from_specs(
+        &[TableSpec {
+            id: "core",
+            order: 10,
+            enabled: true,
+            guide: false,
+            entries,
+        }],
+        page_size,
+        limit,
+    );
+    let mut policy = machine.commit_policy();
+    policy.reverse_split_enabled = true;
+    machine.set_commit_policy(policy).unwrap();
+    machine
+}
+
+fn split_example(page_size: usize, limit: usize) -> CodeTableStateMachine {
+    split_state(
+        vec![
+            ("很", "hf"),
+            ("狠", "hf"),
+            ("可能", "kn"),
+            ("困难", "kn"),
+            ("苦恼", "kn"),
+            ("你", "ni"),
+        ],
+        page_size,
+        limit,
+    )
+}
+
+#[test]
+fn reverse_split_defaults_to_traditional_and_preserves_empty_code_policy() {
+    assert!(!CodeTableCommitPolicy::default().reverse_split_enabled);
+    for clear_length in [4, 12] {
+        let mut machine = split_example(5, 64);
+        let mut policy = machine.commit_policy();
+        policy.reverse_split_enabled = false;
+        policy.empty_code_clear_length = clear_length;
+        machine.set_commit_policy(policy).unwrap();
+        input(&mut machine, "hfk");
+        assert!(machine.process_key('n').unwrap().commit_text.is_none());
+        assert_eq!(
+            machine.raw_code(),
+            if clear_length == 4 { "" } else { "hfkn" }
+        );
+        assert!(machine.all_candidates().is_empty());
+    }
+}
+
+#[test]
+fn reverse_split_unique_back_commits_front_first_including_symbols() {
+    for front in [vec![("很", "hf")], vec![("很", "hf"), ("狠", "hf")]] {
+        for back in ["可能", "☆"] {
+            let mut entries = front.clone();
+            entries.push((back, "kn"));
+            let mut machine = split_state(entries, 5, 64);
+            input(&mut machine, "hfk");
+            assert_eq!(
+                machine.process_key('n').unwrap().commit_text,
+                Some(format!("很{back}"))
+            );
+            assert!(machine.raw_code().is_empty());
+        }
+    }
+}
+
+#[test]
+fn reverse_split_starts_at_a_three_code_dead_end_as_two_plus_one() {
+    let mut machine = split_state(
+        vec![
+            ("简单", "jd"),
+            ("啊", "a"),
+            ("安装", "a"),
+            ("安", "an"),
+            ("后续词", "jdbx"),
+        ],
+        5,
+        64,
+    );
+
+    input(&mut machine, "jda");
+    assert_eq!(machine.raw_code(), "jda");
+    assert_eq!(candidate_texts(&machine), ["简单啊", "简单安装"]);
+    assert_eq!(
+        machine
+            .all_candidates()
+            .iter()
+            .map(|row| row.display_text.as_deref().unwrap())
+            .collect::<Vec<_>>(),
+        ["简单啊", "安装"]
+    );
+
+    let fourth = machine.process_key('n').unwrap();
+    assert_eq!(fourth.commit_text.as_deref(), Some("简单安"));
+    assert!(machine.raw_code().is_empty());
+
+    input(&mut machine, "jda");
+    let unrelated = machine.process_key('x').unwrap();
+    assert!(unrelated.commit_text.is_none());
+    assert!(machine.raw_code().is_empty());
+
+    machine.reset();
+    input(&mut machine, "jdb");
+    assert!(!machine.is_reverse_split());
+    assert_eq!(candidate_texts(&machine), ["后续词"]);
+    assert!(machine.has_valid_continuation());
+}
+
+#[test]
+fn reverse_split_three_code_exact_match_keeps_the_original_candidate() {
+    let mut machine = split_state(vec![("简单", "jd"), ("啊", "a"), ("三码词", "jda")], 5, 64);
+    input(&mut machine, "jda");
+    assert!(!machine.is_reverse_split());
+    assert_eq!(candidate_texts(&machine), ["三码词"]);
+}
+
+#[test]
+fn reverse_split_choice_display_and_commit_keep_the_fixed_front() {
+    let mut machine = split_example(5, 64);
+    for index in 0..3 {
+        input(&mut machine, "hfkn");
+        assert_eq!(candidate_texts(&machine), ["很可能", "很困难", "很苦恼"]);
+        assert_eq!(
+            machine
+                .all_candidates()
+                .iter()
+                .map(|row| row.display_text.as_deref().unwrap())
+                .collect::<Vec<_>>(),
+            ["很可能", "困难", "苦恼"]
+        );
+        assert!(machine
+            .all_candidates()
+            .iter()
+            .all(|row| row.code == "hfkn"));
+        assert_eq!(
+            machine.select_current_page(index).unwrap(),
+            CodeTableSelection::CommitText(["很可能", "很困难", "很苦恼"][index].to_owned())
+        );
+        assert!(machine.raw_code().is_empty());
+    }
+}
+
+#[test]
+fn reverse_split_fifth_key_commits_both_firsts_and_starts_next_code() {
+    let mut machine = split_example(1, 64);
+    input(&mut machine, "hfkn");
+    machine.next_page().unwrap();
+    assert_eq!(machine.current_candidates()[0].text, "很困难");
+    assert_eq!(
+        machine.process_key('n').unwrap().commit_text.as_deref(),
+        Some("很可能")
+    );
+    assert_eq!(machine.raw_code(), "n");
+    assert!(machine.process_key('i').unwrap().commit_text.is_none());
+    assert_eq!(machine.current_candidates()[0].text, "你");
+}
+
+#[test]
+fn reverse_split_display_limit_never_makes_ambiguous_back_unique() {
+    let mut machine = split_example(1, 1);
+    input(&mut machine, "hfk");
+    assert!(machine.process_key('n').unwrap().commit_text.is_none());
+    assert_eq!(machine.current_candidates().len(), 1);
+    assert_eq!(machine.exact_candidate_count(), 3);
+    assert!(!machine.is_unique_exact_match());
+    assert_eq!(machine.raw_code(), "hfkn");
+}
+
+#[test]
+fn reverse_split_pagination_and_backspace_do_not_lose_or_duplicate_prefix() {
+    let mut machine = split_example(2, 64);
+    input(&mut machine, "hfkn");
+    assert_eq!(machine.current_candidates().len(), 2);
+    machine.next_page().unwrap();
+    assert_eq!(
+        machine.select_current_page(0).unwrap(),
+        CodeTableSelection::CommitText("很苦恼".to_owned())
+    );
+    input(&mut machine, "hfkn");
+    machine.backspace();
+    assert_eq!(machine.raw_code(), "hfk");
+    assert!(machine.all_candidates().is_empty());
+    machine.process_key('n').unwrap();
+    assert_eq!(candidate_texts(&machine), ["很可能", "很困难", "很苦恼"]);
+}
+
+#[test]
+fn reverse_split_never_replaces_full_codes_or_valid_long_code_paths() {
+    for code in ["hfkn", "hfknx"] {
+        let mut machine = split_state(vec![("很", "hf"), ("可能", "kn"), ("原有词", code)], 5, 64);
+        input(&mut machine, "hfk");
+        let result = machine.process_key('n').unwrap();
+        if code.len() == 4 {
+            assert_eq!(result.commit_text.as_deref(), Some("原有词"));
+        } else {
+            assert!(result.commit_text.is_none());
+            assert_eq!(machine.raw_code(), "hfkn");
+            assert_eq!(
+                machine.process_key('x').unwrap().commit_text.as_deref(),
+                Some("原有词")
+            );
+        }
+    }
+}
+
+#[test]
+fn reverse_split_missing_exact_half_uses_original_empty_handling() {
+    for entries in [
+        vec![("很", "hf"), ("可能", "knx")],
+        vec![("很", "hfx"), ("可能", "kn")],
+    ] {
+        for clear_length in [4, 12] {
+            let mut machine = split_state(entries.clone(), 5, 64);
+            let mut policy = machine.commit_policy();
+            policy.empty_code_clear_length = clear_length;
+            machine.set_commit_policy(policy).unwrap();
+            input(&mut machine, "hfk");
+            assert!(machine.process_key('n').unwrap().commit_text.is_none());
+            assert_eq!(
+                machine.raw_code(),
+                if clear_length == 4 { "" } else { "hfkn" }
+            );
+        }
+    }
+}
+
+#[test]
+fn reverse_split_respects_user_order_deletion_and_snapshot_refresh() {
+    let mut machine = split_example(5, 64);
+    machine.set_user_lexicon_snapshot(snapshot("狠\thf#固\n困难\tkn#固\n"));
+    input(&mut machine, "hfkn");
+    assert_eq!(machine.current_candidates()[0].text, "狠困难");
+    machine.set_user_lexicon_snapshot(snapshot("很\thf#删\n狠\thf#删\n"));
+    assert!(machine.current_candidates().is_empty());
+    assert_eq!(machine.raw_code(), "hfkn");
+    machine.set_user_lexicon_snapshot(snapshot(""));
+    assert_eq!(machine.current_candidates()[0].text, "很可能");
+}
+
+#[test]
+fn reverse_split_respects_auto_commit_switch_and_mode_boundary() {
+    let mut machine = split_state(vec![("很", "hf"), ("可能", "kn")], 5, 64);
+    let mut policy = CodeTableCommitPolicy::new(64, 4, 4, 64).unwrap();
+    policy.reverse_split_enabled = true;
+    machine.set_commit_policy(policy).unwrap();
+    input(&mut machine, "hfkn");
+    assert_eq!(machine.raw_code(), "hfkn");
+    assert_eq!(
+        machine.process_key('h').unwrap().commit_text.as_deref(),
+        Some("很可能")
+    );
+    machine.reset();
+    input(&mut machine, "hfkn");
+    policy.reverse_split_enabled = false;
+    machine.set_commit_policy(policy).unwrap();
+    assert!(machine.raw_code().is_empty());
+    assert!(machine.all_candidates().is_empty());
+}
+
+#[test]
+fn oit_selects_traditional_or_split_without_committing_labels() {
+    let mut machine = split_example(5, 64);
+    machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+    for (index, target) in ["traditional", "split"].into_iter().enumerate() {
+        input(&mut machine, "oit");
+        assert_eq!(candidate_texts(&machine), ["[传统]", "[切分]"]);
+        assert_eq!(
+            machine.select_current_page(index).unwrap(),
+            CodeTableSelection::Action(FunctionalAction::DirectControl {
+                action: "settings.split-mode".to_owned(),
+                target: target.to_owned(),
+            })
+        );
+        assert!(machine.raw_code().is_empty());
+    }
+}
+
 #[derive(Clone)]
 struct TableSpec {
     id: &'static str,
@@ -106,12 +390,13 @@ fn production_direct_action_separates_candidate_label_from_committed_text() {
     let mut machine = state(8, 64);
     machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
 
-    input(&mut machine, "jysi");
-    assert_eq!(machine.current_candidates()[0].text, "『静夜思』");
-    assert_eq!(machine.current_candidates()[0].code, "jysi");
+    input(&mut machine, "jys");
+    let fourth = machine.process_key('i').unwrap();
+    assert!(machine.raw_code().is_empty());
+    assert!(machine.current_candidates().is_empty());
     assert_eq!(
-        machine.select_current_page(0).unwrap(),
-        CodeTableSelection::CommitText(
+        fourth.commit_text,
+        Some(
             "　　　静夜思·李白\r\n床前明月光，疑是地上霜。\r\n举头望明月，低头思故乡。\r\n"
                 .to_owned()
         )
@@ -131,13 +416,15 @@ fn production_actions_keep_guide_and_direct_scopes_isolated() {
 
     let mut guide = state(8, 64);
     guide.set_action_table(Some(actions));
-    input(&mut guide, ";p");
-    assert_eq!(guide.current_candidates()[0].text, "〈〉");
+    guide.process_key(';').unwrap();
+    let outcome = guide.process_key('p').unwrap();
     assert!(matches!(
-        guide.select_current_page(0).unwrap(),
-        CodeTableSelection::Action(FunctionalAction::InsertPair { ref text, cursor_offset_utf16: 1 })
+        outcome.action,
+        Some(FunctionalAction::InsertPair { ref text, cursor_offset_utf16: 1 })
             if text == "〈〉"
     ));
+    assert_eq!(guide.input_state(), CodeTableInputState::Idle);
+    assert!(guide.current_candidates().is_empty());
 }
 
 #[test]
@@ -203,10 +490,13 @@ fn production_direct_actions_expose_typed_category_presets_and_dynamic_values() 
 
     let mut open_url = state(8, 64);
     open_url.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
-    input(&mut open_url, "xhgw");
+    input(&mut open_url, "xhg");
+    let fourth = open_url.process_key('w').unwrap();
+    assert!(open_url.raw_code().is_empty());
+    assert!(fourth.commit_text.is_none());
     assert!(matches!(
-        open_url.select_current_page(0).unwrap(),
-        CodeTableSelection::Action(FunctionalAction::DirectControl { ref action, ref target })
+        fourth.action,
+        Some(FunctionalAction::DirectControl { ref action, ref target })
             if action == "url.open" && target == "flypy-home"
     ));
 }
@@ -2076,3 +2366,54 @@ fn stage11_6_7_deterministic_mixed_sequences_preserve_commit_and_length_invarian
         }
     }
 }
+
+#[test]
+fn four_code_direct_waits_for_real_ambiguity_or_continuation_even_with_one_visible_item() {
+    for entries in [vec![("同码词", "xhgw")], vec![("更长编码", "xhgwa")]] {
+        let mut machine = state_from_specs(&[TableSpec {
+            id: "core", order: 10, enabled: true, guide: false, entries,
+        }], 1, 1);
+        machine.set_action_table(Some(Arc::new(FunctionalActionTable::production_defaults())));
+        input(&mut machine, "xhg");
+        let fourth = machine.process_key('w').unwrap();
+        assert!(fourth.action.is_none());
+        assert!(fourth.commit_text.is_none());
+        assert_eq!(machine.raw_code(), "xhgw");
+    }
+}
+
+#[test]
+fn clipboard_reverse_lookup_keeps_composition_and_includes_hidden_full_codes() {
+    let mut machine = state_from_specs(
+        &[
+            TableSpec {
+                id: "core",
+                order: 10,
+                enabled: true,
+                guide: false,
+                entries: vec![("你", "n"), ("你", "ni"), ("你好", "nihk"), ("𠮷", "abcd")],
+            },
+            TableSpec {
+                id: "full-code-character",
+                order: 20,
+                enabled: false,
+                guide: false,
+                entries: vec![("你", "nirx"), ("你", "ni")],
+            },
+        ],
+        1,
+        1,
+    );
+    input(&mut machine, "n");
+    let before = machine.query_cache().cloned();
+    assert_eq!(machine.reverse_lookup("你"), ["nirx", "ni", "n"]);
+    assert_eq!(machine.reverse_lookup("𠮷"), ["abcd"]);
+    for text in ["", "你好", "n", "😀", " 你", "你\n", "龘"] {
+        assert!(machine.reverse_lookup(text).is_empty(), "{text}");
+    }
+    assert_eq!(machine.raw_code(), "n");
+    assert_eq!(machine.query_cache(), before.as_ref());
+    machine.set_user_lexicon_snapshot(snapshot("你\tni#删\n你\tniru\n"));
+    assert_eq!(machine.reverse_lookup("你"), ["niru", "nirx", "n"]);
+}
+

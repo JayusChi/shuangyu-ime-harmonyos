@@ -1,6 +1,7 @@
+import { isConvenienceInput } from '../keyboard/ConvenienceInput';
 import { XIAOHE_YINXING_SCHEME_ID } from '../settings/ImeSettings';
 import { Candidate } from '../../infrastructure/native/NativeEngineTypes';
-import { MIN_CANDIDATES_FOR_EXPANSION } from './CandidateExpansionPolicy';
+import { DEFAULT_CANDIDATE_DISPLAY_COUNT } from '../settings/ImeSettings';
 
 /**
  * 候选 UI 必须按方案显式分流，不能再从候选数量或分页字段反推方案语义。
@@ -49,21 +50,27 @@ export function resolveCandidateUiMode(schemeId: string): CandidateUiMode {
 }
 
 /**
- * 小鹤双拼保留分页和展开浏览；小鹤音形通常只显示当前精确快照，
- * 但万能键查询会产生一组可浏览的单字候选，因此允许展开。
+ * 所有候选模式都允许浏览。是否真正显示展开入口只由可见候选数决定，
+ * 精准模式不能再把普通编码（例如 obh）误判为不可展开。
  */
-export function allowsCandidateBrowsing(mode: CandidateUiMode, rawInput: string = ''): boolean {
-  return mode === CandidateUiMode.BROWSABLE ||
-    (mode === CandidateUiMode.PRECISE_MATCH && isUniversalInput(rawInput));
+export function allowsCandidateBrowsing(mode: CandidateUiMode, _rawInput: string = ''): boolean {
+  return mode === CandidateUiMode.BROWSABLE || mode === CandidateUiMode.PRECISE_MATCH;
 }
 
 export function shouldShowCandidateExpansionAction(
   mode: CandidateUiMode,
   candidateCount: number,
-  rawInput: string = ''
+  rawInput: string = '',
+  displayCount: number = DEFAULT_CANDIDATE_DISPLAY_COUNT,
+  hasNextPage: boolean = false,
+  contentOverflow: boolean = false
 ): boolean {
-  return allowsCandidateBrowsing(mode, rawInput) &&
-    candidateCount >= MIN_CANDIDATES_FOR_EXPANSION;
+  return allowsCandidateBrowsing(mode, rawInput) && candidateCount > 0 &&
+    (candidateCount > displayCount || hasNextPage || (contentOverflow && candidateCount > 1));
+}
+
+export function resolveCollapsedCandidates(candidates: Candidate[], displayCount: number): Candidate[] {
+  return candidates.slice(0, Math.max(1, displayCount));
 }
 
 export function isPreciseMatchHintCandidate(
@@ -119,8 +126,17 @@ export function resolveCandidateCodeHint(
   fullCode: string
 ): string {
   const inputCode = comparableInputCode(rawInput);
-  if (mode !== CandidateUiMode.PRECISE_MATCH || inputCode.length === 0 ||
-    fullCode.length <= inputCode.length || !fullCode.startsWith(inputCode)) {
+  if (mode !== CandidateUiMode.PRECISE_MATCH || inputCode.length === 0) {
+    return '';
+  }
+  const wildcardIndex = inputCode.indexOf('`');
+  if (wildcardIndex >= 0) {
+    // 万能键结果的 reading 是实际命中的完整码。展示第一个万能位开始的
+    // 实际编码，例如 kj`` 命中 kjtv 时显示 tv，避免只看到汉字却不知道
+    // 反引号具体替代了什么。
+    return fullCode.length > wildcardIndex ? fullCode.substring(wildcardIndex) : fullCode;
+  }
+  if (fullCode.length <= inputCode.length || !fullCode.startsWith(inputCode)) {
     return '';
   }
   return fullCode.substring(inputCode.length);
@@ -133,6 +149,13 @@ export function resolveCandidateEmptyFeedback(
   mode: CandidateUiMode,
   rawInput: string
 ): CandidateEmptyFeedback {
+  if (isConvenienceInput(rawInput)) {
+    return {
+      visible: true,
+      text: rawInput.length === 1 ? '数字、日期、算式或英文' : '请继续输入或检查格式',
+      accessibilityText: '便捷输入，可输入金额、年月日期、加减乘除算式或临时英文，退格可修改'
+    };
+  }
   if (mode !== CandidateUiMode.PRECISE_MATCH || rawInput.length === 0) {
     return HIDDEN_EMPTY_FEEDBACK;
   }
@@ -176,6 +199,9 @@ export function resolveCandidateAccessibilityText(
   }
   const codeHint = resolveCandidateCodeHint(mode, rawInput, fullCode);
   if (codeHint.length > 0) {
+    if (isUniversalInput(rawInput)) {
+      return `万能键候选，第 ${index + 1} 个，${text}，实际编码 ${codeHint}`;
+    }
     return `精准匹配提示，第 ${index + 1} 个，${text}，后续编码 ${codeHint}`;
   }
   const kind = rawInput.length >= 4 ? '完整码候选' : '精确简码候选';

@@ -454,7 +454,7 @@ try {
 
         $debugHap = Join-Path $repoRoot 'entry\build\artifacts\entry-debug-unsigned.hap'
         $unsignedHap = Join-Path $repoRoot 'entry\build\artifacts\entry-release-unsigned.hap'
-        $signedHap = Join-Path $repoRoot 'entry\build\default\outputs\default\entry-default-signed.hap'
+        $signedHap = Join-Path $repoRoot 'entry\build\release\outputs\default\entry-default-signed.hap'
         Assert-CurrentArtifact $debugHap 'internalDebug HAP'
         Assert-CurrentArtifact $unsignedHap 'unsigned Release HAP'
         Assert-CurrentArtifact $signedHap 'signed Release HAP'

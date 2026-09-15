@@ -13,6 +13,8 @@ import {
   SafeDeleteExecutor
 } from './ImeDeleteService';
 import { PairInsertionService, PairInsertResult } from './PairInsertionService';
+import { HarmonyPairCursorClient } from './PairCursorPositioner';
+import { LineEndCursorMover } from './LineEndCursorMover';
 import { ImeConnectionLifecycle } from './ImeConnectionLifecycle';
 import { resolveCurrentLineRange } from '../../domain/editor/CurrentLineRange';
 import {
@@ -40,8 +42,6 @@ export { PairInsertResult } from './PairInsertionService';
 const TAG = 'Stage0ImeConnection';
 const LOGGER = new Logger(TAG);
 
-const LINE_END_QUERY_UNITS = 4096;
-const LINE_END_QUERY_LIMIT = 128;
 const CURRENT_LINE_QUERY_UNITS = 4096;
 const COPY_DISPATCH_SETTLE_MS = 500;
 const EDITOR_ACTION_TEXT_QUERY_UNITS = 65536;
@@ -334,6 +334,9 @@ export class CurrentLineDeleteExecutor {
     if (!stillConnected()) {
       return undefined;
     }
+    if (await inputClient.getTextIndexAtCursor() !== cursor || !stillConnected()) {
+      return undefined;
+    }
     const range = resolveCurrentLineRange(
       cursor,
       before,
@@ -349,6 +352,7 @@ export class CurrentLineDeleteExecutor {
     const afterUnits = range.end - cursor;
     const beforeText = before.slice(before.length - beforeUnits);
     const afterText = after.slice(0, afterUnits);
+    const afterComplete = after.length < CURRENT_LINE_QUERY_UNITS;
     const record: DeletionRecoveryRecord = {
       text: beforeText + afterText,
       start: range.start,
@@ -361,17 +365,30 @@ export class CurrentLineDeleteExecutor {
     // names these APIs after the remaining-text direction: deleteBackward
     // removes text after the caret and deleteForward removes text before it.
     if (afterUnits > 0) {
-      const deletedAfter = await inputClient.deleteTextAfterCursor(afterUnits);
-      if (!deletedAfter || !stillConnected()) {
+      try {
+        await inputClient.deleteTextAfterCursor(afterUnits);
+      } catch (_err) {
+        // A host may apply the edit before reporting an error. Verify, never retry blindly.
+      }
+      if (!await this.waitForEditorState(inputClient, cursor, before, record.afterContext,
+        stillConnected, afterComplete)) {
         return undefined;
       }
     }
     if (beforeUnits > 0) {
-      const deletedBefore = await inputClient.deleteTextBeforeCursor(beforeUnits);
-      if (!deletedBefore || !stillConnected()) {
-        // The right half may already be gone. Restore it while we still own
-        // the same editor so a failed gesture never leaves a partial line.
-        if (afterText.length > 0 && stillConnected()) {
+      if (!stillConnected()) {
+        return undefined;
+      }
+      try {
+        await inputClient.deleteTextBeforeCursor(beforeUnits);
+      } catch (_err) {
+      }
+      if (!await this.waitForEditorState(inputClient, range.start,
+        record.beforeContext, record.afterContext, stillConnected, afterComplete)) {
+        // Roll back only at the confirmed intermediate state. An indeterminate
+        // or partially applied left deletion must never cause text duplication.
+        if (afterText.length > 0 && await this.matchesEditorState(
+          inputClient, cursor, before, record.afterContext, stillConnected, afterComplete)) {
           try {
             await inputClient.insertText(afterText);
           } catch (_rollbackErr) {
@@ -381,6 +398,49 @@ export class CurrentLineDeleteExecutor {
       }
     }
     return stillConnected() ? record : undefined;
+  }
+
+  private async waitForEditorState(
+    client: CurrentLineInputClient,
+    cursor: number,
+    before: string,
+    after: string,
+    stillConnected: () => boolean,
+    afterComplete: boolean
+  ): Promise<boolean> {
+    for (let attempt = 0; attempt < 10 && stillConnected(); attempt += 1) {
+      if (await this.matchesEditorState(client, cursor, before, after, stillConnected, afterComplete)) {
+        return true;
+      }
+      if (attempt < 9 && stillConnected()) {
+        await new Promise<void>((resolve: () => void) => setTimeout(resolve, 20));
+      }
+    }
+    return false;
+  }
+
+  private async matchesEditorState(
+    client: CurrentLineInputClient,
+    cursor: number,
+    before: string,
+    after: string,
+    stillConnected: () => boolean,
+    afterComplete: boolean
+  ): Promise<boolean> {
+    try {
+      if (!stillConnected() || await client.getTextIndexAtCursor() !== cursor) {
+        return false;
+      }
+      const observedBefore = await client.getTextBeforeCursor(Math.max(1, before.length));
+      if (!stillConnected() || observedBefore !== before) {
+        return false;
+      }
+      const observedAfter = await client.getTextAfterCursor(Math.max(1, after.length + (afterComplete ? 1 : 0)));
+      return stillConnected() && observedAfter === after &&
+        await client.getTextIndexAtCursor() === cursor && stillConnected();
+    } catch (_err) {
+      return false;
+    }
   }
 }
 
@@ -543,10 +603,12 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
 
   async jumpOutPair(generation: number = 0): Promise<boolean> {
     const inputClient = ImeConnectionService.inputClient;
+    const manager = ImeConnectionService.compositionTextManager;
     return this.pairInsertionService.jumpOut(
       inputClient,
       generation,
-      (): boolean => ImeConnectionService.inputClient === inputClient
+      (): boolean => ImeConnectionService.inputClient === inputClient &&
+        ImeConnectionService.compositionTextManager === manager
     );
   }
 
@@ -677,6 +739,25 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
     }
   }
 
+  async moveCursor(direction: inputMethodEngine.Direction): Promise<void> {
+    const inputClient = ImeConnectionService.inputClient;
+    if (!inputClient) {
+      LOGGER.error('move cursor failed: no input client');
+      throw new Error('editor cursor movement failed: no input client');
+    }
+    try {
+      await inputClient.moveCursor(direction);
+      if (ImeConnectionService.inputClient !== inputClient) {
+        throw new Error('input session changed during cursor movement');
+      }
+      this.clearDeletionRecovery();
+      LOGGER.info(`move cursor ok: direction=${direction}`);
+    } catch (err) {
+      LOGGER.warn(`move cursor failed: direction=${direction}`);
+      throw new Error(`editor cursor movement failed: ${JSON.stringify(err)}`);
+    }
+  }
+
   async getTextBeforeCursor(maxUnits: number): Promise<string | undefined> {
     const inputClient = ImeConnectionService.inputClient;
     if (!inputClient || !Number.isInteger(maxUnits) || maxUnits <= 0 || maxUnits > 4096) {
@@ -749,47 +830,10 @@ export class ImeConnectionService extends ImeConnectionLifecycle {
     if (!inputClient) {
       return false;
     }
-    let originalCursor: number = -1;
-    try {
-      originalCursor = await inputClient.getTextIndexAtCursor();
-      let cursor = originalCursor;
-      for (let attempt = 0; attempt < LINE_END_QUERY_LIMIT; attempt += 1) {
-        if (ImeConnectionService.inputClient !== inputClient) {
-          return false;
-        }
-        const after = await inputClient.getBackward(LINE_END_QUERY_UNITS);
-        const lf = after.indexOf('\n');
-        const cr = after.indexOf('\r');
-        let boundary = -1;
-        if (lf >= 0 && cr >= 0) {
-          boundary = Math.min(lf, cr);
-        } else {
-          boundary = Math.max(lf, cr);
-        }
-        if (boundary >= 0) {
-          const target = cursor + boundary;
-          await inputClient.selectByRange({ start: target, end: target });
-          return ImeConnectionService.inputClient === inputClient;
-        }
-        const target = cursor + after.length;
-        if (after.length < LINE_END_QUERY_UNITS) {
-          await inputClient.selectByRange({ start: target, end: target });
-          return ImeConnectionService.inputClient === inputClient;
-        }
-        await inputClient.selectByRange({ start: target, end: target });
-        cursor = target;
-      }
-    } catch (err) {
-      LOGGER.warn('move to line end failed');
-    }
-    if (originalCursor >= 0 && ImeConnectionService.inputClient === inputClient) {
-      try {
-        await inputClient.selectByRange({ start: originalCursor, end: originalCursor });
-      } catch (restoreErr) {
-        LOGGER.warn('move to line end cursor restore failed');
-      }
-    }
-    return false;
+    const manager = ImeConnectionService.compositionTextManager;
+    return new LineEndCursorMover().move(new HarmonyPairCursorClient(inputClient),
+      (): boolean => ImeConnectionService.inputClient === inputClient &&
+        ImeConnectionService.compositionTextManager === manager);
   }
 
   async deleteCurrentLine(): Promise<boolean> {

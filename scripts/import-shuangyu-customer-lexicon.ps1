@@ -2,7 +2,8 @@
     [string]$ProjectRoot = '',
     [string]$ReceivedDirectory = '',
     [string]$CleanedDirectory = '',
-    [switch]$UpdateProject
+    [switch]$UpdateProject,
+    [switch]$DirectActionsOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -112,7 +113,28 @@ function Write-Utf8Lf([string]$Path, [string[]]$Lines, [switch]$NoFinalNewline) 
     if (-not $NoFinalNewline -and $Lines.Count -gt 0) {
         $text += "`n"
     }
-    [IO.File]::WriteAllText($Path, $text, $utf8NoBom)
+    # Avoid truncating files currently mapped by the editor or build tools.
+    # Identical output keeps its timestamp; changed output replaces one file atomically.
+    $targetPath = [IO.Path]::GetFullPath($Path)
+    if ([IO.File]::Exists($targetPath) -and
+        ([IO.FileInfo]$targetPath).Length -eq $utf8NoBom.GetByteCount($text) -and
+        [IO.File]::ReadAllText($targetPath, $strictUtf8) -ceq $text) {
+        return
+    }
+    $temporaryPath = $targetPath + '.import-' + [Guid]::NewGuid().ToString('N') + '.tmp'
+    if ([IO.Path]::GetDirectoryName($temporaryPath) -cne [IO.Path]::GetDirectoryName($targetPath)) {
+        throw 'Temporary import output must stay in the target directory'
+    }
+    try {
+        [IO.File]::WriteAllText($temporaryPath, $text, $utf8NoBom)
+        if ([IO.File]::Exists($targetPath)) {
+            [IO.File]::Replace($temporaryPath, $targetPath, $null)
+        } else {
+            [IO.File]::Move($temporaryPath, $targetPath)
+        }
+    } finally {
+        if ([IO.File]::Exists($temporaryPath)) { [IO.File]::Delete($temporaryPath) }
+    }
 }
 
 function Convert-DirectActionRows([string[]]$Rows) {
@@ -144,11 +166,14 @@ function Convert-DirectActionRows([string[]]$Rows) {
             label = $label
         }
         switch -CaseSensitive ($operation) {
+            'querycode' { $record.type = 'DIRECT_CONTROL'; $record.action = 'clipboard.reverse'; $record.target = ''; $record.label = '[复制反查]' }
+            '$CC(default(dict.rev(clip()), "[复制反查]"), type(dict.rev(clip())))' { $record.type = 'DIRECT_CONTROL'; $record.action = 'clipboard.reverse'; $record.target = ''; $record.label = '[复制反查]' }
             '{time}:yyyy年M月d日' { $record.type = 'DATE_TIME_TEXT'; $record.formatId = 'DATE_LOCAL_UNPADDED' }
             '{time}:yyyy-MM-dd' { $record.type = 'DATE_TIME_TEXT'; $record.formatId = 'DATE_ISO' }
             '{cttg}:yMdHm' { $record.type = 'DATE_TIME_TEXT'; $record.formatId = 'LUNAR_DATE_FESTIVAL' }
             '{time}:HH:mm ddd' { $record.type = 'DATE_TIME_TEXT'; $record.formatId = 'TIME_WEEKDAY' }
             '{time}:H点m分' { $record.type = 'DATE_TIME_TEXT'; $record.formatId = 'TIME_LOCAL_HM' }
+            'run(https://flypy.cc/ix/?q={cursorbefore}{clip})' { $record.type = 'DIRECT_CONTROL'; $record.action = 'url.open'; $record.target = 'flypy-shape' }
             'run(https://flypy.cc)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'url.open'; $record.target = 'flypy-home' }
             'run(https://flypy.cc/help)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'url.open'; $record.target = 'flypy-help' }
             'run(https://flypy.cc/help/#/sj)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'url.open'; $record.target = 'flypy-help-mobile' }
@@ -167,6 +192,29 @@ function Convert-DirectActionRows([string[]]$Rows) {
             'set(ime-maxcleancount=12)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.empty-clear'; $record.target = '12'; $record.label = '[空码不清]' }
             'set(ime-dinglen=4)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.commit-policy'; $record.target = 'top-screen' }
             'set(ime-dinglen=4;ime-aotu=4)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.commit-policy'; $record.target = 'auto-commit' }
+            'set(ime-split=0)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.split-mode'; $record.target = 'traditional' }
+            'set(ime-split=1)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.split-mode'; $record.target = 'split' }
+            'set(ime-candidate-position=bar)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.candidate-position'; $record.target = 'bar' }
+            'set(ime-candidate-position=floating)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.candidate-position'; $record.target = 'floating' }
+            'set(ime-keyboard-height=default)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-height'; $record.target = 'default' }
+            'set(ime-keyboard-height=increase)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-height'; $record.target = 'increase' }
+            'set(ime-keyboard-height=decrease)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-height'; $record.target = 'decrease' }
+            'set(ime-keyboard-font=default)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-font'; $record.target = 'default' }
+            'set(ime-keyboard-font=increase)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-font'; $record.target = 'increase' }
+            'set(ime-keyboard-font=decrease)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-font'; $record.target = 'decrease' }
+            'set(ime-candidate-font=default)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.candidate-font'; $record.target = 'default' }
+            'set(ime-candidate-font=increase)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.candidate-font'; $record.target = 'increase' }
+            'set(ime-candidate-font=decrease)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.candidate-font'; $record.target = 'decrease' }
+            'set(ime-floating-font=default)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.floating-font'; $record.target = 'default' }
+            'set(ime-floating-font=increase)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.floating-font'; $record.target = 'increase' }
+            'set(ime-floating-font=decrease)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.floating-font'; $record.target = 'decrease' }
+            'set(ime-keyboard-profile=quanpin-26)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-profile'; $record.target = 'quanpin-26' }
+            'set(ime-keyboard-profile=xiaohe-26)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-profile'; $record.target = 'xiaohe-26' }
+            'set(ime-keyboard-profile=xiaohe-yinxing-26)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.keyboard-profile'; $record.target = 'xiaohe-yinxing-26' }
+            'set(ime-haptic=enabled)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.haptic'; $record.target = 'enabled' }
+            'set(ime-haptic=disabled)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.haptic'; $record.target = 'disabled' }
+            'set(ime-key-sound=enabled)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.key-sound'; $record.target = 'enabled' }
+            'set(ime-key-sound=disabled)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'settings.key-sound'; $record.target = 'disabled' }
             'set(ime-usedassisttype=-全码词-全码字-生僻字)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'category.preset'; $record.target = 'experienced' }
             'set(ime-usedassisttype=+全码词-全码字-生僻字)' { $record.type = 'DIRECT_CONTROL'; $record.action = 'category.preset'; $record.target = 'standard' }
             'set(ime-usedassisttype=+全码词+全码字+生僻字' { $record.type = 'DIRECT_CONTROL'; $record.action = 'category.preset'; $record.target = 'beginner' }
@@ -175,11 +223,13 @@ function Convert-DirectActionRows([string[]]$Rows) {
             'https://flypy.cc' { $record.type = 'STATIC_TEXT'; $record.text = $operation }
             default {
                 if (($operation.Contains('\r\n') -or $operation.StartsWith('　')) -and
-                    -not $operation.Contains('$cmd') -and -not $operation.Contains('$ddcmd')) {
+                    -not $operation.Contains('$cmd') -and -not $operation.Contains('$ddcmd') -and
+                    -not $operation.ToLowerInvariant().Contains('$cc(')) {
                     $record.type = 'STATIC_TEXT'
                     $record.text = $operation.Replace('\r\n', "`r`n")
                 } elseif (-not $syntax.StartsWith('$cmd(') -and -not $syntax.Contains('://') -and
-                    -not $syntax.Contains('$cmd') -and -not $syntax.Contains('$ddcmd')) {
+                    -not $syntax.Contains('$cmd') -and -not $syntax.Contains('$ddcmd') -and
+                    -not $syntax.ToLowerInvariant().Contains('$cc(')) {
                     $record.type = 'STATIC_TEXT'
                     $record.text = $syntax
                 } else {
@@ -350,6 +400,7 @@ $formalFiles = [ordered]@{
 }
 
 foreach ($entry in $cleanedFiles.GetEnumerator()) {
+    if ($DirectActionsOnly -and $entry.Key -ne '5.直通.txt') { continue }
     Write-Utf8Lf (Join-Path $cleanedPath $entry.Key) @($entry.Value)
 }
 
@@ -406,6 +457,7 @@ Write-Utf8Lf (Join-Path $cleanedPath '清理说明.md') $report
 
 if ($UpdateProject) {
     foreach ($entry in $formalFiles.GetEnumerator()) {
+        if ($DirectActionsOnly) { continue }
         Write-Utf8Lf (Join-Path $formalSourcePath $entry.Key) @($entry.Value)
     }
     $runtimeActionPath = Join-Path $projectPath 'engine-rust\crates\code-table-runtime\data\production-direct-actions.json'

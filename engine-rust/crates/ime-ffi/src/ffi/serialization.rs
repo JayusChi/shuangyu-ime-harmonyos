@@ -59,6 +59,8 @@ fn user_lexicon_document_json(report: &UserLexiconLoadReport) -> String {
             let (action, position) = match entry.action {
                 UserLexiconAction::Add => ("ADD", 0),
                 UserLexiconAction::Direct => ("DIRECT", 0),
+                UserLexiconAction::OpenUrl => ("OPEN_URL", 0),
+                UserLexiconAction::OpenDirectory => ("OPEN_DIRECTORY", 0),
                 UserLexiconAction::Delete => ("DELETE", 0),
                 UserLexiconAction::Fixed => ("FIXED", 0),
                 UserLexiconAction::Position(position) => ("POSITION", position),

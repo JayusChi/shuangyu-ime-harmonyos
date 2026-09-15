@@ -95,6 +95,37 @@ export default function pcHostInputCompatibilityTest() {
         .assertUndefined();
     });
 
+    it('covers the delayed 96 ms mirror observed on a HarmonyOS 6.1 phone', 0, () => {
+      const deduplicator = new PhysicalKeyEventDeduplicator();
+      const oDown = key(2031);
+      deduplicator.record(PhysicalKeyEventChannel.MODERN, oDown, true, 1000);
+
+      expect(deduplicator.findDuplicateDecision(PhysicalKeyEventChannel.LEGACY, oDown, 1096))
+        .assertTrue();
+    });
+
+    it('pairs delayed mirrors FIFO without suppressing rapid real repeats', 0, () => {
+      const deduplicator = new PhysicalKeyEventDeduplicator();
+      const oDown = key(2031);
+      const accepted: number[] = [];
+      const deliver = (channel: PhysicalKeyEventChannel, timestampMs: number): void => {
+        if (deduplicator.findDuplicateDecision(channel, oDown, timestampMs) !== undefined) {
+          return;
+        }
+        accepted.push(timestampMs);
+        deduplicator.record(channel, oDown, true, timestampMs);
+      };
+
+      deliver(PhysicalKeyEventChannel.MODERN, 2000);
+      deliver(PhysicalKeyEventChannel.MODERN, 2040);
+      deliver(PhysicalKeyEventChannel.LEGACY, 2096);
+      deliver(PhysicalKeyEventChannel.LEGACY, 2136);
+
+      expect(accepted.length).assertEqual(2);
+      expect(accepted[0]).assertEqual(2000);
+      expect(accepted[1]).assertEqual(2040);
+    });
+
     it('dispatches o then k once when each physical key arrives on both APIs', 0, () => {
       const deduplicator = new PhysicalKeyEventDeduplicator();
       const accepted: string[] = [];

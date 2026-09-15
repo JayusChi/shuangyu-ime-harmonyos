@@ -23,8 +23,15 @@ $expectedProductionLexiconSize = 24049458
 $expectedProductionLexiconSha256 = '005169f6050d45f93dd511d7de183338419419b67fb3556065b15432b0522a41'
 $expectedQuanpinContextModelSize = 64300
 $expectedQuanpinContextModelSha256 = '15b55101d77a87a64d2d414f96147291f7e260a138c98ecbea1d38af2f17b05f'
-$expectedYinxingBundleSize = 56104660
-$expectedYinxingBundleSha256 = '263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09'
+$expectedYinxingBundleSize = 56104310
+$expectedYinxingBundleSha256 = '7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0'
+$expectedInputMethodSubtypeIds = @(
+    'shuangyu_quanpin_zh_cn',
+    'shuangyu_zh_cn',
+    'shuangyu_yinxing_zh_cn',
+    'shuangyu_en_us'
+)
+$expectedInputMethodSubtypeModes = @('lower', 'double', 'wubi', 'lower')
 $releaseForbiddenPermissions = @(
     'ohos.permission.INTERNET',
     'ohos.permission.MICROPHONE'
@@ -47,6 +54,22 @@ function Stop-ReleaseGate([string]$RuleId, [string]$Path, [string]$Reason, [stri
     exit 1
 }
 
+function Assert-ApprovedWebPermission($ModuleProfile, [string]$Path) {
+    # User approved on 2026-09-11: an in-app Flypy webpage needs INTERNET.
+    # Keep the exception tied to the exact permission set and private web ability.
+    $permissions = @($ModuleProfile.module.requestPermissions | ForEach-Object { [string]$_.name } | Sort-Object)
+    $profile = @($ModuleProfile.module.metadata | Where-Object {
+        $_.name -eq 'shuangyu.web.permission.profile' -and $_.value -eq 'flypy-web-v1'
+    })
+    $webAbility = @($ModuleProfile.module.abilities | Where-Object {
+        $_.name -eq 'FlypyWebAbility' -and $_.exported -eq $false
+    })
+    if (($permissions -join '|') -ne 'ohos.permission.INTERNET|ohos.permission.VIBRATE' -or
+        $profile.Count -ne 1 -or $webAbility.Count -ne 1) {
+        Stop-ReleaseGate 'REL_NETWORK_PERMISSION' $Path 'Network permission does not match the approved flypy-web-v1 profile.' 'Restore the exact VIBRATE + INTERNET profile and non-exported FlypyWebAbility; microphone and other permissions remain unapproved.'
+    }
+}
+
 function Assert-ReleaseSourceInputs {
     if (-not (Test-Path -LiteralPath $sourceRoot -PathType Container)) {
         Stop-ReleaseGate 'REL_SOURCE_ROOT_MISSING' $sourceRoot 'Release source directory is missing' 'Restore the default Release source set.'
@@ -65,6 +88,12 @@ function Assert-ReleaseSourceInputs {
         foreach ($permission in $releaseForbiddenPermissions) {
             if ($content.Contains([string]$permission)) {
                 $relative = $file.FullName.Substring($sourceRoot.Length).TrimStart('\', '/')
+                if ($permission -eq 'ohos.permission.INTERNET' -and $relative -eq 'module.json5') {
+                    try { $profile = ($content -replace ',\s*([}\]])', '$1') | ConvertFrom-Json }
+                    catch { Stop-ReleaseGate 'REL_NETWORK_PERMISSION' $relative 'Cannot read network permission profile.' 'Restore valid module JSON.' }
+                    Assert-ApprovedWebPermission $profile $relative
+                    continue
+                }
                 Stop-ReleaseGate 'REL_NETWORK_PERMISSION' $relative "Release source declares forbidden permission '$permission'" 'Keep unapproved cloud and microphone capabilities disabled; add only a separately approved, exact product permission profile.'
             }
         }
@@ -84,6 +113,9 @@ function Assert-ReleaseSourceInputs {
 
     $moduleProfilePath = Join-Path $sourceRoot 'module.json5'
     $moduleProfileText = [IO.File]::ReadAllText($moduleProfilePath, [Text.Encoding]::UTF8)
+    if ($moduleProfileText -match '"name"\s*:\s*"ohos\.permission\.READ_PASTEBOARD"') {
+        Stop-ReleaseGate 'REL_INSTALL_CLIPBOARD_PERMISSION' 'module.json5' 'READ_PASTEBOARD prevents installation with the normal-APL signing profile (9568289).' 'Use the system PasteButton temporary grant instead of declaring READ_PASTEBOARD.'
+    }
     if ($moduleProfileText -notmatch '"name"\s*:\s*"ohos\.extension\.input_method"' -or
         $moduleProfileText -notmatch '"resource"\s*:\s*"\$profile:stage0_input_method"') {
         Stop-ReleaseGate 'REL_IME_SUBTYPE_METADATA' 'module.json5' 'Input-method subtype metadata is missing or references the wrong profile' 'Declare ohos.extension.input_method metadata with $profile:stage0_input_method.'
@@ -98,11 +130,21 @@ function Assert-ReleaseSourceInputs {
     } catch {
         Stop-ReleaseGate 'REL_IME_SUBTYPE_PROFILE_INVALID' 'resources/base/profile/stage0_input_method.json' 'Input-method subtype profile is not valid JSON' 'Restore a valid standard subtype profile.'
     }
-    $zhCnSubtypes = @($subtypeProfile.subtypes | Where-Object {
-        [string]$_.id -eq 'shuangyu_zh_cn' -and [string]$_.locale -eq 'zh-CN'
+    $actualSubtypeIds = @($subtypeProfile.subtypes | ForEach-Object { [string]$_.id })
+    if (($actualSubtypeIds -join '|') -ne ($expectedInputMethodSubtypeIds -join '|')) {
+        Stop-ReleaseGate 'REL_IME_SUBTYPE_SET' 'resources/base/profile/stage0_input_method.json' 'The ordered 全拼/双拼/音形/英文 subtype set is incomplete or invalid' 'Restore all four product input-method subtypes in the supported order.'
+    }
+    $invalidSubtypeLocales = @($subtypeProfile.subtypes | Where-Object {
+        $expectedLocale = if ([string]$_.id -eq 'shuangyu_en_us') { 'en-US' } else { 'zh-CN' }
+        [string]$_.locale -ne $expectedLocale
     })
-    if ($zhCnSubtypes.Count -ne 1) {
-        Stop-ReleaseGate 'REL_IME_ZH_CN_SUBTYPE' 'resources/base/profile/stage0_input_method.json' 'The required shuangyu_zh_cn / zh-CN subtype is missing or duplicated' 'Declare exactly one standard Chinese subtype.'
+    if ($invalidSubtypeLocales.Count -ne 0) {
+        Stop-ReleaseGate 'REL_IME_SUBTYPE_LOCALE' 'resources/base/profile/stage0_input_method.json' 'One or more input-method subtype locales are invalid' 'Use zh-CN for Chinese schemes and en-US for English.'
+    }
+    for ($index = 0; $index -lt $expectedInputMethodSubtypeModes.Count; $index++) {
+        if ([string]$subtypeProfile.subtypes[$index].mode -ne $expectedInputMethodSubtypeModes[$index]) {
+            Stop-ReleaseGate 'REL_IME_SUBTYPE_MODE' 'resources/base/profile/stage0_input_method.json' 'One or more input-method subtype modes are invalid' 'Use the platform-compatible lower/double/wubi/lower modes so the system picker selects exactly one item.'
+        }
     }
 
     $abilityPath = Join-Path $sourceRoot 'ets\inputmethod\Stage0InputMethodAbilityBase.ets'
@@ -121,13 +163,14 @@ function Assert-ReleaseResourceInputs {
     $approvedRawfiles = @(
         'rawfile/production.lex',
         'rawfile/quanpin-context-v2.qng',
-        'rawfile/xiaohe-yinxing-production.hsyx'
+        'rawfile/xiaohe-yinxing-production.hsyx',
+        'rawfile/keyboard-skin-editor.html'
     )
     $rawfiles = @(Get-ChildItem -LiteralPath $rawfileRoot -Recurse -File)
     foreach ($file in $rawfiles) {
         $relative = $file.FullName.Substring($resourceRoot.Length).TrimStart('\', '/').Replace('\', '/')
         if ($relative -notin $approvedRawfiles) {
-            Stop-ReleaseGate 'REL_RAWFILE_NOT_APPROVED' "resources/$relative" "Release rawfile '$relative' is not in the approved list" 'Only the audited production lexicon, quanpin context model, and Xiaohe Yinxing bundle are approved for Release.'
+            Stop-ReleaseGate 'REL_RAWFILE_NOT_APPROVED' "resources/$relative" "Release rawfile '$relative' is not in the approved list" 'Only the audited dictionaries and bundled offline skin editor are approved for Release.'
         }
     }
     $rawSourceFiles = @(Get-ChildItem -LiteralPath $resourceRoot -Recurse -File | Where-Object {
@@ -156,6 +199,12 @@ function Assert-ReleaseResourceInputs {
     if ($forbidden.Count -gt 0) {
         $paths = $forbidden | ForEach-Object { $_.FullName.Substring($repoRoot.Path.Length).TrimStart('\', '/') }
         Stop-ReleaseGate 'REL_FIXTURE_RESOURCE' ($paths -join ', ') 'Release resource inputs contain fixture, synthetic, test, or code-table assets' 'Keep these resources in tests or internalDebug only.'
+    }
+    $editorResource = Join-Path $rawfileRoot 'keyboard-skin-editor.html'
+    $editorSource = Join-Path $repoRoot 'tools\keyboard-customization-editor\standalone.html'
+    if (-not (Test-Path -LiteralPath $editorResource) -or
+        (Get-FileHash -LiteralPath $editorResource).Hash -ne (Get-FileHash -LiteralPath $editorSource).Hash) {
+        Stop-ReleaseGate 'REL_SKIN_EDITOR_RESOURCE' 'rawfile/keyboard-skin-editor.html' 'Bundled editor is missing or differs from standalone.html' 'Run tools/keyboard-customization-editor/build-editor.cjs before building.'
     }
     $productionLexicon = Join-Path $rawfileRoot 'production.lex'
     if (-not (Test-Path -LiteralPath $productionLexicon -PathType Leaf)) {
@@ -230,13 +279,40 @@ try {
     if ($null -eq $inputMethodMetadata) {
         Stop-ReleaseGate 'REL_HAP_IME_SUBTYPE_METADATA' 'module.json' 'Packaged input-method extension is missing standard subtype metadata' 'Restore the metadata and rebuild without stale profile outputs.'
     }
+    if (@($module.module.requestPermissions | Where-Object { $_.name -eq 'ohos.permission.READ_PASTEBOARD' }).Count -gt 0) {
+        Stop-ReleaseGate 'REL_INSTALL_CLIPBOARD_PERMISSION' 'module.json' 'Packaged READ_PASTEBOARD prevents installation with the normal-APL signing profile (9568289).' 'Remove the declaration and rebuild; use the system PasteButton temporary grant.'
+    }
     foreach ($permission in $releaseForbiddenPermissions) {
         if ($moduleText.Contains([string]$permission)) {
+            if ($permission -eq 'ohos.permission.INTERNET') {
+                Assert-ApprovedWebPermission $module 'module.json'
+                continue
+            }
             Stop-ReleaseGate 'REL_NETWORK_PERMISSION' 'module.json' "Release HAP declares forbidden permission '$permission'" 'Remove the network permission and rebuild.'
         }
     }
 
     $entryNames = @($entries | ForEach-Object { $_.FullName })
+    $editorEntry = $entries | Where-Object { $_.FullName -eq 'resources/rawfile/keyboard-skin-editor.html' } | Select-Object -First 1
+    if ($null -eq $editorEntry) {
+        Stop-ReleaseGate 'REL_HAP_SKIN_EDITOR' 'rawfile/keyboard-skin-editor.html' 'Bundled editor is missing from the HAP' 'Rebuild with the offline editor resource.'
+    }
+    $editorReader = [IO.StreamReader]::new($editorEntry.Open(), [Text.Encoding]::UTF8)
+    try { $editorText = $editorReader.ReadToEnd() } finally { $editorReader.Dispose() }
+    if ($editorText -cne [IO.File]::ReadAllText((Join-Path $rawfileRoot 'keyboard-skin-editor.html'))) {
+        Stop-ReleaseGate 'REL_HAP_SKIN_EDITOR' 'rawfile/keyboard-skin-editor.html' 'Packaged editor differs from the verified source' 'Clean and rebuild the HAP.'
+    }
+    if ($moduleText.Contains('ohos.permission.INTERNET')) {
+        $webPagesEntry = $entries | Where-Object { $_.FullName -eq 'resources/base/profile/main_pages.json' } | Select-Object -First 1
+        if ($null -eq $webPagesEntry) {
+            Stop-ReleaseGate 'REL_HAP_WEB_PAGE_MISSING' 'main_pages.json' 'Approved web ability has no packaged page profile.' 'Include pages/FlypyWeb in the default target source.pages.'
+        }
+        $webPagesReader = [IO.StreamReader]::new($webPagesEntry.Open(), [Text.Encoding]::UTF8)
+        try { $webPages = $webPagesReader.ReadToEnd() | ConvertFrom-Json } finally { $webPagesReader.Dispose() }
+        if (@($webPages.src) -notcontains 'pages/FlypyWeb') {
+            Stop-ReleaseGate 'REL_HAP_WEB_PAGE_MISSING' 'main_pages.json' 'Approved web ability page was excluded by the build target.' 'Include pages/FlypyWeb in the default target source.pages and rebuild.'
+        }
+    }
     $subtypeEntry = $entries | Where-Object {
         $_.FullName -eq 'resources/base/profile/stage0_input_method.json'
     } | Select-Object -First 1
@@ -249,21 +325,32 @@ try {
     } finally {
         $subtypeReader.Dispose()
     }
-    $packagedZhCnSubtypes = @($packagedSubtypeProfile.subtypes | Where-Object {
-        [string]$_.id -eq 'shuangyu_zh_cn' -and [string]$_.locale -eq 'zh-CN'
+    $packagedSubtypeIds = @($packagedSubtypeProfile.subtypes | ForEach-Object { [string]$_.id })
+    if (($packagedSubtypeIds -join '|') -ne ($expectedInputMethodSubtypeIds -join '|')) {
+        Stop-ReleaseGate 'REL_HAP_IME_SUBTYPE_SET' 'resources/base/profile/stage0_input_method.json' 'Packaged HAP does not contain the ordered 全拼/双拼/音形/英文 subtype set' 'Rebuild from the corrected subtype profile.'
+    }
+    $invalidPackagedSubtypeLocales = @($packagedSubtypeProfile.subtypes | Where-Object {
+        $expectedLocale = if ([string]$_.id -eq 'shuangyu_en_us') { 'en-US' } else { 'zh-CN' }
+        [string]$_.locale -ne $expectedLocale
     })
-    if ($packagedZhCnSubtypes.Count -ne 1) {
-        Stop-ReleaseGate 'REL_HAP_IME_ZH_CN_SUBTYPE' 'resources/base/profile/stage0_input_method.json' 'Packaged HAP does not contain exactly one shuangyu_zh_cn / zh-CN subtype' 'Rebuild from the corrected subtype profile.'
+    if ($invalidPackagedSubtypeLocales.Count -ne 0) {
+        Stop-ReleaseGate 'REL_HAP_IME_SUBTYPE_LOCALE' 'resources/base/profile/stage0_input_method.json' 'Packaged HAP contains an invalid input-method subtype locale' 'Rebuild from the corrected subtype profile.'
+    }
+    for ($index = 0; $index -lt $expectedInputMethodSubtypeModes.Count; $index++) {
+        if ([string]$packagedSubtypeProfile.subtypes[$index].mode -ne $expectedInputMethodSubtypeModes[$index]) {
+            Stop-ReleaseGate 'REL_HAP_IME_SUBTYPE_MODE' 'resources/base/profile/stage0_input_method.json' 'Packaged HAP contains an invalid input-method subtype mode' 'Rebuild from the corrected subtype profile.'
+        }
     }
     $packagedRawfiles = @($entryNames | Where-Object { $_ -like 'resources/rawfile/*' })
     $approvedHapRawfiles = @(
         'resources/rawfile/production.lex',
         'resources/rawfile/quanpin-context-v2.qng',
-        'resources/rawfile/xiaohe-yinxing-production.hsyx'
+        'resources/rawfile/xiaohe-yinxing-production.hsyx',
+        'resources/rawfile/keyboard-skin-editor.html'
     )
     foreach ($resource in $packagedRawfiles) {
         if ($resource -notin $approvedHapRawfiles) {
-            Stop-ReleaseGate 'REL_HAP_RAWFILE_NOT_APPROVED' $resource 'Release HAP contains an unapproved rawfile resource' 'Only the audited production lexicon, quanpin context model, and Xiaohe Yinxing bundle are approved.'
+            Stop-ReleaseGate 'REL_HAP_RAWFILE_NOT_APPROVED' $resource 'Release HAP contains an unapproved rawfile resource' 'Only the audited dictionaries and bundled offline skin editor are approved.'
         }
     }
     $forbiddenPackagedResources = @($entryNames | Where-Object {

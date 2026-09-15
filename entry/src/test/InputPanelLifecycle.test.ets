@@ -21,6 +21,7 @@ import { InputSessionStore } from '../main/ets/state/InputSessionStore';
 import { createScreenMetrics, ScreenMetricsPx } from '../main/ets/domain/display/ScreenMetrics';
 import { DeviceMetricsProvider } from '../main/ets/infrastructure/display/DeviceMetricsProvider';
 import { InputMethodLifecycleDispatcher } from '../main/ets/application/InputMethodLifecycleDispatcher';
+import { InputPresentationMode } from '../main/ets/domain/display/InputPresentationMode';
 
 class Deferred {
   private resolver?: () => void;
@@ -169,11 +170,88 @@ function createController(
 
 export default function inputPanelLifecycleTest() {
   describe('Input panel lifecycle serialization', () => {
+    it('binding a chat editor stays hidden until keyboardShow and can reopen after hide', 0, async () => {
+      const backend = new FakePanelBackend();
+      const controller = createController(backend);
+      controller.handleInputStart();
+      await controller.waitForLifecycleIdle();
+      expect(backend.createCount).assertEqual(0);
+      expect(backend.panel.showCount).assertEqual(0);
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.HIDDEN);
+
+      controller.showKeyboardPanel();
+      await controller.waitForLifecycleIdle();
+      expect(backend.panel.showCount).assertEqual(1);
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.VISIBLE);
+
+      controller.hideKeyboardPanel();
+      await controller.waitForLifecycleIdle();
+      controller.showKeyboardPanel();
+      await controller.waitForLifecycleIdle();
+      expect(backend.createCount).assertEqual(1);
+      expect(backend.panel.showCount).assertEqual(2);
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.VISIBLE);
+    });
+
+    it('a new chat binding hides the old panel and requires a fresh show request', 0, async () => {
+      const backend = new FakePanelBackend();
+      const controller = createController(backend);
+      controller.handleInputStart();
+      controller.showKeyboardPanel();
+      await controller.waitForLifecycleIdle();
+
+      controller.handleInputStart();
+      await controller.waitForLifecycleIdle();
+      expect(backend.panel.showCount).assertEqual(1);
+      expect(backend.panel.hideCount).assertEqual(1);
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.HIDDEN);
+
+      controller.showKeyboardPanel();
+      await controller.waitForLifecycleIdle();
+      expect(backend.panel.showCount).assertEqual(2);
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.VISIBLE);
+    });
+
+    it('new binding cancels a previous pending show without inheriting its request', 0, async () => {
+      const backend = new FakePanelBackend();
+      backend.panel.showGate = new Deferred();
+      const controller = createController(backend);
+      controller.handleInputStart();
+      controller.showKeyboardPanel();
+      await nextTask();
+      controller.handleInputStart();
+      backend.panel.showGate.resolve();
+      await controller.waitForLifecycleIdle();
+      expect(backend.panel.showCount).assertEqual(1);
+      expect(backend.panel.hideCount >= 1).assertTrue();
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.HIDDEN);
+    });
+
+    it('mode changes cannot show a bound editor without a pending platform request', 0, async () => {
+      const backend = new FakePanelBackend();
+      const controller = createController(backend);
+      controller.handleInputStart(InputPresentationMode.HARDWARE);
+      controller.handlePresentationModeChange(InputPresentationMode.TOUCH);
+      await controller.waitForLifecycleIdle();
+      expect(backend.createCount).assertEqual(0);
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.HIDDEN);
+
+      controller.showKeyboardPanel();
+      await controller.waitForLifecycleIdle();
+      controller.handlePresentationModeChange(InputPresentationMode.HARDWARE);
+      controller.hideKeyboardPanel();
+      controller.handlePresentationModeChange(InputPresentationMode.TOUCH);
+      await controller.waitForLifecycleIdle();
+      expect(backend.panel.showCount).assertEqual(1);
+      expect(controller.getLifecycleState()).assertEqual(PanelLifecycleState.HIDDEN);
+    });
+
     it('quick inputStart inputStop leaves panel hidden', 0, async () => {
       const backend = new FakePanelBackend();
       const controller = createController(backend);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       controller.handleInputStop();
       await controller.waitForLifecycleIdle();
 
@@ -187,9 +265,11 @@ export default function inputPanelLifecycleTest() {
       const controller = createController(backend);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await nextTask();
       controller.handleInputStop();
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       backend.createGate.resolve();
       await controller.waitForLifecycleIdle();
 
@@ -204,6 +284,7 @@ export default function inputPanelLifecycleTest() {
       const controller = createController(backend);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await nextTask();
       controller.handleInputStop();
       backend.createGate.resolve();
@@ -221,6 +302,7 @@ export default function inputPanelLifecycleTest() {
       controller.handleInputStart();
       controller.showKeyboardPanel();
       controller.showKeyboardPanel();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       expect(backend.createCount).assertEqual(1);
@@ -232,6 +314,7 @@ export default function inputPanelLifecycleTest() {
       const backend = new FakePanelBackend();
       const controller = createController(backend);
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       controller.handleInputStop();
@@ -247,6 +330,7 @@ export default function inputPanelLifecycleTest() {
       const backend = new FakePanelBackend();
       const controller = createController(backend);
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       controller.handleInputStop();
@@ -264,6 +348,7 @@ export default function inputPanelLifecycleTest() {
       const controller = createController(backend);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await nextTask();
       controller.handleInputStop();
       backend.panel.showGate.resolve();
@@ -280,6 +365,7 @@ export default function inputPanelLifecycleTest() {
       const controller = createController(backend);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await nextTask();
       controller.destroyPanel();
       backend.createGate.resolve();
@@ -296,6 +382,7 @@ export default function inputPanelLifecycleTest() {
       const controller = createController(backend, settingsStore);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
       expect(backend.panel.resizeCount).assertEqual(1);
       expect(backend.panel.resizeHeights[0]).assertEqual(1053);
@@ -324,6 +411,7 @@ export default function inputPanelLifecycleTest() {
         settingsReady
       );
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await nextTask();
       expect(backend.createCount).assertEqual(0);
 
@@ -340,6 +428,7 @@ export default function inputPanelLifecycleTest() {
       const settingsStore = new SettingsStore();
       const controller = createController(backend, settingsStore);
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       const compact = copyImeSettings(DEFAULT_IME_SETTINGS);
@@ -360,6 +449,7 @@ export default function inputPanelLifecycleTest() {
       const settingsStore = new SettingsStore();
       const controller = createController(backend, settingsStore);
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
       expect(backend.panel.resizeHeights[0]).assertEqual(1053);
 
@@ -377,6 +467,7 @@ export default function inputPanelLifecycleTest() {
       const settingsStore = new SettingsStore();
       const controller = createController(backend, settingsStore);
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
       const barHeight = backend.panel.resizeHeights[0];
 
@@ -400,6 +491,7 @@ export default function inputPanelLifecycleTest() {
       const settingsStore = new SettingsStore();
       const controller = createController(backend, settingsStore);
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       backend.panel.rejectResize = true;
@@ -417,6 +509,7 @@ export default function inputPanelLifecycleTest() {
       const controller = createController(backend, new SettingsStore(), landscape);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       expect(backend.panel.resizeCount).assertEqual(1);
@@ -432,6 +525,7 @@ export default function inputPanelLifecycleTest() {
       sessionController.setScreenMetrics(portrait);
       const controller = new InputPanelController(sessionController, new SettingsStore(), backend);
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       sessionController.setScreenMetrics(landscape);
@@ -453,6 +547,7 @@ export default function inputPanelLifecycleTest() {
       const controller = new InputPanelController(sessionController, new SettingsStore(), backend);
 
       controller.handleInputStart();
+      controller.showKeyboardPanel();
       await controller.waitForLifecycleIdle();
 
       expect(sessionController.getState().screenMetrics.bottomSystemInsetPx).assertEqual(900);

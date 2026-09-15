@@ -48,7 +48,7 @@ fn main() {
         .map(|code| (code.clone(), result_categories(&reference(&index, code))))
         .collect::<BTreeMap<_, _>>();
     println!(
-        "META\tbundle_sha256\t263f077c0602141c764ad1623d001bc128aae25471b450ba3bae51c68ab9bc09"
+        "META\tbundle_sha256\t7c936b7e451fffba4463306d03188addb772efc38b414a6d593ea2d618f48bf0"
     );
     println!("HEADER\tcase_id\traw_code\tmatch_type\tbefore_dedup\texpected_total_count\texpected_category_id\texpected_source_order\texpected_candidate_id\texpected_first_candidates\texpected_categories\tselection_reason");
 

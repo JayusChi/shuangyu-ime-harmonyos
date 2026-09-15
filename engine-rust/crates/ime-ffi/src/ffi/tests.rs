@@ -174,6 +174,33 @@ mod tests {
     }
 
     #[test]
+    fn clipboard_reverse_ffi_handles_invalid_utf8_size_and_handle() {
+        let mut handle = create_default_engine();
+        let mut out = ImeBuffer::empty();
+        unsafe {
+            assert_eq!(
+                ime_engine_reverse_lookup(handle, "你".as_ptr(), 3, &mut out),
+                0
+            );
+            assert_eq!(take_buffer(out), "[]");
+            out = ImeBuffer::empty();
+            assert_eq!(
+                ime_engine_reverse_lookup(handle, b"hello".as_ptr(), 5, &mut out),
+                ImeErrorCode::InvalidArgument.as_i32()
+            );
+            assert_ne!(
+                ime_engine_reverse_lookup(handle, [0xff].as_ptr(), 1, &mut out),
+                0
+            );
+            assert_eq!(
+                ime_engine_reverse_lookup(ptr::null_mut(), "你".as_ptr(), 3, &mut out),
+                ImeErrorCode::InvalidHandle.as_i32()
+            );
+        }
+        assert_eq!(ffi_destroy(&mut handle), 0);
+    }
+
+    #[test]
     fn local_association_ffi_is_bounded_json_and_defaults_empty() {
         let mut handle = create_default_engine();
         let mut out = ImeBuffer::empty();
@@ -685,16 +712,14 @@ mod tests {
             (b'n', "MOVE_LINE_END"),
         ] {
             let mut out = ImeBuffer::empty();
-            for key in [b';', code] {
-                assert_eq!(
-                    ime_engine_process_key(handle, &key, 1, &mut out),
-                    ImeErrorCode::Success.as_i32()
-                );
-                let _ = take_buffer(out);
-                out = ImeBuffer::empty();
-            }
             assert_eq!(
-                ime_engine_select_candidate(handle, 0, &mut out),
+                ime_engine_process_key(handle, b";".as_ptr(), 1, &mut out),
+                ImeErrorCode::Success.as_i32()
+            );
+            let _ = take_buffer(out);
+            out = ImeBuffer::empty();
+            assert_eq!(
+                ime_engine_process_key(handle, &code, 1, &mut out),
                 ImeErrorCode::Success.as_i32()
             );
             let json = take_buffer(out);
@@ -892,6 +917,38 @@ mod tests {
     }
 
     #[test]
+    fn reverse_split_policy_and_combined_selection_cross_the_ffi() {
+        let bundle = code_table_bundle_path().to_string_lossy().replace('\\', "\\\\");
+        let user_path = std::env::temp_dir().join(format!("reverse-split-ffi-{}.txt", std::process::id()));
+        fs::write(&user_path, "很\thf#固\n可能\tkn#固\n困难\tkn#2\n").unwrap();
+        let user = user_path.to_string_lossy().replace('\\', "\\\\");
+        let config = format!(r#"{{"interfaceVersion":11,"schemeId":"code-table-fixture","codeTableBundlePath":"{bundle}","userLexiconPath":"{user}","candidatePageSize":5}}"#);
+        let mut handle = ptr::null_mut();
+        assert_eq!(ffi_create(config.as_ptr(), config.len(), &mut handle), ImeErrorCode::Success.as_i32());
+        let mut out = ImeBuffer::empty();
+        for policy in [
+            r#"{"autoCommitLength":4,"emptyClearLength":4}"#,
+            r#"{"autoCommitLength":4,"emptyClearLength":4,"reverseSplitEnabled":true}"#,
+        ] {
+            assert_eq!(ime_engine_set_code_table_commit_policy(handle, policy.as_ptr(), policy.len(), &mut out), ImeErrorCode::Success.as_i32());
+            assert!(take_buffer(out).contains("\"success\":true"));
+        }
+        let mut json = String::new();
+        for key in b"hfkn" {
+            assert_eq!(ime_engine_process_key(handle, key, 1, &mut out), ImeErrorCode::Success.as_i32());
+            json = take_buffer(out);
+        }
+        assert!(json.contains("\"rawInput\":\"hfkn\""));
+        assert!(json.contains("\"text\":\"很困难\",\"displayText\":\"困难\""));
+        assert_eq!(ime_engine_select_candidate(handle, 1, &mut out), ImeErrorCode::Success.as_i32());
+        assert!(take_buffer(out).contains("\"commitText\":\"很困难\""));
+        let invalid = br#"{"autoCommitLength":4,"emptyClearLength":4,"reverseSplitEnabled":"true"}"#;
+        assert_ne!(ime_engine_set_code_table_commit_policy(handle, invalid.as_ptr(), invalid.len(), &mut out), ImeErrorCode::Success.as_i32());
+        assert!(out.data.is_null());
+        assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
+    }
+
+    #[test]
     fn null_outputs_and_handles_are_safe() {
         assert_eq!(
             ime_engine_get_version(ptr::null_mut()),
@@ -909,6 +966,29 @@ mod tests {
         );
         assert!(out.data.is_null());
         assert_eq!(out.len, 0);
+    }
+
+    #[test]
+    fn convenience_keys_cross_the_ffi_boundary() {
+        let mut handle=create_engine_with_lexicon(5);
+        let mut json=String::new();
+        for key in "=123+5*6".bytes() {
+            let mut out=ImeBuffer::empty();
+            assert_eq!(ime_engine_process_key(handle, [key].as_ptr(),1,&mut out),0);
+            json=take_buffer(out);
+        }
+        assert!(json.contains("123+5*6=153"));
+        assert!(json.contains("convenience"));
+        let mut out=ImeBuffer::empty();
+        assert_eq!(ime_engine_select_candidate(handle,1,&mut out),0);
+        assert!(take_buffer(out).contains("\"commitText\":\"153\""));
+        for key in "'Ab0.1".bytes(){
+            let mut out=ImeBuffer::empty();
+            assert_eq!(ime_engine_process_key(handle,[key].as_ptr(),1,&mut out),0);
+            json=take_buffer(out);
+        }
+        assert!(json.contains("Ab0.1"));
+        assert_eq!(ffi_destroy(&mut handle),0);
     }
 
     #[test]
@@ -932,7 +1012,7 @@ mod tests {
             ImeErrorCode::InvalidArgument.as_i32()
         );
         assert_eq!(
-            ime_engine_process_key(handle, b"1".as_ptr(), 1, &mut out),
+            ime_engine_process_key(handle, b"\t".as_ptr(), 1, &mut out),
             ImeErrorCode::InvalidArgument.as_i32()
         );
         assert_eq!(
@@ -1029,22 +1109,41 @@ mod tests {
 
     #[test]
     fn semantic_invalid_code_is_not_native_failure() {
+        // qg is a valid pair of abbreviated initials; ae remains invalid.
         let mut handle = create_engine_with_lexicon(5);
         let mut out = ImeBuffer::empty();
         assert_eq!(
-            ime_engine_process_key(handle, b"q".as_ptr(), 1, &mut out),
+            ime_engine_process_key(handle, b"a".as_ptr(), 1, &mut out),
             ImeErrorCode::Success.as_i32()
         );
         let _ = take_buffer(out);
 
         let mut out = ImeBuffer::empty();
         assert_eq!(
-            ime_engine_process_key(handle, b"g".as_ptr(), 1, &mut out),
+            ime_engine_process_key(handle, b"e".as_ptr(), 1, &mut out),
             ImeErrorCode::Success.as_i32()
         );
         let json = take_buffer(out);
         assert!(json.contains("\"success\":true"));
         assert!(json.contains("\"parserState\":\"invalid\""));
+        assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
+    }
+
+    #[test]
+    fn semantic_initial_pair_is_valid_across_ffi() {
+        let mut handle = create_engine_with_lexicon(5);
+        let mut json = String::new();
+        for key in [b"q", b"g"] {
+            let mut out = ImeBuffer::empty();
+            assert_eq!(
+                ime_engine_process_key(handle, key.as_ptr(), 1, &mut out),
+                ImeErrorCode::Success.as_i32()
+            );
+            json = take_buffer(out);
+        }
+        assert!(json.contains("\"success\":true"));
+        assert!(json.contains("\"parserState\":\"complete\""));
+        assert!(json.contains("\"parsedSyllables\":[\"q\",\"g\"]"));
         assert_eq!(ffi_destroy(&mut handle), ImeErrorCode::Success.as_i32());
     }
 
