@@ -92,7 +92,7 @@ build/outputs/default/HarmonyOS_Input-default-unsigned.app
 2. 将 `AppScope/app.json5` 中当前 `com.corrosion.shuangyuime`、vendor、`versionName/versionCode` 与 AGC 正式应用记录核对并保持一致；
 3. 确认 `build-profile.json5` 的本机 signing config 指向正确的发布证书/Profile/私钥库，且材料不进入仓库或交付包；
 4. 重新构建，并用签名检查工具验证 signed Release APP 的证书链、Profile 类型、包名和有效期；
-5. 按 [0.4.0 AGC 邀请测试上传说明](../artifacts/0.4.0/AGC_UPLOAD_README.md) 完成签名、ARM64 真机和上架资料检查；Release Debug 物理隔离已完成并由门禁持续验证。
+5. 按 [0.4.0 AGC 邀请测试上传说明](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/artifacts/0.4.0/AGC_UPLOAD_README.md) 完成签名、ARM64 真机和上架资料检查；Release Debug 物理隔离已完成并由门禁持续验证。
 
 ## 阶段 3 验证
 

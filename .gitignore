@@ -57,11 +57,27 @@ entry/.cxx/
 /优化建议.md
 /0.4.0交付问题.md
 
-# Keep compact evidence summaries in Git. Raw device screenshots, UI dumps,
-# JSON traces and logs stay local and can be archived as release artifacts.
+# Local development outputs, reference material and historical reports.
+/output/
+/outputs/
+/.playwright-cli/
+/双羽2026年8月20日使用反馈/
+/皮肤——淡然配图/
+/图标1.png
+/转型AI输入法.md
+/API_CONTRACT.md
+/ARCHITECTURE.md
+/docs/PROJECT_STATE.md
+/docs/archive/
+/docs/development/ai/
+/docs/product/feedback/
+/docs/product/planning/
+
+# Keep only the two summaries still required by stage validation scripts.
 /docs/evidence/**
 !/docs/evidence/**/
-!/docs/evidence/**/*.md
+!/docs/evidence/stage10/stage10_validation.md
+!/docs/evidence/stage11/stage11_validation.md
 
 # Keep only reproducible baselines, datasets, manifests and final summaries.
 # Large generated failure listings and intermediate optimization rounds stay local.
@@ -75,13 +91,8 @@ entry/.cxx/
 !/artifacts/pinyin9-optimization-20260819-round4/
 !/artifacts/pinyin9-joint-decoder-evaluation-v3/
 !/artifacts/pinyin9-joint-decoder-evaluation/
-!/artifacts/0.4.0/
 /artifacts/**/*-failures.jsonl
 /artifacts/**/*.old-*
-/artifacts/0.4.0/*
-!/artifacts/0.4.0/AGC_UPLOAD_README.md
-!/artifacts/0.4.0/RELEASE_NOTES_zh-CN.txt
-!/artifacts/0.4.0/SHA256SUMS.txt
 
 # Customer-delivered Android IME configuration contained live credentials.
 # It is not a HarmonyOS dictionary input and must never be reintroduced.

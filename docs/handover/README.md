@@ -55,4 +55,4 @@ powershell -ExecutionPolicy Bypass -File scripts\verify-release-hap.ps1
 - 本机签名配置与 AGC 应用身份一致，但私钥和 Profile 未进入仓库。
 - 新增或调整的功能同时更新当前状态、测试计划和对应功能文档。
 - 需要保留的本机验收原始证据已单独归档，并附提交号、设备和时间信息。
-- 0.4.0 上传说明见 [AGC 邀请测试上传说明](../../artifacts/0.4.0/AGC_UPLOAD_README.md)。
+- 0.4.0 上传说明见 [AGC 邀请测试上传说明](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/artifacts/0.4.0/AGC_UPLOAD_README.md)。

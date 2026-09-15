@@ -41,7 +41,7 @@ async function archive(entries) {
   });
   await test('existing PowerShell-compressed packages import', async () => {
     for (const name of ['my-color-skin.sy-skin','my-image-skin.sy-skin','my-keyboard.sy-layout']) {
-      const data = fs.readFileSync(path.join(root,'outputs/keyboard-customization-templates-20260908/packages',name));
+      const data = fs.readFileSync(path.join(__dirname,'fixtures/powershell-packages',name));
       await EditorIO.read(file(new Blob([data]),name));
     }
   });

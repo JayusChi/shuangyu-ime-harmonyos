@@ -4,17 +4,17 @@
 
 基础模式设置增加共享文件只读恢复和同步，已读到主 App 的自定义皮肤、结构及展示偏好。三端原生浏览器完成颜色、五类图片、结构编辑和真实文件导出；App 导入、同 ID 结构更新、整机重启后保留均已补验。损坏包失败信息增加页面内持续提示。
 
-市场发布签名包已尝试安装，但模拟器侧载没有生效的 `validDataGroupIds`，签名服务提示来源不受信；需要官方测试渠道继续验证。电脑 BASIC 面板仍报 VSync 29201 / Window 1001，重启和 onCreate 创建时机复验均失败。功能通过证据来自开发签名 release 构建，不能算市场发布签名验收通过。详见 [修复及补验记录](../../../outputs/keyboard-customization-fix-20260914/ACCEPTANCE.md)。
+市场发布签名包已尝试安装，但模拟器侧载没有生效的 `validDataGroupIds`，签名服务提示来源不受信；需要官方测试渠道继续验证。电脑 BASIC 面板仍报 VSync 29201 / Window 1001，重启和 onCreate 创建时机复验均失败。功能通过证据来自开发签名 release 构建，不能算市场发布签名验收通过。详见 [修复及补验记录](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/outputs/keyboard-customization-fix-20260914/ACCEPTANCE.md)。
 
 ## 2026-09-14 授权接入与复验
 
 华为开放能力已获批，新调试、发布 Profile 均含 `group.1516753898738609081`，包名及对应证书与本地签名链一致。两份 Profile 已归档到 `D:/CompanySecrets/HarmonyOS/shuangyuime/profile/`，文件名分别为 `shuangyuime_debug_shared_20260914Debug.p7b`、`shuangyuime_release_shared_20260914Release.p7b`，副本 SHA-256 校验一致，旧文件保留。本地 default/release 签名配置已切换到归档路径；输入法扩展 `dataGroupIds` 和运行时共享 ID 已配置，default/internalDebug/release 严格授权检查全部通过。
 
-发布产品的双 ABI 原生库、ArkTS、HAP 签名构建及发布包检查已通过，见 [发布签名记录](../../../outputs/keyboard-customization-sharing-20260914/release/RELEASE.md)。该阶段尚未安装发布签名包；后续安装结果见上方补验记录。MatePad Edge 实机验收仍未完成。
+发布产品的双 ABI 原生库、ArkTS、HAP 签名构建及发布包检查已通过，见 [发布签名记录](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/outputs/keyboard-customization-sharing-20260914/release/RELEASE.md)。该阶段尚未安装发布签名包；后续安装结果见上方补验记录。MatePad Edge 实机验收仍未完成。
 
 授权后的设备验收发现并修复两处问题：共享结构异步加载或同 ID 替换时，ForEach 行标识没有变化导致默认布局残留；沙箱图片路径没有转换为 ArkUI 所需的 file URI，导致只显示底色。现以已加载结构内容变化递增渲染版本，并将图片路径转换为编码后的 file URI。
 
-本次构建、设备及验收边界见 [2026-09-14 验收记录](../../../outputs/keyboard-customization-sharing-20260914/ACCEPTANCE.md)。下面保留 2026-09-09 的历史记录，不代表当前授权状态。
+本次构建、设备及验收边界见 [2026-09-14 验收记录](https://github.com/JayusChi/shuangyu-ime-harmonyos/blob/f343416795303a3e844bcc80463191d122856c32/outputs/keyboard-customization-sharing-20260914/ACCEPTANCE.md)。下面保留 2026-09-09 的历史记录，不代表当前授权状态。
 
 ## 当前结论（2026-09-09）
 

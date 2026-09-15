@@ -137,3 +137,19 @@ assert.equal(gateway.selectCandidate(1, 0).action.text, 'flypy-shape');
 response.action.text = 'unapproved-shape';
 assert.equal(gateway.selectCandidate(1, 0).success, false);
 console.log('PASS: oix typed action crosses the native gateway and invalid targets are rejected.');
+for (const [action, target] of [
+  ['url.open', 'https://example.com/Help?q=a,b#Part'],
+  ['directory.open', 'file://docs/storage/Users/currentUser/Documents'],
+  ['settings.keyboard-profile', 'quanpin-26']
+]) {
+  response = composition({ action: { type: 'DIRECT_CONTROL', formatId: action, text: target, cursorOffsetUtf16: 0 } });
+  const result = gateway.selectCandidate(1, 0);
+  assert.equal(result.success, true);
+  assert.equal(result.action.text, target);
+  assert.equal(result.commitText, '');
+}
+for (const [action, target] of [['url.open', 'javascript:alert(1)'], ['directory.open', 'file://private.app/path'], ['settings.keyboard-profile', 'pinyin-9']]) {
+  response = composition({ action: { type: 'DIRECT_CONTROL', formatId: action, text: target, cursorOffsetUtf16: 0 } });
+  assert.equal(gateway.selectCandidate(1, 0).success, false);
+}
+console.log('External shortcuts and all three ofa profiles pass gateway validation.');
